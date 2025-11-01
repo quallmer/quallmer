@@ -2,7 +2,7 @@
 % Please edit documentation in R/tasks.R
 \name{sentiment}
 \alias{sentiment}
-\title{Built-in sentiment analysis task}
+\title{Built-in tasks}
 \usage{
 sentiment()
 }
@@ -10,5 +10,6 @@ sentiment()
 A task object
 }
 \description{
+Sentiment analysis task
 Analyzes short texts and returns a sentiment score (-1 to 1) and a short explanation.
 }
