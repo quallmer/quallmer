@@ -2,7 +2,7 @@
 % Please edit documentation in R/tasks.R
 \name{themes}
 \alias{themes}
-\title{Theme coding task}
+\title{The `themes()` task assesses texts for the proportional presence of predefined topics.}
 \usage{
 themes(topics = c("Environment", "Economy", "Health", "Education"))
 }
@@ -14,5 +14,5 @@ The default topics are "Environment", "Economy", "Health", and "Education".}
 A task object.
 }
 \description{
-Codes short texts for the proportional presence of predefined topics and provides brief explanations.
+The `themes()` task assesses texts for the proportional presence of predefined topics.
 }

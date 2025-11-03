@@ -2,8 +2,7 @@
 % Please edit documentation in R/tasks.R
 \name{stance}
 \alias{stance}
-\title{Stance detection task
-The `stance()` task assesses the stance of a text towards a specific topic or issue.}
+\title{The `stance()` task assesses the stance of a text towards a specific topic or issue.}
 \usage{
 stance(topic = "the given topic")
 }
@@ -14,6 +13,5 @@ stance(topic = "the given topic")
 A task object
 }
 \description{
-Stance detection task
 The `stance()` task assesses the stance of a text towards a specific topic or issue.
 }
