@@ -85,7 +85,7 @@ argument_stance <- define_task(
   type_object = ellmer::type_object(
     stance = ellmer::type_string("Stance towards the topic: Pro, Neutral, or Contra"),
     explanation = ellmer::type_string("Brief explanation of the classification"),
-    arguments = ellmer::type_list(ellmer::type_string("Key arguments supporting the stance"))
+    arguments = ellmer::type_string("Key arguments supporting the stance")
   ),
   input_type = "text"
 )
