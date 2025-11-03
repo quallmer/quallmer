@@ -75,8 +75,8 @@
 </div>
 <!-- badges: start -->
 
-<p>The <code>quallmer</code> package is an <strong>easy-to-use tool for qualitative researchers to quickly apply AI-assisted annotation to texts, images, pdfs, tabular data and other structured data.</strong></p>
-<p>Using <code><a href="reference/annotate.html">annotate()</a></code>, users can generate structured, interpretable outputs powered by large language models (LLMs). The package includes a library of <a href="https://seraphinem.github.io/quallmer/articles/pkgdown/examples/overview.html">predefined tasks for common qualitative coding needs</a>, such as sentiment analysis, thematic coding, and stance detection. It also allows users to create their own custom annotation tasks tailored to their specific research questions and data types using <code><a href="reference/define_task.html">define_task()</a></code>. To ensure quality and reliability of AI-generated annotations, <code>quallmer</code> offers tools for comparing LLM outputs with human-coded data and assessing inter-coder reliability. With <code>agreement()</code>, users can launch an interactive app to manually code data, review AI annotations, and evaluate intercoder reliability between coders and agreement with LLM-generated scores.</p>
+<p>The <code>quallmer</code> package is an <strong>easy-to-use toolbox for qualitative researchers to quickly apply AI-assisted annotation to texts, images, pdfs, tabular data and other structured data.</strong></p>
+<p>Using <code><a href="reference/annotate.html">annotate()</a></code>, users can generate structured, interpretable outputs powered by large language models (LLMs). The package includes a library of <a href="https://seraphinem.github.io/quallmer/articles/pkgdown/examples/overview.html">predefined tasks for common qualitative coding needs</a>, such as sentiment analysis, thematic coding, and stance detection. It also allows users to <a href="https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/customtask.html">create their own custom annotation tasks tailored to their specific research questions and data types</a> using <code><a href="reference/define_task.html">define_task()</a></code>. To ensure quality and reliability of AI-generated annotations, <code>quallmer</code> offers tools for comparing LLM outputs with human-coded data and assessing inter-coder reliability. With <code>agreement()</code>, users can launch an interactive app to manually code data, review AI annotations, and evaluate intercoder reliability between coders and agreement with LLM-generated scores.</p>
 <p><strong>The <code>quallmer</code> package makes AI-assisted qualitative coding accessible without requiring deep expertise in R, programming or machine learning.</strong></p>
 </div>
 <div class="section level1">
@@ -90,7 +90,7 @@
 <ul>
 <li>A generic function that works with any LLM supported by <a href="https://ellmer.tidyverse.org/index.html" class="external-link">ellmer</a>.<br>
 </li>
-<li>Generates structured responses based on <a href="https://seraphinem.github.io/quallmer/articles/pkgdown/examples/overview.htmll">predefined</a> or user-defined tasks.</li>
+<li>Generates structured responses based on <a href="https://seraphinem.github.io/quallmer/articles/pkgdown/examples/overview.htmll">predefined</a> or <a href="https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/customtask.html">user-defined tasks</a>.</li>
 </ul>
 </div>
 <div class="section level3">
@@ -98,8 +98,7 @@
 <code>define_task()</code><a class="anchor" aria-label="anchor" href="#define_task"></a>
 </h3>
 <ul>
-<li>Create custom annotation tasks with structured outputs.<br>
-</li>
+<li>Creates custom annotation tasks tailored to specific research questions and data types.</li>
 <li>Uses <code>system_prompt</code> and <code>type_object()</code> from the <a href="https://ellmer.tidyverse.org/articles/structured-data.html" class="external-link">ellmer</a> package to define how the LLM should interpret inputs and format outputs.<br>
 </li>
 <li>Tasks created with <code><a href="reference/define_task.html">define_task()</a></code> can be passed directly to <code><a href="reference/annotate.html">annotate()</a></code>.<br>
