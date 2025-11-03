@@ -1,7 +1,4 @@
-#' Predefined tasks
-#'
-#' Sentiment analysis task
-#' Analyzes short texts and returns a sentiment score (-1 to 1) and a short explanation.
+#' The `sentiment()` task analyzes short texts and returns a sentiment score (-1 to 1) and a short explanation.
 #' @return A task object
 #' @export
 sentiment <- function() {
@@ -16,15 +13,8 @@ sentiment <- function() {
   )
 }
 
-# Internal registry of built-in tasks
-.predefined_tasks <- list(
-  sentiment = sentiment
-)
 
-#' Theme coding task
-#'
-#' Codes short texts for the proportional presence of predefined topics and provides brief explanations.
-#'
+#' The `themes()` task assesses texts for the proportional presence of predefined topics.
 #' @param topics A character vector of topics to code for.
 #' The default topics are "Environment", "Economy", "Health", and "Education".
 #' @return A task object.
@@ -59,7 +49,6 @@ themes <- function(topics = c("Environment", "Economy", "Health", "Education")) 
 }
 
 
-#' Stance detection task
 #' The `stance()` task assesses the stance of a text towards a specific topic or issue.
 #' @param topic A character string specifying the topic for stance detection.
 #' @return A task object
