@@ -43,7 +43,7 @@
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../../../reference/index.html">Reference</a></li>
-<li class="active nav-item dropdown">
+<li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-predefined-tasks" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Predefined tasks</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-predefined-tasks">
 <li><a class="dropdown-item" href="../../../articles/pkgdown/examples/overview.html">Overview of predefined tasks</a></li>
@@ -65,14 +65,14 @@
 
 
 
-<script src="sentiment_files/kePrint-0.0.1/kePrint.js"></script><link href="sentiment_files/lightable-0.0.1/lightable.css" rel="stylesheet">
+<script src="stance_files/kePrint-0.0.1/kePrint.js"></script><link href="stance_files/lightable-0.0.1/lightable.css" rel="stylesheet">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../../../logo.png" class="logo" alt=""><h1>Example: Sentiment analysis</h1>
             
       
 
-      <div class="d-none name"><code>sentiment.Rmd</code></div>
+      <div class="d-none name"><code>stance.Rmd</code></div>
     </div>
 
     
@@ -104,9 +104,7 @@ explanation.</p>
 <code class="sourceCode R"><span><span class="co"># Apply predefined sentiment task with sentiment() in the annotate() function</span></span>
 <span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../../reference/annotate.html">annotate</a></span><span class="op">(</span><span class="va">texts</span>, task <span class="op">=</span> <span class="fu"><a href="../../../reference/sentiment.html">sentiment</a></span><span class="op">(</span><span class="op">)</span>, chat_fn <span class="op">=</span> <span class="va">chat_openai</span>, model <span class="op">=</span> <span class="st">"gpt-4o"</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Running task 'Sentiment analysis' using model: gpt-4o</span></span></code></pre>
-<pre><code><span><span class="co">## [working] (0 + 0) -&gt; 2 -&gt; 2 | <span style="color: #00BB00;">■■■■■■■■■■■■■■■■                </span>  50%</span></span></code></pre>
-<pre><code><span><span class="co">## [working] (0 + 0) -&gt; 0 -&gt; 4 | <span style="color: #00BB00;">■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ </span> 100%</span></span></code></pre>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span></span></code></pre></div>
 <table class="table table table-striped table-hover" style="margin-left: auto; margin-right: auto;">
 <thead><tr>
@@ -129,8 +127,7 @@ explanation
 1.0
 </td>
 <td style="text-align:left;">
-The text expresses strong positive emotion by using the word
-‘wonderful,’ which is inherently positive and enthusiastic.
+The word ‘wonderful’ conveys a strong positive sentiment.
 </td>
 </tr>
 <tr>
@@ -138,12 +135,11 @@ The text expresses strong positive emotion by using the word
 2
 </td>
 <td style="text-align:right;">
--0.7
+-0.8
 </td>
 <td style="text-align:left;">
-The word ‘dislike’ indicates a strong negative sentiment, though it is
-not the strongest possible expression of negativity, hence the score of
--0.7.
+The word ‘dislike’ indicates a strong negative sentiment towards the
+approach. The adverb ‘really’ amplifies this negativity.
 </td>
 </tr>
 <tr>
@@ -154,8 +150,10 @@ not the strongest possible expression of negativity, hence the score of
 -0.5
 </td>
 <td style="text-align:left;">
-The word ‘disappointing’ indicates a negative sentiment, but the use of
-‘somewhat’ softens it, suggesting it’s not extremely negative.
+The word ‘disappointing’ conveys a negative sentiment, suggesting that
+the results did not meet expectations. The use of ‘somewhat’ slightly
+mitigates the negativity, indicating that while the results are not very
+negative, they are still unfavorable.
 </td>
 </tr>
 <tr>
@@ -166,8 +164,9 @@ The word ‘disappointing’ indicates a negative sentiment, but the use of
 1.0
 </td>
 <td style="text-align:left;">
-The text uses highly positive language with words like ‘absolutely’ and
-‘fantastic’, indicating a very positive sentiment.
+The phrase “Absolutely fantastic work!” is strongly positive. The use of
+‘absolutely’ and ‘fantastic’ both convey a high level of satisfaction
+and admiration.
 </td>
 </tr>
 </tbody>

@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Tutorial: Signing up for an openai API key • quallmer</title>
+<title>Overview on predefined tasks • quallmer</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../../../favicon-96x96.png">
 <link rel="icon" type="”image/svg+xml”" href="../../../favicon.svg">
 <link rel="apple-touch-icon" sizes="180x180" href="../../../apple-touch-icon.png">
@@ -15,7 +15,7 @@
 <link href="../../../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../../../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../../../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../../../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../../../deps/headroom-0.11.0/headroom.min.js"></script><script src="../../../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../../../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../../../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../../../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../../../deps/search-1.0.0/fuse.min.js"></script><script src="../../../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../../../pkgdown.js"></script><meta property="og:title" content="Tutorial: Signing up for an openai API key">
+<script src="../../../deps/headroom-0.11.0/headroom.min.js"></script><script src="../../../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../../../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../../../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../../../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../../../deps/search-1.0.0/fuse.min.js"></script><script src="../../../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../../../pkgdown.js"></script><meta property="og:title" content="Overview on predefined tasks">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -34,7 +34,7 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="active nav-item dropdown">
+<li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-tutorials" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Tutorials</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-tutorials">
 <li><a class="dropdown-item" href="../../../articles/getting-started.html">Quick start guide</a></li>
@@ -43,7 +43,7 @@
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../../../reference/index.html">Reference</a></li>
-<li class="nav-item dropdown">
+<li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-predefined-tasks" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Predefined tasks</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-predefined-tasks">
 <li><a class="dropdown-item" href="../../../articles/pkgdown/examples/overview.html">Overview of predefined tasks</a></li>
@@ -68,16 +68,42 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../../../logo.png" class="logo" alt=""><h1>Tutorial: Signing up for an openai API key</h1>
+      <img src="../../../logo.png" class="logo" alt=""><h1>Overview on predefined tasks</h1>
             
       
 
-      <div class="d-none name"><code>openai.Rmd</code></div>
+      <div class="d-none name"><code>overview.Rmd</code></div>
     </div>
 
     
     
-<p>Coming soon!</p>
+<p>Before creating your own tasks, you might want to explore the
+predefined tasks available in the <code>quallmer</code> package. These
+tasks are designed to streamline common annotation needs and can be
+easily integrated into your workflow.</p>
+<div class="section level2">
+<h2 id="predefined-tasks">Predefined tasks<a class="anchor" aria-label="anchor" href="#predefined-tasks"></a>
+</h2>
+<p>The <code>quallmer</code> package currently includes the following
+predefined tasks:</p>
+<ul>
+<li><p><a href="https://seraphinem.github.io/quallmer/articles/pkgdown/examples/sentiment.html"><strong>Sentiment
+analysis</strong></a>: The <code><a href="../../../reference/sentiment.html">sentiment()</a></code> task allows you to
+rate the sentiment of texts on a scale from -1 (very negative) to 1
+(very positive), along with a brief explanation.</p></li>
+<li><p><a href="https://seraphinem.github.io/quallmer/articles/pkgdown/examples/sentiment.html"><strong>Thematic
+coding</strong></a>: The <code>themes()</code> task helps identify and
+categorize themes within textual data.</p></li>
+<li><p><a href="https://seraphinem.github.io/quallmer/articles/pkgdown/examples/sentiment.html"><strong>Stance
+detection</strong></a>: The <code>stance()</code> task assesses the
+stance of a text towards a specific topic or issue.</p></li>
+</ul>
+<p>If you wish to create custom tasks tailored to your specific research
+questions and data types, you can use the <code><a href="../../../reference/define_task.html">define_task()</a></code>
+function. This function allows you to specify the system prompt and
+output structure, enabling you to customize the annotation process
+according to your needs.</p>
+</div>
   </main>
 </div>
 

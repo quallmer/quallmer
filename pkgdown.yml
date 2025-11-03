@@ -5,8 +5,11 @@ articles:
   getting-started: getting-started.html
   pkgdown/tutorials/ollama: pkgdown/tutorials/ollama.html
   pkgdown/tutorials/openai: pkgdown/tutorials/openai.html
+  pkgdown/examples/overview: pkgdown/examples/overview.html
   pkgdown/examples/sentiment: pkgdown/examples/sentiment.html
-last_built: 2025-11-03T00:47Z
+  pkgdown/examples/stance: pkgdown/examples/stance.html
+  pkgdown/examples/themes: pkgdown/examples/themes.html
+last_built: 2025-11-03T01:07Z
 urls:
   reference: https://seraphinem.github.io/quallmer/reference
   article: https://seraphinem.github.io/quallmer/articles
