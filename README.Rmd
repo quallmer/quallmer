@@ -13,7 +13,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# quallmer <a href="https://SeraphineM.github.io/quallmer/"><img src="man/figures/logo.png" align="right" height="139" alt="quallmer website" /></a>
+# quallmer <a href="https://SeraphineM.github.io/quallmer/"><img src="man/figures/logo.png" align="center" height="180" alt="quallmer website" /></a>
 
 <!-- badges: start -->
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
@@ -52,20 +52,8 @@ The package provides the following core functions:
 # Supported LLMs
 
 The package supports all LLMs currently available with the `ellmer`
-package:
-
-For authentication and usage of each of these LLMs, please refer to the
-respective `ellmer` documentation
-[here](https://ellmer.tidyverse.org/reference/index.html). **For
-example,** to use the `chat_openai` models, you would need to sign up for an
-API key from [OpenAI](https://platform.openai.com/playground/prompts) which you can save in your `.Renviron` file as
-`OPENAI_API_KEY`. To use the `chat_ollama` models, first download and install
-[Ollama](https://ollama.com/). Then install some models either from the
-command line (e.g. with ollama pull llama3.1) or within R using the
-`rollama` package. The Ollama app must be running for the models to be
-used. 
-
-Please see our [tutorials with step-by-step instructions]((https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials.html)) on setting up different LLMs with `quallmer`. 
+package. For authentication and usage of each of these LLMs, please refer to the
+respective [ellmer](https://ellmer.tidyverse.org/reference/index.html) documentation and see our [tutorial for setting up an openai API key](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/openai.html) or [getting started with an open-source Ollama model](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/ollama.html).
 
 ## Installation
 
