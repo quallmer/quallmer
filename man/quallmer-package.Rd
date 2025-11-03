@@ -4,7 +4,7 @@
 \name{quallmer-package}
 \alias{quallmer}
 \alias{quallmer-package}
-\title{quallmer: Qualitative analysis with large language models.}
+\title{quallmer: Qualitative analysis with large language models}
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
