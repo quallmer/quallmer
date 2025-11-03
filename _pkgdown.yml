@@ -29,6 +29,8 @@ navbar:
     examples:
       text: Predefined tasks
       menu:
+      - text: Overview of predefined tasks
+        href: articles/pkgdown/examples/overview.html
       - text: Sentiment analysis
         href: articles/pkgdown/examples/sentiment.html
     github:

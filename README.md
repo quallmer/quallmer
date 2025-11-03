@@ -44,7 +44,7 @@ The package provides the following core functions:
 ### `annotate()`
 
 - A generic function that works with any LLM supported by
-  [ellmer](https://ellmer.tidyverse.org/articles/structured-data.html).  
+  [ellmer](https://ellmer.tidyverse.org/index.html).  
 - Generates structured responses based on
   [predefined](https://seraphinem.github.io/quallmer/articles/pkgdown/examples.html)
   or user-defined tasks.
@@ -88,7 +88,7 @@ used.
 
 Please see our [tutorials with step-by-step
 instructions]((https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials.html))
-on using different LLMs with `quallmer`.
+on setting up different LLMs with `quallmer`.
 
 ## Installation
 
@@ -102,8 +102,8 @@ pak::pak("SeraphineM/quallmer")
 
 ## Example use and tutorials
 
-To learn more about how to use the package, please refer to our provided
-[user
-examples](https://seraphinem.github.io/quallmer/articles/pkgdown/examples.html)
-and [step-by-step
-tutorials](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials.html).
+To learn more about how to use the package, please refer to our
+[step-by-step
+tutorials](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials.html)
+and the illustrations on [how to use the predefined
+tasks](https://seraphinem.github.io/quallmer/articles/pkgdown/examples.html).

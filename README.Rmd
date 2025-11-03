@@ -79,6 +79,7 @@ pak::pak("SeraphineM/quallmer")
 
 ## Example use and tutorials
 
-To learn more about how to use the package, please refer to our provided [user examples](https://seraphinem.github.io/quallmer/articles/pkgdown/examples.html) and [step-by-step tutorials](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials.html). 
+To learn more about how to use the package, please refer to our [step-by-step tutorials](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials.html) and 
+the illustrations on [how to use the predefined tasks](https://seraphinem.github.io/quallmer/articles/pkgdown/examples.html).
 
 

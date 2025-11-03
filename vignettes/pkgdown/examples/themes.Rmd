@@ -1,0 +1,44 @@
+---
+title: "Example: Sentiment analysis"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+The `annotate()` function with a predefined sentiment task allows you to rate the sentiment of texts using an LLM. The predefined `sentiment()` object structures the response with a numeric sentiment score from -1 (very negative) to 1 (very positive) and a brief explanation. 
+
+### Loading packages and data
+
+```{r getting-started}
+library(quallmer)
+
+#Example texts
+texts <- c(
+"This is wonderful!",
+"I really dislike this approach.",
+"The results are somewhat disappointing.",
+"Absolutely fantastic work!"
+)
+```
+
+### Using `annotate()` for sentiment analysis of texts
+
+```{r sentiment}
+# Apply predefined sentiment task with sentiment() in the annotate() function
+result <- annotate(texts, task = sentiment(), chat_fn = chat_openai, model = "gpt-4o")
+```
+
+```{r display_results1, eval = FALSE}
+result
+```
+
+```{r display_results2, echo = FALSE}
+# topic and score are created as new docvars in the corpus
+library(kableExtra)
+result %>%
+  kable("html", escape = FALSE) %>%
+  kable_styling(bootstrap_options = c("striped", "hover")) %>%
+  column_spec(3) 
+```
