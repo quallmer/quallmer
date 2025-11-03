@@ -34,7 +34,7 @@ library(quallmer)
 
 ## Overview of tutorials
 
-Using `annotate()`, users can generate structured, interpretable outputs powered by large language models (LLMs). The package includes a library of [predefined tasks for common qualitative coding needs](https://seraphinem.github.io/quallmer/articles/pkgdown/examples.html), such as sentiment analysis, thematic coding, and stance detection. It also allows users to create their own custom annotation tasks tailored to their specific research questions and data types using `define_task()`. Our tutorials will guide you through the following topics:
+Using `annotate()`, users can generate structured, interpretable outputs powered by large language models (LLMs). The package includes a library of [predefined tasks for common qualitative coding needs](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/overview.html), such as sentiment analysis, thematic coding, and stance detection. It also allows users to create their own custom annotation tasks tailored to their specific research questions and data types using `define_task()`. Our tutorials will guide you through the following topics:
 
 1. [**Signing up for an OpenAI API key**](file:///Users/smaerz/Desktop/quallmer/docs/articles/pkgdown/tutorials/openai.html): This tutorial will guide you through the process of obtaining an API key from OpenAI, which is necessary for using OpenAI's LLMs with the `quallmer` package.
 

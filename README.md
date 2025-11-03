@@ -22,7 +22,7 @@ pdfs, tabular data and other structured data.**
 Using `annotate()`, users can generate structured, interpretable outputs
 powered by large language models (LLMs). The package includes a library
 of [predefined tasks for common qualitative coding
-needs](https://seraphinem.github.io/quallmer/articles/pkgdown/examples.html),
+needs](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/overview.html),
 such as sentiment analysis, thematic coding, and stance detection. It
 also allows users to create their own custom annotation tasks tailored
 to their specific research questions and data types using
@@ -46,7 +46,7 @@ The package provides the following core functions:
 - A generic function that works with any LLM supported by
   [ellmer](https://ellmer.tidyverse.org/index.html).  
 - Generates structured responses based on
-  [predefined](https://seraphinem.github.io/quallmer/articles/pkgdown/examples.html)
+  [predefined](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/overview.htmll)
   or user-defined tasks.
 
 ### `define_task()`
@@ -93,6 +93,6 @@ pak::pak("SeraphineM/quallmer")
 
 To learn more about how to use the package, please refer to our
 [step-by-step
-tutorials](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials.html)
+tutorials](https://seraphinem.github.io/quallmer/articles/getting-started.html)
 and the illustrations on [how to use the predefined
-tasks](https://seraphinem.github.io/quallmer/articles/pkgdown/examples.html).
+tasks](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/overview.html).
