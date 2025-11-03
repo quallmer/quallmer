@@ -1,0 +1,10 @@
+---
+title: "Tutorial: Signing up for an openai API key"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Coming soon!

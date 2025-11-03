@@ -1,6 +1,6 @@
 Package: quallmer
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Qualitative analysis with large language models.
 Version: 0.1.0
 Authors@R: c(
     person(

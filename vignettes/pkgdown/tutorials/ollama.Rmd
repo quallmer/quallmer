@@ -1,0 +1,10 @@
+---
+title: "Tutorial: Working with an open-source Ollama model"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Coming soon!

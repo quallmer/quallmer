@@ -23,7 +23,11 @@ knitr::opts_chunk$set(
 [![pkgdown](https://img.shields.io/badge/pkgdown-site-blue)](https://SeraphineM.github.io/quallmer/)
 <!-- badges: end -->
 
-`quallmer` is an **accessible and easy-to-use R package for qualitative researchers to quickly apply AI-assisted annotation to texts, images, pdfs, and other structured data.** Using `annotate()` and predefined or custom tasks via `define_task()`, users can generate structured, interpretable outputs powered by large language models (LLMs). The package includes a library of example tasks (more to come). It also provides `agreement()`, which launches an interactive app to manually code data, compare LLM outputs with human annotations, and assess inter-coder reliability. `quallmer` makes AI-assisted qualitative coding accessible without requiring deep expertise in programming or machine learning.
+The `quallmer` package is an **easy-to-use tool for qualitative researchers to quickly apply AI-assisted annotation to texts, images, pdfs, tabular data and other structured data.** 
+
+Using `annotate()`, users can generate structured, interpretable outputs powered by large language models (LLMs). The package includes a library of [predefined tasks for common qualitative coding needs](https://seraphinem.github.io/quallmer/articles/pkgdown/examples.html), such as sentiment analysis, thematic coding, and stance detection. It also allows users to create their own custom annotation tasks tailored to their specific research questions and data types using `define_task()`. To ensure quality and reliability of AI-generated annotations, `quallmer` offers tools for comparing LLM outputs with human-coded data and assessing inter-coder reliability. With `agreement()`, users can launch an interactive app to manually code data, review AI annotations, and evaluate intercoder reliability between coders and agreement with LLM-generated scores.
+
+**The `quallmer` package makes AI-assisted qualitative coding accessible without requiring deep expertise in R, programming or machine learning.**
 
 # Included functions
 
@@ -31,11 +35,11 @@ The package provides the following core functions:
 
 ### `annotate()`
 - A generic function that works with any LLM supported by [ellmer](https://ellmer.tidyverse.org/articles/structured-data.html).  
-- Generates structured responses based on predefined or user-defined tasks.  
+- Generates structured responses based on [predefined](https://seraphinem.github.io/quallmer/articles/pkgdown/examples.html) or user-defined tasks.  
 
 ### `define_task()`
 - Create custom annotation tasks with structured outputs.  
-- Uses `system_prompt` and `type_object()` to define how the LLM should interpret inputs and format outputs.  
+- Uses `system_prompt` and `type_object()` from the [ellmer](https://ellmer.tidyverse.org/articles/structured-data.html) package to define how the LLM should interpret inputs and format outputs.  
 - Tasks created with `define_task()` can be passed directly to `annotate()`.  
 - This allows users to tailor the annotation process to their specific data types and makes our package extensible for future use cases.
 
@@ -61,9 +65,11 @@ command line (e.g. with ollama pull llama3.1) or within R using the
 `rollama` package. The Ollama app must be running for the models to be
 used. 
 
+Please see our [tutorials with step-by-step instructions]((https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials.html)) on setting up different LLMs with `quallmer`. 
+
 ## Installation
 
-You can install the development version of **quallmer** from
+You can install the development version of `quallmer` from
 <https://github.com/SeraphineM/quallmer> with:
 
 ```{r, eval = FALSE}
@@ -71,11 +77,8 @@ You can install the development version of **quallmer** from
 pak::pak("SeraphineM/quallmer")
 ```
 
-## Example use
+## Example use and tutorials
 
-To learn more about how to use the package, please refer to the following examples:
-
-- [Sentiment analysis with text-based data](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/sentiment.html)
-- More to come.
+To learn more about how to use the package, please refer to our provided [user examples](https://seraphinem.github.io/quallmer/articles/pkgdown/examples.html) and [step-by-step tutorials](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials.html). 
 
 
