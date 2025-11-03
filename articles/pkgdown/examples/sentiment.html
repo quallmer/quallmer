@@ -46,7 +46,7 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-predefined-tasks" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Predefined tasks</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-predefined-tasks">
-<li><a class="dropdown-item" href="../../../articles/pkgdown/examples/sentiment.html">Sentiment Analysis</a></li>
+<li><a class="dropdown-item" href="../../../articles/pkgdown/examples/sentiment.html">Sentiment analysis</a></li>
   </ul>
 </li>
       </ul>
@@ -78,9 +78,9 @@
     
 <p>The <code><a href="../../../reference/annotate.html">annotate()</a></code> function with a predefined sentiment task
 allows you to rate the sentiment of texts using an LLM. The predefined
-<code><a href="../../../reference/define_task.html">define_task()</a></code> object structures the response with a numeric
-sentiment score and a brief explanation. This approach is ideal for
-quickly analyzing large sets of documents without manual coding.</p>
+<code><a href="../../../reference/sentiment.html">sentiment()</a></code> object structures the response with a numeric
+sentiment score from -1 (very negative) to 1 (very positive) and a brief
+explanation.</p>
 <div class="section level3">
 <h3 id="loading-packages-and-data">Loading packages and data<a class="anchor" aria-label="anchor" href="#loading-packages-and-data"></a>
 </h3>
@@ -100,12 +100,9 @@ quickly analyzing large sets of documents without manual coding.</p>
 <h3 id="using-annotate-for-sentiment-analysis-of-texts">Using <code>annotate()</code> for sentiment analysis of texts<a class="anchor" aria-label="anchor" href="#using-annotate-for-sentiment-analysis-of-texts"></a>
 </h3>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Load predefined sentiment task</span></span>
-<span><span class="va">sentiment_task</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../../reference/sentiment.html">sentiment</a></span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co">#Annotate texts</span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../../reference/annotate.html">annotate</a></span><span class="op">(</span><span class="va">texts</span>, task <span class="op">=</span> <span class="va">sentiment_task</span>, chat_fn <span class="op">=</span> <span class="fu">ellmer</span><span class="fu">::</span><span class="va"><a href="https://ellmer.tidyverse.org/reference/chat_openai.html" class="external-link">chat_openai</a></span>, model <span class="op">=</span> <span class="st">"gpt-4o"</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Running task 'Sentiment Analysis' using model: gpt-4o</span></span></code></pre>
+<code class="sourceCode R"><span><span class="co"># Apply predefined sentiment task with sentiment() in the annotate() function</span></span>
+<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../../reference/annotate.html">annotate</a></span><span class="op">(</span><span class="va">texts</span>, task <span class="op">=</span> <span class="fu"><a href="../../../reference/sentiment.html">sentiment</a></span><span class="op">(</span><span class="op">)</span>, chat_fn <span class="op">=</span> <span class="va">chat_openai</span>, model <span class="op">=</span> <span class="st">"gpt-4o"</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Running task 'Sentiment analysis' using model: gpt-4o</span></span></code></pre>
 <pre><code><span><span class="co">## [working] (0 + 0) -&gt; 3 -&gt; 1 | <span style="color: #00BB00;">■■■■■■■■■                       </span>  25%</span></span></code></pre>
 <pre><code><span><span class="co">## [working] (0 + 0) -&gt; 0 -&gt; 4 | <span style="color: #00BB00;">■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ </span> 100%</span></span></code></pre>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
@@ -131,7 +128,9 @@ explanation
 1.0
 </td>
 <td style="text-align:left;">
-The use of ‘wonderful’ indicates a strong positive sentiment.
+The phrase “This is wonderful!” is clearly very positive, as indicated
+by the use of the word “wonderful”, which typically conveys strong
+positive feelings.
 </td>
 </tr>
 <tr>
@@ -142,8 +141,8 @@ The use of ‘wonderful’ indicates a strong positive sentiment.
 -0.7
 </td>
 <td style="text-align:left;">
-The use of the word ‘dislike’ indicates a negative sentiment towards the
-approach.
+The sentiment is negative due to the use of the word ‘dislike’, which
+expresses disapproval or a lack of fondness towards the approach.
 </td>
 </tr>
 <tr>
@@ -154,8 +153,8 @@ approach.
 -0.5
 </td>
 <td style="text-align:left;">
-The word ‘disappointing’ indicates a negative sentiment, though the
-modifier ‘somewhat’ suggests it’s not extremely negative.
+The use of ‘disappointing’ indicates a negative sentiment, but
+‘somewhat’ softens it, making the overall sentiment moderately negative.
 </td>
 </tr>
 <tr>
@@ -166,9 +165,9 @@ modifier ‘somewhat’ suggests it’s not extremely negative.
 1.0
 </td>
 <td style="text-align:left;">
-The phrase “Absolutely fantastic work!” is highly positive. Words like
-“absolutely” and “fantastic” express strong approval and praise,
-indicating a positive sentiment.
+The phrase ‘Absolutely fantastic work!’ is extremely positive, as it
+uses the word ‘fantastic’ to commend someone’s work along with the
+intensifier ‘absolutely’.
 </td>
 </tr>
 </tbody>
