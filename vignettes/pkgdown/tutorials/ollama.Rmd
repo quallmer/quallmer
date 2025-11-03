@@ -12,12 +12,11 @@ In this tutorial, we will demonstrate how to use the `quallmer` package with an 
 We first install and run the `Ollama` app (outside of R) from [https://ollama.com/download](https://ollama.com/download). Then, we install and load the `rollama` package in R and ping `Ollama` to ensure connectivity. We then download the model `llama3.2:1b`. Although it is a comparatively small LLM, this can take some time, depending on your machine. 
 
 ```{.r}
-
-# Do not forget to run ollama.
+# Do not forget to run the ollama app (outside of R) first!
 # If you installed Ollama using the Windows/Mac installer, 
 # you can simply start Ollama from your start menu/by clicking on the app icon.
 
-# SECOND: Install R package rollama 
+# Install R package rollama 
 #install.packages("rollama")
 
 # Load the rollama package and ping Ollama to ensure connectivity.
