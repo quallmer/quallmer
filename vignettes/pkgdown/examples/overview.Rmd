@@ -12,7 +12,7 @@ The `quallmer` package currently includes the following predefined tasks:
 | **Task** | **Function** | **Description** | **Output** |
 |-----------|---------------|-----------------|-------------|
 | [**Sentiment analysis**](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/sentiment.html) | `sentiment()` | Rates overall sentiment of text. | Sentiment score (`-1` to `1`) and explanation |
-| [**Stance detection**](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/stance.html) | `stance()` | Identifies stance/position taking toward a topic. | Stance label and explanation |
+| [**Stance detection**](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/stance.html) | `stance()` | Identifies stance/position taking toward a topic. | Stance label (pro/neutral/contra) and explanation |
 
 
 

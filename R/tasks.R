@@ -14,7 +14,7 @@ sentiment <- function() {
 }
 
 
-#' Predefined task for position taking (stance detection)
+#' Predefined task for stance detection (position taking)
 #' @param topic A character string specifying the topic for stance detection.
 #' @return A task object
 #' @export

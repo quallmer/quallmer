@@ -55,8 +55,7 @@ The `define_task()` function allows us to specify the expected structure of the 
 - `system_prompt`: The prompt that guides the LLM on how to perform the task.
 - `type_object`: Defines the expected structure of the response using `ellmer::type_object()`.
 
-For more information on defining `type_objects`, please refer to the [ellmer documentation](https://ellmer.tidyverse.org/articles/structured-data.html).
-For more information [going beyond type_object, see the documentation for ellmer::type_boolean()](https://ellmer.tidyverse.org/reference/type_boolean.html)
+For more information on defining `type_object` and additional type specifications such as `type_array`, please refer to the [ellmer documentation on type specifications](https://ellmer.tidyverse.org/reference/type_boolean.html).
 
 ```{r define-structure}
 # Define the custom task using define_task()
