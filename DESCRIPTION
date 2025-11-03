@@ -27,7 +27,7 @@ Suggests:
     knitr,
     rmarkdown,
     testthat (>= 3.0.0),
-    kableExtra
+    kableExtra,
     quanteda
 Config/testthat/edition: 3
 VignetteBuilder: knitr
