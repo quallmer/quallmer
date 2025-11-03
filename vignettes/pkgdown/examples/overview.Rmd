@@ -11,8 +11,8 @@ The `quallmer` package currently includes the following predefined tasks:
 
 - [**Sentiment analysis**](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/sentiment.html): The `sentiment()` task allows you to rate the sentiment of texts on a scale from -1 (very negative) to 1 (very positive), along with a brief explanation.
 
-- [**Thematic coding**](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/sentiment.html): The `themes()` task helps identify and categorize themes within textual data.
+- [**Thematic coding**](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/themes.html): The `themes()` task helps identify and categorize themes within textual data.
 
-- [**Stance detection**](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/sentiment.html): The `stance()` task assesses the stance of a text towards a specific topic or issue.
+- [**Stance detection**](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/stance.html): The `stance()` task assesses the stance of a text towards a specific topic or issue.
 
 If you wish to create custom tasks tailored to your specific research questions and data types, you can use the `define_task()` function. This function allows you to specify the system prompt and output structure, enabling you to customize the annotation process according to your needs.

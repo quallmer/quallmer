@@ -23,6 +23,8 @@ navbar:
         href: articles/pkgdown/tutorials/openai.html
       - text: Working with an open-source Ollama model
         href: articles/pkgdown/tutorials/ollama.html
+      - text: Defining custom tasks
+        href: articles/pkgdown/tutorials/customtask.html
     reference:
       text: Reference
       href: reference/index.html
