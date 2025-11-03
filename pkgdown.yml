@@ -6,7 +6,7 @@ articles:
   pkgdown/tutorials/ollama: pkgdown/tutorials/ollama.html
   pkgdown/tutorials/openai: pkgdown/tutorials/openai.html
   pkgdown/examples/sentiment: pkgdown/examples/sentiment.html
-last_built: 2025-11-03T00:19Z
+last_built: 2025-11-03T00:39Z
 urls:
   reference: https://seraphinem.github.io/quallmer/reference
   article: https://seraphinem.github.io/quallmer/articles
