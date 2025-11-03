@@ -66,7 +66,7 @@
 
 
 
-
+<script src="stance_files/kePrint-0.0.1/kePrint.js"></script><link href="stance_files/lightable-0.0.1/lightable.css" rel="stylesheet">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../../../logo.png" class="logo" alt=""><h1>Example: Stance detection</h1>
@@ -80,9 +80,120 @@
     
 <p>The <code><a href="../../../reference/annotate.html">annotate()</a></code> function with a predefined sentiment task
 allows you to rate the sentiment of texts using an LLM. The predefined
-<code>stance()</code> object structures the response with …</p>
-<p>Coming soon!</p>
-  </main>
+<code><a href="../../../reference/stance.html">stance()</a></code> object structures the response by including a
+<code>stance</code> score and an <code>explanation</code> to illustrate
+how positively or negatively the text views a specific topic.</p>
+<div class="section level3">
+<h3 id="loading-packages-and-data">Loading packages and data<a class="anchor" aria-label="anchor" href="#loading-packages-and-data"></a>
+</h3>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># We will use the quanteda package for loading a sample corpus of innaugural speeches</span></span>
+<span><span class="co"># If you have not yet installed the quanteda package, you can do so by:</span></span>
+<span><span class="co"># install.packages("quanteda")</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://quanteda.io" class="external-link">quanteda</a></span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Package version: 4.3.1</span></span>
+<span><span class="co">## Unicode version: 15.1</span></span>
+<span><span class="co">## ICU version: 74.2</span></span></code></pre>
+<pre><code><span><span class="co">## Parallel computing: disabled</span></span></code></pre>
+<pre><code><span><span class="co">## See https://quanteda.io for tutorials and examples.</span></span></code></pre>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://SeraphineM.github.io/quallmer" class="external-link">quallmer</a></span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Loading required package: ellmer</span></span></code></pre>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># For educational purposes, we will use a subset of the inaugural speeches corpus</span></span>
+<span><span class="co"># The three most recent speeches in the corpus</span></span>
+<span><span class="va">data_corpus_inaugural</span> <span class="op">&lt;-</span> <span class="fu">quanteda</span><span class="fu">::</span><span class="va"><a href="https://quanteda.io/reference/data_corpus_inaugural.html" class="external-link">data_corpus_inaugural</a></span><span class="op">[</span><span class="fl">57</span><span class="op">:</span><span class="fl">60</span><span class="op">]</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="using-annotate-for-stance-detection-of-texts">Using <code>annotate()</code> for stance detection of texts<a class="anchor" aria-label="anchor" href="#using-annotate-for-stance-detection-of-texts"></a>
+</h3>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Define topic of interest</span></span>
+<span><span class="va">topic</span> <span class="op">&lt;-</span> <span class="st">"Climate Change"</span></span>
+<span><span class="co"># Apply predefined stance task with stance() in the annotate() function</span></span>
+<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../../reference/annotate.html">annotate</a></span><span class="op">(</span><span class="va">data_corpus_inaugural</span>, task <span class="op">=</span> <span class="fu"><a href="../../../reference/stance.html">stance</a></span><span class="op">(</span><span class="va">topic</span><span class="op">)</span>, </span>
+<span>                   chat_fn <span class="op">=</span> <span class="va">chat_openai</span>, model <span class="op">=</span> <span class="st">"gpt-4o"</span>,</span>
+<span>                   api_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>temperature <span class="op">=</span> <span class="fl">0</span>, seed <span class="op">=</span> <span class="fl">42</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Running task 'Stance detection' using model: gpt-4o</span></span></code></pre>
+<pre><code><span><span class="co">## [working] (0 + 0) -&gt; 3 -&gt; 1 | <span style="color: #00BB00;">■■■■■■■■■                       </span>  25%</span></span></code></pre>
+<pre><code><span><span class="co">## [working] (0 + 0) -&gt; 0 -&gt; 4 | <span style="color: #00BB00;">■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ </span> 100%</span></span></code></pre>
+<table class="table table table-striped table-hover" style="margin-left: auto; margin-right: auto;">
+<thead><tr>
+<th style="text-align:left;">
+id
+</th>
+<th style="text-align:left;">
+stance
+</th>
+<th style="text-align:left;">
+explanation
+</th>
+</tr></thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+2013-Obama
+</td>
+<td style="text-align:left;">
+Pro
+</td>
+<td style="text-align:left;">
+The text explicitly states that the country will respond to the threat
+of climate change, acknowledging the overwhelming judgment of science
+and the devastating impacts of environmental issues like fires,
+droughts, and storms. It emphasizes the need for sustainable energy
+sources and America’s leadership in this transition, indicating a clear
+‘Pro’ stance towards addressing climate change.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2017-Trump
+</td>
+<td style="text-align:left;">
+Neutral
+</td>
+<td style="text-align:left;">
+The text is an inaugural speech that focuses on themes of national
+pride, economic revitalization, and political change. It does not
+specifically address climate change or environmental issues, so it
+cannot be classified as ‘Pro’ or ‘Contra’ regarding climate change.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2021-Biden
+</td>
+<td style="text-align:left;">
+Pro
+</td>
+<td style="text-align:left;">
+The text acknowledges ‘a cry for survival comes from the planet itself’
+and refers to ‘a climate in crisis,’ indicating a recognition of climate
+change as a significant issue that needs to be addressed. This aligns
+with a ‘Pro’ stance towards acknowledging and addressing climate change.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2025-Trump
+</td>
+<td style="text-align:left;">
+Contra
+</td>
+<td style="text-align:left;">
+The text expresses a stance against climate change initiatives, as
+evidenced by the declaration of a national energy emergency to increase
+drilling and the intention to end the Green New Deal and revoke the
+electric vehicle mandate. These actions suggest a move away from
+policies aimed at addressing climate change.
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 
