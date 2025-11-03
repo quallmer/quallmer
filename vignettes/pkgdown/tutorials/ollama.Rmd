@@ -1,5 +1,5 @@
 ---
-title: "Tutorial: Working with an open-source Ollama model"
+title: "Working with an open-source Ollama model"
 output: html_document
 ---
 

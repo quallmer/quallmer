@@ -1,5 +1,5 @@
 ---
-title: "Tutorial: Signing up for an openai API key"
+title: "Signing up for an openai API key"
 output: html_document
 ---
 

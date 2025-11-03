@@ -15,7 +15,7 @@ coverage](https://codecov.io/gh/SeraphineM/quallmer/graph/badge.svg)](https://ap
 [![pkgdown](https://img.shields.io/badge/pkgdown-site-blue)](https://SeraphineM.github.io/quallmer/)
 <!-- badges: end -->
 
-The `quallmer` package is an **easy-to-use tool for qualitative
+The `quallmer` package is an **easy-to-use toolbox for qualitative
 researchers to quickly apply AI-assisted annotation to texts, images,
 pdfs, tabular data and other structured data.**
 
@@ -24,9 +24,10 @@ powered by large language models (LLMs). The package includes a library
 of [predefined tasks for common qualitative coding
 needs](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/overview.html),
 such as sentiment analysis, thematic coding, and stance detection. It
-also allows users to create their own custom annotation tasks tailored
-to their specific research questions and data types using
-`define_task()`. To ensure quality and reliability of AI-generated
+also allows users to [create their own custom annotation tasks tailored
+to their specific research questions and data
+types](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/customtask.html)
+using `define_task()`. To ensure quality and reliability of AI-generated
 annotations, `quallmer` offers tools for comparing LLM outputs with
 human-coded data and assessing inter-coder reliability. With
 `agreement()`, users can launch an interactive app to manually code
@@ -47,11 +48,13 @@ The package provides the following core functions:
   [ellmer](https://ellmer.tidyverse.org/index.html).  
 - Generates structured responses based on
   [predefined](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/overview.htmll)
-  or user-defined tasks.
+  or [user-defined
+  tasks](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/customtask.html).
 
 ### `define_task()`
 
-- Create custom annotation tasks with structured outputs.  
+- Creates custom annotation tasks tailored to specific research
+  questions and data types.
 - Uses `system_prompt` and `type_object()` from the
   [ellmer](https://ellmer.tidyverse.org/articles/structured-data.html)
   package to define how the LLM should interpret inputs and format
