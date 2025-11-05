@@ -1,6 +1,8 @@
 url: https://seraphinem.github.io/quallmer/
 template:
   bootstrap: 5
+  pandoc:
+    args: ["--syntax-highlighting=tango"]
 get_started:
   template: getting-started.html
 navbar:
