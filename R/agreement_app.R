@@ -1,11 +1,10 @@
 # Single-file Shiny app with manual coding, LLM checking, and ICR analysis
-
-suppressPackageStartupMessages({
-  library(shiny)
-  library(dplyr)
-  library(tidyr)
-  library(irr)
-})
+  suppressPackageStartupMessages({
+    library(shiny)
+    library(dplyr)
+    library(tidyr)
+    library(irr)
+  })
 
 # -------------------------------
 # Helpers
@@ -57,7 +56,6 @@ filter_units_by_coders <- function(long_df, min_coders = 2L) {
 }
 
 compute_icr_summary <- function(long_df) {
-  # Wide: rows = units, columns = coders
   wide <- long_df %>%
     pivot_wider(names_from = coder_id, values_from = code) %>%
     arrange(unit_id)
@@ -102,16 +100,36 @@ compute_icr_summary <- function(long_df) {
 # -------------------------------
 # Human check module (UI + server)
 # -------------------------------
-
 humancheck_ui <- function(id) {
   ns <- NS(id)
   fluidPage(
     tags$head(
       tags$style(HTML("
-        :root { --small-box-height: 160px; --sidebar-height: 500px; }
+        /* Make navigation buttons smaller */
+        #sidebar-box .btn {
+          font-size: 12px !important;   /* smaller text */
+          padding: 4px 8px !important;  /* tighter spacing */
+          line-height: 1.2 !important;  /* more compact vertically */
+        }
+
+        /* Optional: smaller margin between buttons */
+        #sidebar-box .btn + .btn {
+          margin-left: 2px;
+        }
+
+        /* Optional: make all text/buttons uniform */
+        #sidebar-box h4,
+        #sidebar-box h5,
+        #sidebar-box p,
+        #sidebar-box label {
+          font-size: 13px;
+        }
+
+        :root { --panel-height: 200px; --small-box-height: 140px; --max-panel-height: 600px; }
+
         .box-base {
           background-color: #f8f9fa;
-          padding: 16px;
+          padding: 10px;
           border-radius: 5px;
           border: 1px solid #dee2e6;
           width: 100%;
@@ -119,27 +137,49 @@ humancheck_ui <- function(id) {
           overflow-x: hidden !important;
           overflow-y: auto;
         }
+
         .box-small { height: var(--small-box-height); }
-        .box-tall  { height: var(--sidebar-height, 500px); }
+        .box-tall  { height: var(--panel-height); }
+
+        /* Limit the maximum height of sidebar and main text area */
+        #sidebar-box, #main-text-box {
+          height: auto;
+          max-height: var(--max-panel-height);
+          overflow-y: auto;
+        }
+
+        #sidebar-box, #main-text-box { height: var(--panel-height); overflow-y: auto; }
+
         .box-base pre, .box-base {
           white-space: pre-wrap !important;
           word-wrap: break-word !important;
           overflow-wrap: anywhere !important;
           font-family: 'Consolas','Monaco','Courier New',monospace;
-          font-size: 14px;
-          line-height: 1.5;
-          margin: 0;
+          font-size: 12px;
+          line-height: 1.2;
+          margin-left: 2px;
         }
-        .main-panel { padding: 10px; max-width: 100%; overflow-x: hidden; }
+
+        .main-panel {
+          padding: 10px;
+          max-width: 100%;
+          overflow-x: hidden;
+          margin-right: 5px; /* reduced right margin */
+        }
+
+        /* Pastel colors for validation buttons */
+        #sidebar-box .btn-success { background-color: #b3e6b3 !important; border-color: #99d699 !important; color: #000; }
+        #sidebar-box .btn-danger  { background-color: #f5b3b3 !important; border-color: #e69999 !important; color: #000; }
       ")),
       tags$script(HTML("
         function updateHeights() {
-          var el = document.getElementById('sidebar-box');
-          if (!el) return;
-          var h = el.offsetHeight;
-          if (h && h > 0) {
-            document.documentElement.style.setProperty('--sidebar-height', h + 'px');
-          }
+          var sb = document.getElementById('sidebar-box');
+          var mp = document.getElementById('main-text-box');
+          if (!sb || !mp) return;
+          var h1 = sb.scrollHeight || sb.offsetHeight || 0;
+          var h2 = mp.scrollHeight || mp.offsetHeight || 0;
+          var h = Math.max(h1, h2, 400);
+          document.documentElement.style.setProperty('--panel-height', h + 'px');
         }
         window.addEventListener('resize', function(){ setTimeout(updateHeights, 100); });
         document.addEventListener('DOMContentLoaded', function(){ setTimeout(updateHeights, 300); });
@@ -158,8 +198,14 @@ humancheck_ui <- function(id) {
                 tags$strong("Document: "),
                 textOutput(ns("document_name"), inline = TRUE)
             ),
+            fluidRow(
+              column(8, actionButton(ns("jump_last"), "Jump to last coded",
+                                     class = "btn btn-primary", width = "100%"))  # same as Save Highlight
+            ),
             hr(),
-            # LLM Output/Evidence ABOVE buttons (small boxes)
+            h5("Metadata"),
+            tableOutput(ns("meta_table")),
+            hr(),
             conditionalPanel(
               condition = sprintf("output['%s']", ns("has_llm_output")),
               h4("LLM output"),
@@ -167,11 +213,10 @@ humancheck_ui <- function(id) {
             ),
             conditionalPanel(
               condition = sprintf("output['%s']", ns("has_evidence")),
-              h5("Evidence"),
+              h5("LLM evidence"),
               div(class = "box-base box-small", verbatimTextOutput(ns("llm_evidence_display")))
             ),
             hr(),
-            # Valid / Invalid buttons (shown only when not blind)
             conditionalPanel(
               condition = sprintf("output['%s']", ns("show_validation_buttons")),
               fluidRow(
@@ -182,44 +227,51 @@ humancheck_ui <- function(id) {
               textOutput(ns("status_display")),
               hr()
             ),
-            # Navigation
             fluidRow(
-              column(6, actionButton(ns("prev_text"), "Previous", class = "btn btn-secondary", width = "100%")),
-              column(6, actionButton(ns("next_text"), "Next", class = "btn btn-secondary", width = "100%"))
+              column(4, actionButton(ns("prev_text"), "Previous", class = "btn btn-secondary", width = "100%")),
+              column(4, actionButton(ns("next_text"), "Next", class = "btn btn-secondary", width = "100%"))
             ),
             br(),
             textAreaInput(ns("comments"), "Comments:", "", width = "100%", height = "80px"),
             actionButton(ns("save_highlight"), "Save Highlight", class = "btn btn-primary"),
             h5("Highlighted examples:"),
             verbatimTextOutput(ns("highlighted_text_display")),
-            p("Examples highlighted in the text are saved to new data.",
+            p("Examples highlighted in the text are saved to new file.",
               style = "font-size: 0.9em; color: #6c757d;")
         )
       ),
       mainPanel(
         div(class = "main-panel",
             h4("Text to assess"),
-            div(class = "box-base box-tall", verbatimTextOutput(ns("text_display")))
+            div(id = "main-text-box", class = "box-base box-tall", verbatimTextOutput(ns("text_display")))
         )
       )
     ),
     div(class = "footer",
         HTML(paste0(
-          "Agreement App made for with <span style='color: red;'>", "\u2665", "</span> and ",
+          "Agreement App made with <span style='color: red;'>", "\u2665", "</span> and ",
           "<a href='https://shiny.posit.co/' target='_blank'>Shiny</a>"
         ))
     )
   )
 }
 
+
 humancheck_server <- function(id, data, text_col, blind,
                               llm_output_col = reactive(NULL),
                               llm_evidence_col = reactive(NULL),
-                              original_file_name = reactive("data.csv")) {
+                              original_file_name = reactive("data.csv"),
+                              meta_cols = reactive(character())) {
   moduleServer(id, function(input, output, session) {
-    ns <- session$ns
 
-    rv <- reactiveValues(df = NULL, n = 0L)
+    rv <- reactiveValues(df = NULL, n = 0L, text_vec = NULL)
+    current_index <- reactiveVal(1L)
+
+    save_path <- reactive({
+      base <- tools::file_path_sans_ext(req(original_file_name()))
+      paste0(base, "_assessed.rds")
+    })
+
     observeEvent(list(data(), text_col(), blind(),
                       llm_output_col(), llm_evidence_col(), original_file_name()), {
                         df <- req(data())
@@ -231,18 +283,23 @@ humancheck_server <- function(id, data, text_col, blind,
                         if (!"examples" %in% names(df)) df$examples <- rep("", n_texts) else df$examples <- na_to_empty(df$examples)
                         if (!isTRUE(blind()) && !"status" %in% names(df)) df$status <- rep("Unmarked", n_texts)
 
+                        # merge saved progress when available
+                        sp <- save_path()
+                        if (file.exists(sp)) {
+                          saved <- tryCatch(readRDS(sp), error = function(e) NULL)
+                          if (!is.null(saved) && nrow(saved) == nrow(df)) {
+                            for (nm in intersect(c("comments", "examples", "status"), names(saved))) {
+                              df[[nm]] <- na_to_empty(saved[[nm]])
+                            }
+                          }
+                        }
+
                         rv$df <- df
                         rv$n <- n_texts
+                        rv$text_vec <- as.character(df[[txt]])
 
                         session$sendCustomMessage("pingUpdateHeights", TRUE)
                       }, ignoreInit = FALSE, priority = 10)
-
-    current_index <- reactiveVal(1L)
-
-    save_path <- reactive({
-      base <- tools::file_path_sans_ext(req(original_file_name()))
-      paste0(base, "_assessed.rds")
-    })
 
     has_llm_output <- reactive({
       !is.null(llm_output_col()) && nzchar(llm_output_col()) && llm_output_col() %in% names(rv$df)
@@ -264,9 +321,19 @@ humancheck_server <- function(id, data, text_col, blind,
     })
     output$document_name <- renderText({ req(original_file_name()) })
 
+    # metadata table for current row
+    output$meta_table <- renderTable({
+      cols <- meta_cols()
+      if (length(cols) == 0 || is.null(rv$df)) return(NULL)
+      i <- current_index()
+      vals <- vapply(cols, function(c) na_to_empty(rv$df[[c]][i]), character(1))
+      data.frame(Field = cols, Value = vals, stringsAsFactors = FALSE)
+    }, striped = TRUE, bordered = TRUE, colnames = TRUE)
+
+    # decouple text rendering from df to prevent jumping
     output$text_display <- renderText({
       idx <- current_index()
-      na_to_empty(rv$df[[req(text_col())]][idx])
+      na_to_empty(rv$text_vec[idx])
     })
     output$llm_output_display <- renderText({
       if (has_llm_output()) na_to_empty(rv$df[[llm_output_col()]][current_index()]) else ""
@@ -298,7 +365,7 @@ humancheck_server <- function(id, data, text_col, blind,
     })
 
     observeEvent(input$save_highlight, {
-      session$sendCustomMessage("getSelectedText", list(inputId = ns("highlighted_text")))
+      session$sendCustomMessage("getSelectedText", list(inputId = session$ns("highlighted_text")))
     })
     observeEvent(input$highlighted_text, {
       txt <- input$highlighted_text
@@ -318,6 +385,16 @@ humancheck_server <- function(id, data, text_col, blind,
     observeEvent(input$next_text, { move_and_refresh(current_index() + 1L) })
     observeEvent(input$prev_text, { move_and_refresh(current_index() - 1L) })
 
+    observeEvent(input$jump_last, {
+      if (is.null(rv$df) || nrow(rv$df) == 0) return()
+      coded <- rep(FALSE, nrow(rv$df))
+      if ("status" %in% names(rv$df)) coded <- coded | (!is.na(rv$df$status) & !(rv$df$status %in% c("", "Unmarked")))
+      if ("comments" %in% names(rv$df)) coded <- coded | nzchar(na_to_empty(rv$df$comments))
+      if ("examples" %in% names(rv$df)) coded <- coded | nzchar(na_to_empty(rv$df$examples))
+      idx <- if (any(coded)) max(which(coded)) else 1L
+      move_and_refresh(idx)
+    })
+
     observe({ if (rv$n >= 1) move_and_refresh(1L) })
   })
 }
@@ -331,6 +408,7 @@ agreement_app <- function() {
     titlePanel("Agreement App"),
     sidebarLayout(
       sidebarPanel(
+        width = 3,
         h4("1. Select a data file"),
         fileInput("file", "Choose a data file (.rds or .csv):",
                   accept = c(".rds", ".csv")),
@@ -356,17 +434,43 @@ agreement_app <- function() {
 
   server <- function(input, output, session) {
     dataset <- reactiveVal(NULL)
+    last_file <- reactiveVal(NULL)
 
-    # Load file automatically
+    # -----------------------
+    # Load last-used file if exists
+    # -----------------------
+    observe({
+      if (is.null(dataset()) && file.exists(".last_file.txt")) {
+        lf <- readLines(".last_file.txt", warn = FALSE)
+        if (length(lf) == 1 && file.exists(lf)) {
+          df <- tryCatch(read_data_file(lf, basename(lf)),
+                         error = function(e) { showNotification(e$message, type = "error"); NULL })
+          if (!is.null(df)) {
+            dataset(df)
+            last_file(lf)
+            showNotification(paste("Loaded previous file:", basename(lf)), type = "message")
+          }
+        }
+      }
+    })
+
+    # -----------------------
+    # File input observer
+    # -----------------------
     observeEvent(input$file, {
       req(input$file)
       df <- tryCatch(read_data_file(input$file$datapath, input$file$name),
                      error = function(e) { showNotification(e$message, type = "error"); NULL })
-      dataset(df)
-      session$sendCustomMessage("pingUpdateHeights", TRUE)
+      if (!is.null(df)) {
+        dataset(df)
+        last_file(input$file$datapath)
+        writeLines(input$file$datapath, ".last_file.txt")
+      }
     }, ignoreInit = TRUE)
 
-    # Column selectors
+    # -----------------------
+    # Column selectors UI
+    # -----------------------
     output$column_selectors <- renderUI({
       req(dataset())
       cols <- names(dataset())
@@ -389,7 +493,9 @@ agreement_app <- function() {
       )
     })
 
-    # Main content
+    # -----------------------
+    # Main content UI
+    # -----------------------
     output$main_content <- renderUI({
       if (is.null(dataset())) {
         tagList(
@@ -412,22 +518,33 @@ agreement_app <- function() {
       }
     })
 
-    # Keep heights updated as UI changes
-    observeEvent(list(dataset(), input$mode, input$text_col, input$llm_output_col, input$llm_evidence_col), {
-      session$sendCustomMessage("pingUpdateHeights", TRUE)
-    }, ignoreInit = TRUE)
-
-    # Preview
+    # -----------------------
+    # Data preview
+    # -----------------------
     output$data_preview <- renderTable({
       req(dataset()); preview_head(dataset())
     })
 
-    # Wire Human Check module
+    # -----------------------
+    # Human check server
+    # -----------------------
     observe({
       req(dataset(), input$mode %in% c("blind", "llm"), input$text_col)
       humancheck_server(
         id = "hc",
-        data = reactive(dataset()),
+        data = reactive({
+          df <- dataset()
+          sp <- paste0(tools::file_path_sans_ext(last_file()), "_assessed.rds")
+          if (file.exists(sp)) {
+            saved <- tryCatch(readRDS(sp), error = function(e) NULL)
+            if (!is.null(saved) && nrow(saved) == nrow(df)) {
+              for (nm in intersect(c("comments","examples","status"), names(saved))) {
+                df[[nm]] <- na_to_empty(saved[[nm]])
+              }
+            }
+          }
+          df
+        }),
         text_col = reactive(req(input$text_col)),
         blind = reactive(input$mode == "blind"),
         llm_output_col = reactive(if (input$mode == "llm") req(input$llm_output_col) else NULL),
@@ -437,11 +554,14 @@ agreement_app <- function() {
             if (identical(col, "None")) NULL else col
           } else NULL
         }),
-        original_file_name = reactive(if (!is.null(input$file)) input$file$name else "data.csv")
+        original_file_name = reactive(if (!is.null(last_file())) basename(last_file()) else "data.csv"),
+        meta_cols = reactive(if (input$mode == "blind") input$meta_cols else character())
       )
     })
 
-    # Agreement mode
+    # -----------------------
+    # Agreement mode server
+    # -----------------------
     observe({
       req(dataset(), input$mode == "agreement")
       req(input$unit_id_col, input$coder_cols, length(input$coder_cols) >= 2)
@@ -476,7 +596,7 @@ agreement_app <- function() {
   shinyApp(ui, server)
 }
 
-# Run the app if this file is executed directly (optional)
+# Run the app if executed directly
 if (identical(environment(), globalenv()) && !length(commandArgs(trailingOnly = TRUE))) {
   agreement_app()
 }
