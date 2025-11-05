@@ -1,5 +1,8 @@
 # Single-file Shiny app with manual coding, LLM checking, and ICR analysis
 
+# Declare global variables for dplyr NSE
+utils::globalVariables(c("unit_id", "coder_id", "code"))
+
 # -------------------------------
 # Helpers
 # -------------------------------
