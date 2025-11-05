@@ -64,12 +64,13 @@ The package provides the following core functions:
 - This allows users to tailor the annotation process to their specific
   data types and makes our package extensible for future use cases.
 
-### `agreement()`
+### `agreement_app()`
 
-- Launches an interactive app to manually code data and review
-  LLM-generated annotations.  
-- Compares AI annotations with human-coded data to evaluate agreement
-  and inter-coder reliability.
+- Launches an interactive app to
+  - Manually code data
+  - Review and validate LLM-generated annotations
+  - Compare human-coded data with LLM-generated annotations to evaluate
+    agreement and inter-coder reliability.
 
 # Supported LLMs
 

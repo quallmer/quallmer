@@ -43,9 +43,11 @@ The package provides the following core functions:
 - Tasks created with `define_task()` can be passed directly to `annotate()`.  
 - This allows users to tailor the annotation process to their specific data types and makes our package extensible for future use cases.
 
-### `agreement()`
-- Launches an interactive app to manually code data and review LLM-generated annotations.  
-- Compares AI annotations with human-coded data to evaluate agreement and inter-coder reliability.  
+### `agreement_app()`
+- Launches an interactive app to 
+    - Manually code data
+    - Review and validate LLM-generated annotations
+    - Compare human-coded data with LLM-generated annotations to evaluate agreement and inter-coder reliability.  
 
   
 
