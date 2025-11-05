@@ -4,7 +4,10 @@
 #' @import shiny
 #' @import bslib
 #' @importFrom irr kripp.alpha kappam.fleiss
+#' @importFrom stats na.omit
 
+# Declare global variables for dplyr NSE
+utils::globalVariables(c("unit_id", "coder_id", "code"))
 # -------------------------------
 # Helpers
 # -------------------------------
