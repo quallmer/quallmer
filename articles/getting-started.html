@@ -79,6 +79,11 @@
 
     
     
+<p>The <code>quallmer</code> package is developed to help qualitative
+researchers leverage the power of large language models for tasks such
+as coding, annotation, and thematic analysis. It is user-friendly and
+does not require extensive programming knowledge, making it accessible
+to researchers from various backgrounds.</p>
 <p>Our tutorials provide a brief introduction to the
 <code>quallmer</code> package, which is designed to facilitate the use
 of large language models (LLMs) for qualitative research tasks. The
@@ -89,15 +94,36 @@ supported LLM interactions, please refer to its documentation <a href="https://e
 <div class="section level2">
 <h2 id="basic-usage">Basic usage<a class="anchor" aria-label="anchor" href="#basic-usage"></a>
 </h2>
+<p>The <code>quallmer</code> package is developed for using it in R.
+Please make sure you have a recent version of <a href="https://posit.co/download/rstudio-desktop/" class="external-link">R and RStudio
+installed</a> on your computer. If you are new to R and RStudio, you can
+find <a href="https://instats.org/seminar/introduction-to-r-with-rstudio-free-1-h3" class="external-link">a
+great and free-of-charge 1.5h introduction to R and RStudio on
+instats</a>.</p>
 <p>To get started with <code>quallmer</code>, you first need to install
 the package from GitHub.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># install.packages("pak")</span></span>
+<code class="sourceCode R"><span><span class="co"># If you don't have pak installed yet, uncomment and run the following line:</span></span>
+<span><span class="co"># install.packages("pak")</span></span>
+<span><span class="co"># Then, install quallmer using pak:</span></span>
 <span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"SeraphineM/quallmer"</span><span class="op">)</span></span></code></pre></div>
 <p>Then, you can load the package and begin using its functions.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://SeraphineM.github.io/quallmer" class="external-link">quallmer</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; Loading required package: ellmer</span></span></code></pre></div>
+<span><span class="co">#&gt; Loading required package: ellmer</span></span>
+<span><span class="co">#&gt; Loading required package: shiny</span></span>
+<span><span class="co">#&gt; Loading required package: dplyr</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Attaching package: 'dplyr'</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:stats':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     filter, lag</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:base':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     intersect, setdiff, setequal, union</span></span>
+<span><span class="co">#&gt; Loading required package: tidyr</span></span>
+<span><span class="co">#&gt; Loading required package: irr</span></span>
+<span><span class="co">#&gt; Loading required package: lpSolve</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="overview-of-tutorials">Overview of tutorials<a class="anchor" aria-label="anchor" href="#overview-of-tutorials"></a>
@@ -127,13 +153,20 @@ package.</p></li>
 with an open-source Ollama model</strong></a>: This tutorial will
 demonstrate how to use the <code>quallmer</code> package with an
 open-source Ollama model for qualitative coding tasks.</p></li>
+<li><p><a href="https://seraphinem.github.io/quallmer/articles/pkgdown/examples/overview.html"><strong>Using
+predefined tasks</strong></a>: These illustrations will show you how to
+utilize the library of predefined annotation tasks available in the
+<code>quallmer</code> package to perform common qualitative coding tasks
+efficiently.</p></li>
 <li><p><a href="https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/customtask.html"><strong>Creating
 custom tasks</strong></a>: This tutorial will walk you through the
 process of defining your own custom annotation tasks using the
 <code><a href="../reference/define_task.html">define_task()</a></code> function, allowing you to tailor the LLM’s
 output to your specific research needs.</p></li>
 </ol>
-<p>More tutorials will be added soon.</p>
+<p>We hope these tutorials will help you get started with the
+<code>quallmer</code> package and empower you to leverage large language
+models for your qualitative research projects!</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
