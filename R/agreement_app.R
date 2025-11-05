@@ -1,10 +1,4 @@
 # Single-file Shiny app with manual coding, LLM checking, and ICR analysis
-  suppressPackageStartupMessages({
-    library(shiny)
-    library(dplyr)
-    library(tidyr)
-    library(irr)
-  })
 
 # -------------------------------
 # Helpers
