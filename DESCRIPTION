@@ -18,9 +18,9 @@ Description: Provides userfriendly support for qualitative analysis with large l
 License: GPL-3
 URL: https://SeraphineM.github.io/quallmer, https://seraphinem.github.io/quallmer/
 Depends:
-    R (>= 3.5.0)
+    R (>= 3.5.0),
+    ellmer (>= 0.2.1)
 Imports:
-    ellmer (>= 0.2.1),
     shiny,
     dplyr,
     tidyr,

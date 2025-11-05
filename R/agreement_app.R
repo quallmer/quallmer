@@ -110,8 +110,8 @@ humancheck_ui <- function(id) {
           hr(),
           uiOutput(ns("progress_ui")),
           fluidRow(
-            column(4, actionButton(ns("prev_text"), "← Previous", class = "btn btn-light w-100")),
-            column(4, actionButton(ns("next_text"), "Next →", class = "btn btn-light w-100")),
+            column(4, actionButton(ns("prev_text"), "<- Previous", class = "btn btn-light w-100")),
+            column(4, actionButton(ns("next_text"), "Next ->", class = "btn btn-light w-100")),
             column(4, actionButton(ns("manual_save"), "Save Now", class = "btn btn-secondary w-100"))
           ),
           hr(),
