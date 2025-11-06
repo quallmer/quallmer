@@ -679,4 +679,3 @@ agreement_app <- function() {
 if (identical(environment(), globalenv()) && !length(commandArgs(trailingOnly = TRUE))) {
   agreement_app()
 }
-shinApp(ui=ui, server=server)
