@@ -1,14 +1,42 @@
+#' Agreement App: Human–LLM Coding Validation
+#'
+#' Launches a Shiny interface for comparing and validating human and LLM text codings.
+#' This app allows users to load data, inspect inter-coder reliability, and manually
+#' review or adjust classifications.
+#'
+#' @details
+#' The app includes modules for:
+#' \itemize{
+#'   \item Data upload and preview
+#'   \item Human–LLM code comparison
+#'   \item Reliability statistics (Krippendorff’s Alpha, Fleiss’ Kappa)
+#'   \item Comment and example tracking
+#' }
+#'
+#' @return A `shiny.appobj` object that launches in the default web browser.
 #' @keywords internal
-#' @import dplyr
-#' @import tidyr
 #' @import shiny
 #' @import bslib
+#' @import dplyr
+#' @import tidyr
 #' @importFrom irr kripp.alpha kappam.fleiss
+#' @importFrom utils read.csv head
 #' @importFrom stats na.omit
+#'
+#' @importFrom shiny NS moduleServer reactive reactiveVal observeEvent renderUI renderText
+#'   updateTextAreaInput updateNumericInput updateRadioButtons
+#'   fileInput selectInput radioButtons textAreaInput textOutput
+#'   sidebarLayout sidebarPanel mainPanel actionButton helpText fluidPage fluidRow column
+#'
 #' @export
-
+#'
+#' @examples
+#' \dontrun{
+#' agreement_app()
+#' }
+agreement_app <- function() {
 # Declare global variables for dplyr NSE
-utils::globalVariables(c("unit_id", "coder_id", "code"))
+  utils::globalVariables(c("unit_id", "coder_id", "code"))
 # -------------------------------
 # Helpers
 # -------------------------------
@@ -678,4 +706,5 @@ agreement_app <- function() {
 # Run the app if executed directly
 if (identical(environment(), globalenv()) && !length(commandArgs(trailingOnly = TRUE))) {
   agreement_app()
+}
 }
