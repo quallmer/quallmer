@@ -50,4 +50,6 @@ Using `annotate()`, users can generate structured, interpretable outputs powered
 
 4. [**Creating custom tasks**](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/customtask.html): This tutorial will walk you through the process of defining your own custom annotation tasks using the `define_task()` function, allowing you to tailor the LLM's output to your specific research needs.
 
+5. [**Using the Agreement App**](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/agreement.html): This tutorial will introduce you to the Agreement App to manually code data, check LLM annotations, and calculate interrater reliability in a user-friendly and intuitive interface.
+
 We hope these tutorials will help you get started with the `quallmer` package and empower you to leverage large language models for your qualitative research projects!

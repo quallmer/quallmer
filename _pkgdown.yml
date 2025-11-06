@@ -29,6 +29,8 @@ navbar:
         href: articles/pkgdown/tutorials/predefined.html
       - text: Defining custom tasks
         href: articles/pkgdown/tutorials/customtask.html
+      - text: Using the Agreement App
+        href: articles/pkgdown/tutorials/agreement.html
     reference:
       text: Reference
       href: reference/index.html
