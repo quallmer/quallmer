@@ -11,8 +11,9 @@ The `quallmer` package currently includes the following predefined tasks:
 
 | **Task** | **Function** | **Description** | **Output** |
 |-----------|---------------|-----------------|-------------|
-| [**Sentiment analysis**](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/sentiment.html) | `sentiment()` | Rates overall sentiment of text. | Sentiment score (`-1` to `1`) and explanation |
-| [**Stance detection**](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/stance.html) | `stance()` | Identifies stance/position taking toward a topic. | Stance label (pro/neutral/contra) and explanation |
+| [**Sentiment analysis**](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/task_sentiment.html) | `task_sentiment()` | Rates overall sentiment of text. | Sentiment score (`-1` to `1`) and explanation |
+| [**Stance detection**](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/task_stance.html) | `task_stance()` | Identifies stance/position taking toward a topic. | Stance label (pro/neutral/contra) and explanation |
+| [**Ideological scaling**](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/task_ideology.html) | `task_ideology()` | Places text on an ideological scale (0–10) for a specified dimension. | Ideological score (`0` to `10`) and explanation |
 
 
 

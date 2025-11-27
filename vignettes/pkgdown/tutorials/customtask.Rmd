@@ -58,7 +58,7 @@ The `task()` function allows us to specify the expected structure of the LLM's r
 For more information on how to use ellmer's type specifications, please refer to the [ellmer documentation on type specifications](https://ellmer.tidyverse.org/reference/type_boolean.html).
 
 ```{r define-structure}
-# Define the custom task using define_task()
+# Define the custom task using task()
 ideology_scores <- task(
   name = "Score Political Left Alignment",
   system_prompt = prompt,

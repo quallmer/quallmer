@@ -7,7 +7,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-The `annotate()` function with a predefined `stance()` task allows you to perform stance detection on texts regarding a specific topic. This position taking analysis classifies texts as Pro, Neutral, or Contra towards the given topic, along with a brief explanation. In this example, we will analyze a set of inaugural speeches to determine their stance on "Climate Change".
+The `annotate()` function with a predefined `task_stance()` task allows you to perform stance detection on texts regarding a specific topic. This position taking analysis classifies texts as Pro, Neutral, or Contra towards the given topic, along with a brief explanation. In this example, we will analyze a set of inaugural speeches to determine their stance on "Climate Change".
 
 ### Loading packages and data
 
@@ -29,8 +29,8 @@ data_corpus_inaugural <- quanteda::data_corpus_inaugural[57:60]
 ```{r stance}
 # Define topic of interest
 topic <- "Climate Change"
-# Apply predefined stance task with stance() in the annotate() function
-result <- annotate(data_corpus_inaugural, task = stance(topic), 
+# Apply predefined stance task with task_stance() in the annotate() function
+result <- annotate(data_corpus_inaugural, task = task_stance(topic), 
                    chat_fn = chat_openai, model = "gpt-4o",
                    api_args = list(temperature = 0, seed = 42))
 ```
@@ -43,7 +43,7 @@ result %>%
   column_spec(3)
 ```
 ### Adjusting the stance detection task
-You can customize the stance detection task by defining your own task with `define_task()` (for a more detailed explanation, [see our "Defining custom tasks" tutorial](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/customtask.html)).
+You can customize the stance detection task by defining your own task with `task()` (for a more detailed explanation, [see our "Defining custom tasks" tutorial](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/customtask.html)).
 For example, you might want to include an additional field for confidence level.
 ```{r custom_stance}
 custom_stance <- task(
