@@ -1,0 +1,26 @@
+# Overview of predefined tasks
+
+Before creating your own tasks, you might want to explore the predefined
+tasks available in the `quallmer` package. These tasks are designed to
+streamline common annotation needs and can be easily integrated into
+your workflow.
+
+## Predefined tasks
+
+The `quallmer` package currently includes the following predefined
+tasks:
+
+| **Task**                                                                                                      | **Function**                                                                            | **Description**                                                       | **Output**                                        |
+|---------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------|-----------------------------------------------------------------------|---------------------------------------------------|
+| [**Sentiment analysis**](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/task_sentiment.html) | [`task_sentiment()`](https://seraphinem.github.io/quallmer/reference/task_sentiment.md) | Rates overall sentiment of text.                                      | Sentiment score (`-1` to `1`) and explanation     |
+| [**Stance detection**](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/task_stance.html)      | [`task_stance()`](https://seraphinem.github.io/quallmer/reference/task_stance.md)       | Identifies stance/position taking toward a topic.                     | Stance label (pro/neutral/contra) and explanation |
+| [**Ideological scaling**](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/task_ideology.html) | [`task_ideology()`](https://seraphinem.github.io/quallmer/reference/task_ideology.md)   | Places text on an ideological scale (0–10) for a specified dimension. | Ideological score (`0` to `10`) and explanation   |
+
+If you wish to create custom tasks tailored to your specific research
+questions and data types, you can use the
+[`task()`](https://seraphinem.github.io/quallmer/reference/task.md)
+function. This function allows you to specify the system prompt and
+output structure, enabling you to customize the annotation process
+according to your needs. For a tutorial on how to create custom tasks,
+please refer to our [custom tasks
+tutorial](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/customtask.html).

@@ -1,0 +1,22 @@
+# Authors and Citation
+
+## Authors
+
+- **Seraphine F. Maerz**. Author, maintainer.
+  [](https://orcid.org/0000-0002-7173-9617)
+
+- **Kenneth Benoit**. Author. [](https://orcid.org/0000-0002-0797-564X)
+
+## Citation
+
+Maerz S, Benoit K (2025). *quallmer: Qualitative analysis with large
+language models*. R package version 0.1.0,
+<https://SeraphineM.github.io/quallmer>.
+
+    @Manual{,
+      title = {quallmer: Qualitative analysis with large language models},
+      author = {Seraphine F. Maerz and Kenneth Benoit},
+      year = {2025},
+      note = {R package version 0.1.0},
+      url = {https://SeraphineM.github.io/quallmer},
+    }

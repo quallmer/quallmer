@@ -1,0 +1,98 @@
+# Getting started with quallmer
+
+The `quallmer` package is developed to help qualitative researchers
+leverage the power of large language models for tasks such as coding,
+annotation, and thematic analysis. It is user-friendly and does not
+require extensive programming knowledge, making it accessible to
+researchers from various backgrounds.
+
+Our tutorials provide a brief introduction to the `quallmer` package,
+which is designed to facilitate the use of large language models (LLMs)
+for qualitative research tasks. The package relies on the `ellmer`
+package for LLM interactions, providing a seamless interface for users
+to work with different LLM providers. For more information on the
+`ellmer` package and supported LLM interactions, please refer to its
+documentation [here](https://ellmer.tidyverse.org/index.html).
+
+## Basic usage
+
+The `quallmer` package is developed for using it in R. Please make sure
+you have a recent version of [R and RStudio
+installed](https://posit.co/download/rstudio-desktop/) on your computer.
+If you are new to R and RStudio, you can find [a great and
+free-of-charge 1.5h introduction to R and RStudio on
+instats](https://instats.org/seminar/introduction-to-r-with-rstudio-free-1-h3).
+
+To get started with `quallmer`, you first need to install the package
+from GitHub.
+
+``` r
+# If you don't have pak installed yet, uncomment and run the following line:
+# install.packages("pak")
+# Then, install quallmer using pak:
+pak::pak("SeraphineM/quallmer")
+```
+
+Then, you can load the package and begin using its functions.
+
+``` r
+library(quallmer)
+#> Loading required package: ellmer
+```
+
+## Overview of tutorials
+
+Before using large language models, most users will need to sign up for
+an API key from an LLM provider, such as openai, or download an
+open-source model like those from Ollama. The `quallmer` package
+supports multiple LLM providers through the `ellmer` package, allowing
+users to choose the one that best fits their needs.
+
+Using
+[`annotate()`](https://seraphinem.github.io/quallmer/reference/annotate.md),
+users can generate structured, interpretable outputs powered by large
+language models (LLMs). The package includes a library of [predefined
+tasks for common qualitative coding
+needs](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/overview.html),
+such as sentiment analysis, thematic coding, and stance detection. It
+also allows users to [create their own custom annotation tasks tailored
+to their specific research questions and data
+types](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/customtask.html)
+using
+[`task()`](https://seraphinem.github.io/quallmer/reference/task.md). Our
+tutorials will guide you through the following topics:
+
+1.  [**Signing up for an OpenAI API
+    key**](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/openai.html):
+    This tutorial will guide you through the process of obtaining an API
+    key from OpenAI, which is necessary for using OpenAI’s LLMs with the
+    `quallmer` package.
+
+2.  [**Working with an open-source Ollama
+    model**](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/ollama.html):
+    This tutorial will demonstrate how to use the `quallmer` package
+    with an open-source Ollama model for qualitative coding tasks.
+
+3.  [**Using predefined
+    tasks**](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/overview.html):
+    These illustrations will show you how to utilize the library of
+    predefined annotation tasks available in the `quallmer` package to
+    perform common qualitative coding tasks efficiently.
+
+4.  [**Creating custom
+    tasks**](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/customtask.html):
+    This tutorial will walk you through the process of defining your own
+    custom annotation tasks using the
+    [`task()`](https://seraphinem.github.io/quallmer/reference/task.md)
+    function, allowing you to tailor the LLM’s output to your specific
+    research needs.
+
+5.  [**Using the Agreement
+    App**](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/agreement.html):
+    This tutorial will introduce you to the Agreement App to manually
+    code data, check LLM annotations, and calculate interrater
+    reliability in a user-friendly and intuitive interface.
+
+We hope these tutorials will help you get started with the `quallmer`
+package and empower you to leverage large language models for your
+qualitative research projects!

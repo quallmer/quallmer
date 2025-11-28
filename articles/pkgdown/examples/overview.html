@@ -105,28 +105,37 @@ predefined tasks:</p>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><a href="https://seraphinem.github.io/quallmer/articles/pkgdown/examples/sentiment.html"><strong>Sentiment
+<td><a href="https://seraphinem.github.io/quallmer/articles/pkgdown/examples/task_sentiment.html"><strong>Sentiment
 analysis</strong></a></td>
-<td><code><a href="../../../reference/sentiment.html">sentiment()</a></code></td>
+<td><code><a href="../../../reference/task_sentiment.html">task_sentiment()</a></code></td>
 <td>Rates overall sentiment of text.</td>
 <td>Sentiment score (<code>-1</code> to <code>1</code>) and
 explanation</td>
 </tr>
 <tr class="even">
-<td><a href="https://seraphinem.github.io/quallmer/articles/pkgdown/examples/stance.html"><strong>Stance
+<td><a href="https://seraphinem.github.io/quallmer/articles/pkgdown/examples/task_stance.html"><strong>Stance
 detection</strong></a></td>
-<td><code><a href="../../../reference/stance.html">stance()</a></code></td>
+<td><code><a href="../../../reference/task_stance.html">task_stance()</a></code></td>
 <td>Identifies stance/position taking toward a topic.</td>
 <td>Stance label (pro/neutral/contra) and explanation</td>
+</tr>
+<tr class="odd">
+<td><a href="https://seraphinem.github.io/quallmer/articles/pkgdown/examples/task_ideology.html"><strong>Ideological
+scaling</strong></a></td>
+<td><code><a href="../../../reference/task_ideology.html">task_ideology()</a></code></td>
+<td>Places text on an ideological scale (0–10) for a specified
+dimension.</td>
+<td>Ideological score (<code>0</code> to <code>10</code>) and
+explanation</td>
 </tr>
 </tbody>
 </table>
 <p>If you wish to create custom tasks tailored to your specific research
-questions and data types, you can use the <code><a href="../../../reference/define_task.html">define_task()</a></code>
-function. This function allows you to specify the system prompt and
-output structure, enabling you to customize the annotation process
-according to your needs. For a tutorial on how to create custom tasks,
-please refer to our <a href="https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/customtask.html">custom
+questions and data types, you can use the <code><a href="../../../reference/task.html">task()</a></code> function.
+This function allows you to specify the system prompt and output
+structure, enabling you to customize the annotation process according to
+your needs. For a tutorial on how to create custom tasks, please refer
+to our <a href="https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/customtask.html">custom
 tasks tutorial</a>.</p>
 </div>
   </main>
@@ -139,7 +148,7 @@ tasks tutorial</a>.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

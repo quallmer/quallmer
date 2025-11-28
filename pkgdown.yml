@@ -1,5 +1,5 @@
 pandoc: 3.1.11
-pkgdown: 2.1.3
+pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
   pkgdown/tutorials/agreement: pkgdown/tutorials/agreement.html
@@ -9,9 +9,10 @@ articles:
   pkgdown/tutorials/openai: pkgdown/tutorials/openai.html
   pkgdown/examples/overview: pkgdown/examples/overview.html
   pkgdown/tutorials/predefined: pkgdown/tutorials/predefined.html
-  pkgdown/examples/sentiment: pkgdown/examples/sentiment.html
-  pkgdown/examples/stance: pkgdown/examples/stance.html
-last_built: 2025-11-06T23:48Z
+  pkgdown/examples/task_ideology: pkgdown/examples/task_ideology.html
+  pkgdown/examples/task_sentiment: pkgdown/examples/task_sentiment.html
+  pkgdown/examples/task_stance: pkgdown/examples/task_stance.html
+last_built: 2025-11-28T00:39Z
 urls:
   reference: https://seraphinem.github.io/quallmer/reference
   article: https://seraphinem.github.io/quallmer/articles
