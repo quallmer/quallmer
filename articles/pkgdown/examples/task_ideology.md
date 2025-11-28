@@ -56,27 +56,21 @@ of groups, national homogeneity, and restricting rights."
 # Apply predefined ideology task with task_ideology() in the annotate() function
 result <- annotate(data_corpus_inaugural, task = task_ideology(dimension, definition), 
                    chat_fn = chat_openai, model = "gpt-4o",
-                   api_args = list(temperature = 0),
-                   params = list(seed = 42))
+                   api_args = list(temperature = 0))
 ```
 
     ## Running task 'Ideological scaling' using model: gpt-4o
-
-    ## Warning: Ignoring unsupported parameters: "seed"
-    ## Ignoring unsupported parameters: "seed"
-    ## Ignoring unsupported parameters: "seed"
-    ## Ignoring unsupported parameters: "seed"
 
     ## [working] (0 + 0) -> 3 -> 1 | ■■■■■■■■■                         25%
 
     ## [working] (0 + 0) -> 0 -> 4 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100%
 
-| id         | score | explanation                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-|:-----------|------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 2013-Obama |     1 | The text emphasizes inclusivity through repeated references to equality, diversity, and collective action. Phrases like “all men are created equal,” “diversity and openness,” and “our journey is not complete until our gay brothers and sisters are treated like anyone else under the law” highlight a commitment to inclusive values. The speech calls for unity and equal opportunity for all citizens, regardless of background, which aligns closely with the inclusive pole of the dimension.                                                                     |
-| 2017-Trump |     7 | The text emphasizes national homogeneity and prioritizes American interests with phrases like “America first” and “buy American and hire American.” It highlights protectionism and a focus on American workers and borders, suggesting an exclusive stance. However, it also includes some inclusive elements, such as unity and equality among Americans, regardless of race, with statements like “we all bleed the same red blood of patriots.” Overall, the emphasis on national exclusivity and protectionism places it closer to the exclusive end of the spectrum. |
-| 2021-Biden |     0 | The text emphasizes unity, inclusion, and addressing systemic issues like racial justice and political extremism. It calls for seeing each other as neighbors, respecting diversity, and healing divisions, which aligns with inclusive language.                                                                                                                                                                                                                                                                                                                          |
-| 2025-Trump |     8 | The text emphasizes national sovereignty, exclusion of ‘criminal aliens,’ and a focus on American exceptionalism, which aligns with exclusive language. Phrases like ‘put America first,’ ‘halt illegal entry,’ and ‘returning millions of criminal aliens’ highlight exclusionary policies. The mention of ‘only two genders’ and ending ‘socially engineered race and gender’ policies further supports an exclusive stance.                                                                                                                                             |
+| id         | score | explanation                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+|:-----------|------:|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 2013-Obama |     0 | The text emphasizes inclusivity through repeated references to equality, diversity, and collective action. It highlights the importance of equal rights for all citizens, regardless of race, gender, or sexual orientation, and stresses the need for unity and shared responsibility. Phrases like ‘all men are created equal,’ ‘our journey is not complete until our gay brothers and sisters are treated like anyone else under the law,’ and ‘a better way to welcome the striving, hopeful immigrants’ underscore an inclusive ideology. |
+| 2017-Trump |     7 | The text emphasizes national homogeneity and prioritizing American interests, as seen in phrases like “America first” and “protect our borders.” It focuses on American workers and industries, suggesting an exclusive stance. However, it also includes some inclusive elements, such as unity across racial lines and a call for solidarity, which prevents a higher exclusive score.                                                                                                                                                        |
+| 2021-Biden |     0 | The text emphasizes unity, inclusion, and the importance of diversity and pluralism. It calls for racial justice, overcoming political extremism, and uniting people across different backgrounds. The language is inclusive, focusing on bringing people together and healing divisions.                                                                                                                                                                                                                                                       |
+| 2025-Trump |     8 | The text emphasizes national sovereignty, exclusion of certain groups, and a focus on national homogeneity. Phrases like “put America first,” “reclaim our sovereignty,” and “halt illegal entry” suggest an exclusive stance. The mention of “only two genders” and ending “socially engineered race and gender” policies further supports exclusivity. While there are mentions of unity and diversity, the overall tone and policy proposals lean towards exclusivity.                                                                       |
 
 ### Adjusting the ideology scaling task
 
@@ -106,16 +100,10 @@ custom_ideology <- task(
 # Apply the custom task
 custom_result <- annotate(data_corpus_inaugural, task = custom_ideology, 
                           chat_fn = chat_openai, model = "gpt-4o",
-                          api_args = list(temperature = 0),
-                          params = list(seed = 42))
+                          api_args = list(temperature = 0))
 ```
 
     ## Running task 'Ideological scaling' using model: gpt-4o
-
-    ## Warning: Ignoring unsupported parameters: "seed"
-    ## Ignoring unsupported parameters: "seed"
-    ## Ignoring unsupported parameters: "seed"
-    ## Ignoring unsupported parameters: "seed"
 
     ## [working] (0 + 0) -> 3 -> 1 | ■■■■■■■■■                         25%
 
@@ -123,10 +111,10 @@ custom_result <- annotate(data_corpus_inaugural, task = custom_ideology,
 
 | id         | score | explanation                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 |:-----------|------:|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 2013-Obama |     5 | The text strongly emphasizes inclusive language, focusing on equality, diversity, and collective action. It highlights the importance of equal rights for all citizens, regardless of background, and stresses the need for unity and shared responsibility. References to historical struggles for equality and the call for inclusivity in areas like immigration, gender equality, and LGBTQ+ rights further reinforce its inclusive stance. |
-| 2017-Trump |    -2 | The text emphasizes national homogeneity and prioritizes American interests with phrases like “America first” and “protect our borders.” It highlights exclusionary themes by focusing on protecting American jobs and industries from foreign influence. While there are inclusive elements, such as unity and shared national identity, the overall tone leans towards exclusivity by emphasizing national over global or diverse interests.  |
-| 2021-Biden |     5 | The text emphasizes unity, inclusion, and the protection of democracy, highlighting themes of racial justice, equality, and the rejection of division. It calls for collective action and respect for all citizens, regardless of differences, aligning strongly with inclusive language.                                                                                                                                                       |
-| 2025-Trump |    -3 | The text emphasizes national sovereignty, border control, and a strong focus on American exceptionalism, which aligns with exclusive language. It includes plans to halt illegal entry, return ‘criminal aliens,’ and emphasizes a colorblind, merit-based society, which can be seen as minimizing diversity and inclusion efforts. The rhetoric around national pride and reclaiming American greatness further supports an exclusive stance. |
+| 2013-Obama |     5 | The text strongly emphasizes inclusivity, highlighting themes of equality, diversity, and collective action. It advocates for equal rights across gender, sexual orientation, and socioeconomic status, and stresses the importance of welcoming immigrants and supporting marginalized groups. The language consistently promotes unity and shared responsibility, aligning with inclusive values.                                             |
+| 2017-Trump |    -2 | The text emphasizes national homogeneity and prioritizes American interests with phrases like “America first” and “protect our borders.” It focuses on American workers and industries, suggesting an exclusive approach. However, it also includes some inclusive elements, such as unity across racial lines and a call for solidarity, which moderates the exclusivity.                                                                      |
+| 2021-Biden |     5 | The text emphasizes unity, inclusion, and the protection of democracy, highlighting themes of racial justice, diversity, and the rejection of division. It calls for collective action and respect for all citizens, regardless of differences, aligning strongly with inclusive language.                                                                                                                                                      |
+| 2025-Trump |    -3 | The text emphasizes national sovereignty, border control, and exclusionary policies such as halting illegal entry and returning ‘criminal aliens.’ It also mentions ending government policies on race and gender, suggesting a move towards a more exclusive, homogeneous national identity. While there are mentions of unity and inclusion of various American communities, the overall tone and specific policies lean towards exclusivity. |
 
 In this example, we demonstrated how to use the
 [`task_ideology()`](https://seraphinem.github.io/quallmer/reference/task_ideology.md)

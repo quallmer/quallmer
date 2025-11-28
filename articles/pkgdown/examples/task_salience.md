@@ -45,18 +45,14 @@ data_corpus_inaugural <- quanteda::data_corpus_inaugural[57:60]
 # Apply predefined salience task with task_salience() in the annotate() function
 result <- annotate(data_corpus_inaugural, task = task_salience(), 
                    chat_fn = chat_openai, model = "gpt-4o",
-                   api_args = list(temperature = 0),
-                   params = list(seed = 42))
+                   api_args = list(temperature = 0))
 ```
 
     ## Running task 'Salience (ranked topics)' using model: gpt-4o
 
-    ## Warning: Ignoring unsupported parameters: "seed"
-    ## Ignoring unsupported parameters: "seed"
-    ## Ignoring unsupported parameters: "seed"
-    ## Ignoring unsupported parameters: "seed"
-
     ## [working] (0 + 0) -> 3 -> 1 | ■■■■■■■■■                         25%
+
+    ## [working] (0 + 0) -> 2 -> 2 | ■■■■■■■■■■■■■■■■                  50%
 
     ## [working] (0 + 0) -> 0 -> 4 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100%
 
@@ -70,16 +66,10 @@ topics <- c("economy", "health", "education", "environment", "foreign policy")
 # Apply predefined salience task with task_salience() in the annotate() function
 result <- annotate(data_corpus_inaugural, task = task_salience(topics), 
                    chat_fn = chat_openai, model = "gpt-4o",
-                   api_args = list(temperature = 0),
-                   params = list(seed = 42))
+                   api_args = list(temperature = 0))
 ```
 
     ## Running task 'Salience (ranked topics)' using model: gpt-4o
-
-    ## Warning: Ignoring unsupported parameters: "seed"
-    ## Ignoring unsupported parameters: "seed"
-    ## Ignoring unsupported parameters: "seed"
-    ## Ignoring unsupported parameters: "seed"
 
     ## [working] (0 + 0) -> 3 -> 1 | ■■■■■■■■■                         25%
 
@@ -127,27 +117,21 @@ custom_task <- task(
 # Apply the customized task in the annotate() function
 custom_result <- annotate(data_corpus_inaugural, task = custom_task, 
                    chat_fn = chat_openai, model = "gpt-4o",
-                   api_args = list(temperature = 0),
-                   params = list(seed = 42))
+                   api_args = list(temperature = 0))
 ```
 
     ## Running task 'Salience and stance of topics' using model: gpt-4o
-
-    ## Warning: Ignoring unsupported parameters: "seed"
-    ## Ignoring unsupported parameters: "seed"
-    ## Ignoring unsupported parameters: "seed"
-    ## Ignoring unsupported parameters: "seed"
 
     ## [working] (0 + 0) -> 3 -> 1 | ■■■■■■■■■                         25%
 
     ## [working] (0 + 0) -> 0 -> 4 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100%
 
-| id         | topic_stance                                                                                       | explanation                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-|:-----------|:---------------------------------------------------------------------------------------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 2013-Obama | economy: pro , environment: pro , foreign policy: pro, health: pro , education: pro                | The text emphasizes the importance of a strong economy, highlighting the need for infrastructure, fair competition, and a thriving middle class, indicating a pro stance on the economy. The environment is addressed with a commitment to tackling climate change and leading in sustainable energy, showing a pro stance. Foreign policy is discussed in terms of maintaining alliances and promoting peace, indicating a pro stance. Health is mentioned in the context of reducing healthcare costs and supporting social safety nets like Medicare, showing a pro stance. Education is highlighted as essential for future success, with a focus on reforming schools and training teachers, indicating a pro stance.                                                           |
-| 2017-Trump | economy: pro , foreign policy: neutral, education: contra , environment: neutral , health: neutral | The text primarily focuses on economic issues, emphasizing job creation, infrastructure development, and protectionist policies, indicating a pro stance on the economy. Foreign policy is addressed with a focus on ‘America first’ and alliances, suggesting a neutral stance as it balances protectionism with international cooperation. Education is mentioned negatively, highlighting a failing system, which suggests a contra stance. The environment is not directly addressed, but infrastructure plans imply a neutral stance. Health is briefly mentioned in the context of eradicating disease, suggesting a neutral stance.                                                                                                                                           |
-| 2021-Biden | democracy: pro , health: pro , unity: pro , foreign policy: pro, economy: pro , environment: pro   | The speech primarily focuses on the theme of democracy, emphasizing its triumph and fragility, making ‘democracy: pro’ the most salient topic. Health is addressed through the discussion of the pandemic and the need for unity to overcome it, leading to ‘health: pro’. Unity is a central theme throughout, hence ‘unity: pro’. Foreign policy is mentioned in terms of repairing alliances and engaging with the world, resulting in ‘foreign policy: pro’. The economy is touched upon with references to job loss and rebuilding, thus ‘economy: pro’. The environment is mentioned in the context of a ‘cry for survival from the planet’, leading to ‘environment: pro’. Each stance is determined by the positive and proactive language used in relation to these topics. |
-| 2025-Trump | foreign policy: pro, economy: pro , environment: contra, health: contra , education: contra        | The text emphasizes foreign policy with a strong stance on national sovereignty, border security, and international respect, making it the most salient topic. The economy is also prominent, with a focus on reducing inflation, energy independence, and manufacturing, all framed positively. The environment is addressed negatively, with opposition to the Green New Deal and electric vehicle mandates. Health is mentioned in a critical context regarding the public health system’s inefficiency. Education is criticized for promoting negative views of the country, indicating a contra stance.                                                                                                                                                                         |
+| id         | topic_stance                                                                                     | explanation                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+|:-----------|:-------------------------------------------------------------------------------------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 2013-Obama | economy: pro , environment: pro , foreign policy: pro, health: pro , education: pro              | The text emphasizes the importance of a strong economy, highlighting the need for infrastructure, fair competition, and a rising middle class, indicating a pro stance on the economy. The environment is addressed with a commitment to tackling climate change and leading in sustainable energy, showing a pro stance. Foreign policy is discussed in terms of maintaining alliances and promoting peace, indicating a pro stance. Health is mentioned in the context of reducing healthcare costs and supporting social safety nets, suggesting a pro stance. Education is highlighted as essential for future success, with a focus on reforming schools and training teachers, indicating a pro stance.                  |
+| 2017-Trump | economy: pro , foreign policy: pro , education: contra , environment: neutral, health: neutral   | The text emphasizes economic revitalization, focusing on job creation, infrastructure development, and protectionist policies, indicating a ‘pro’ stance on the economy. Foreign policy is also prominent, with a focus on ‘America first’ and strengthening military and alliances, suggesting a ‘pro’ stance. Education is mentioned negatively, describing it as failing despite funding, indicating a ‘contra’ stance. The environment and health are not directly addressed, so they are considered ‘neutral’ due to lack of specific content.                                                                                                                                                                            |
+| 2021-Biden | democracy: pro , health: pro , unity: pro , foreign policy: pro, environment: pro , economy: pro | The speech primarily focuses on the theme of democracy, emphasizing its triumph and the need to protect it, making ‘democracy: pro’ the most salient topic. Health is addressed through the discussion of the pandemic and the need to overcome it, leading to ‘health: pro’. Unity is a central theme, repeatedly mentioned as essential for progress, resulting in ‘unity: pro’. Foreign policy is touched upon with a commitment to re-engage with the world, hence ‘foreign policy: pro’. The environment is mentioned in the context of a ‘cry for survival,’ leading to ‘environment: pro’. Economic issues are addressed through references to job losses and rebuilding the middle class, resulting in ‘economy: pro’. |
+| 2025-Trump | foreign policy: pro, economy: pro , environment: contra, health: contra , education: contra      | The text emphasizes foreign policy with a strong stance on national sovereignty, border security, and international respect, making it the most salient topic. The economy is also prominent, with a focus on reducing inflation, energy independence, and manufacturing, indicating a pro stance. The environment is addressed negatively, with opposition to the Green New Deal and electric vehicle mandates, showing a contra stance. Health is mentioned in the context of a failing public health system and reversing COVID vaccine mandates, suggesting a contra stance. Education is criticized for promoting negative views of the country, indicating a contra stance.                                              |
 
 In this example, we demonstrated how to use the
 [`task_salience()`](https://seraphinem.github.io/quallmer/reference/task_salience.md)
