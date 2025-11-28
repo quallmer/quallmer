@@ -50,8 +50,6 @@ result <- annotate(data_corpus_inaugural, task = task_fact(),
 
     ## Running task 'Fact-checking' using model: gpt-4o
 
-    ## Warning: 4 requests errored.
-
     ## 
     ## Attaching package: 'dplyr'
 
@@ -84,8 +82,6 @@ result_claims <- annotate(data_corpus_inaugural, task = task_fact(max_topics = 3
 ```
 
     ## Running task 'Fact-checking' using model: gpt-4o
-
-    ## Warning: 4 requests errored.
 
 | id         | truth_score | misleading_topic | explanation |
 |:-----------|------------:|:-----------------|:------------|
