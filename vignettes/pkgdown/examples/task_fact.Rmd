@@ -11,7 +11,7 @@ The `annotate()` function with a predefined `task_fact()` can be used to fact-ch
 
 ### Loading packages and data
 
-```{r getting-started}
+```{r getting-started, warning=FALSE}
 # We will use the quanteda package 
 # for loading a sample corpus of innaugural speeches
 # If you have not yet installed the quanteda package, you can do so by:
@@ -26,7 +26,7 @@ data_corpus_inaugural <- quanteda::data_corpus_inaugural[57:60]
 
 ```
 ### Using `annotate()` for fact checking of claims in texts
-```{r fact}
+```{r fact, warning=FALSE}
 
 # Apply predefined fact checking task with task_fact() in the annotate() function
 result <- annotate(data_corpus_inaugural, task = task_fact(), 
@@ -46,7 +46,7 @@ result %>%
   column_spec(3)
 ```
 ### Using `annotate()` for fact checking with a specific number of claims to check
-```{r fact2}
+```{r fact2, warning=FALSE}
 
 # Apply predefined fact checking task with task_fact() in the annotate() function
 result_claims <- annotate(data_corpus_inaugural, task = task_fact(max_topics = 3), 
