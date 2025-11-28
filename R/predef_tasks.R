@@ -84,3 +84,66 @@ task_ideology <- function(
   )
 }
 
+#' Predefined task for salience of topics discussed (ranked topics)
+#'
+#' Ranked list of topics mentioned in a text, ordered by salience.
+#'
+#' @param topics Optional character vector of predefined topic labels
+#'   (e.g., c("economy", "health", "education", "environment")).
+#'   If supplied, the model should only classify and rank among these topics.
+#'   If NULL, the model may infer topic labels directly from the text.
+#' @param max_topics Integer: maximum number of topics to return when topics
+#'   are inferred from the text. Default is 5.
+#'
+#' @return A task object
+#' @export
+task_salience <- function(topics = NULL, max_topics = 5) {
+
+  system_prompt <- paste(
+    "You are an expert analysing the content of texts.",
+    "Extract structured data on the salience of topics discussed in texts.",
+    "",
+    "Task:",
+    "- Read the text carefully.",
+    "- Identify the topics discussed.",
+    "- Return a ranked list of topics, ordered by their salience in the text.",
+    "- Salience refers to how prominently and frequently a topic is discussed,",
+    "  including the amount of space and emphasis devoted to it.",
+    "",
+    "Do not infer information that is not in the text.",
+    "Base all evaluations solely on the language and arguments in the document.",
+    sep = "\n"
+  )
+
+  topics_text <- if (!is.null(topics)) {
+    paste0(
+      "\n\nOnly consider the following topics when constructing the ranked list:\n-",
+      paste(topics, collapse = "\n-"),
+      "\nIf none of these topics is clearly present, return an empty list."
+    )
+  } else {
+    paste0(
+      "\n\nIdentify and return up to", max_topics,
+      " of the most salient topics directly from the text, ranked in descending order of salience.",
+      " If fewer topics are clearly present, return only those."
+    )
+  }
+
+  type_def <- ellmer::type_object(
+    topics = ellmer::type_array(
+      ellmer::type_string(
+        paste0("Topics mentioned in the text, listed in order of salience (first = most salient, up to", max_topics," topics).")
+      )
+    ),
+    explanation = ellmer::type_string(
+      "A brief explanation of why these topics were selected and ordered in this way, referring to specific wording, emphasis, or sections of the text."
+    )
+  )
+
+  task(
+    name = "Salience (ranked topics)",
+    system_prompt = paste0(system_prompt, topics_text),
+    type_def = type_def,
+    input_type = "text"
+  )
+}

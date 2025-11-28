@@ -7,7 +7,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-The `annotate()` function with a predefined `task_ideology()` task allows you to perform ideological scaling (0-10) on texts regarding a specified ideological dimension. In this example, we will demonstrate how to use the `task_ideology()` for ideology detection on a sample corpus of innaugural speeches from U.S. presidents. We will use the dimension "inclusive–exclusive" as an example. To refine the task, we will also provide a definition of the dimension (optional).
+The `annotate()` function with a predefined `task_ideology()` allows you to perform ideological scaling (0-10) on texts regarding a specified ideological dimension. In this example, we will demonstrate how to use the `task_ideology()` for ideology detection on a sample corpus of innaugural speeches from U.S. presidents. We will use the dimension "inclusive–exclusive" as an example. To refine the task, we will also provide a definition of the dimension (optional).
 
 ### Loading packages and data
 
@@ -39,7 +39,7 @@ result <- annotate(data_corpus_inaugural, task = task_ideology(dimension, defini
                    api_args = list(temperature = 0, seed = 42))
 ```
 ```{r display_results, echo = FALSE}
-# stance detection results table
+# results table
 library(kableExtra)
 library(dplyr)
 result <- result %>%
@@ -69,13 +69,13 @@ custom_ideology <- task(
     ),
     input_type = "text"
   )
-# Apply the custom stance task
+# Apply the custom task
 custom_result <- annotate(data_corpus_inaugural, task = custom_ideology, 
                           chat_fn = chat_openai, model = "gpt-4o",
                           api_args = list(temperature = 0, seed = 42))
 ```
 ```{r display_results_custom, echo = FALSE}
-# custom stance detection results table
+# custom results table
 library(kableExtra)
 library(dplyr)
 custom_result <- custom_result %>%

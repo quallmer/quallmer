@@ -40,9 +40,13 @@ navbar:
       - text: Overview of predefined tasks
         href: articles/pkgdown/examples/overview.html
       - text: Sentiment analysis
-        href: articles/pkgdown/examples/sentiment.html
+        href: articles/pkgdown/examples/task_sentiment.html
       - text: Stance detection / position taking
-        href: articles/pkgdown/examples/stance.html
+        href: articles/pkgdown/examples/task_stance.html
+      - text: Ideological scaling
+        href: articles/pkgdown/examples/task_ideology.html
+      - text: Salience of topics
+        href: articles/pkgdown/examples/task_salience.html
     github:
       icon: fab fa-github
       href: https://github.com/SeraphineM/quallmer
