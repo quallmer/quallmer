@@ -7,5 +7,6 @@ docs
 .DS_Store
 .vscode/
 .venv
+.Renviron
 /doc/
 /Meta/
