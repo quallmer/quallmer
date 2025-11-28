@@ -78,15 +78,13 @@ This step is similar to applying predefined tasks using the `annotate()` functio
 # Apply the custom task to the inaugural speeches corpus
 result <- annotate(data_corpus_inaugural, task = ideology_scores,
                    chat_fn = chat_openai, model = "gpt-4o",
-                   api_args = list(temperature = 0, seed = 42))
+                   api_args = list(temperature = 0),
+                   params = list(seed = 42))
 ```
 
 ```{r display_results, echo = FALSE}
 # sentiment analysis results table
 library(kableExtra)
-library(dplyr)
-result <- result %>%
-  dplyr::select(id, score, explanation)
 result %>%
   kable("html", escape = FALSE) %>%
   kable_styling(bootstrap_options = c("striped", "hover")) %>%

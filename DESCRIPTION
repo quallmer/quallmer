@@ -19,7 +19,7 @@ License: GPL-3
 URL: https://SeraphineM.github.io/quallmer, https://seraphinem.github.io/quallmer/
 Depends:
     R (>= 3.5.0),
-    ellmer (>= 0.2.1)
+    ellmer (>= 0.4.0)
 Imports:
     shiny,
     dplyr,

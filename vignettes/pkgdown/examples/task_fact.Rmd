@@ -31,7 +31,8 @@ data_corpus_inaugural <- quanteda::data_corpus_inaugural[57:60]
 # Apply predefined fact checking task with task_fact() in the annotate() function
 result <- annotate(data_corpus_inaugural, task = task_fact(), 
                    chat_fn = chat_openai, model = "gpt-4o",
-                   api_args = list(temperature = 0, seed = 42))
+                   api_args = list(temperature = 0),
+                   params = list(seed = 42))
 ```
 
 ```{r display_results, echo = FALSE}
@@ -48,14 +49,12 @@ result %>%
 # Apply predefined fact checking task with task_fact() in the annotate() function
 result_claims <- annotate(data_corpus_inaugural, task = task_fact(max_topics = 3), 
                    chat_fn = chat_openai, model = "gpt-4o",
-                   api_args = list(temperature = 0, seed = 42))
+                   api_args = list(temperature = 0),
+                   params = list(seed = 42))
 ```
 ```{r display_results2, echo = FALSE}
 # results table
 library(kableExtra)
-library(dplyr)
-result_claims <- result_claims %>%
-  dplyr::select(id, truth_score, misleading_topic, explanation)
 result_claims %>%
   kable("html", escape = FALSE) %>%
   kable_styling(bootstrap_options = c("striped", "hover")) %>%
