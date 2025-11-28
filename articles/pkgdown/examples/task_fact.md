@@ -48,7 +48,7 @@ result <- annotate(data_corpus_inaugural, task = task_fact(),
                    api_args = list(temperature = 0, seed = 42))
 ```
 
-    ## Running task 'Overall truthfulness assessment' using model: gpt-4o
+    ## Running task 'Fact-checking' using model: gpt-4o
 
     ## Warning: 4 requests errored.
 
@@ -67,12 +67,12 @@ result <- annotate(data_corpus_inaugural, task = task_fact(),
     ## 
     ##     intersect, setdiff, setequal, union
 
-| id         | truth_score | misleading | explanation |
-|:-----------|------------:|:-----------|:------------|
-| 2013-Obama |          NA |            | NA          |
-| 2017-Trump |          NA |            | NA          |
-| 2021-Biden |          NA |            | NA          |
-| 2025-Trump |          NA |            | NA          |
+| id         | truth_score | misleading_topic | explanation |
+|:-----------|------------:|:-----------------|:------------|
+| 2013-Obama |          NA |                  | NA          |
+| 2017-Trump |          NA |                  | NA          |
+| 2021-Biden |          NA |                  | NA          |
+| 2025-Trump |          NA |                  | NA          |
 
 ### Using `annotate()` for fact checking with a specific number of claims to check
 
@@ -83,13 +83,25 @@ result_claims <- annotate(data_corpus_inaugural, task = task_fact(max_topics = 3
                    api_args = list(temperature = 0, seed = 42))
 ```
 
-    ## Running task 'Overall truthfulness assessment' using model: gpt-4o
+    ## Running task 'Fact-checking' using model: gpt-4o
 
     ## Warning: 4 requests errored.
 
-| id         | truth_score | misleading | explanation |
-|:-----------|------------:|:-----------|:------------|
-| 2013-Obama |          NA |            | NA          |
-| 2017-Trump |          NA |            | NA          |
-| 2021-Biden |          NA |            | NA          |
-| 2025-Trump |          NA |            | NA          |
+| id         | truth_score | misleading_topic | explanation |
+|:-----------|------------:|:-----------------|:------------|
+| 2013-Obama |          NA |                  | NA          |
+| 2017-Trump |          NA |                  | NA          |
+| 2021-Biden |          NA |                  | NA          |
+| 2025-Trump |          NA |                  | NA          |
+
+In this example, we demonstrated how to use the
+[`annotate()`](https://seraphinem.github.io/quallmer/reference/annotate.md)
+function with the
+[`task_fact()`](https://seraphinem.github.io/quallmer/reference/task_fact.md)
+to fact-check claims in a corpus of innaugural speeches. The results
+include a truth score, identified misleading topics, and explanations
+for each claim evaluated. The amount of claims to check can be adjusted
+using the `max_topics` parameter in the
+[`task_fact()`](https://seraphinem.github.io/quallmer/reference/task_fact.md)
+function. Now you can apply this approach to your own texts for
+fact-checking purposes!
