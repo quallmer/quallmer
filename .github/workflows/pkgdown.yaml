@@ -38,7 +38,7 @@ jobs:
           needs: website
 
        - name: Debug OPENAI_API_KEY in R
-        run: |
+         run: |
           Rscript -e '
             key <- Sys.getenv("OPENAI_API_KEY");
             cat("Has key:", nzchar(key), "\n");
