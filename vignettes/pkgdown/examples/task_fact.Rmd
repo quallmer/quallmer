@@ -7,7 +7,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-The `annotate()` function with a predefined `task_fact()` can be used to fact-check claims made in texts. In this example, we will demonstrate how to apply this task to a sample corpus of innaugural speeches from US presidents.
+The `annotate()` function with a predefined `task_fact()` can be used to fact-check claims made in texts. In this example, we will demonstrate how to apply this task to a sample corpus of innaugural speeches from US presidents. The fact-checking process involves evaluating the truthfulness of claims made in the speeches and providing explanations for each claim. The outcome is a **truthfulness score from 0 to 10, where 0 indicates completely false claims and 10 indicates highest confidence in the truthfulness of the claims.**
 
 ### Loading packages and data
 
@@ -31,8 +31,7 @@ data_corpus_inaugural <- quanteda::data_corpus_inaugural[57:60]
 # Apply predefined fact checking task with task_fact() in the annotate() function
 result <- annotate(data_corpus_inaugural, task = task_fact(), 
                    chat_fn = chat_openai, model = "gpt-4o",
-                   api_args = list(temperature = 0),
-                   params = list(seed = 42))
+                   api_args = list(temperature = 0))
 ```
 
 ```{r display_results, echo = FALSE}
@@ -49,8 +48,7 @@ result %>%
 # Apply predefined fact checking task with task_fact() in the annotate() function
 result_claims <- annotate(data_corpus_inaugural, task = task_fact(max_topics = 3), 
                    chat_fn = chat_openai, model = "gpt-4o",
-                   api_args = list(temperature = 0),
-                   params = list(seed = 42))
+                   api_args = list(temperature = 0))
 ```
 ```{r display_results2, echo = FALSE}
 # results table

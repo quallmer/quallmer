@@ -32,8 +32,7 @@ topic <- "Climate Change"
 # Apply predefined stance task with task_stance() in the annotate() function
 result <- annotate(data_corpus_inaugural, task = task_stance(topic), 
                    chat_fn = chat_openai, model = "gpt-4o",
-                   api_args = list(temperature = 0),
-                   params = list(seed = 42))
+                   api_args = list(temperature = 0))
 ```
 ```{r display_results, echo = FALSE}
 # stance detection results table
@@ -64,8 +63,7 @@ custom_stance <- task(
 # Apply the custom stance task
 custom_result <- annotate(data_corpus_inaugural, task = custom_stance, 
                           chat_fn = chat_openai, model = "gpt-4o",
-                          api_args = list(temperature = 0),
-                          params = list(seed = 42))
+                          api_args = list(temperature = 0))
 ```
 ```{r display_results_custom, echo = FALSE}
 # custom stance detection results table
@@ -94,8 +92,7 @@ argument_stance <- task(
 # Apply the argument-based stance task
 argument_result <- annotate(data_corpus_inaugural, task = argument_stance, 
                             chat_fn = chat_openai, model = "gpt-4o",
-                            api_args = list(temperature = 0),
-                            params = list(seed = 42))
+                            api_args = list(temperature = 0))
 ```
 ```{r display_results_argument, echo = FALSE}
 # argument-based stance detection results table

@@ -36,8 +36,7 @@ of groups, national homogeneity, and restricting rights."
 # Apply predefined ideology task with task_ideology() in the annotate() function
 result <- annotate(data_corpus_inaugural, task = task_ideology(dimension, definition), 
                    chat_fn = chat_openai, model = "gpt-4o",
-                   api_args = list(temperature = 0),
-                   params = list(seed = 42))
+                   api_args = list(temperature = 0))
 ```
 ```{r display_results, echo = FALSE}
 # results table
@@ -70,8 +69,7 @@ custom_ideology <- task(
 # Apply the custom task
 custom_result <- annotate(data_corpus_inaugural, task = custom_ideology, 
                           chat_fn = chat_openai, model = "gpt-4o",
-                          api_args = list(temperature = 0),
-                          params = list(seed = 42))
+                          api_args = list(temperature = 0))
 ```
 ```{r display_results_custom, echo = FALSE}
 # custom results table
