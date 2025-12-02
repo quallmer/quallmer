@@ -38,7 +38,7 @@ coders and agreement with LLM-generated scores.
 without requiring deep expertise in R, programming or machine
 learning.**
 
-# Included functions
+# Core functions
 
 The package provides the following core functions:
 
@@ -79,6 +79,48 @@ The package provides the following core functions:
   human coders and LLM-generated annotations.
 - Works similar to the Agreement App but can be used programmatically
   without launching the app.
+
+# EXTRA: The `quallmer` trail
+
+Apart from the core functions above, the `quallmer` package also
+provides a set of functions to ensure reproducibility and reliability of
+LLM-generated annotations through **systematic comparisons across
+multiple LLM runs with different settings.** This “trail” functionality
+adds a reproducibility layer on top of `annotate()` with the following
+workflow:
+
+1.  **Define different trail settings**  
+    Describe each trail, i.e., how LLMs should be called (model,
+    temperature, etc.).
+
+    `trail_setting()`  
+    ↓
+
+2.  **Record LLM task for each trail**  
+    Apply an LLM task to data once, with full metadata + optional
+    caching.
+
+    `trail_record(data, text_col, task, setting)`  
+    ↓
+
+3.  **Run multiple trails with different settings**  
+    Run the *same* task and data across multiple settings (e.g.,
+    different LLMs, different temperatures).
+
+    `trail_compare(data, text_col, task, settings = list(...))`  
+    ↓
+
+4.  **Build an output–by–trail matrix**  
+    Treat each trail as a unique “output” and combine outputs.
+
+    `trail_matrix(trail_compare_obj)`  
+    ↓
+
+5.  **Compute agreement across trails**  
+    Assess stability / reliability across multiple LLM runs on the same
+    task with different settings.
+
+    `trail_agreement(trail_compare_obj)`
 
 # Supported LLMs
 

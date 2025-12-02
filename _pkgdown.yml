@@ -31,6 +31,8 @@ navbar:
         href: articles/pkgdown/tutorials/customtask.html
       - text: Using the Agreement App
         href: articles/pkgdown/tutorials/agreement.html
+      - text: The quallmer trail
+        href: articles/pkgdown/tutorials/trail.html
     reference:
       text: Reference
       href: reference/index.html

@@ -24,6 +24,7 @@ Imports:
     shiny,
     dplyr,
     tidyr,
+    digest,
     irr,
     bslib,
     stats,
