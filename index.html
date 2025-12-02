@@ -46,6 +46,7 @@
     <li><a class="dropdown-item" href="articles/pkgdown/tutorials/predefined.html">Using predefined tasks</a></li>
     <li><a class="dropdown-item" href="articles/pkgdown/tutorials/customtask.html">Defining custom tasks</a></li>
     <li><a class="dropdown-item" href="articles/pkgdown/tutorials/agreement.html">Using the Agreement App</a></li>
+    <li><a class="dropdown-item" href="articles/pkgdown/tutorials/trail.html">The quallmer trail</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
@@ -86,7 +87,7 @@
 <p><strong>The <code>quallmer</code> package makes AI-assisted qualitative coding accessible without requiring deep expertise in R, programming or machine learning.</strong></p>
 </div>
 <div class="section level1">
-<h1 id="included-functions">Included functions<a class="anchor" aria-label="anchor" href="#included-functions"></a>
+<h1 id="core-functions">Core functions<a class="anchor" aria-label="anchor" href="#core-functions"></a>
 </h1>
 <p>The package provides the following core functions:</p>
 <div class="section level3">
@@ -135,6 +136,43 @@
 <li>Works similar to the Agreement App but can be used programmatically without launching the app.</li>
 </ul>
 </div>
+</div>
+<div class="section level1">
+<h1 id="extra-the-quallmer-trail-">EXTRA: The <code>quallmer</code> trail <a href="https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/trail.html"><img src="reference/figures/paw.png" align="center" height="100" alt="quallmer website"></a>
+<a class="anchor" aria-label="anchor" href="#extra-the-quallmer-trail-"></a>
+</h1>
+<p>Apart from the core functions above, the <code>quallmer</code> package also provides a set of functions to ensure reproducibility and reliability of LLM-generated annotations through <strong>systematic comparisons across multiple LLM runs with different settings.</strong> This “trail” functionality adds a reproducibility layer on top of <code><a href="reference/annotate.html">annotate()</a></code> with the following workflow:</p>
+<ol style="list-style-type: decimal">
+<li>
+<p><strong>Define different trail settings</strong><br>
+Describe each trail, i.e., how LLMs should be called (e.g., model, temperature).</p>
+<p><code><a href="reference/trail_setting.html">trail_setting()</a></code><br>
+↓</p>
+</li>
+<li>
+<p><strong>Record single LLM trail</strong><br>
+Record single LLM runs on a given task with a specific setting (good for reproducibility).</p>
+<p><code>trail_record(data, text_col, task, setting)</code><br>
+↓</p>
+</li>
+<li>
+<p><strong>Run multiple trails with different settings</strong><br>
+Run the <em>same</em> task and data across multiple settings (e.g., different LLMs, different temperatures).</p>
+<p><code>trail_compare(data, text_col, task, settings = list(...))</code><br>
+↓</p>
+</li>
+<li>
+<p><strong>Build an output–by–trail matrix</strong><br>
+Treat each trail as a unique “output” and combine outputs.</p>
+<p><code>trail_matrix(trail_compare_obj)</code><br>
+↓</p>
+</li>
+<li>
+<p><strong>Compute agreement across trails</strong><br>
+Assess stability / reliability across multiple LLM runs on the same task with different settings.</p>
+<p><code>trail_agreement(trail_compare_obj)</code></p>
+</li>
+</ol>
 </div>
 <div class="section level1">
 <h1 id="supported-llms">Supported LLMs<a class="anchor" aria-label="anchor" href="#supported-llms"></a>

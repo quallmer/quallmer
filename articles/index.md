@@ -26,3 +26,5 @@
   analysis](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/task_sentiment.md):
 - [Example: Stance
   detection](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/task_stance.md):
+- [The quallmer
+  trail](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/trail.md):

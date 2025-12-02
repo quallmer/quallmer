@@ -13,12 +13,15 @@
 <url><loc>https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/ollama.html</loc></url>
 <url><loc>https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/openai.html</loc></url>
 <url><loc>https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/predefined.html</loc></url>
+<url><loc>https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/trail.html</loc></url>
 <url><loc>https://seraphinem.github.io/quallmer/authors.html</loc></url>
 <url><loc>https://seraphinem.github.io/quallmer/index.html</loc></url>
 <url><loc>https://seraphinem.github.io/quallmer/reference/agreement.html</loc></url>
 <url><loc>https://seraphinem.github.io/quallmer/reference/agreement_app.html</loc></url>
 <url><loc>https://seraphinem.github.io/quallmer/reference/annotate.html</loc></url>
 <url><loc>https://seraphinem.github.io/quallmer/reference/index.html</loc></url>
+<url><loc>https://seraphinem.github.io/quallmer/reference/print.trail_compare.html</loc></url>
+<url><loc>https://seraphinem.github.io/quallmer/reference/print.trail_setting.html</loc></url>
 <url><loc>https://seraphinem.github.io/quallmer/reference/quallmer-package.html</loc></url>
 <url><loc>https://seraphinem.github.io/quallmer/reference/task.html</loc></url>
 <url><loc>https://seraphinem.github.io/quallmer/reference/task_fact.html</loc></url>
@@ -26,5 +29,10 @@
 <url><loc>https://seraphinem.github.io/quallmer/reference/task_salience.html</loc></url>
 <url><loc>https://seraphinem.github.io/quallmer/reference/task_sentiment.html</loc></url>
 <url><loc>https://seraphinem.github.io/quallmer/reference/task_stance.html</loc></url>
+<url><loc>https://seraphinem.github.io/quallmer/reference/trail_agreement.html</loc></url>
+<url><loc>https://seraphinem.github.io/quallmer/reference/trail_compare.html</loc></url>
+<url><loc>https://seraphinem.github.io/quallmer/reference/trail_matrix.html</loc></url>
+<url><loc>https://seraphinem.github.io/quallmer/reference/trail_record.html</loc></url>
+<url><loc>https://seraphinem.github.io/quallmer/reference/trail_setting.html</loc></url>
 </urlset>
 
