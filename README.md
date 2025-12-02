@@ -80,7 +80,7 @@ The package provides the following core functions:
 - Works similar to the Agreement App but can be used programmatically
   without launching the app.
 
-# EXTRA: The `quallmer` trail <a href="https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/trail.html"><img src="man/figures/paw.png" align="center" height="100" alt="quallmer website" /></a>
+# EXTRA: The `quallmer` trail <a href="https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/trail.html"><img src="man/figures/paw.png" align="center" height="10" alt="quallmer website" /></a>
 
 Apart from the core functions above, the `quallmer` package also
 provides a set of functions to ensure reproducibility and reliability of

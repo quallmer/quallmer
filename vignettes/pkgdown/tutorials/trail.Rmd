@@ -103,13 +103,6 @@ model = "gpt-4o",
 temperature = 0.7
 )
 
-
-trail_settings <- list(
-  T0 = setting_gptmini0,
-  T07 = setting_gptmini7,
-  T40 = setting_gpt400,
-  T407 = setting_gpt407
-)
 ```
 
 ## Run a single trail with a specific setting
