@@ -8,6 +8,11 @@
   : Launch the Agreement App
 - [`annotate()`](https://seraphinem.github.io/quallmer/reference/annotate.md)
   : Apply an annotation task to input data
+- [`data_corpus_LMRDsample`](https://seraphinem.github.io/quallmer/reference/data_corpus_LMRDsample.md)
+  : Sample from Large Movie Review Dataset (Maas et al. 2011)
+- [`data_corpus_manifsentsUK2010sample`](https://seraphinem.github.io/quallmer/reference/data_corpus_manifsentsUK2010sample.md)
+  : Sample of UK manifesto sentences 2010 crowd-annotated for
+  immigration
 - [`print(`*`<trail_compare>`*`)`](https://seraphinem.github.io/quallmer/reference/print.trail_compare.md)
   : Print method for trail_compare
 - [`print(`*`<trail_setting>`*`)`](https://seraphinem.github.io/quallmer/reference/print.trail_setting.md)

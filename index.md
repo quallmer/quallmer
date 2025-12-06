@@ -1,6 +1,6 @@
 # quallmer
 
-The `quallmer` package is an **easy-to-use toolbox for qualitative
+The **quallmer** package is an **easy-to-use toolbox for qualitative
 researchers to quickly apply AI-assisted annotation to texts, images,
 pdfs, tabular data and other structured data.**
 
@@ -16,7 +16,7 @@ to their specific research questions and data
 types](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/customtask.html)
 using
 [`task()`](https://seraphinem.github.io/quallmer/reference/task.md). To
-ensure quality and reliability of AI-generated annotations, `quallmer`
+ensure quality and reliability of AI-generated annotations, **quallmer**
 offers tools for comparing LLM outputs with human-coded data and
 assessing inter-coder reliability. With
 [`agreement()`](https://seraphinem.github.io/quallmer/reference/agreement.md),
@@ -24,9 +24,9 @@ users can launch an interactive app to manually code data, review AI
 annotations, and evaluate intercoder reliability between coders and
 agreement with LLM-generated scores.
 
-**The `quallmer` package makes AI-assisted qualitative coding accessible
-without requiring deep expertise in R, programming or machine
-learning.**
+**The** quallmer\*\* package makes AI-assisted qualitative coding
+accessible without requiring deep expertise in R, programming or machine
+learning.\*\*
 
 # Core functions
 
@@ -75,7 +75,7 @@ The package provides the following core functions:
 
 # The quallmer trail [![quallmer website](reference/figures/paw.png)](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/trail.html)
 
-Apart from the core functions above, the `quallmer` package also
+Apart from the core functions above, the **quallmer** package also
 provides a set of functions to ensure reproducibility and reliability of
 LLM-generated annotations through **systematic comparisons across
 multiple LLM runs with different settings.** This “trail” functionality
@@ -129,7 +129,7 @@ model](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/ollama.h
 
 ## Installation
 
-You can install the development version of `quallmer` from
+You can install the development version of **quallmer** from
 <https://github.com/SeraphineM/quallmer> with:
 
 ``` r

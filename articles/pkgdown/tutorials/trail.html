@@ -283,7 +283,7 @@ Value
 timestamp
 </td>
 <td style="text-align:left;">
-2025-12-03 06:03:42.213851
+2025-12-06 22:21:46.415199
 </td>
 </tr>
 <tr>
@@ -432,9 +432,9 @@ represents the output from a specific trail.</p>
 <pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 4 × 5</span></span></span>
 <span><span class="co">##   doc_id        T0   T07   T40  T407</span></span>
 <span><span class="co">##   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">1</span> 2013-Obama     2     2     2     2</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">1</span> 2013-Obama     2     2     2     3</span></span>
 <span><span class="co">## <span style="color: #BCBCBC;">2</span> 2017-Trump     0     0     0     0</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">3</span> 2021-Biden     1     1     2     2</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">3</span> 2021-Biden     1     1     2     1</span></span>
 <span><span class="co">## <span style="color: #BCBCBC;">4</span> 2025-Trump     0     0     0     0</span></span></code></pre>
 </div>
 <div class="section level2">
@@ -454,12 +454,12 @@ metrics.</p>
 <pre><code><span><span class="co">##                            metric  value</span></span>
 <span><span class="co">## 1                  units_included 4.0000</span></span>
 <span><span class="co">## 2                          coders 4.0000</span></span>
-<span><span class="co">## 3                      categories 3.0000</span></span>
-<span><span class="co">## 4         percent_unanimous_units 0.7500</span></span>
-<span><span class="co">## 5 mean_pairwise_percent_agreement 0.8333</span></span>
-<span><span class="co">## 6      mean_pairwise_cohens_kappa 0.7333</span></span>
-<span><span class="co">## 7             kripp_alpha_nominal 0.7251</span></span>
-<span><span class="co">## 8                    fleiss_kappa 0.7193</span></span></code></pre>
+<span><span class="co">## 3                      categories 4.0000</span></span>
+<span><span class="co">## 4         percent_unanimous_units 0.5000</span></span>
+<span><span class="co">## 5 mean_pairwise_percent_agreement 0.7500</span></span>
+<span><span class="co">## 6      mean_pairwise_cohens_kappa 0.6343</span></span>
+<span><span class="co">## 7             kripp_alpha_nominal 0.6225</span></span>
+<span><span class="co">## 8                    fleiss_kappa 0.6145</span></span></code></pre>
 <p>This output shows the intercoder reliability metrics across the
 different trails, indicating how consistent the LLM-generated
 annotations are across various settings. Higher values suggest greater

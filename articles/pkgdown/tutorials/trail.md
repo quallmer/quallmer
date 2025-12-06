@@ -215,7 +215,7 @@ meta_df %>%
 
 | Field        | Value                                                  |
 |:-------------|:-------------------------------------------------------|
-| timestamp    | 2025-12-03 06:03:42.213851                             |
+| timestamp    | 2025-12-06 22:21:46.415199                             |
 | n_rows       | 4                                                      |
 | provider     | openai                                                 |
 | model        | gpt-4.1-mini                                           |
@@ -290,9 +290,9 @@ trail_mat
     ## # A tibble: 4 × 5
     ##   doc_id        T0   T07   T40  T407
     ##   <chr>      <dbl> <dbl> <dbl> <dbl>
-    ## 1 2013-Obama     2     2     2     2
+    ## 1 2013-Obama     2     2     2     3
     ## 2 2017-Trump     0     0     0     0
-    ## 3 2021-Biden     1     1     2     2
+    ## 3 2021-Biden     1     1     2     1
     ## 4 2025-Trump     0     0     0     0
 
 ## Compute agreement across trails
@@ -314,12 +314,12 @@ trail_icr
     ##                            metric  value
     ## 1                  units_included 4.0000
     ## 2                          coders 4.0000
-    ## 3                      categories 3.0000
-    ## 4         percent_unanimous_units 0.7500
-    ## 5 mean_pairwise_percent_agreement 0.8333
-    ## 6      mean_pairwise_cohens_kappa 0.7333
-    ## 7             kripp_alpha_nominal 0.7251
-    ## 8                    fleiss_kappa 0.7193
+    ## 3                      categories 4.0000
+    ## 4         percent_unanimous_units 0.5000
+    ## 5 mean_pairwise_percent_agreement 0.7500
+    ## 6      mean_pairwise_cohens_kappa 0.6343
+    ## 7             kripp_alpha_nominal 0.6225
+    ## 8                    fleiss_kappa 0.6145
 
 This output shows the intercoder reliability metrics across the
 different trails, indicating how consistent the LLM-generated
