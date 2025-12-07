@@ -89,7 +89,7 @@ The package provides the following core functions:
       against a human-coded gold standard to assess accuracy (e.g.,
       accuracy, precision, recall, F1-score).
 
-# The quallmer trail <a href="https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/trail.html"><img src="man/figures/paw.png" align="center" height="100" alt="quallmer website" /></a>
+# The quallmer trail <a href="https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/trail.html"><img src="man/figures/paw.png" align="center" height="40" alt="quallmer website" /></a>
 
 Apart from the core functions above, the **quallmer** package also
 provides a set of functions to ensure reproducibility and reliability of
@@ -99,37 +99,27 @@ adds a reproducibility layer on top of `annotate()` with the following
 workflow:
 
 1.  **Define trail settings**  
-    Describe LLM trail, i.e., how LLMs should be called (e.g., model,
-    temperature).
+    Describe the LLM trail, i.e., how LLMs should be called (e.g.,
+    model, temperature).
 
-    `trail_setting()`  
+    `trail_settings()`  
     ↓
 
-2.  **Record single LLM trail**  
-    Record single LLM runs on a given task with a specific setting (good
-    for reproducibility).
+2.  **Record single LLM trails for reproducibility**  
+    Record all information needed for reproducing LLM runs on a given
+    task with a specific setting.
 
     `trail_record(data, text_col, task, setting)`  
     ↓
 
-3.  **Run multiple trails with different settings**  
+3.  **Run multiple trails with different settings and assess
+    sensitivity**  
     Run the *same* task and data across multiple settings (e.g.,
-    different LLMs, different temperatures).
+    different LLMs, different temperatures) and compute agreement across
+    trails to illustrate reliability and replication sensitivity of LLM
+    annotations.
 
-    `trail_compare(data, text_col, task, settings = list(...))`  
-    ↓
-
-4.  **Build an output–by–trail matrix**  
-    Treat each trail as a unique “output” and combine outputs.
-
-    `trail_matrix(trail_compare_obj)`  
-    ↓
-
-5.  **Compute agreement across trails**  
-    Assess stability / reliability across multiple LLM runs on the same
-    task with different settings.
-
-    `trail_agreement(trail_compare_obj)`
+    `trail_compare(data, text_col, task, settings = list(...))`
 
 # Supported LLMs
 

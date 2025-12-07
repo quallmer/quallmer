@@ -1,4 +1,4 @@
-#' Trail setting specification
+#' Trail settings specification
 #'
 #' Define a reproducible specification of an LLM setting for use with
 #' quallmer Trail. This object captures the provider, model name,
@@ -14,7 +14,7 @@
 #'
 #' @return An object of class \code{"trail_setting"}.
 #' @export
-trail_setting <- function(
+trail_settings <- function(
     provider    = "openai",
     model       = "gpt-4.1-mini",
     temperature = 0,
@@ -36,7 +36,7 @@ trail_setting <- function(
 #' @param x A \code{trail_setting} object.
 #' @param ... Ignored.
 #' @export
-print.trail_setting <- function(x, ...) {
+print.trail_settings <- function(x, ...) {
   cat("Trail setting\n")
   cat("  Provider:   ", x$provider,    "\n", sep = "")
   cat("  Model:      ", x$model,       "\n", sep = "")

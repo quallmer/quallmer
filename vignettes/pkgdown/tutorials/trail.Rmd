@@ -75,29 +75,29 @@ ideology_scores <- task(
 
 ## Define different trail settings
 
-After having defined our task, we can now set up different trail settings to compare how different LLM configurations affect the results. For this, we can use the `trail_setting()` function. In this example, we will create four settings with different models and different temperature values to see how they affect the LLM's responses.
+After having defined our task, we can now set up different trail settings to compare how different LLM configurations affect the results. For this, we can use the `trail_settings()` function. In this example, we will create four settings with different models and different temperature values to see how they affect the LLM's responses.
 
 ```{r define-trail-settings}
 
-setting_gptmini0 <- trail_setting(
+setting_gptmini0 <- trail_settings(
 provider = "openai",
 model = "gpt-4.1-mini",
 temperature = 0
 )
 
-setting_gptmini7 <- trail_setting(
+setting_gptmini7 <- trail_settings(
 provider = "openai",
 model = "gpt-4.1-mini",
 temperature = 0.7
 )
 
-setting_gpt400 <- trail_setting(
+setting_gpt400 <- trail_settings(
 provider = "openai",
 model = "gpt-4o",
 temperature = 0
 )
 
-setting_gpt407 <- trail_setting(
+setting_gpt407 <- trail_settings(
 provider = "openai",
 model = "gpt-4o",
 temperature = 0.7
@@ -160,39 +160,23 @@ settings = list(
   T40 = setting_gpt400,
   T407 = setting_gpt407
 ),
-id_col = "doc_id"
-)
-
-```
-
-## Build the output-by-trail matrix
-
-This step combines the outputs from the different trails into a matrix format, where each row represents a document and each column represents the output from a specific trail.
-
-```{r build-matrix}
-trail_mat <- trail_matrix(
-x = left_trails,
 id_col = "doc_id",
 label_col = "score"
 )
 
-# Display the trail matrix 
-trail_mat
+# Display the annotation matrix
+left_trails$matrix
+
+
+# Display the intercoder reliability results
+left_trails$icr
+
+
 ```
+The output above shows the annotation matrix where each row corresponds to a document and each column corresponds to a different trail setting. The values in the matrix represent the scores assigned by the LLM under each configuration. This allows us to see how consistent the LLM's annotations are across different settings.
 
-## Compute agreement across trails 
-
-This step assesses the stability and reliability of the LLM-generated annotations across the different trails using intercoder reliability metrics.
-
-```{r compute-agreement}
-trail_icr <- trail_agreement(
-x = left_trails,
-id_col = "doc_id",
-label_col = "score"
-)
-
-trail_icr
-```
-This output shows the intercoder reliability metrics across the different trails, indicating how consistent the LLM-generated annotations are across various settings. Higher values suggest greater reliability and stability of the annotations. 
+The intercoder reliability results provide a quantitative measure of agreement between the different trail settings. Higher values indicate greater consistency in the LLM's annotations across configurations.
 
 Overall, the trail functionality in the `quallmer` package provides a systematic way to assess the reproducibility and reliability of LLM-generated annotations by **recording metadata for single LLM runs and and comparing results across multiple runs with different configurations.** This is particularly useful for researchers who want to ensure that their findings are robust and not overly dependent on specific LLM settings. It also helps with the decision of which model and settings to use for a given annotation task.
+
+Still to come: We plan to add a function that generates sensitivity ranges — effectively mapping how much key settings can vary while still producing stable downstream results, and identifying when those results begin to shift. **Stay tuned for updates!**

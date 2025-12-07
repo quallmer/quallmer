@@ -2,7 +2,7 @@
 % Please edit documentation in R/trail_compare.R
 \name{trail_compare}
 \alias{trail_compare}
-\title{Trail compare: run the same task across multiple settings}
+\title{trail_compare: run a task across multiple settings and compute reliability}
 \usage{
 trail_compare(
   data,
@@ -10,39 +10,68 @@ trail_compare(
   task,
   settings,
   id_col = NULL,
+  label_col = "label",
   cache_dir = "trail_cache",
   overwrite = FALSE,
-  annotate_fun = annotate
+  annotate_fun = annotate,
+  min_coders = 2L
 )
 }
 \arguments{
 \item{data}{A data frame containing the text to be annotated.}
 
-\item{text_col}{Character scalar. Name of the text column.}
+\item{text_col}{Character scalar. Name of the text column containing
+text units to annotate.}
 
-\item{task}{A quallmer task object.}
+\item{task}{A quallmer task object describing what to extract or label.}
 
-\item{settings}{A named list of \code{trail_setting} objects. The
-names will be used as identifiers for each setting (e.g. coder IDs).}
+\item{settings}{A named list of `trail_setting` objects. The list
+names serve as identifiers for each setting (similar to coder IDs).}
 
-\item{id_col}{Optional character scalar. Name of the unit identifier
-column. If \code{NULL}, a temporary \code{".trail_unit_id"} will be
-created and shared across all records.}
+\item{id_col}{Optional character scalar identifying the unit column.
+If `NULL`, a consistent temporary ID (`".trail_unit_id"`) is created
+and added to the input data so annotations from all settings can be
+aligned.}
 
-\item{cache_dir}{Optional directory for caching. Passed to
-\code{trail_record()}.}
+\item{label_col}{Character scalar. Name of the label column in each
+record's `annotations` data that should be used as the code for
+comparison (e.g. `"label"`, `"score"`, `"category"`).}
 
-\item{overwrite}{Logical. If \code{TRUE}, ignore cache for all
-settings and recompute.}
+\item{cache_dir}{Optional character scalar specifying a directory to
+cache LLM outputs. Passed to `trail_record()`. Defaults to
+`"trail_cache"`.}
 
-\item{annotate_fun}{Function used to perform the annotation, passed to
-\code{trail_record()}.}
+\item{overwrite}{Logical. If `TRUE`, ignore all cached results and
+recompute annotations for every setting.}
+
+\item{annotate_fun}{Annotation backend function used by
+`trail_record()` (default = `annotate()`).}
+
+\item{min_coders}{Minimum number of non-missing coders per unit
+required for inclusion in the intercoder reliability calculation.}
 }
 \value{
-An object of class \code{"trail_compare"} containing a named
-  list of \code{trail_record} objects and some basic metadata.
+A `trail_compare` object with components:
+  \describe{
+    \item{records}{Named list of `trail_record` objects (one per setting)}
+    \item{matrix}{Wide coder-style annotation matrix (settings = columns)}
+    \item{icr}{Named list of intercoder reliability statistics}
+    \item{meta}{Metadata on settings, identifiers, task, timestamp, etc.}
+  }
 }
 \description{
-Apply a quallmer task to the same data and text column for a set of
-settings, returning one \code{trail_record} per setting.
+Apply a quallmer task to the same text data under multiple settings,
+producing one `trail_record` per setting, and directly compute a
+coder-style wide matrix plus intercoder reliability scores.
+}
+\details{
+All settings are applied to the same text units. Because the ID
+column is shared across settings, their annotation outputs can be
+directly compared via the `matrix` component, and summarized using
+intercoder reliability statistics in `icr`.
+}
+\seealso{
+* `trail_record()` – run a task for a single setting
+* `trail_matrix()` – align records into coder-style wide format
+* `trail_icr()` – compute intercoder reliability across settings
 }
