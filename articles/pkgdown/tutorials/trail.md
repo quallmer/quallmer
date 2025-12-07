@@ -215,7 +215,7 @@ meta_df %>%
 
 | Field        | Value                                                  |
 |:-------------|:-------------------------------------------------------|
-| timestamp    | 2025-12-07 03:11:10.61691                              |
+| timestamp    | 2025-12-07 03:52:22.771862                             |
 | n_rows       | 4                                                      |
 | provider     | openai                                                 |
 | model        | gpt-4.1-mini                                           |
@@ -267,6 +267,10 @@ label_col = "score"
 
     ## Running task 'Score Political Left Alignment' using model: gpt-4o
 
+    ## [working] (0 + 0) -> 3 -> 1 | ■■■■■■■■■                         25%
+
+    ## [working] (0 + 0) -> 0 -> 4 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100%
+
 ``` r
 # Display the annotation matrix
 left_trails$matrix
@@ -275,7 +279,7 @@ left_trails$matrix
     ## # A tibble: 4 × 5
     ##   doc_id        T0   T07   T40  T407
     ##   <chr>      <dbl> <dbl> <dbl> <dbl>
-    ## 1 2013-Obama     2     2     2     3
+    ## 1 2013-Obama     2     2     2     2
     ## 2 2017-Trump     0     0     0     0
     ## 3 2021-Biden     1     1     2     2
     ## 4 2025-Trump     0     0     0     0
@@ -292,22 +296,22 @@ left_trails$icr
     ## [1] 4
     ## 
     ## $categories
-    ## [1] 4
+    ## [1] 3
     ## 
     ## $percent_unanimous_units
-    ## [1] 0.5
+    ## [1] 0.75
     ## 
     ## $mean_pairwise_percent_agreement
-    ## [1] 0.7083
+    ## [1] 0.8333
     ## 
     ## $mean_pairwise_cohens_kappa
-    ## [1] 0.5576
+    ## [1] 0.7333
     ## 
     ## $kripp_alpha_nominal
-    ## [1] 0.5487
+    ## [1] 0.7251
     ## 
     ## $fleiss_kappa
-    ## [1] 0.5391
+    ## [1] 0.7193
 
 The output above shows the annotation matrix where each row corresponds
 to a document and each column corresponds to a different trail setting.
