@@ -87,7 +87,7 @@ tutorials will guide you through the following topics:
     function, allowing you to tailor the LLM’s output to your specific
     research needs.
 
-5.  [**Using the Agreement
+5.  [**Using the Validate
     App**](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/agreement.html):
     This tutorial will introduce you to the Agreement App to manually
     code data, check LLM annotations, and calculate interrater

@@ -103,31 +103,31 @@ ideology_scores <- task(
 After having defined our task, we can now set up different trail
 settings to compare how different LLM configurations affect the results.
 For this, we can use the
-[`trail_setting()`](https://seraphinem.github.io/quallmer/reference/trail_setting.md)
+[`trail_settings()`](https://seraphinem.github.io/quallmer/reference/trail_settings.md)
 function. In this example, we will create four settings with different
 models and different temperature values to see how they affect the LLM’s
 responses.
 
 ``` r
-setting_gptmini0 <- trail_setting(
+setting_gptmini0 <- trail_settings(
 provider = "openai",
 model = "gpt-4.1-mini",
 temperature = 0
 )
 
-setting_gptmini7 <- trail_setting(
+setting_gptmini7 <- trail_settings(
 provider = "openai",
 model = "gpt-4.1-mini",
 temperature = 0.7
 )
 
-setting_gpt400 <- trail_setting(
+setting_gpt400 <- trail_settings(
 provider = "openai",
 model = "gpt-4o",
 temperature = 0
 )
 
-setting_gpt407 <- trail_setting(
+setting_gpt407 <- trail_settings(
 provider = "openai",
 model = "gpt-4o",
 temperature = 0.7
@@ -215,7 +215,7 @@ meta_df %>%
 
 | Field        | Value                                                  |
 |:-------------|:-------------------------------------------------------|
-| timestamp    | 2025-12-06 22:21:46.415199                             |
+| timestamp    | 2025-12-07 02:16:52.80699                              |
 | n_rows       | 4                                                      |
 | provider     | openai                                                 |
 | model        | gpt-4.1-mini                                           |
@@ -248,7 +248,8 @@ settings = list(
   T40 = setting_gpt400,
   T407 = setting_gpt407
 ),
-id_col = "doc_id"
+id_col = "doc_id",
+label_col = "score"
 )
 ```
 
@@ -270,61 +271,57 @@ id_col = "doc_id"
 
     ## [working] (0 + 0) -> 0 -> 4 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100%
 
-## Build the output-by-trail matrix
-
-This step combines the outputs from the different trails into a matrix
-format, where each row represents a document and each column represents
-the output from a specific trail.
-
 ``` r
-trail_mat <- trail_matrix(
-x = left_trails,
-id_col = "doc_id",
-label_col = "score"
-)
-
-# Display the trail matrix 
-trail_mat
+# Display the annotation matrix
+left_trails$matrix
 ```
 
     ## # A tibble: 4 × 5
     ##   doc_id        T0   T07   T40  T407
     ##   <chr>      <dbl> <dbl> <dbl> <dbl>
-    ## 1 2013-Obama     2     2     2     3
+    ## 1 2013-Obama     2     2     2     2
     ## 2 2017-Trump     0     0     0     0
-    ## 3 2021-Biden     1     1     2     1
+    ## 3 2021-Biden     1     1     2     2
     ## 4 2025-Trump     0     0     0     0
 
-## Compute agreement across trails
-
-This step assesses the stability and reliability of the LLM-generated
-annotations across the different trails using intercoder reliability
-metrics.
-
 ``` r
-trail_icr <- trail_agreement(
-x = left_trails,
-id_col = "doc_id",
-label_col = "score"
-)
-
-trail_icr
+# Display the intercoder reliability results
+left_trails$icr
 ```
 
-    ##                            metric  value
-    ## 1                  units_included 4.0000
-    ## 2                          coders 4.0000
-    ## 3                      categories 4.0000
-    ## 4         percent_unanimous_units 0.5000
-    ## 5 mean_pairwise_percent_agreement 0.7500
-    ## 6      mean_pairwise_cohens_kappa 0.6343
-    ## 7             kripp_alpha_nominal 0.6225
-    ## 8                    fleiss_kappa 0.6145
+    ## $units_included
+    ## [1] 4
+    ## 
+    ## $coders
+    ## [1] 4
+    ## 
+    ## $categories
+    ## [1] 3
+    ## 
+    ## $percent_unanimous_units
+    ## [1] 0.75
+    ## 
+    ## $mean_pairwise_percent_agreement
+    ## [1] 0.8333
+    ## 
+    ## $mean_pairwise_cohens_kappa
+    ## [1] 0.7333
+    ## 
+    ## $kripp_alpha_nominal
+    ## [1] 0.7251
+    ## 
+    ## $fleiss_kappa
+    ## [1] 0.7193
 
-This output shows the intercoder reliability metrics across the
-different trails, indicating how consistent the LLM-generated
-annotations are across various settings. Higher values suggest greater
-reliability and stability of the annotations.
+The output above shows the annotation matrix where each row corresponds
+to a document and each column corresponds to a different trail setting.
+The values in the matrix represent the scores assigned by the LLM under
+each configuration. This allows us to see how consistent the LLM’s
+annotations are across different settings.
+
+The intercoder reliability results provide a quantitative measure of
+agreement between the different trail settings. Higher values indicate
+greater consistency in the LLM’s annotations across configurations.
 
 Overall, the trail functionality in the `quallmer` package provides a
 systematic way to assess the reproducibility and reliability of
@@ -334,3 +331,8 @@ configurations.** This is particularly useful for researchers who want
 to ensure that their findings are robust and not overly dependent on
 specific LLM settings. It also helps with the decision of which model
 and settings to use for a given annotation task.
+
+Still to come: We plan to add a function that generates sensitivity
+ranges — effectively mapping how much key settings can vary while still
+producing stable downstream results, and identifying when those results
+begin to shift. **Stay tuned for updates!**

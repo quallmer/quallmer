@@ -1,7 +1,8 @@
-# Trail compare: run the same task across multiple settings
+# trail_compare: run a task across multiple settings and compute reliability
 
-Apply a quallmer task to the same data and text column for a set of
-settings, returning one `trail_record` per setting.
+Apply a quallmer task to the same text data under multiple settings,
+producing one \`trail_record\` per setting, and directly compute a
+coder-style wide matrix plus intercoder reliability scores.
 
 ## Usage
 
@@ -12,9 +13,11 @@ trail_compare(
   task,
   settings,
   id_col = NULL,
+  label_col = "label",
   cache_dir = "trail_cache",
   overwrite = FALSE,
-  annotate_fun = annotate
+  annotate_fun = annotate,
+  min_coders = 2L
 )
 ```
 
@@ -26,38 +29,79 @@ trail_compare(
 
 - text_col:
 
-  Character scalar. Name of the text column.
+  Character scalar. Name of the text column containing text units to
+  annotate.
 
 - task:
 
-  A quallmer task object.
+  A quallmer task object describing what to extract or label.
 
 - settings:
 
-  A named list of `trail_setting` objects. The names will be used as
-  identifiers for each setting (e.g. coder IDs).
+  A named list of \`trail_setting\` objects. The list names serve as
+  identifiers for each setting (similar to coder IDs).
 
 - id_col:
 
-  Optional character scalar. Name of the unit identifier column. If
-  `NULL`, a temporary `".trail_unit_id"` will be created and shared
-  across all records.
+  Optional character scalar identifying the unit column. If \`NULL\`, a
+  consistent temporary ID (\`".trail_unit_id"\`) is created and added to
+  the input data so annotations from all settings can be aligned.
+
+- label_col:
+
+  Character scalar. Name of the label column in each record's
+  \`annotations\` data that should be used as the code for comparison
+  (e.g. \`"label"\`, \`"score"\`, \`"category"\`).
 
 - cache_dir:
 
-  Optional directory for caching. Passed to
-  [`trail_record()`](https://seraphinem.github.io/quallmer/reference/trail_record.md).
+  Optional character scalar specifying a directory to cache LLM outputs.
+  Passed to \`trail_record()\`. Defaults to \`"trail_cache"\`.
 
 - overwrite:
 
-  Logical. If `TRUE`, ignore cache for all settings and recompute.
+  Logical. If \`TRUE\`, ignore all cached results and recompute
+  annotations for every setting.
 
 - annotate_fun:
 
-  Function used to perform the annotation, passed to
-  [`trail_record()`](https://seraphinem.github.io/quallmer/reference/trail_record.md).
+  Annotation backend function used by \`trail_record()\` (default =
+  \`annotate()\`).
+
+- min_coders:
+
+  Minimum number of non-missing coders per unit required for inclusion
+  in the intercoder reliability calculation.
 
 ## Value
 
-An object of class `"trail_compare"` containing a named list of
-`trail_record` objects and some basic metadata.
+A \`trail_compare\` object with components:
+
+- records:
+
+  Named list of \`trail_record\` objects (one per setting)
+
+- matrix:
+
+  Wide coder-style annotation matrix (settings = columns)
+
+- icr:
+
+  Named list of intercoder reliability statistics
+
+- meta:
+
+  Metadata on settings, identifiers, task, timestamp, etc.
+
+## Details
+
+All settings are applied to the same text units. Because the ID column
+is shared across settings, their annotation outputs can be directly
+compared via the \`matrix\` component, and summarized using intercoder
+reliability statistics in \`icr\`.
+
+## See also
+
+\* \`trail_record()\` – run a task for a single setting \*
+\`trail_matrix()\` – align records into coder-style wide format \*
+\`trail_icr()\` – compute intercoder reliability across settings

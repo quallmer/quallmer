@@ -2,7 +2,6 @@ pandoc: 3.1.11
 pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
-  pkgdown/tutorials/agreement: pkgdown/tutorials/agreement.html
   pkgdown/tutorials/customtask: pkgdown/tutorials/customtask.html
   getting-started: getting-started.html
   pkgdown/tutorials/ollama: pkgdown/tutorials/ollama.html
@@ -15,7 +14,8 @@ articles:
   pkgdown/examples/task_sentiment: pkgdown/examples/task_sentiment.html
   pkgdown/examples/task_stance: pkgdown/examples/task_stance.html
   pkgdown/tutorials/trail: pkgdown/tutorials/trail.html
-last_built: 2025-12-06T22:20Z
+  pkgdown/tutorials/validate: pkgdown/tutorials/validate.html
+last_built: 2025-12-07T02:15Z
 urls:
   reference: https://seraphinem.github.io/quallmer/reference
   article: https://seraphinem.github.io/quallmer/articles

@@ -2,8 +2,6 @@
 
 ### All vignettes
 
-- [Using the Agreement
-  App](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/agreement.md):
 - [Defining custom
   tasks](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/customtask.md):
 - [Getting started with
@@ -28,3 +26,5 @@
   detection](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/task_stance.md):
 - [The quallmer
   trail](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/trail.md):
+- [Using the Validate
+  App](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/validate.md):

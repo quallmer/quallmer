@@ -38,7 +38,7 @@ The sentences were sampled from the corpus used in [Benoit et al.
     <li><a class="dropdown-item" href="../articles/pkgdown/tutorials/ollama.html">Working with an open-source Ollama model</a></li>
     <li><a class="dropdown-item" href="../articles/pkgdown/tutorials/predefined.html">Using predefined tasks</a></li>
     <li><a class="dropdown-item" href="../articles/pkgdown/tutorials/customtask.html">Defining custom tasks</a></li>
-    <li><a class="dropdown-item" href="../articles/pkgdown/tutorials/agreement.html">Using the Agreement App</a></li>
+    <li><a class="dropdown-item" href="../articles/pkgdown/tutorials/validate.html">Using the Agreement App</a></li>
     <li><a class="dropdown-item" href="../articles/pkgdown/tutorials/trail.html">The quallmer trail</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
@@ -216,7 +216,7 @@ The sentences were sampled from the corpus used in [Benoit et al.
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># compute agreement</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="agreement.html">agreement</a></span><span class="op">(</span><span class="va">result_combined</span>, unit_id_col <span class="op">=</span> <span class="st">"id"</span>,</span></span>
+<span class="r-in"><span><span class="fu">agreement</span><span class="op">(</span><span class="va">result_combined</span>, unit_id_col <span class="op">=</span> <span class="st">"id"</span>,</span></span>
 <span class="r-in"><span>          coder_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"llm_immigration_label"</span>, <span class="st">"crowd_immigration_label"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># confusion matrix</span></span></span>

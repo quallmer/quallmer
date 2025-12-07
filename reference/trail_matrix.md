@@ -1,8 +1,8 @@
 # Convert Trail records to coder-style wide data
 
-Treat each setting/record in a Trail comparison as a separate coder and
-convert the annotations into a wide data frame suitable for agreement
-analysis.
+Treat each setting/record in a \`trail_compare\` object as a separate
+coder and convert the annotations into a wide data frame suitable for
+intercoder reliability analysis or other comparisons.
 
 ## Usage
 

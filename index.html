@@ -45,7 +45,7 @@
     <li><a class="dropdown-item" href="articles/pkgdown/tutorials/ollama.html">Working with an open-source Ollama model</a></li>
     <li><a class="dropdown-item" href="articles/pkgdown/tutorials/predefined.html">Using predefined tasks</a></li>
     <li><a class="dropdown-item" href="articles/pkgdown/tutorials/customtask.html">Defining custom tasks</a></li>
-    <li><a class="dropdown-item" href="articles/pkgdown/tutorials/agreement.html">Using the Agreement App</a></li>
+    <li><a class="dropdown-item" href="articles/pkgdown/tutorials/validate.html">Using the Agreement App</a></li>
     <li><a class="dropdown-item" href="articles/pkgdown/tutorials/trail.html">The quallmer trail</a></li>
   </ul>
 </li>
@@ -83,8 +83,8 @@
 <!-- badges: start -->
 
 <p>The <strong>quallmer</strong> package is an <strong>easy-to-use toolbox for qualitative researchers to quickly apply AI-assisted annotation to texts, images, pdfs, tabular data and other structured data.</strong></p>
-<p>Using <code><a href="reference/annotate.html">annotate()</a></code>, users can generate structured, interpretable outputs powered by large language models (LLMs). The package includes a library of <a href="https://seraphinem.github.io/quallmer/articles/pkgdown/examples/overview.html">predefined tasks for common qualitative coding needs</a>, such as sentiment analysis, thematic coding, and stance detection. It also allows users to <a href="https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/customtask.html">create their own custom annotation tasks tailored to their specific research questions and data types</a> using <code><a href="reference/task.html">task()</a></code>. To ensure quality and reliability of AI-generated annotations, <strong>quallmer</strong> offers tools for comparing LLM outputs with human-coded data and assessing inter-coder reliability. With <code><a href="reference/agreement.html">agreement()</a></code>, users can launch an interactive app to manually code data, review AI annotations, and evaluate intercoder reliability between coders and agreement with LLM-generated scores.</p>
-<p><strong>The</strong> quallmer** package makes AI-assisted qualitative coding accessible without requiring deep expertise in R, programming or machine learning.**</p>
+<p>Using <code><a href="reference/annotate.html">annotate()</a></code>, users can generate structured, interpretable outputs powered by large language models (LLMs). The package includes a library of <a href="https://seraphinem.github.io/quallmer/articles/pkgdown/examples/overview.html">predefined tasks for common qualitative coding needs</a>, such as sentiment analysis, thematic coding, and stance detection. It also allows users to <a href="https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/customtask.html">create their own custom annotation tasks tailored to their specific research questions and data types</a> using <code><a href="reference/task.html">task()</a></code>. To ensure quality and reliability of AI-generated annotations, <strong>quallmer</strong> offers tools for comparing LLM outputs with human-coded data and assessing inter-coder reliability. With <code>validation_app()</code>, users can launch an interactive app to manually code data, review AI annotations, and evaluate agreement between human and AI codings. The package also includes a <code>trail_</code> functionality that enables systematic comparisons across multiple LLM runs (“trails”) with different settings to ensure reproducibility and reliability of AI-assisted coding.</p>
+<p><strong>The quallmer package makes AI-assisted qualitative coding accessible without requiring deep expertise in R, programming or machine learning.</strong></p>
 </div>
 <div class="section level1">
 <h1 id="core-functions">Core functions<a class="anchor" aria-label="anchor" href="#core-functions"></a>
@@ -114,63 +114,58 @@
 </ul>
 </div>
 <div class="section level3">
-<h3 id="agreement_app">
-<code>agreement_app()</code><a class="anchor" aria-label="anchor" href="#agreement_app"></a>
+<h3 id="validate_app">
+<code>validate_app()</code><a class="anchor" aria-label="anchor" href="#validate_app"></a>
 </h3>
 <ul>
 <li>Launches an interactive app to
 <ul>
 <li>Manually code data</li>
 <li>Review and validate LLM-generated annotations</li>
-<li>Compare human-coded data with LLM-generated annotations to evaluate agreement and inter-coder reliability with various metrics (e.g., Krippendorff’s alpha, Cohen’s or Fleiss’ kappa).</li>
+<li>Compare human-coded data with LLM-generated annotations to evaluate inter-coder reliability (e.g., Krippendorff’s alpha, Cohen’s or Fleiss’ kappa) or, if a gold standard is available, accuracy (e.g., accuracy, precision, recall, F1-score).</li>
 </ul>
 </li>
 </ul>
 </div>
 <div class="section level3">
-<h3 id="agreement">
-<code>agreement()</code><a class="anchor" aria-label="anchor" href="#agreement"></a>
+<h3 id="validate">
+<code>validate()</code><a class="anchor" aria-label="anchor" href="#validate"></a>
 </h3>
 <ul>
-<li>Calculates intercoder reliability scores (e.g., Krippendorff’s alpha and Cohen’s or Fleiss’ kappa) between multiple human coders or between human coders and LLM-generated annotations.</li>
-<li>Works similar to the Agreement App but can be used programmatically without launching the app.</li>
+<li>Works similar to our validation app but can be used programmatically without launching the app if data has been already manually coded by humans.</li>
+<li>Has two modes:
+<ol style="list-style-type: decimal">
+<li>
+<strong>No gold standard available</strong>: Compare LLM-generated annotations with multiple human coders to assess inter-coder reliability (e.g., Krippendorff’s alpha, Cohen’s or Fleiss’ kappa).</li>
+<li>
+<strong>Gold standard available</strong>: Compare LLM-generated annotations against a human-coded gold standard to assess accuracy (e.g., accuracy, precision, recall, F1-score).</li>
+</ol>
+</li>
 </ul>
 </div>
 </div>
 <div class="section level1">
-<h1 id="the-quallmer-trail-">The quallmer trail <a href="https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/trail.html"><img src="reference/figures/paw.png" align="center" height="100" alt="quallmer website"></a>
+<h1 id="the-quallmer-trail-">The quallmer trail <a href="https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/trail.html"><img src="reference/figures/paw.png" align="center" height="40" alt="quallmer website"></a>
 <a class="anchor" aria-label="anchor" href="#the-quallmer-trail-"></a>
 </h1>
 <p>Apart from the core functions above, the <strong>quallmer</strong> package also provides a set of functions to ensure reproducibility and reliability of LLM-generated annotations through <strong>systematic comparisons across multiple LLM runs with different settings.</strong> This “trail” functionality adds a reproducibility layer on top of <code><a href="reference/annotate.html">annotate()</a></code> with the following workflow:</p>
 <ol style="list-style-type: decimal">
 <li>
 <p><strong>Define trail settings</strong><br>
-Describe LLM trail, i.e., how LLMs should be called (e.g., model, temperature).</p>
-<p><code><a href="reference/trail_setting.html">trail_setting()</a></code><br>
+Describe the LLM trail, i.e., how LLMs should be called (e.g., model, temperature).</p>
+<p><code><a href="reference/trail_settings.html">trail_settings()</a></code><br>
 ↓</p>
 </li>
 <li>
-<p><strong>Record single LLM trail</strong><br>
-Record single LLM runs on a given task with a specific setting (good for reproducibility).</p>
+<p><strong>Record single LLM trails for reproducibility</strong><br>
+Record all information needed for reproducing LLM runs on a given task with a specific setting.</p>
 <p><code>trail_record(data, text_col, task, setting)</code><br>
 ↓</p>
 </li>
 <li>
-<p><strong>Run multiple trails with different settings</strong><br>
-Run the <em>same</em> task and data across multiple settings (e.g., different LLMs, different temperatures).</p>
-<p><code>trail_compare(data, text_col, task, settings = list(...))</code><br>
-↓</p>
-</li>
-<li>
-<p><strong>Build an output–by–trail matrix</strong><br>
-Treat each trail as a unique “output” and combine outputs.</p>
-<p><code>trail_matrix(trail_compare_obj)</code><br>
-↓</p>
-</li>
-<li>
-<p><strong>Compute agreement across trails</strong><br>
-Assess stability / reliability across multiple LLM runs on the same task with different settings.</p>
-<p><code>trail_agreement(trail_compare_obj)</code></p>
+<p><strong>Run multiple trails with different settings and assess sensitivity</strong><br>
+Run the <em>same</em> task and data across multiple settings (e.g., different LLMs, different temperatures) and compute agreement across trails to illustrate reliability and replication sensitivity of LLM annotations.</p>
+<p><code>trail_compare(data, text_col, task, settings = list(...))</code></p>
 </li>
 </ol>
 </div>

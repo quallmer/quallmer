@@ -42,7 +42,7 @@
     <li><a class="dropdown-item" href="../../../articles/pkgdown/tutorials/ollama.html">Working with an open-source Ollama model</a></li>
     <li><a class="dropdown-item" href="../../../articles/pkgdown/tutorials/predefined.html">Using predefined tasks</a></li>
     <li><a class="dropdown-item" href="../../../articles/pkgdown/tutorials/customtask.html">Defining custom tasks</a></li>
-    <li><a class="dropdown-item" href="../../../articles/pkgdown/tutorials/agreement.html">Using the Agreement App</a></li>
+    <li><a class="dropdown-item" href="../../../articles/pkgdown/tutorials/validate.html">Using the Agreement App</a></li>
     <li><a class="dropdown-item" href="../../../articles/pkgdown/tutorials/trail.html">The quallmer trail</a></li>
   </ul>
 </li>
@@ -177,30 +177,30 @@ documentation on type specifications</a>.</p>
 </h2>
 <p>After having defined our task, we can now set up different trail
 settings to compare how different LLM configurations affect the results.
-For this, we can use the <code><a href="../../../reference/trail_setting.html">trail_setting()</a></code> function. In this
+For this, we can use the <code><a href="../../../reference/trail_settings.html">trail_settings()</a></code> function. In this
 example, we will create four settings with different models and
 different temperature values to see how they affect the LLM’s
 responses.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">setting_gptmini0</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../../reference/trail_setting.html">trail_setting</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">setting_gptmini0</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../../reference/trail_settings.html">trail_settings</a></span><span class="op">(</span></span>
 <span>provider <span class="op">=</span> <span class="st">"openai"</span>,</span>
 <span>model <span class="op">=</span> <span class="st">"gpt-4.1-mini"</span>,</span>
 <span>temperature <span class="op">=</span> <span class="fl">0</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">setting_gptmini7</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../../reference/trail_setting.html">trail_setting</a></span><span class="op">(</span></span>
+<span><span class="va">setting_gptmini7</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../../reference/trail_settings.html">trail_settings</a></span><span class="op">(</span></span>
 <span>provider <span class="op">=</span> <span class="st">"openai"</span>,</span>
 <span>model <span class="op">=</span> <span class="st">"gpt-4.1-mini"</span>,</span>
 <span>temperature <span class="op">=</span> <span class="fl">0.7</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">setting_gpt400</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../../reference/trail_setting.html">trail_setting</a></span><span class="op">(</span></span>
+<span><span class="va">setting_gpt400</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../../reference/trail_settings.html">trail_settings</a></span><span class="op">(</span></span>
 <span>provider <span class="op">=</span> <span class="st">"openai"</span>,</span>
 <span>model <span class="op">=</span> <span class="st">"gpt-4o"</span>,</span>
 <span>temperature <span class="op">=</span> <span class="fl">0</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">setting_gpt407</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../../reference/trail_setting.html">trail_setting</a></span><span class="op">(</span></span>
+<span><span class="va">setting_gpt407</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../../reference/trail_settings.html">trail_settings</a></span><span class="op">(</span></span>
 <span>provider <span class="op">=</span> <span class="st">"openai"</span>,</span>
 <span>model <span class="op">=</span> <span class="st">"gpt-4o"</span>,</span>
 <span>temperature <span class="op">=</span> <span class="fl">0.7</span></span>
@@ -283,7 +283,7 @@ Value
 timestamp
 </td>
 <td style="text-align:left;">
-2025-12-06 22:21:46.415199
+2025-12-07 02:16:52.80699
 </td>
 </tr>
 <tr>
@@ -402,7 +402,8 @@ to see how different configurations impact the LLM’s outputs.</p>
 <span>  T40 <span class="op">=</span> <span class="va">setting_gpt400</span>,</span>
 <span>  T407 <span class="op">=</span> <span class="va">setting_gpt407</span></span>
 <span><span class="op">)</span>,</span>
-<span>id_col <span class="op">=</span> <span class="st">"doc_id"</span></span>
+<span>id_col <span class="op">=</span> <span class="st">"doc_id"</span>,</span>
+<span>label_col <span class="op">=</span> <span class="st">"score"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Running task 'Score Political Left Alignment' using model: gpt-4.1-mini</span></span></code></pre>
 <pre><code><span><span class="co">## [working] (0 + 0) -&gt; 3 -&gt; 1 | <span style="color: #00BB00;">■■■■■■■■■                       </span>  25%</span></span></code></pre>
@@ -413,57 +414,50 @@ to see how different configurations impact the LLM’s outputs.</p>
 <pre><code><span><span class="co">## Running task 'Score Political Left Alignment' using model: gpt-4o</span></span></code></pre>
 <pre><code><span><span class="co">## [working] (0 + 0) -&gt; 3 -&gt; 1 | <span style="color: #00BB00;">■■■■■■■■■                       </span>  25%</span></span></code></pre>
 <pre><code><span><span class="co">## [working] (0 + 0) -&gt; 0 -&gt; 4 | <span style="color: #00BB00;">■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ </span> 100%</span></span></code></pre>
-</div>
-<div class="section level2">
-<h2 id="build-the-output-by-trail-matrix">Build the output-by-trail matrix<a class="anchor" aria-label="anchor" href="#build-the-output-by-trail-matrix"></a>
-</h2>
-<p>This step combines the outputs from the different trails into a
-matrix format, where each row represents a document and each column
-represents the output from a specific trail.</p>
 <div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">trail_mat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../../reference/trail_matrix.html">trail_matrix</a></span><span class="op">(</span></span>
-<span>x <span class="op">=</span> <span class="va">left_trails</span>,</span>
-<span>id_col <span class="op">=</span> <span class="st">"doc_id"</span>,</span>
-<span>label_col <span class="op">=</span> <span class="st">"score"</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Display the trail matrix </span></span>
-<span><span class="va">trail_mat</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># Display the annotation matrix</span></span>
+<span><span class="va">left_trails</span><span class="op">$</span><span class="va">matrix</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 4 × 5</span></span></span>
 <span><span class="co">##   doc_id        T0   T07   T40  T407</span></span>
 <span><span class="co">##   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">1</span> 2013-Obama     2     2     2     3</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">1</span> 2013-Obama     2     2     2     2</span></span>
 <span><span class="co">## <span style="color: #BCBCBC;">2</span> 2017-Trump     0     0     0     0</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">3</span> 2021-Biden     1     1     2     1</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">3</span> 2021-Biden     1     1     2     2</span></span>
 <span><span class="co">## <span style="color: #BCBCBC;">4</span> 2025-Trump     0     0     0     0</span></span></code></pre>
-</div>
-<div class="section level2">
-<h2 id="compute-agreement-across-trails">Compute agreement across trails<a class="anchor" aria-label="anchor" href="#compute-agreement-across-trails"></a>
-</h2>
-<p>This step assesses the stability and reliability of the LLM-generated
-annotations across the different trails using intercoder reliability
-metrics.</p>
 <div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">trail_icr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../../reference/trail_agreement.html">trail_agreement</a></span><span class="op">(</span></span>
-<span>x <span class="op">=</span> <span class="va">left_trails</span>,</span>
-<span>id_col <span class="op">=</span> <span class="st">"doc_id"</span>,</span>
-<span>label_col <span class="op">=</span> <span class="st">"score"</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">trail_icr</span></span></code></pre></div>
-<pre><code><span><span class="co">##                            metric  value</span></span>
-<span><span class="co">## 1                  units_included 4.0000</span></span>
-<span><span class="co">## 2                          coders 4.0000</span></span>
-<span><span class="co">## 3                      categories 4.0000</span></span>
-<span><span class="co">## 4         percent_unanimous_units 0.5000</span></span>
-<span><span class="co">## 5 mean_pairwise_percent_agreement 0.7500</span></span>
-<span><span class="co">## 6      mean_pairwise_cohens_kappa 0.6343</span></span>
-<span><span class="co">## 7             kripp_alpha_nominal 0.6225</span></span>
-<span><span class="co">## 8                    fleiss_kappa 0.6145</span></span></code></pre>
-<p>This output shows the intercoder reliability metrics across the
-different trails, indicating how consistent the LLM-generated
-annotations are across various settings. Higher values suggest greater
-reliability and stability of the annotations.</p>
+<code class="sourceCode R"><span><span class="co"># Display the intercoder reliability results</span></span>
+<span><span class="va">left_trails</span><span class="op">$</span><span class="va">icr</span></span></code></pre></div>
+<pre><code><span><span class="co">## $units_included</span></span>
+<span><span class="co">## [1] 4</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## $coders</span></span>
+<span><span class="co">## [1] 4</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## $categories</span></span>
+<span><span class="co">## [1] 3</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## $percent_unanimous_units</span></span>
+<span><span class="co">## [1] 0.75</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## $mean_pairwise_percent_agreement</span></span>
+<span><span class="co">## [1] 0.8333</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## $mean_pairwise_cohens_kappa</span></span>
+<span><span class="co">## [1] 0.7333</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## $kripp_alpha_nominal</span></span>
+<span><span class="co">## [1] 0.7251</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## $fleiss_kappa</span></span>
+<span><span class="co">## [1] 0.7193</span></span></code></pre>
+<p>The output above shows the annotation matrix where each row
+corresponds to a document and each column corresponds to a different
+trail setting. The values in the matrix represent the scores assigned by
+the LLM under each configuration. This allows us to see how consistent
+the LLM’s annotations are across different settings.</p>
+<p>The intercoder reliability results provide a quantitative measure of
+agreement between the different trail settings. Higher values indicate
+greater consistency in the LLM’s annotations across configurations.</p>
 <p>Overall, the trail functionality in the <code>quallmer</code> package
 provides a systematic way to assess the reproducibility and reliability
 of LLM-generated annotations by <strong>recording metadata for single
@@ -472,6 +466,10 @@ configurations.</strong> This is particularly useful for researchers who
 want to ensure that their findings are robust and not overly dependent
 on specific LLM settings. It also helps with the decision of which model
 and settings to use for a given annotation task.</p>
+<p>Still to come: We plan to add a function that generates sensitivity
+ranges — effectively mapping how much key settings can vary while still
+producing stable downstream results, and identifying when those results
+begin to shift. <strong>Stay tuned for updates!</strong></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

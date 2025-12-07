@@ -18,15 +18,16 @@ using
 [`task()`](https://seraphinem.github.io/quallmer/reference/task.md). To
 ensure quality and reliability of AI-generated annotations, **quallmer**
 offers tools for comparing LLM outputs with human-coded data and
-assessing inter-coder reliability. With
-[`agreement()`](https://seraphinem.github.io/quallmer/reference/agreement.md),
-users can launch an interactive app to manually code data, review AI
-annotations, and evaluate intercoder reliability between coders and
-agreement with LLM-generated scores.
+assessing inter-coder reliability. With `validation_app()`, users can
+launch an interactive app to manually code data, review AI annotations,
+and evaluate agreement between human and AI codings. The package also
+includes a `trail_` functionality that enables systematic comparisons
+across multiple LLM runs (“trails”) with different settings to ensure
+reproducibility and reliability of AI-assisted coding.
 
-**The** quallmer\*\* package makes AI-assisted qualitative coding
-accessible without requiring deep expertise in R, programming or machine
-learning.\*\*
+**The quallmer package makes AI-assisted qualitative coding accessible
+without requiring deep expertise in R, programming or machine
+learning.**
 
 # Core functions
 
@@ -56,22 +57,28 @@ The package provides the following core functions:
 - This allows users to tailor the annotation process to their specific
   data types and makes our package extensible for future use cases.
 
-### `agreement_app()`
+### `validate_app()`
 
 - Launches an interactive app to
   - Manually code data
   - Review and validate LLM-generated annotations
   - Compare human-coded data with LLM-generated annotations to evaluate
-    agreement and inter-coder reliability with various metrics (e.g.,
-    Krippendorff’s alpha, Cohen’s or Fleiss’ kappa).
+    inter-coder reliability (e.g., Krippendorff’s alpha, Cohen’s or
+    Fleiss’ kappa) or, if a gold standard is available, accuracy (e.g.,
+    accuracy, precision, recall, F1-score).
 
-### `agreement()`
+### `validate()`
 
-- Calculates intercoder reliability scores (e.g., Krippendorff’s alpha
-  and Cohen’s or Fleiss’ kappa) between multiple human coders or between
-  human coders and LLM-generated annotations.
-- Works similar to the Agreement App but can be used programmatically
-  without launching the app.
+- Works similar to our validation app but can be used programmatically
+  without launching the app if data has been already manually coded by
+  humans.
+- Has two modes:
+  1.  **No gold standard available**: Compare LLM-generated annotations
+      with multiple human coders to assess inter-coder reliability
+      (e.g., Krippendorff’s alpha, Cohen’s or Fleiss’ kappa).
+  2.  **Gold standard available**: Compare LLM-generated annotations
+      against a human-coded gold standard to assess accuracy (e.g.,
+      accuracy, precision, recall, F1-score).
 
 # The quallmer trail [![quallmer website](reference/figures/paw.png)](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/trail.html)
 
@@ -84,37 +91,27 @@ adds a reproducibility layer on top of
 with the following workflow:
 
 1.  **Define trail settings**  
-    Describe LLM trail, i.e., how LLMs should be called (e.g., model,
-    temperature).
+    Describe the LLM trail, i.e., how LLMs should be called (e.g.,
+    model, temperature).
 
-    [`trail_setting()`](https://seraphinem.github.io/quallmer/reference/trail_setting.md)  
+    [`trail_settings()`](https://seraphinem.github.io/quallmer/reference/trail_settings.md)  
     ↓
 
-2.  **Record single LLM trail**  
-    Record single LLM runs on a given task with a specific setting (good
-    for reproducibility).
+2.  **Record single LLM trails for reproducibility**  
+    Record all information needed for reproducing LLM runs on a given
+    task with a specific setting.
 
     `trail_record(data, text_col, task, setting)`  
     ↓
 
-3.  **Run multiple trails with different settings**  
+3.  **Run multiple trails with different settings and assess
+    sensitivity**  
     Run the *same* task and data across multiple settings (e.g.,
-    different LLMs, different temperatures).
+    different LLMs, different temperatures) and compute agreement across
+    trails to illustrate reliability and replication sensitivity of LLM
+    annotations.
 
-    `trail_compare(data, text_col, task, settings = list(...))`  
-    ↓
-
-4.  **Build an output–by–trail matrix**  
-    Treat each trail as a unique “output” and combine outputs.
-
-    `trail_matrix(trail_compare_obj)`  
-    ↓
-
-5.  **Compute agreement across trails**  
-    Assess stability / reliability across multiple LLM runs on the same
-    task with different settings.
-
-    `trail_agreement(trail_compare_obj)`
+    `trail_compare(data, text_col, task, settings = list(...))`
 
 # Supported LLMs
 

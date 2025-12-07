@@ -42,7 +42,7 @@
     <li><a class="dropdown-item" href="../../../articles/pkgdown/tutorials/ollama.html">Working with an open-source Ollama model</a></li>
     <li><a class="dropdown-item" href="../../../articles/pkgdown/tutorials/predefined.html">Using predefined tasks</a></li>
     <li><a class="dropdown-item" href="../../../articles/pkgdown/tutorials/customtask.html">Defining custom tasks</a></li>
-    <li><a class="dropdown-item" href="../../../articles/pkgdown/tutorials/agreement.html">Using the Agreement App</a></li>
+    <li><a class="dropdown-item" href="../../../articles/pkgdown/tutorials/validate.html">Using the Agreement App</a></li>
     <li><a class="dropdown-item" href="../../../articles/pkgdown/tutorials/trail.html">The quallmer trail</a></li>
   </ul>
 </li>
@@ -147,11 +147,10 @@ which expresses strong approval and delight.
 2
 </td>
 <td style="text-align:right;">
--0.8
+-0.7
 </td>
 <td style="text-align:left;">
-The word ‘dislike’ indicates a strong negative sentiment towards the
-approach.
+The word ‘dislike’ indicates a negative sentiment towards the approach.
 </td>
 </tr>
 <tr>
@@ -163,7 +162,7 @@ approach.
 </td>
 <td style="text-align:left;">
 The word ‘disappointing’ indicates a negative sentiment, though
-‘somewhat’ softens the impact slightly.
+‘somewhat’ softens it slightly.
 </td>
 </tr>
 <tr>
@@ -174,8 +173,8 @@ The word ‘disappointing’ indicates a negative sentiment, though
 0.9
 </td>
 <td style="text-align:left;">
-The phrase “Absolutely fantastic work!” is highly positive, expressing
-strong approval and admiration.
+The phrase is highly positive, using words like ‘absolutely’ and
+‘fantastic’ to express strong approval and admiration.
 </td>
 </tr>
 </tbody>
@@ -231,7 +230,7 @@ confidence
 0.9
 </td>
 <td style="text-align:left;">
-The word ‘wonderful’ conveys a very positive sentiment.
+The word ‘wonderful’ conveys a strong positive sentiment.
 </td>
 <td style="text-align:right;">
 0.95
@@ -261,7 +260,7 @@ approach.
 </td>
 <td style="text-align:left;">
 The word ‘disappointing’ indicates a negative sentiment, though
-‘somewhat’ softens the impact slightly.
+‘somewhat’ softens it slightly.
 </td>
 <td style="text-align:right;">
 0.90
@@ -301,6 +300,8 @@ scale.</p>
 <span>                          chat_fn <span class="op">=</span> <span class="va">chat_openai</span>, model <span class="op">=</span> <span class="st">"gpt-4o"</span>,</span>
 <span>                          api_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>temperature <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Running task 'Likert scale sentiment analysis' using model: gpt-4o</span></span></code></pre>
+<pre><code><span><span class="co">## [working] (0 + 0) -&gt; 3 -&gt; 1 | <span style="color: #00BB00;">■■■■■■■■■                       </span>  25%</span></span></code></pre>
+<pre><code><span><span class="co">## [working] (0 + 0) -&gt; 0 -&gt; 4 | <span style="color: #00BB00;">■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ </span> 100%</span></span></code></pre>
 <table class="table table table-striped table-hover" style="margin-left: auto; margin-right: auto;">
 <thead><tr>
 <th style="text-align:right;">
@@ -322,7 +323,8 @@ explanation
 5
 </td>
 <td style="text-align:left;">
-The word ‘wonderful’ conveys a very positive sentiment.
+The word ‘wonderful’ conveys a very positive sentiment, indicating
+delight or admiration.
 </td>
 </tr>
 <tr>
@@ -357,8 +359,8 @@ The word ‘disappointing’ indicates a negative sentiment, though
 5
 </td>
 <td style="text-align:left;">
-The phrase expresses strong positive sentiment with words like
-‘absolutely’ and ‘fantastic,’ indicating high praise.
+The phrase is highly positive, using strong words like ‘absolutely’ and
+‘fantastic’ to express admiration and satisfaction.
 </td>
 </tr>
 </tbody>
