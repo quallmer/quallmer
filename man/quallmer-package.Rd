@@ -4,11 +4,11 @@
 \name{quallmer-package}
 \alias{quallmer}
 \alias{quallmer-package}
-\title{quallmer: Qualitative analysis with large language models}
+\title{quallmer: Qualitative Analysis with Large Language Models}
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
-Provides userfriendly support for qualitative analysis with large language models (LLMs).
+Provides user-friendly support for qualitative analysis with large language models.
 }
 \seealso{
 Useful links:
