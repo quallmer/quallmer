@@ -123,7 +123,7 @@ task_salience <- function(topics = NULL, max_topics = 5) {
     )
   } else {
     paste0(
-      "\n\nIdentify and return up to", max_topics,
+      "\n\nIdentify and return up to ", max_topics,
       " of the most salient topics directly from the text, ranked in descending order of salience.",
       " If fewer topics are clearly present, return only those."
     )
@@ -132,7 +132,7 @@ task_salience <- function(topics = NULL, max_topics = 5) {
   type_def <- ellmer::type_object(
     topics = ellmer::type_array(
       ellmer::type_string(
-        paste0("Topics mentioned in the text, listed in order of salience (first = most salient, up to", max_topics," topics).")
+        paste0("Topics mentioned in the text, listed in order of salience (first = most salient, up to ", max_topics, " topics).")
       )
     ),
     explanation = ellmer::type_string(
