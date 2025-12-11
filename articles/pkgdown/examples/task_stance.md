@@ -62,7 +62,7 @@ result <- annotate(data_corpus_inaugural, task = task_stance(topic),
 |:-----------|:--------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | 2013-Obama | Pro     | The text explicitly acknowledges the threat of climate change and emphasizes the need for collective action to address it. It highlights the importance of transitioning to sustainable energy sources and leading in technology to preserve the environment for future generations. |
 | 2017-Trump | Neutral | The text does not explicitly mention climate change or environmental issues. It focuses on national pride, economic growth, and political change without addressing climate-related topics.                                                                                          |
-| 2021-Biden | Pro     | The text acknowledges climate change as a crisis, referring to it as a ‘climate in crisis’ and includes it among the significant challenges facing the nation. This indicates a stance that recognizes the reality and urgency of addressing climate change.                         |
+| 2021-Biden | Pro     | The text acknowledges climate change as a crisis, referring to it as a ‘cry for survival from the planet itself’ and a ‘climate in crisis.’ This indicates a recognition of the issue and the need for action, aligning with a pro-climate change stance.                            |
 | 2025-Trump | Contra  | The text expresses a stance against climate change initiatives by declaring an end to the Green New Deal and revoking the electric vehicle mandate. It emphasizes increasing fossil fuel production and use, which contradicts efforts to combat climate change.                     |
 
 ### Adjusting the stance detection task
@@ -97,16 +97,16 @@ custom_result <- annotate(data_corpus_inaugural, task = custom_stance,
 
     ## Running task 'Custom stance detection' using model: gpt-4o
 
-    ## [working] (0 + 0) -> 2 -> 2 | ■■■■■■■■■■■■■■■■                  50%
+    ## [working] (0 + 0) -> 1 -> 3 | ■■■■■■■■■■■■■■■■■■■■■■■           75%
 
     ## [working] (0 + 0) -> 0 -> 4 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100%
 
-| id         | stance  | explanation                                                                                                                                                                                                                                                   | confidence |
-|:-----------|:--------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------:|
-| 2013-Obama | Pro     | The text explicitly acknowledges the threat of climate change and emphasizes the need for collective action to address it. It mentions the importance of transitioning to sustainable energy sources and leading in technology to combat climate change.      |       0.95 |
-| 2017-Trump | Neutral | The text is an inaugural speech focused on national pride, economic revitalization, and political change. It does not explicitly mention climate change or environmental policies, making it neutral on the topic.                                            |       0.90 |
-| 2021-Biden | Pro     | The text acknowledges climate change as a crisis, referring to it as a ‘climate in crisis’ and emphasizing the need to address it as part of the broader challenges facing the nation. This indicates a recognition of climate change as a significant issue. |       0.95 |
-| 2025-Trump | Contra  | The text does not mention climate change directly, but it opposes environmental policies like the Green New Deal and promotes increased fossil fuel use, which are typically associated with climate change mitigation efforts.                               |       0.90 |
+| id         | stance  | explanation                                                                                                                                                                                                                                                                             | confidence |
+|:-----------|:--------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------:|
+| 2013-Obama | Pro     | The text explicitly acknowledges the threat of climate change and emphasizes the need for collective action to address it. It mentions the importance of transitioning to sustainable energy sources and leading in technology to combat climate change, indicating a proactive stance. |       0.95 |
+| 2017-Trump | Neutral | The text is an inaugural speech focused on national pride, economic revitalization, and political change. It does not explicitly mention climate change or environmental policies, making it neutral on the topic.                                                                      |       0.90 |
+| 2021-Biden | Pro     | The text acknowledges climate change as a crisis, referring to it as a ‘climate in crisis’ and includes it among the significant challenges facing the nation. This indicates a recognition of climate change as a serious issue that needs to be addressed.                            |       0.95 |
+| 2025-Trump | Contra  | The text emphasizes ending the Green New Deal and revoking the electric vehicle mandate, which are measures typically associated with climate change mitigation. This suggests a stance against proactive climate change policies.                                                      |       0.95 |
 
 Or, you might want the LLM to extract specific arguments supporting the
 stance.

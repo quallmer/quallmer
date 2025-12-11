@@ -7,7 +7,7 @@ Simple description of an LLM configuration for use with quallmer Trails.
 ``` r
 trail_settings(
   provider = "openai",
-  model = "gpt-4.1-mini",
+  model = "gpt-4o-mini",
   temperature = 0,
   extra = list()
 )
@@ -22,8 +22,7 @@ trail_settings(
 
 - model:
 
-  Character. Model identifier, e.g. "gpt-4.1-mini", "gpt-4o-mini",
-  "llama3.2:1b".
+  Character. Model identifier, e.g. "gpt-4o-mini", "llama3.2:1b".
 
 - temperature:
 
@@ -31,7 +30,7 @@ trail_settings(
 
 - extra:
 
-  Named list of extra arguments merged into \`api_args\`.
+  Named list of extra arguments merged into `api_args`.
 
 ## Value
 

@@ -1,8 +1,8 @@
 # Compute intercoder reliability across Trail settings
 
 Convenience helper to compute intercoder reliability across multiple
-Trail records or a \`trail_compare\` object by treating each setting as
-a coder and calling
+Trail records or a `trail_compare` object by treating each setting as a
+coder and calling
 [`validate()`](https://seraphinem.github.io/quallmer/reference/validate.md)
 in `mode = "icr"`.
 
@@ -60,6 +60,11 @@ this is a named list of intercoder reliability statistics.
 
 ## See also
 
-\* \`trail_compare()\` – run the same task across multiple settings \*
-\`trail_matrix()\` – underlying wide data used here \* \`validate()\` –
-core validation / ICR engine
+- [`trail_compare()`](https://seraphinem.github.io/quallmer/reference/trail_compare.md)
+  – run the same task across multiple settings
+
+- [`trail_matrix()`](https://seraphinem.github.io/quallmer/reference/trail_matrix.md)
+  – underlying wide data used here
+
+- [`validate()`](https://seraphinem.github.io/quallmer/reference/validate.md)
+  – core validation / ICR engine

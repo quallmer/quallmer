@@ -15,6 +15,7 @@ A shiny.appobj
 
 ## Details
 
-\- In LLM mode, you can also select metadata columns. - In Validation
-mode, select unit ID and coder columns (no text column), and optionally
-specify a gold-standard coder.
+- In LLM mode, you can also select metadata columns.
+
+- In Validation mode, select unit ID and coder columns (no text column),
+  and optionally specify a gold-standard coder.
