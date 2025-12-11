@@ -5,8 +5,10 @@
 \alias{data_corpus_manifsentsUK2010sample}
 \title{Sample of UK manifesto sentences 2010 crowd-annotated for immigration}
 \format{
-The corpus consists of 155 sentences randomly sampled from the party manifestos, with an attempt to balance
-the sentencs according to their categorisation as pertaining to immigration or not, as well as by party.
+A \link[quanteda:corpus]{corpus} object.
+The corpus consists of 155 sentences randomly sampled from the party
+manifestos, with an attempt to balance the sentencs according to their
+categorisation as pertaining to immigration or not, as well as by party.
 The corpus contains the following document-level variables: \describe{
 \item{party}{factor; abbreviation of the party that wrote the manifesto.}
 \item{partyname}{factor; party that wrote the manifesto.}
@@ -24,8 +26,6 @@ variable ranges from -1 (Favorable and open immigration policy) to +1
 contributed to the
 mean score \code{crowd_immigration_mean}.}
 }
-
-A \link[quanteda:corpus]{corpus} object.
 }
 \usage{
 data_corpus_manifsentsUK2010sample

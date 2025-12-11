@@ -10,9 +10,10 @@
 #' @description The sentences were sampled from the corpus used in [Benoit et al.
 #'   (2016)](https://doi.org/10.1017/S0003055416000058), which contains more
 #'   information on the crowd-sourced annotation  approach.
-#' @format
-#'   The corpus consists of 155 sentences randomly sampled from the party manifestos, with an attempt to balance
-#'   the sentencs according to their categorisation as pertaining to immigration or not, as well as by party.
+#' @format A [corpus][quanteda::corpus] object.
+#'   The corpus consists of 155 sentences randomly sampled from the party
+#'   manifestos, with an attempt to balance the sentencs according to their
+#'   categorisation as pertaining to immigration or not, as well as by party.
 #'   The corpus contains the following document-level variables: \describe{
 #'   \item{party}{factor; abbreviation of the party that wrote the manifesto.}
 #'   \item{partyname}{factor; party that wrote the manifesto.}
@@ -34,8 +35,6 @@
 #'   [Crowd-sourced Text Analysis:
 #'   Reproducible and Agile Production of Political Data](https://doi.org/10.1017/S0003055416000058).
 #'   *American Political Science Review*, 100,(2), 278--295.
-#' @format
-#'  A [corpus][quanteda::corpus] object.
 #' @keywords data
 #' @examples
 #' \dontrun{
