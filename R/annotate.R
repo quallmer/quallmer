@@ -36,22 +36,18 @@
 #' \dontrun{
 #' # Basic sentiment analysis
 #' texts <- c("I love this product!", "This is terrible.")
-#' result <- annotate(texts, task_sentiment())
+#' annotate(texts, task_sentiment())
 #'
 #' # With named inputs (names become IDs in output)
 #' texts <- c(doc1 = "Great service!", doc2 = "Very disappointing.")
-#' result <- annotate(texts, task_sentiment())
+#' annotate(texts, task_sentiment())
 #'
 #' # Using a different model
-#' result <- annotate(texts, task_sentiment(), model = "gpt-4o-mini")
-#'
-#' # With temperature setting (passed to chat_fn)
-#' result <- annotate(texts, task_sentiment(), temperature = 0)
+#' annotate(texts, task_sentiment(), model = "gpt-4o-mini")
 #'
 #' # Using Ollama locally
-#' result <- annotate(texts, task_sentiment(),
-#'                    chat_fn = ellmer::chat_ollama,
-#'                    model = "llama3.2:3b")
+#' annotate(texts, task_sentiment(), chat_fn = ellmer::chat_ollama,
+#'          model = "llama3.2")
 #' }
 #'
 #' @export
