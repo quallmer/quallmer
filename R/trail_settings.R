@@ -4,8 +4,8 @@
 #'
 #' @param provider Character. Backend provider identifier, e.g. "openai",
 #'   "ollama", "azure", etc.
-#' @param model Character. Model identifier, e.g. "gpt-4.1-mini",
-#'   "gpt-4o-mini", "llama3.2:1b".
+#' @param model Character. Model identifier, e.g. "gpt-4o-mini",
+#'   "llama3.2:1b".
 #' @param temperature Numeric scalar. Sampling temperature (default 0).
 #' @param extra Named list of extra arguments merged into `api_args`.
 #'
@@ -13,7 +13,7 @@
 #' @export
 trail_settings <- function(
     provider    = "openai",
-    model       = "gpt-4.1-mini",
+    model       = "gpt-4o-mini",
     temperature = 0,
     extra       = list()
 ) {

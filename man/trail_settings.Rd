@@ -6,7 +6,7 @@
 \usage{
 trail_settings(
   provider = "openai",
-  model = "gpt-4.1-mini",
+  model = "gpt-4o-mini",
   temperature = 0,
   extra = list()
 )
@@ -15,8 +15,8 @@ trail_settings(
 \item{provider}{Character. Backend provider identifier, e.g. "openai",
 "ollama", "azure", etc.}
 
-\item{model}{Character. Model identifier, e.g. "gpt-4.1-mini",
-"gpt-4o-mini", "llama3.2:1b".}
+\item{model}{Character. Model identifier, e.g. "gpt-4o-mini",
+"llama3.2:1b".}
 
 \item{temperature}{Numeric scalar. Sampling temperature (default 0).}
 
