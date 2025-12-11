@@ -7,16 +7,62 @@
 annotate(.data, task, ...)
 }
 \arguments{
-\item{.data}{Input data (text, image, etc.)}
+\item{.data}{Input data: a character vector of texts (for text tasks) or
+file paths to images (for image tasks). Named vectors will use names
+as identifiers in the output; unnamed vectors will use sequential integers.}
 
-\item{task}{A task created with [task()]}
+\item{task}{A task object created with \code{\link[=task]{task()}}}
 
-\item{...}{Additional arguments passed to task$run()}
+\item{...}{Additional arguments passed to the task's \code{run()} method:
+\describe{
+\item{\code{chat_fn}}{Chat function to use (default: \code{\link[ellmer:chat_openai]{ellmer::chat_openai()}}).
+Other options include \code{\link[ellmer:chat_ollama]{ellmer::chat_ollama()}}, \code{\link[ellmer:chat_google_gemini]{ellmer::chat_google_gemini()}}, etc.}
+\item{\code{model}}{Model identifier string (default: \code{"gpt-4o"}).}
+\item{\code{verbose}}{Logical; whether to print progress messages
+(default: \code{TRUE}).}
+}
+Any additional arguments are passed to \code{chat_fn()}, such as
+\code{temperature}, \code{seed}, or other provider-specific options.}
 }
 \value{
-Structured data frame with results
+A data frame with one row per input element, containing:
+\describe{
+\item{\code{id}}{Identifier for each input (from names or sequential integers).}
+\item{...}{Additional columns as defined by the task's \code{type_def}.
+For example, \code{\link[=task_sentiment]{task_sentiment()}} returns \code{score} and \code{explanation};
+\code{\link[=task_stance]{task_stance()}} returns \code{stance} and \code{explanation}.}
+}
 }
 \description{
-Automatically detects the correct task type (e.g., text, image).
-Delegates the actual processing to the task's internal run() method.
+Applies an annotation task to input data, automatically detecting the
+input type based on the task definition. Delegates processing to the
+task's internal \code{run()} method.
+}
+\examples{
+\dontrun{
+# Basic sentiment analysis
+texts <- c("I love this product!", "This is terrible.")
+result <- annotate(texts, task_sentiment())
+
+# With named inputs (names become IDs in output)
+texts <- c(doc1 = "Great service!", doc2 = "Very disappointing.")
+result <- annotate(texts, task_sentiment())
+
+# Using a different model
+result <- annotate(texts, task_sentiment(), model = "gpt-4o-mini")
+
+# With temperature setting (passed to chat_fn)
+result <- annotate(texts, task_sentiment(), temperature = 0)
+
+# Using Ollama locally
+result <- annotate(texts, task_sentiment(),
+                   chat_fn = ellmer::chat_ollama,
+                   model = "llama3.2:3b")
+}
+
+}
+\seealso{
+\code{\link[=task]{task()}} for creating custom tasks, \code{\link[=task_sentiment]{task_sentiment()}}, \code{\link[=task_stance]{task_stance()}},
+\code{\link[=task_ideology]{task_ideology()}}, \code{\link[=task_salience]{task_salience()}}, \code{\link[=task_fact]{task_fact()}} for predefined tasks,
+\code{\link[=validate]{validate()}} for computing agreement metrics on annotations.
 }

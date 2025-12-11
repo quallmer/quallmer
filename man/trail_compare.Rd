@@ -25,53 +25,55 @@ text units to annotate.}
 
 \item{task}{A quallmer task object describing what to extract or label.}
 
-\item{settings}{A named list of `trail_setting` objects. The list
+\item{settings}{A named list of \code{trail_setting} objects. The list
 names serve as identifiers for each setting (similar to coder IDs).}
 
 \item{id_col}{Optional character scalar identifying the unit column.
-If `NULL`, a consistent temporary ID (`".trail_unit_id"`) is created
+If \code{NULL}, a consistent temporary ID (\code{".trail_unit_id"}) is created
 and added to the input data so annotations from all settings can be
 aligned.}
 
 \item{label_col}{Character scalar. Name of the label column in each
-record's `annotations` data that should be used as the code for
-comparison (e.g. `"label"`, `"score"`, `"category"`).}
+record's \code{annotations} data that should be used as the code for
+comparison (e.g. \code{"label"}, \code{"score"}, \code{"category"}).}
 
 \item{cache_dir}{Optional character scalar specifying a directory to
-cache LLM outputs. Passed to `trail_record()`. Defaults to
-`"trail_cache"`.}
+cache LLM outputs. Passed to \code{trail_record()}. Defaults to
+\code{"trail_cache"}.}
 
-\item{overwrite}{Logical. If `TRUE`, ignore all cached results and
+\item{overwrite}{Logical. If \code{TRUE}, ignore all cached results and
 recompute annotations for every setting.}
 
 \item{annotate_fun}{Annotation backend function used by
-`trail_record()` (default = `annotate()`).}
+\code{trail_record()} (default = \code{annotate()}).}
 
 \item{min_coders}{Minimum number of non-missing coders per unit
 required for inclusion in the intercoder reliability calculation.}
 }
 \value{
-A `trail_compare` object with components:
-  \describe{
-    \item{records}{Named list of `trail_record` objects (one per setting)}
-    \item{matrix}{Wide coder-style annotation matrix (settings = columns)}
-    \item{icr}{Named list of intercoder reliability statistics}
-    \item{meta}{Metadata on settings, identifiers, task, timestamp, etc.}
-  }
+A \code{trail_compare} object with components:
+\describe{
+\item{records}{Named list of \code{trail_record} objects (one per setting)}
+\item{matrix}{Wide coder-style annotation matrix (settings = columns)}
+\item{icr}{Named list of intercoder reliability statistics}
+\item{meta}{Metadata on settings, identifiers, task, timestamp, etc.}
+}
 }
 \description{
 Apply a quallmer task to the same text data under multiple settings,
-producing one `trail_record` per setting, and directly compute a
+producing one \code{trail_record} per setting, and directly compute a
 coder-style wide matrix plus intercoder reliability scores.
 }
 \details{
 All settings are applied to the same text units. Because the ID
 column is shared across settings, their annotation outputs can be
-directly compared via the `matrix` component, and summarized using
-intercoder reliability statistics in `icr`.
+directly compared via the \code{matrix} component, and summarized using
+intercoder reliability statistics in \code{icr}.
 }
 \seealso{
-* `trail_record()` – run a task for a single setting
-* `trail_matrix()` – align records into coder-style wide format
-* `trail_icr()` – compute intercoder reliability across settings
+\itemize{
+\item \code{trail_record()} – run a task for a single setting
+\item \code{trail_matrix()} – align records into coder-style wide format
+\item \code{trail_icr()} – compute intercoder reliability across settings
+}
 }

@@ -9,18 +9,18 @@ task(name, system_prompt, type_def, input_type = c("text", "image"))
 \arguments{
 \item{name}{Name of the task.}
 
-\item{system_prompt}{System prompt to guide the model (as required by ellmer's `chat_fn`).}
+\item{system_prompt}{System prompt to guide the model (as required by ellmer's \code{chat_fn}).}
 
-\item{type_def}{Structured output definition, e.g., created by `ellmer::type_object()`,
-`ellmer::type_array()`, or `ellmer::type_enum()`.}
+\item{type_def}{Structured output definition, e.g., created by \code{ellmer::type_object()},
+\code{ellmer::type_array()}, or \code{ellmer::type_enum()}.}
 
-\item{input_type}{Type of input data: `"text"` or `"image"`.}
+\item{input_type}{Type of input data: \code{"text"} or \code{"image"}.}
 }
 \value{
-A task object with a `run()` method.
+A task object with a \code{run()} method.
 }
 \description{
 A flexible task definition wrapper for ellmer.
-Supports any structured output type, including `type_object()`, `type_array()`,
-`type_enum()`, `type_boolean()`, and others.
+Supports any structured output type, including \code{type_object()}, \code{type_array()},
+\code{type_enum()}, \code{type_boolean()}, and others.
 }

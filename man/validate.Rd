@@ -40,34 +40,34 @@ For \code{mode = "gold"}, the result is always a data frame.}
 }
 \value{
 If \code{mode = "icr"}:
-  \itemize{
-    \item If \code{output = "list"} (default): a named list of scalar
-      metrics (e.g. \code{res$fleiss_kappa}).
-    \item If \code{output = "data.frame"}: a data frame with columns
-      \code{metric} and \code{value}.
-  }
+\itemize{
+\item If \code{output = "list"} (default): a named list of scalar
+metrics (e.g. \code{res$fleiss_kappa}).
+\item If \code{output = "data.frame"}: a data frame with columns
+\code{metric} and \code{value}.
+}
 
-  If \code{mode = "gold"}: a data frame with one row per non-gold coder and
-  columns:
-  \describe{
-    \item{coder_id}{Name of the coder column compared to the gold standard}
-    \item{n}{Number of units with non-missing gold and coder codes}
-    \item{accuracy}{Overall accuracy}
-    \item{precision_macro}{Macro-averaged precision across categories}
-    \item{recall_macro}{Macro-averaged recall across categories}
-    \item{f1_macro}{Macro-averaged F1 score across categories}
-  }
+If \code{mode = "gold"}: a data frame with one row per non-gold coder and
+columns:
+\describe{
+\item{coder_id}{Name of the coder column compared to the gold standard}
+\item{n}{Number of units with non-missing gold and coder codes}
+\item{accuracy}{Overall accuracy}
+\item{precision_macro}{Macro-averaged precision across categories}
+\item{recall_macro}{Macro-averaged recall across categories}
+\item{f1_macro}{Macro-averaged F1 score across categories}
+}
 }
 \description{
 This function validates nominal coding data with multiple coders in two ways:
 \itemize{
-  \item \code{mode = "icr"}: compute intercoder reliability statistics
-    (Krippendorff's alpha (nominal), Fleiss' kappa, mean pairwise Cohen's
-    kappa, mean pairwise percent agreement, share of unanimous units, and
-    basic counts).
-  \item \code{mode = "gold"}: treat one coder column as a gold standard
-    (typically a human coder) and, for each other coder, compute accuracy,
-    macro-averaged precision, recall, and F1.
+\item \code{mode = "icr"}: compute intercoder reliability statistics
+(Krippendorff's alpha (nominal), Fleiss' kappa, mean pairwise Cohen's
+kappa, mean pairwise percent agreement, share of unanimous units, and
+basic counts).
+\item \code{mode = "gold"}: treat one coder column as a gold standard
+(typically a human coder) and, for each other coder, compute accuracy,
+macro-averaged precision, recall, and F1.
 }
 }
 \examples{

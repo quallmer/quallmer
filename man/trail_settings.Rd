@@ -20,7 +20,7 @@ trail_settings(
 
 \item{temperature}{Numeric scalar. Sampling temperature (default 0).}
 
-\item{extra}{Named list of extra arguments merged into `api_args`.}
+\item{extra}{Named list of extra arguments merged into \code{api_args}.}
 }
 \value{
 An object of class \code{"trail_setting"}.

@@ -36,16 +36,18 @@ and \code{mode = "icr"}. It should also understand
 }
 \value{
 The result of calling \code{icr_fun()} on the wide data.
-  With the default \code{validate()}, this is a named list of
-  intercoder reliability statistics.
+With the default \code{validate()}, this is a named list of
+intercoder reliability statistics.
 }
 \description{
 Convenience helper to compute intercoder reliability across multiple
-Trail records or a `trail_compare` object by treating each setting as
+Trail records or a \code{trail_compare} object by treating each setting as
 a coder and calling \code{validate()} in \code{mode = "icr"}.
 }
 \seealso{
-* `trail_compare()` – run the same task across multiple settings
-* `trail_matrix()` – underlying wide data used here
-* `validate()` – core validation / ICR engine
+\itemize{
+\item \code{trail_compare()} – run the same task across multiple settings
+\item \code{trail_matrix()} – underlying wide data used here
+\item \code{validate()} – core validation / ICR engine
+}
 }

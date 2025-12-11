@@ -20,11 +20,11 @@ interest.}
 }
 \value{
 A data frame with one row per unit and one column per
-  setting/record. The unit ID column is retained under the name
-  \code{id_col}.
+setting/record. The unit ID column is retained under the name
+\code{id_col}.
 }
 \description{
-Treat each setting/record in a `trail_compare` object as a separate
+Treat each setting/record in a \code{trail_compare} object as a separate
 coder and convert the annotations into a wide data frame suitable for
 intercoder reliability analysis or other comparisons.
 }
