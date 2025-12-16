@@ -29,12 +29,10 @@ texts <- c(
 
 ``` r
 # Apply predefined sentiment task with task_sentiment() in the annotate() function
-result <- annotate(texts, task = task_sentiment(), 
-                   chat_fn = chat_openai, model = "gpt-4o",
-                   api_args = list(temperature = 0))
+result <- annotate(texts, task = task_sentiment(),
+                   model_name = "openai/gpt-4o",
+                   params = list(temperature = 0))
 ```
-
-    ## Running task 'Sentiment analysis' using model: gpt-4o
 
     ## [working] (0 + 0) -> 3 -> 1 | ■■■■■■■■■                         25%
 
@@ -44,8 +42,8 @@ result <- annotate(texts, task = task_sentiment(),
 |----:|------:|:------------------------------------------------------------------------------------------------------------------------|
 |   1 |   0.9 | The sentiment is very positive due to the use of the word ‘wonderful,’ which expresses strong approval and delight.     |
 |   2 |  -0.8 | The word ‘dislike’ indicates a strong negative sentiment towards the approach.                                          |
-|   3 |  -0.5 | The word ‘disappointing’ indicates a negative sentiment, though ‘somewhat’ suggests it’s not extremely negative.        |
-|   4 |   0.9 | The phrase is highly positive, using strong words like ‘absolutely’ and ‘fantastic’ to express admiration and approval. |
+|   3 |  -0.5 | The word ‘disappointing’ indicates a negative sentiment, though ‘somewhat’ softens it slightly.                         |
+|   4 |   0.9 | The phrase is highly positive, using strong words like “absolutely” and “fantastic” to express admiration and approval. |
 
 ### Adjusting the sentiment task
 
@@ -69,23 +67,17 @@ custom_sentiment <- task(
   input_type = "text"
 )
 # Apply the custom sentiment task
-custom_result <- annotate(texts, task = custom_sentiment, 
-                          chat_fn = chat_openai, model = "gpt-4o",
-                          api_args = list(temperature = 0))
+custom_result <- annotate(texts, task = custom_sentiment,
+                          model_name = "openai/gpt-4o",
+                          params = list(temperature = 0))
 ```
 
-    ## Running task 'Custom sentiment analysis' using model: gpt-4o
-
-    ## [working] (0 + 0) -> 3 -> 1 | ■■■■■■■■■                         25%
-
-    ## [working] (0 + 0) -> 0 -> 4 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100%
-
-|  id | score | explanation                                                                                                      | confidence |
-|----:|------:|:-----------------------------------------------------------------------------------------------------------------|-----------:|
-|   1 |   0.9 | The word ‘wonderful’ conveys a very positive sentiment.                                                          |       0.95 |
-|   2 |  -0.8 | The word ‘dislike’ indicates a strong negative sentiment towards the approach.                                   |       0.95 |
-|   3 |  -0.5 | The word ‘disappointing’ indicates a negative sentiment, though ‘somewhat’ suggests it’s not extremely negative. |       0.90 |
-|   4 |   0.9 | The phrase “Absolutely fantastic work!” is highly positive, expressing strong approval and admiration.           |       0.95 |
+|  id | score | explanation                                                                                             | confidence |
+|----:|------:|:--------------------------------------------------------------------------------------------------------|-----------:|
+|   1 |   0.9 | The word ‘wonderful’ conveys a very positive sentiment.                                                 |       0.95 |
+|   2 |  -0.8 | The word ‘dislike’ indicates a strong negative sentiment towards the approach.                          |       0.90 |
+|   3 |  -0.5 | The word ‘disappointing’ indicates a negative sentiment, though ‘somewhat’ softens the impact slightly. |       0.90 |
+|   4 |   0.9 | The phrase is highly positive, using strong positive adjectives like ‘absolutely fantastic.’            |       0.95 |
 
 Or, you might want to change the scoring scale to a 5-point Likert
 scale.
@@ -101,16 +93,14 @@ likert_sentiment <- task(
   input_type = "text"
 )
 # Apply the Likert scale sentiment task
-likert_result <- annotate(texts, task = likert_sentiment, 
-                          chat_fn = chat_openai, model = "gpt-4o",
-                          api_args = list(temperature = 0))
+likert_result <- annotate(texts, task = likert_sentiment,
+                          model_name = "openai/gpt-4o",
+                          params = list(temperature = 0))
 ```
-
-    ## Running task 'Likert scale sentiment analysis' using model: gpt-4o
 
 |  id | score | explanation                                                                                                          |
 |----:|------:|:---------------------------------------------------------------------------------------------------------------------|
-|   1 |     5 | The word ‘wonderful’ conveys a very positive sentiment, indicating delight or admiration.                            |
+|   1 |     5 | The word ‘wonderful’ conveys a very positive sentiment.                                                              |
 |   2 |     2 | The sentiment is negative due to the use of the word ‘dislike,’ indicating dissatisfaction or disapproval.           |
 |   3 |     2 | The word ‘disappointing’ indicates a negative sentiment, though ‘somewhat’ suggests it’s not extremely negative.     |
 |   4 |     5 | The phrase expresses strong positive sentiment with words like ‘absolutely’ and ‘fantastic,’ indicating high praise. |

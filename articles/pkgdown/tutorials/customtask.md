@@ -113,31 +113,29 @@ This step is similar to applying predefined tasks using the
 function. Here, we will use the
 [`annotate()`](https://seraphinem.github.io/quallmer/reference/annotate.md)
 function to apply our custom task to the sample corpus of inaugural
-speeches. We will specify the LLM to use (in this case, openai’s gpt-4o
-model) and any additional API arguments as needed. For example, we set
-the temperature to 0 for more deterministic outputs, improving
-consistency in scoring across multiple runs and therefore increasing
-reliability.
+speeches. We will specify the model to use via `model_name` (in this
+case, `"openai/gpt-4o"`) and any additional parameters as needed. For
+example, we set the temperature to 0 via the `params` argument for more
+deterministic outputs, improving consistency in scoring across multiple
+runs and therefore increasing reliability.
 
 ``` r
 # Apply the custom task to the inaugural speeches corpus
 result <- annotate(data_corpus_inaugural, task = ideology_scores,
-                   chat_fn = chat_openai, model = "gpt-4o",
-                   api_args = list(temperature = 0))
+                   model_name = "openai/gpt-4o",
+                   params = list(temperature = 0))
 ```
-
-    ## Running task 'Score Political Left Alignment' using model: gpt-4o
 
     ## [working] (0 + 0) -> 3 -> 1 | ■■■■■■■■■                         25%
 
     ## [working] (0 + 0) -> 0 -> 4 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100%
 
-| id         | score | explanation                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-|:-----------|------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 2013-Obama |     2 | The document aligns very well with the political left, emphasizing social equality, government intervention, and progressive policies. It advocates for collective action, economic equality, climate change response, and social justice, all of which are key tenets of leftist ideology. However, it also acknowledges skepticism of central authority and the importance of personal responsibility, which slightly moderates its alignment.                                         |
-| 2017-Trump |     0 | The document emphasizes nationalism, protectionism, and a focus on “America first” policies, which are not typically aligned with the political left. It lacks advocacy for social equality, government intervention in the economy, or progressive policies, which are key characteristics of the political left. The rhetoric is more populist and nationalist, focusing on reducing foreign influence and prioritizing American interests.                                            |
-| 2021-Biden |     2 | The document aligns very well with the political left, as it emphasizes themes of social equality, racial justice, and government intervention in addressing economic challenges. It calls for unity in overcoming systemic racism, climate change, and economic inequality, which are key issues for the political left. However, it also appeals to broader themes of unity and bipartisanship, which slightly moderates its alignment.                                                |
-| 2025-Trump |     0 | The document emphasizes nationalism, border security, military strength, and economic independence, which are typically associated with right-wing ideologies. It criticizes government intervention in areas like education and public health, opposes progressive policies like the Green New Deal, and promotes traditional values. These elements do not align with the political left’s focus on social equality, government intervention in the economy, and progressive policies. |
+| id         | score | explanation                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+|:-----------|------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 2013-Obama |     2 | The document aligns very well with the political left, emphasizing social equality, government intervention, and progressive policies. It advocates for collective action, economic equality, climate change response, and social justice, all of which are key tenets of leftist ideology. However, it also acknowledges the importance of personal responsibility and skepticism of central authority, which slightly moderates its alignment.                                                                           |
+| 2017-Trump |     0 | The document emphasizes nationalism, protectionism, and a focus on “America first” policies, which are not typically aligned with the political left. It lacks advocacy for social equality, government intervention in the economy, or progressive policies, which are key characteristics of the political left. Therefore, it scores 0 for alignment with the political left.                                                                                                                                           |
+| 2021-Biden |     2 | The document aligns very well with the political left due to its emphasis on social equality, racial justice, and addressing systemic racism. It advocates for government intervention in the economy by discussing job creation, healthcare security, and rebuilding the middle class. The focus on climate change and international cooperation also aligns with progressive policies. However, the strong emphasis on unity and bipartisanship tempers the alignment slightly, preventing it from being extremely left. |
+| 2025-Trump |     0 | The document primarily emphasizes nationalism, border security, military strength, and economic independence, which are typically associated with right-wing ideologies. It lacks advocacy for social equality, government intervention in the economy, or progressive policies, which are key characteristics of the political left.                                                                                                                                                                                      |
 
 Now you have successfully created and applied a custom annotation task
 using the `quallmer` package! You can further modify the prompt and

@@ -181,17 +181,17 @@ documentation on type specifications</a>.</p>
 <p>This step is similar to applying predefined tasks using the
 <code><a href="../../../reference/annotate.html">annotate()</a></code> function. Here, we will use the
 <code><a href="../../../reference/annotate.html">annotate()</a></code> function to apply our custom task to the sample
-corpus of inaugural speeches. We will specify the LLM to use (in this
-case, openai’s gpt-4o model) and any additional API arguments as needed.
-For example, we set the temperature to 0 for more deterministic outputs,
-improving consistency in scoring across multiple runs and therefore
-increasing reliability.</p>
+corpus of inaugural speeches. We will specify the model to use via
+<code>model_name</code> (in this case, <code>"openai/gpt-4o"</code>) and
+any additional parameters as needed. For example, we set the temperature
+to 0 via the <code>params</code> argument for more deterministic
+outputs, improving consistency in scoring across multiple runs and
+therefore increasing reliability.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Apply the custom task to the inaugural speeches corpus</span></span>
 <span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../../reference/annotate.html">annotate</a></span><span class="op">(</span><span class="va">data_corpus_inaugural</span>, task <span class="op">=</span> <span class="va">ideology_scores</span>,</span>
-<span>                   chat_fn <span class="op">=</span> <span class="va">chat_openai</span>, model <span class="op">=</span> <span class="st">"gpt-4o"</span>,</span>
-<span>                   api_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>temperature <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Running task 'Score Political Left Alignment' using model: gpt-4o</span></span></code></pre>
+<span>                   model_name <span class="op">=</span> <span class="st">"openai/gpt-4o"</span>,</span>
+<span>                   params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>temperature <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## [working] (0 + 0) -&gt; 3 -&gt; 1 | <span style="color: #00BB00;">■■■■■■■■■                       </span>  25%</span></span></code></pre>
 <pre><code><span><span class="co">## [working] (0 + 0) -&gt; 0 -&gt; 4 | <span style="color: #00BB00;">■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ </span> 100%</span></span></code></pre>
 <table class="table table table-striped table-hover" style="margin-left: auto; margin-right: auto;">
@@ -219,9 +219,9 @@ The document aligns very well with the political left, emphasizing
 social equality, government intervention, and progressive policies. It
 advocates for collective action, economic equality, climate change
 response, and social justice, all of which are key tenets of leftist
-ideology. However, it also acknowledges skepticism of central authority
-and the importance of personal responsibility, which slightly moderates
-its alignment.
+ideology. However, it also acknowledges the importance of personal
+responsibility and skepticism of central authority, which slightly
+moderates its alignment.
 </td>
 </tr>
 <tr>
@@ -236,9 +236,8 @@ The document emphasizes nationalism, protectionism, and a focus on
 “America first” policies, which are not typically aligned with the
 political left. It lacks advocacy for social equality, government
 intervention in the economy, or progressive policies, which are key
-characteristics of the political left. The rhetoric is more populist and
-nationalist, focusing on reducing foreign influence and prioritizing
-American interests.
+characteristics of the political left. Therefore, it scores 0 for
+alignment with the political left.
 </td>
 </tr>
 <tr>
@@ -249,13 +248,14 @@ American interests.
 2
 </td>
 <td style="text-align:left;">
-The document aligns very well with the political left, as it emphasizes
-themes of social equality, racial justice, and government intervention
-in addressing economic challenges. It calls for unity in overcoming
-systemic racism, climate change, and economic inequality, which are key
-issues for the political left. However, it also appeals to broader
-themes of unity and bipartisanship, which slightly moderates its
-alignment.
+The document aligns very well with the political left due to its
+emphasis on social equality, racial justice, and addressing systemic
+racism. It advocates for government intervention in the economy by
+discussing job creation, healthcare security, and rebuilding the middle
+class. The focus on climate change and international cooperation also
+aligns with progressive policies. However, the strong emphasis on unity
+and bipartisanship tempers the alignment slightly, preventing it from
+being extremely left.
 </td>
 </tr>
 <tr>
@@ -266,13 +266,11 @@ alignment.
 0
 </td>
 <td style="text-align:left;">
-The document emphasizes nationalism, border security, military strength,
-and economic independence, which are typically associated with
-right-wing ideologies. It criticizes government intervention in areas
-like education and public health, opposes progressive policies like the
-Green New Deal, and promotes traditional values. These elements do not
-align with the political left’s focus on social equality, government
-intervention in the economy, and progressive policies.
+The document primarily emphasizes nationalism, border security, military
+strength, and economic independence, which are typically associated with
+right-wing ideologies. It lacks advocacy for social equality, government
+intervention in the economy, or progressive policies, which are key
+characteristics of the political left.
 </td>
 </tr>
 </tbody>

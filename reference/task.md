@@ -1,8 +1,10 @@
 # Define an annotation task
 
-A flexible task definition wrapper for ellmer. Supports any structured
-output type, including `type_object()`, `type_array()`, `type_enum()`,
-`type_boolean()`, and others.
+Creates a task definition for use with
+[`annotate()`](https://seraphinem.github.io/quallmer/reference/annotate.md).
+A task specifies what information to extract from input data, including
+the system prompt that guides the LLM and the structured output
+definition.
 
 ## Usage
 
@@ -14,11 +16,11 @@ task(name, system_prompt, type_def, input_type = c("text", "image"))
 
 - name:
 
-  Name of the task.
+  Name of the task (character).
 
 - system_prompt:
 
-  System prompt to guide the model (as required by ellmer's `chat_fn`).
+  System prompt to guide the model.
 
 - type_def:
 
@@ -34,4 +36,39 @@ task(name, system_prompt, type_def, input_type = c("text", "image"))
 
 ## Value
 
-A task object with a `run()` method.
+A task object (a list with class `"task"`) containing the task
+
+definition. Use with
+[`annotate()`](https://seraphinem.github.io/quallmer/reference/annotate.md)
+to apply the task to data.
+
+## See also
+
+[`annotate()`](https://seraphinem.github.io/quallmer/reference/annotate.md)
+for applying tasks to data,
+[`task_sentiment()`](https://seraphinem.github.io/quallmer/reference/task_sentiment.md),
+[`task_stance()`](https://seraphinem.github.io/quallmer/reference/task_stance.md),
+[`task_ideology()`](https://seraphinem.github.io/quallmer/reference/task_ideology.md),
+[`task_salience()`](https://seraphinem.github.io/quallmer/reference/task_salience.md),
+[`task_fact()`](https://seraphinem.github.io/quallmer/reference/task_fact.md)
+for predefined tasks.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+# Define a custom task
+my_task <- task(
+  name = "Sentiment",
+  system_prompt = "Rate the sentiment from -1 (negative) to 1 (positive).",
+  type_def = ellmer::type_object(
+    score = ellmer::type_number("Sentiment score from -1 to 1"),
+    explanation = ellmer::type_string("Brief explanation")
+  )
+)
+
+# Use with annotate()
+texts <- c("I love this!", "This is terrible.")
+annotate(texts, my_task, model_name = "openai/gpt-4o-mini")
+} # }
+```

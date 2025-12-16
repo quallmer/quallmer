@@ -124,14 +124,12 @@ can take some time, depending on your machine.</p>
 <span><span class="co"># let's do a simple test with the model</span></span>
 <span><span class="fu">query</span><span class="op">(</span><span class="st">"What is the capital of Australia."</span>, model <span class="op">=</span> <span class="st">"llama3.2:1b"</span><span class="op">)</span></span></code></pre></div>
 <p>Now that we have set up the Ollama model, we can use it with the
-<code>quallmer</code> package for qualitative coding tasks. The
-<code>quallmer</code> package uses openai’s <code>gpt-4o</code> model by
-default, but we can easily switch to the Ollama model by specifying the
-<code>chat_fn</code> and <code>model</code> parameters in the
-<code><a href="../../../reference/annotate.html">annotate()</a></code> function. For example, for Ollama models we
-would use <code>chat_ollama</code> as the <code>chat_fn</code> and
-specify the model name (e.g., <code>llama3.2:1b</code>) in the
-<code>model</code> parameter.</p>
+<code>quallmer</code> package for qualitative coding tasks. To use an
+Ollama model, simply specify the <code>model_name</code> parameter in
+the <code><a href="../../../reference/annotate.html">annotate()</a></code> function using the format
+<code>"ollama/model"</code>. For example, to use the
+<code>llama3.2:1b</code> model, you would set
+<code>model_name = "ollama/llama3.2:1b"</code>.</p>
   </main>
 </div>
 

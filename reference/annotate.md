@@ -1,13 +1,16 @@
 # Apply an annotation task to input data
 
-Applies an annotation task to input data, automatically detecting the
-input type based on the task definition. Delegates processing to the
-task's internal `run()` method.
+Applies an annotation task to input data using a large language model.
+Arguments in `...` are dynamically routed to either
+[`ellmer::chat()`](https://ellmer.tidyverse.org/reference/chat-any.html)
+or to
+[`ellmer::parallel_chat_structured()`](https://ellmer.tidyverse.org/reference/parallel_chat.html)
+based on their names.
 
 ## Usage
 
 ``` r
-annotate(.data, task, ...)
+annotate(.data, task, model_name, ...)
 ```
 
 ## Arguments
@@ -22,31 +25,32 @@ annotate(.data, task, ...)
 - task:
 
   A task object created with
-  [`task()`](https://seraphinem.github.io/quallmer/reference/task.md)
+  [`task()`](https://seraphinem.github.io/quallmer/reference/task.md) or
+  one of the predefined task functions
+  ([`task_sentiment()`](https://seraphinem.github.io/quallmer/reference/task_sentiment.md),
+  [`task_stance()`](https://seraphinem.github.io/quallmer/reference/task_stance.md),
+  [`task_ideology()`](https://seraphinem.github.io/quallmer/reference/task_ideology.md),
+  [`task_salience()`](https://seraphinem.github.io/quallmer/reference/task_salience.md),
+  [`task_fact()`](https://seraphinem.github.io/quallmer/reference/task_fact.md)).
+
+- model_name:
+
+  Provider (and optionally model) name in the form `"provider/model"` or
+  `"provider"` (which will use the default model for that provider).
+  Passed to the `name` argument of
+  [`ellmer::chat()`](https://ellmer.tidyverse.org/reference/chat-any.html).
+  Examples: `"openai/gpt-4o-mini"`,
+  `"anthropic/claude-3-5-sonnet-20241022"`, `"ollama/llama3.2"`,
+  `"openai"` (uses default OpenAI model).
 
 - ...:
 
-  Additional arguments passed to the task's `run()` method:
-
-  `chat_fn`
-
-  :   Chat function to use (default:
-      [`ellmer::chat_openai()`](https://ellmer.tidyverse.org/reference/chat_openai.html)).
-      Other options include
-      [`ellmer::chat_ollama()`](https://ellmer.tidyverse.org/reference/chat_ollama.html),
-      [`ellmer::chat_google_gemini()`](https://ellmer.tidyverse.org/reference/chat_google_gemini.html),
-      etc.
-
-  `model`
-
-  :   Model identifier string (default: `"gpt-4o"`).
-
-  `verbose`
-
-  :   Logical; whether to print progress messages (default: `TRUE`).
-
-  Any additional arguments are passed to `chat_fn()`, such as
-  `temperature`, `seed`, or other provider-specific options.
+  Additional arguments passed to either
+  [`ellmer::chat()`](https://ellmer.tidyverse.org/reference/chat-any.html)
+  or to
+  [`ellmer::parallel_chat_structured()`](https://ellmer.tidyverse.org/reference/parallel_chat.html),
+  based on argument name. Arguments not recognized by either function
+  will generate a warning.
 
 ## Value
 
@@ -83,17 +87,28 @@ for computing agreement metrics on annotations.
 if (FALSE) { # \dontrun{
 # Basic sentiment analysis
 texts <- c("I love this product!", "This is terrible.")
-annotate(texts, task_sentiment())
+annotate(texts, task_sentiment(), model_name = "openai")
 
 # With named inputs (names become IDs in output)
 texts <- c(doc1 = "Great service!", doc2 = "Very disappointing.")
-annotate(texts, task_sentiment())
+annotate(texts, task_sentiment(), model_name = "openai")
 
-# Using a different model
-annotate(texts, task_sentiment(), model = "gpt-4o-mini")
+# Specify provider and model
+annotate(texts, task_sentiment(), model_name = "openai/gpt-4o-mini")
+
+# With execution control
+annotate(texts, task_sentiment(),
+         model_name = "openai/gpt-4o-mini",
+         max_active = 5)
+
+# Include token usage
+annotate(texts, task_sentiment(), model_name = "openai", include_tokens = TRUE)
 
 # Using Ollama locally
-annotate(texts, task_sentiment(), chat_fn = ellmer::chat_ollama,
-         model = "llama3.2")
+annotate(texts, task_sentiment(), model_name = "ollama/llama3.2")
+
+# Using Anthropic
+annotate(texts, task_sentiment(),
+         model_name = "anthropic/claude-3-5-sonnet-20241022")
 } # }
 ```

@@ -111,10 +111,9 @@ texts<a class="anchor" aria-label="anchor" href="#using-annotate-for-predefined-
 </h3>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Apply predefined sentiment task with task_sentiment() in the annotate() function</span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../../reference/annotate.html">annotate</a></span><span class="op">(</span><span class="va">texts</span>, task <span class="op">=</span> <span class="fu"><a href="../../../reference/task_sentiment.html">task_sentiment</a></span><span class="op">(</span><span class="op">)</span>, </span>
-<span>                   chat_fn <span class="op">=</span> <span class="va">chat_openai</span>, model <span class="op">=</span> <span class="st">"gpt-4o"</span>,</span>
-<span>                   api_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>temperature <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Running task 'Sentiment analysis' using model: gpt-4o</span></span></code></pre>
+<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../../reference/annotate.html">annotate</a></span><span class="op">(</span><span class="va">texts</span>, task <span class="op">=</span> <span class="fu"><a href="../../../reference/task_sentiment.html">task_sentiment</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>                   model_name <span class="op">=</span> <span class="st">"openai/gpt-4o"</span>,</span>
+<span>                   params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>temperature <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## [working] (0 + 0) -&gt; 3 -&gt; 1 | <span style="color: #00BB00;">■■■■■■■■■                       </span>  25%</span></span></code></pre>
 <pre><code><span><span class="co">## [working] (0 + 0) -&gt; 0 -&gt; 4 | <span style="color: #00BB00;">■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ </span> 100%</span></span></code></pre>
 <table class="table table table-striped table-hover" style="margin-left: auto; margin-right: auto;">
@@ -163,7 +162,7 @@ approach.
 </td>
 <td style="text-align:left;">
 The word ‘disappointing’ indicates a negative sentiment, though
-‘somewhat’ suggests it’s not extremely negative.
+‘somewhat’ softens it slightly.
 </td>
 </tr>
 <tr>
@@ -174,8 +173,8 @@ The word ‘disappointing’ indicates a negative sentiment, though
 0.9
 </td>
 <td style="text-align:left;">
-The phrase is highly positive, using strong words like ‘absolutely’ and
-‘fantastic’ to express admiration and approval.
+The phrase is highly positive, using strong words like “absolutely” and
+“fantastic” to express admiration and approval.
 </td>
 </tr>
 </tbody>
@@ -189,7 +188,7 @@ task with <code><a href="../../../reference/task.html">task()</a></code> (for a 
 our “Defining custom tasks” tutorial</a>).</p>
 <p>For example, you might want to include an additional field for
 confidence level.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">custom_sentiment</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../../reference/task.html">task</a></span><span class="op">(</span></span>
 <span>  name <span class="op">=</span> <span class="st">"Custom sentiment analysis"</span>,</span>
 <span>  system_prompt <span class="op">=</span> <span class="st">"You are an expert annotator. Rate the sentiment of each text from -1 (very negative) to 1 (very positive), briefly explain why, and provide a confidence level from 0 to 1."</span>,</span>
@@ -201,12 +200,9 @@ confidence level.</p>
 <span>  input_type <span class="op">=</span> <span class="st">"text"</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co"># Apply the custom sentiment task</span></span>
-<span><span class="va">custom_result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../../reference/annotate.html">annotate</a></span><span class="op">(</span><span class="va">texts</span>, task <span class="op">=</span> <span class="va">custom_sentiment</span>, </span>
-<span>                          chat_fn <span class="op">=</span> <span class="va">chat_openai</span>, model <span class="op">=</span> <span class="st">"gpt-4o"</span>,</span>
-<span>                          api_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>temperature <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Running task 'Custom sentiment analysis' using model: gpt-4o</span></span></code></pre>
-<pre><code><span><span class="co">## [working] (0 + 0) -&gt; 3 -&gt; 1 | <span style="color: #00BB00;">■■■■■■■■■                       </span>  25%</span></span></code></pre>
-<pre><code><span><span class="co">## [working] (0 + 0) -&gt; 0 -&gt; 4 | <span style="color: #00BB00;">■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ </span> 100%</span></span></code></pre>
+<span><span class="va">custom_result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../../reference/annotate.html">annotate</a></span><span class="op">(</span><span class="va">texts</span>, task <span class="op">=</span> <span class="va">custom_sentiment</span>,</span>
+<span>                          model_name <span class="op">=</span> <span class="st">"openai/gpt-4o"</span>,</span>
+<span>                          params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>temperature <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <table class="table table table-striped table-hover" style="margin-left: auto; margin-right: auto;">
 <thead><tr>
 <th style="text-align:right;">
@@ -249,7 +245,7 @@ The word ‘dislike’ indicates a strong negative sentiment towards the
 approach.
 </td>
 <td style="text-align:right;">
-0.95
+0.90
 </td>
 </tr>
 <tr>
@@ -261,7 +257,7 @@ approach.
 </td>
 <td style="text-align:left;">
 The word ‘disappointing’ indicates a negative sentiment, though
-‘somewhat’ suggests it’s not extremely negative.
+‘somewhat’ softens the impact slightly.
 </td>
 <td style="text-align:right;">
 0.90
@@ -275,8 +271,8 @@ The word ‘disappointing’ indicates a negative sentiment, though
 0.9
 </td>
 <td style="text-align:left;">
-The phrase “Absolutely fantastic work!” is highly positive, expressing
-strong approval and admiration.
+The phrase is highly positive, using strong positive adjectives like
+‘absolutely fantastic.’
 </td>
 <td style="text-align:right;">
 0.95
@@ -286,7 +282,7 @@ strong approval and admiration.
 </table>
 <p>Or, you might want to change the scoring scale to a 5-point Likert
 scale.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">likert_sentiment</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../../reference/task.html">task</a></span><span class="op">(</span></span>
 <span>  name <span class="op">=</span> <span class="st">"Likert scale sentiment analysis"</span>,</span>
 <span>  system_prompt <span class="op">=</span> <span class="st">"You are an expert annotator. Rate the sentiment of each text on a scale from 1 (very negative) to 5 (very positive) and briefly explain why."</span>,</span>
@@ -297,10 +293,9 @@ scale.</p>
 <span>  input_type <span class="op">=</span> <span class="st">"text"</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co"># Apply the Likert scale sentiment task</span></span>
-<span><span class="va">likert_result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../../reference/annotate.html">annotate</a></span><span class="op">(</span><span class="va">texts</span>, task <span class="op">=</span> <span class="va">likert_sentiment</span>, </span>
-<span>                          chat_fn <span class="op">=</span> <span class="va">chat_openai</span>, model <span class="op">=</span> <span class="st">"gpt-4o"</span>,</span>
-<span>                          api_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>temperature <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Running task 'Likert scale sentiment analysis' using model: gpt-4o</span></span></code></pre>
+<span><span class="va">likert_result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../../reference/annotate.html">annotate</a></span><span class="op">(</span><span class="va">texts</span>, task <span class="op">=</span> <span class="va">likert_sentiment</span>,</span>
+<span>                          model_name <span class="op">=</span> <span class="st">"openai/gpt-4o"</span>,</span>
+<span>                          params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>temperature <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <table class="table table table-striped table-hover" style="margin-left: auto; margin-right: auto;">
 <thead><tr>
 <th style="text-align:right;">
@@ -322,8 +317,7 @@ explanation
 5
 </td>
 <td style="text-align:left;">
-The word ‘wonderful’ conveys a very positive sentiment, indicating
-delight or admiration.
+The word ‘wonderful’ conveys a very positive sentiment.
 </td>
 </tr>
 <tr>

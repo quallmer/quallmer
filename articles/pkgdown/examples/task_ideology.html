@@ -127,10 +127,9 @@ dimension (optional).</p>
 <span><span class="st">and protection of minorities, whereas exclusive language emphasizes exclusion </span></span>
 <span><span class="st">of groups, national homogeneity, and restricting rights."</span></span>
 <span><span class="co"># Apply predefined ideology task with task_ideology() in the annotate() function</span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../../reference/annotate.html">annotate</a></span><span class="op">(</span><span class="va">data_corpus_inaugural</span>, task <span class="op">=</span> <span class="fu"><a href="../../../reference/task_ideology.html">task_ideology</a></span><span class="op">(</span><span class="va">dimension</span>, <span class="va">definition</span><span class="op">)</span>, </span>
-<span>                   chat_fn <span class="op">=</span> <span class="va">chat_openai</span>, model <span class="op">=</span> <span class="st">"gpt-4o"</span>,</span>
-<span>                   api_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>temperature <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Running task 'Ideological scaling' using model: gpt-4o</span></span></code></pre>
+<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../../reference/annotate.html">annotate</a></span><span class="op">(</span><span class="va">data_corpus_inaugural</span>, task <span class="op">=</span> <span class="fu"><a href="../../../reference/task_ideology.html">task_ideology</a></span><span class="op">(</span><span class="va">dimension</span>, <span class="va">definition</span><span class="op">)</span>,</span>
+<span>                   model_name <span class="op">=</span> <span class="st">"openai/gpt-4o"</span>,</span>
+<span>                   params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>temperature <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## [working] (0 + 0) -&gt; 3 -&gt; 1 | <span style="color: #00BB00;">■■■■■■■■■                       </span>  25%</span></span></code></pre>
 <pre><code><span><span class="co">## [working] (0 + 0) -&gt; 0 -&gt; 4 | <span style="color: #00BB00;">■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ </span> 100%</span></span></code></pre>
 <table class="table table table-striped table-hover" style="margin-left: auto; margin-right: auto;">
@@ -151,7 +150,7 @@ explanation
 2013-Obama
 </td>
 <td style="text-align:right;">
-1
+0
 </td>
 <td style="text-align:left;">
 The text emphasizes inclusivity through repeated references to equality,
@@ -177,9 +176,7 @@ interests with phrases like “America first” and “buy American and hire
 American.” It highlights protectionism and a focus on American workers
 and borders, suggesting an exclusive stance. However, it also includes
 some inclusive elements, such as unity and equality among Americans,
-regardless of race, with statements like “we all bleed the same red
-blood of patriots.” Overall, the emphasis on national exclusivity and
-protectionism outweighs the inclusive rhetoric.
+regardless of race, which slightly moderates the exclusivity.
 </td>
 </tr>
 <tr>
@@ -190,10 +187,11 @@ protectionism outweighs the inclusive rhetoric.
 0
 </td>
 <td style="text-align:left;">
-The text emphasizes unity, inclusion, and addressing systemic issues
-like racial justice and political extremism. It calls for coming
-together as a nation, respecting diversity, and healing divisions, which
-aligns with inclusive language.
+The text emphasizes unity, inclusion, and the importance of diversity
+and pluralism. It calls for racial justice, overcoming political
+extremism, and uniting people across different backgrounds. The language
+is inclusive, focusing on bringing people together and healing
+divisions.
 </td>
 </tr>
 <tr>
@@ -204,13 +202,13 @@ aligns with inclusive language.
 8
 </td>
 <td style="text-align:left;">
-The text emphasizes national sovereignty, exclusion of ‘criminal
-aliens,’ and a focus on American exceptionalism, which aligns with
-exclusive language. Phrases like ‘put America first,’ ‘halt illegal
-entry,’ and ‘returning millions of criminal aliens’ highlight
-exclusionary policies. The mention of ‘only two genders’ and ending
-‘socially engineered race and gender’ policies further supports an
-exclusive stance.
+The text emphasizes national sovereignty, exclusion of certain groups,
+and a focus on national homogeneity. Phrases like “put America first,”
+“reclaim our sovereignty,” and “halt illegal entry” suggest an exclusive
+stance. The mention of “returning millions of criminal aliens” and
+“designating the cartels as foreign terrorist organizations” further
+supports this position. The text also includes elements of national
+pride and exceptionalism, reinforcing an exclusive ideology.
 </td>
 </tr>
 </tbody>
@@ -223,7 +221,7 @@ exclusive stance.
 task with <code><a href="../../../reference/task.html">task()</a></code> (for a more detailed explanation, <a href="https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/customtask.html">see
 our “Defining custom tasks” tutorial</a>). For example, you might like
 to change the scale from 0-10 to -5 to +5.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">custom_ideology</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../../reference/task.html">task</a></span><span class="op">(</span></span>
 <span>    name <span class="op">=</span> <span class="st">"Ideological scaling"</span>,</span>
 <span>    system_prompt <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span></span>
@@ -241,10 +239,9 @@ to change the scale from 0-10 to -5 to +5.</p>
 <span>    input_type <span class="op">=</span> <span class="st">"text"</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="co"># Apply the custom task</span></span>
-<span><span class="va">custom_result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../../reference/annotate.html">annotate</a></span><span class="op">(</span><span class="va">data_corpus_inaugural</span>, task <span class="op">=</span> <span class="va">custom_ideology</span>, </span>
-<span>                          chat_fn <span class="op">=</span> <span class="va">chat_openai</span>, model <span class="op">=</span> <span class="st">"gpt-4o"</span>,</span>
-<span>                          api_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>temperature <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Running task 'Ideological scaling' using model: gpt-4o</span></span></code></pre>
+<span><span class="va">custom_result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../../reference/annotate.html">annotate</a></span><span class="op">(</span><span class="va">data_corpus_inaugural</span>, task <span class="op">=</span> <span class="va">custom_ideology</span>,</span>
+<span>                          model_name <span class="op">=</span> <span class="st">"openai/gpt-4o"</span>,</span>
+<span>                          params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>temperature <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## [working] (0 + 0) -&gt; 3 -&gt; 1 | <span style="color: #00BB00;">■■■■■■■■■                       </span>  25%</span></span></code></pre>
 <pre><code><span><span class="co">## [working] (0 + 0) -&gt; 0 -&gt; 4 | <span style="color: #00BB00;">■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ </span> 100%</span></span></code></pre>
 <table class="table table table-striped table-hover" style="margin-left: auto; margin-right: auto;">
@@ -268,12 +265,12 @@ explanation
 5
 </td>
 <td style="text-align:left;">
-The text emphasizes inclusivity through repeated references to equality,
+The text strongly emphasizes inclusive language, focusing on equality,
 diversity, and collective action. It highlights the importance of equal
-rights for all citizens, regardless of race, gender, or sexual
-orientation, and stresses the need for unity and shared responsibility.
-The speech advocates for welcoming immigrants and supporting
-marginalized groups, aligning with inclusive values.
+rights for all citizens, regardless of background, and stresses the need
+for unity and inclusivity in addressing national challenges. References
+to historical struggles for equality and the call for equal treatment of
+marginalized groups further underscore its inclusive nature.
 </td>
 </tr>
 <tr>
@@ -315,12 +312,12 @@ focusing on bringing people together and respecting diversity.
 -3
 </td>
 <td style="text-align:left;">
-The text emphasizes national sovereignty, protection of borders, and
+The text emphasizes national sovereignty, border control, and
 exclusionary policies such as halting illegal entry and returning
 ‘criminal aliens.’ It also mentions ending government policies on race
 and gender, suggesting a move towards a more exclusive, homogeneous
 national identity. While there are mentions of unity and inclusion of
-various American demographics, the overall tone and specific policies
+various American communities, the overall tone and specific policies
 lean towards exclusivity.
 </td>
 </tr>

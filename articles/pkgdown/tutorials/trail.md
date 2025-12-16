@@ -74,7 +74,7 @@ specify:
 - `system_prompt`: The prompt that guides the LLM on how to perform the
   task.
 - `type_def`: Defines the expected structure of the response using
-  [ellmers type
+  [ellmer’s type
   specifications](https://ellmer.tidyverse.org/reference/type_boolean.html)
   such as
   [`type_object()`](https://ellmer.tidyverse.org/reference/type_boolean.html),
@@ -111,12 +111,12 @@ responses.
 ``` r
 setting_gptmini0 <- trail_settings(
 provider = "openai",
-model = "gpt-4.1-mini",
+model = "gpt-4o-mini",
 )
 
 setting_gptmini7 <- trail_settings(
 provider = "openai",
-model = "gpt-4.1-mini",
+model = "gpt-4o-mini",
 temperature = 0.7
 )
 
@@ -156,15 +156,7 @@ task = ideology_scores,
 setting = setting_gptmini0,
 id_col = "doc_id"
 )
-```
 
-    ## Running task 'Score Political Left Alignment' using model: gpt-4.1-mini
-
-    ## [working] (0 + 0) -> 3 -> 1 | ■■■■■■■■■                         25%
-
-    ## [working] (0 + 0) -> 0 -> 4 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100%
-
-``` r
 # Display the recorded trail's settings
 library(dplyr)
 ```
@@ -214,14 +206,14 @@ meta_df %>%
 
 | Field        | Value                                                  |
 |:-------------|:-------------------------------------------------------|
-| timestamp    | 2025-12-11 09:05:58.06828                              |
+| timestamp    | 2025-12-11 09:54:27.544492                             |
 | n_rows       | 4                                                      |
 | provider     | openai                                                 |
-| model        | gpt-4.1-mini                                           |
+| model        | gpt-4o-mini                                            |
 | temperature  | 0                                                      |
 | api_extra    | list()                                                 |
 | cache_dir    | trail_cache                                            |
-| cache_path   | trail_cache/trail_b64a3ba2ad7ef62e3c5ddb6d9e4c8200.rds |
+| cache_path   | trail_cache/trail_cc9fa6521417438b5124b757f7062345.rds |
 | id_col       | doc_id                                                 |
 | text_col     | text                                                   |
 | task_class   | task                                                   |
@@ -251,27 +243,7 @@ settings = list(
 id_col = "doc_id",
 label_col = "score"
 )
-```
 
-    ## Running task 'Score Political Left Alignment' using model: gpt-4.1-mini
-
-    ## [working] (0 + 0) -> 3 -> 1 | ■■■■■■■■■                         25%
-
-    ## [working] (0 + 0) -> 0 -> 4 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100%
-
-    ## Running task 'Score Political Left Alignment' using model: gpt-4o
-
-    ## [working] (0 + 0) -> 3 -> 1 | ■■■■■■■■■                         25%
-
-    ## [working] (0 + 0) -> 0 -> 4 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100%
-
-    ## Running task 'Score Political Left Alignment' using model: gpt-4o
-
-    ## [working] (0 + 0) -> 1 -> 3 | ■■■■■■■■■■■■■■■■■■■■■■■           75%
-
-    ## [working] (0 + 0) -> 0 -> 4 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100%
-
-``` r
 # Display the annotation matrix
 left_trails$matrix
 ```
@@ -281,7 +253,7 @@ left_trails$matrix
     ##   <chr>      <dbl> <dbl> <dbl> <dbl>
     ## 1 2013-Obama     2     2     2     3
     ## 2 2017-Trump     0     0     0     0
-    ## 3 2021-Biden     1     2     2     1
+    ## 3 2021-Biden     2     2     2     2
     ## 4 2025-Trump     0     0     0     0
 
 ``` r
@@ -296,22 +268,22 @@ left_trails$icr
     ## [1] 4
     ## 
     ## $categories
-    ## [1] 4
+    ## [1] 3
     ## 
     ## $percent_unanimous_units
-    ## [1] 0.5
+    ## [1] 0.75
     ## 
     ## $mean_pairwise_percent_agreement
-    ## [1] 0.7083
+    ## [1] 0.875
     ## 
     ## $mean_pairwise_cohens_kappa
-    ## [1] 0.5838
+    ## [1] 0.8
     ## 
     ## $kripp_alpha_nominal
-    ## [1] 0.5487
+    ## [1] 0.7793
     ## 
     ## $fleiss_kappa
-    ## [1] 0.5391
+    ## [1] 0.7746
 
 The output above shows the annotation matrix where each row corresponds
 to a document and each column corresponds to a different trail setting.
