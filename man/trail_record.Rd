@@ -10,7 +10,7 @@ trail_record(
   task,
   setting,
   id_col = NULL,
-  cache_dir = "trail_cache",
+  cache_dir = NULL,
   overwrite = FALSE,
   annotate_fun = annotate
 )
@@ -26,7 +26,8 @@ trail_record(
 
 \item{id_col}{Optional character scalar identifying units.}
 
-\item{cache_dir}{Optional directory in which to cache Trails. If \code{NULL}, caching disabled.}
+\item{cache_dir}{Optional directory in which to cache Trails. If \code{NULL}, caching disabled.
+For examples and tests, use \code{tempdir()} to comply with CRAN policies.}
 
 \item{overwrite}{Whether to overwrite existing cache.}
 

@@ -681,7 +681,7 @@ validate_app <- function() {
         uiOutput("column_selectors"),
         br(),
         helpText(
-          "Progress is saved to *_assessed.rds in a newly created folder called validate"
+          "Progress is saved to *_assessed.rds in a temporary validate folder"
         )
       ),
       mainPanel(uiOutput("main_content"))
@@ -692,7 +692,7 @@ validate_app <- function() {
     dataset   <- reactiveVal(NULL)
     last_file <- reactiveVal(NULL)
 
-    state_path <- ".app_state.rds"
+    state_path <- file.path(tempdir(), ".app_state.rds")
     hc         <- NULL
 
     get_hc_index <- function() {
@@ -750,8 +750,8 @@ validate_app <- function() {
         if (!is.null(st$mode)) {
           updateRadioButtons(session, "mode", selected = st$mode)
         }
-      } else if (is.null(dataset()) && file.exists(".last_file.txt")) {
-        lf <- readLines(".last_file.txt", warn = FALSE)
+      } else if (is.null(dataset()) && file.exists(file.path(tempdir(), ".last_file.txt"))) {
+        lf <- readLines(file.path(tempdir(), ".last_file.txt"), warn = FALSE)
         if (length(lf) == 1 && nzchar(lf) && file.exists(lf)) {
           obj <- tryCatch(
             read_data_file(lf, basename(lf)),
@@ -773,9 +773,10 @@ validate_app <- function() {
     # Persist upload locally to validate folder and validate
     observeEvent(input$file, {
       req(input$file)
-      dir.create("validate", showWarnings = FALSE, recursive = TRUE)
+      validate_dir <- file.path(tempdir(), "validate")
+      dir.create(validate_dir, showWarnings = FALSE, recursive = TRUE)
       dest <- normalizePath(
-        file.path("validate", input$file$name),
+        file.path(validate_dir, input$file$name),
         mustWork = FALSE
       )
       if (!isTRUE(file.copy(input$file$datapath, dest, overwrite = TRUE))) {
@@ -799,14 +800,15 @@ validate_app <- function() {
       }
       dataset(obj)
       last_file(dest)
-      writeLines(dest, ".last_file.txt")
+      writeLines(dest, file.path(tempdir(), ".last_file.txt"))
       save_state()
     }, ignoreInit = TRUE)
 
     # Save and reset
     observeEvent(input$reset_btn, {
       if (file.exists(state_path))       try(unlink(state_path), silent = TRUE)
-      if (file.exists(".last_file.txt")) try(unlink(".last_file.txt"), silent = TRUE)
+      last_file_txt <- file.path(tempdir(), ".last_file.txt")
+      if (file.exists(last_file_txt)) try(unlink(last_file_txt), silent = TRUE)
       dataset(NULL)
       last_file(NULL)
       showNotification("App reset. You can load a new file now.", type = "message")

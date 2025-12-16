@@ -11,7 +11,7 @@ trail_compare(
   settings,
   id_col = NULL,
   label_col = "label",
-  cache_dir = "trail_cache",
+  cache_dir = NULL,
   overwrite = FALSE,
   annotate_fun = annotate,
   min_coders = 2L
@@ -38,8 +38,8 @@ record's \code{annotations} data that should be used as the code for
 comparison (e.g. \code{"label"}, \code{"score"}, \code{"category"}).}
 
 \item{cache_dir}{Optional character scalar specifying a directory to
-cache LLM outputs. Passed to \code{trail_record()}. Defaults to
-\code{"trail_cache"}.}
+cache LLM outputs. Passed to \code{trail_record()}. If \code{NULL}, caching disabled.
+For examples and tests, use \code{tempdir()} to comply with CRAN policies.}
 
 \item{overwrite}{Logical. If \code{TRUE}, ignore all cached results and
 recompute annotations for every setting.}

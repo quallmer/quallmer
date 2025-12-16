@@ -10,6 +10,7 @@
 #' @param setting A \code{trail_setting} object describing the LLM configuration.
 #' @param id_col Optional character scalar identifying units.
 #' @param cache_dir Optional directory in which to cache Trails. If \code{NULL}, caching disabled.
+#'   For examples and tests, use \code{tempdir()} to comply with CRAN policies.
 #' @param overwrite Whether to overwrite existing cache.
 #' @param annotate_fun Function used to perform the annotation (default \code{annotate()}).
 #'
@@ -21,7 +22,7 @@ trail_record <- function(
     task,
     setting,
     id_col       = NULL,
-    cache_dir    = "trail_cache",
+    cache_dir    = NULL,
     overwrite    = FALSE,
     annotate_fun = annotate
 ) {

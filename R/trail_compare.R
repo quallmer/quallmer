@@ -164,8 +164,8 @@ trail_icr <- function(
 #'   record's `annotations` data that should be used as the code for
 #'   comparison (e.g. `"label"`, `"score"`, `"category"`).
 #' @param cache_dir Optional character scalar specifying a directory to
-#'   cache LLM outputs. Passed to `trail_record()`. Defaults to
-#'   `"trail_cache"`.
+#'   cache LLM outputs. Passed to `trail_record()`. If \code{NULL}, caching disabled.
+#'   For examples and tests, use \code{tempdir()} to comply with CRAN policies.
 #' @param overwrite Logical. If `TRUE`, ignore all cached results and
 #'   recompute annotations for every setting.
 #' @param annotate_fun Annotation backend function used by
@@ -200,7 +200,7 @@ trail_compare <- function(
     settings,
     id_col       = NULL,
     label_col    = "label",
-    cache_dir    = "trail_cache",
+    cache_dir    = NULL,
     overwrite    = FALSE,
     annotate_fun = annotate,
     min_coders   = 2L
