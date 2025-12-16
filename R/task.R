@@ -49,3 +49,14 @@ task <- function(name, system_prompt, type_def, input_type = c("text", "image"))
     class = "task"
   )
 }
+
+#' @export
+#' @return Invisibly returns the input object \code{x}. Called for side effects (printing to console).
+print.task <- function(x, ...) {
+  cat("Quallmer task:", x$name, "\n")
+  cat("  Input type: ", x$input_type, "\n", sep = "")
+  cat("  Prompt:     ", substr(x$system_prompt, 1, 60),
+      if (nchar(x$system_prompt) > 60) "..." else "", "\n", sep = "")
+  cat("  Output:     ", class(x$type_def)[1], "\n", sep = "")
+  invisible(x)
+}

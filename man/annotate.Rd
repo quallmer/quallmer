@@ -39,6 +39,12 @@ Applies an annotation task to input data using a large language model.
 Arguments in \code{...} are dynamically routed to either \code{\link[ellmer:chat-any]{ellmer::chat()}} or to
 \code{\link[ellmer:parallel_chat]{ellmer::parallel_chat_structured()}} based on their names.
 }
+\details{
+Progress indicators and error handling are provided by the underlying
+\code{\link[ellmer:parallel_chat]{ellmer::parallel_chat_structured()}} function. Set \code{verbose = TRUE} to see
+progress messages during batch annotation. Retry logic for API failures
+should be configured through ellmer's options.
+}
 \examples{
 \dontrun{
 # Basic sentiment analysis

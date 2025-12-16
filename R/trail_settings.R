@@ -8,6 +8,7 @@
 #' @param model Character. Model identifier, e.g. "gpt-4o-mini",
 #'   "llama3.2:1b", "claude-3-5-sonnet-20241022".
 #' @param temperature Numeric scalar. Sampling temperature (default 0).
+#'   Valid range depends on provider: OpenAI (0-2), Anthropic (0-1), etc.
 #' @param extra Named list of extra arguments merged into `api_args`.
 #'
 #' @return An object of class \code{"trail_setting"}.

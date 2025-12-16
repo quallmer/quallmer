@@ -121,3 +121,19 @@ trail_record <- function(
 
   rec
 }
+
+#' @export
+#' @return Invisibly returns the input object \code{x}. Called for side effects (printing to console).
+print.trail_record <- function(x, ...) {
+  cat("Trail record\n")
+  cat("  Provider:    ", x$meta$provider, "\n", sep = "")
+  cat("  Model:       ", x$meta$model, "\n", sep = "")
+  cat("  Temperature: ", x$meta$temperature, "\n", sep = "")
+  cat("  Units:       ", x$meta$n_rows, "\n", sep = "")
+  cat("  Task:        ", paste(x$meta$task_class, collapse = ", "), "\n", sep = "")
+  cat("  Timestamp:   ", format(x$meta$timestamp, "%Y-%m-%d %H:%M:%S"), "\n", sep = "")
+  if (!is.na(x$meta$cache_dir)) {
+    cat("  Cached:      ", x$meta$cache_path, "\n", sep = "")
+  }
+  invisible(x)
+}

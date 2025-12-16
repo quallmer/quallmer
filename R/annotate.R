@@ -19,6 +19,12 @@
 #'   [ellmer::parallel_chat_structured()], based on argument name.
 #'   Arguments not recognized by either function will generate a warning.
 #'
+#' @details
+#' Progress indicators and error handling are provided by the underlying
+#' [ellmer::parallel_chat_structured()] function. Set `verbose = TRUE` to see
+#' progress messages during batch annotation. Retry logic for API failures
+#' should be configured through ellmer's options.
+#'
 #' @return A data frame with one row per input element, containing:
 #'   \describe{
 #'     \item{`id`}{Identifier for each input (from names or sequential integers).}
