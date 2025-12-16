@@ -68,6 +68,14 @@ A data frame with one row per input element, containing:
   [`task_stance()`](https://seraphinem.github.io/quallmer/reference/task_stance.md)
   returns `stance` and `explanation`.
 
+## Details
+
+Progress indicators and error handling are provided by the underlying
+[`ellmer::parallel_chat_structured()`](https://ellmer.tidyverse.org/reference/parallel_chat.html)
+function. Set `verbose = TRUE` to see progress messages during batch
+annotation. Retry logic for API failures should be configured through
+ellmer's options.
+
 ## See also
 
 [`task()`](https://seraphinem.github.io/quallmer/reference/task.md) for

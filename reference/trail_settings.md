@@ -17,16 +17,20 @@ trail_settings(
 
 - provider:
 
-  Character. Backend provider identifier, e.g. "openai", "ollama",
-  "azure", etc.
+  Character. Backend provider identifier supported by ellmer, e.g.
+  "openai", "ollama", "anthropic". See [ellmer
+  documentation](https://ellmer.tidyverse.org/) for all supported
+  providers.
 
 - model:
 
-  Character. Model identifier, e.g. "gpt-4o-mini", "llama3.2:1b".
+  Character. Model identifier, e.g. "gpt-4o-mini", "llama3.2:1b",
+  "claude-3-5-sonnet-20241022".
 
 - temperature:
 
-  Numeric scalar. Sampling temperature (default 0).
+  Numeric scalar. Sampling temperature (default 0). Valid range depends
+  on provider: OpenAI (0-2), Anthropic (0-1), etc.
 
 - extra:
 

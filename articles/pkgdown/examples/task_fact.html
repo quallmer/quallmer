@@ -127,7 +127,6 @@ texts<a class="anchor" aria-label="anchor" href="#using-annotate-for-fact-checki
 <span>                   model_name <span class="op">=</span> <span class="st">"openai/gpt-4o"</span>,</span>
 <span>                   params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>temperature <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## [working] (0 + 0) -&gt; 3 -&gt; 1 | <span style="color: #00BB00;">■■■■■■■■■                       </span>  25%</span></span></code></pre>
-<pre><code><span><span class="co">## [working] (0 + 0) -&gt; 1 -&gt; 3 | <span style="color: #00BB00;">■■■■■■■■■■■■■■■■■■■■■■■         </span>  75%</span></span></code></pre>
 <pre><code><span><span class="co">## [working] (0 + 0) -&gt; 0 -&gt; 4 | <span style="color: #00BB00;">■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ </span> 100%</span></span></code></pre>
 <table class="table table table-striped table-hover" style="margin-left: auto; margin-right: auto;">
 <thead><tr>
@@ -155,13 +154,12 @@ explanation
 <td style="text-align:left;">
 </td>
 <td style="text-align:left;">
-The text is a speech that reflects on American values, history, and
-aspirations. It accurately references historical events and foundational
-principles of the United States, such as the Declaration of Independence
-and the Constitution. The speech is largely aspirational and rhetorical,
-focusing on ideals rather than specific factual claims, which
-contributes to its high truthfulness score. There are no significant
-misleading topics or inaccuracies present.
+The text is a ceremonial speech, likely an inaugural address, that
+emphasizes American values, historical references, and aspirations. It
+contains broad, aspirational statements rather than specific factual
+claims, which are generally accurate and consistent with historical and
+cultural narratives. There are no obvious false or misleading claims,
+hence a high truthfulness score is appropriate.
 </td>
 </tr>
 <tr>
@@ -172,33 +170,18 @@ misleading topics or inaccuracies present.
 6
 </td>
 <td style="text-align:left;">
-Transfer of Power , Economic Claims , Foreign Policy , Crime and Poverty
-, Unity and Division
+Transfer of power to the people, American carnage , Redistribution of
+wealth , Protectionism benefits , Eradication of terrorism
 </td>
 <td style="text-align:left;">
-<p>The text is a political speech, which often includes aspirational and
-rhetorical statements rather than factual claims.</p>
-<ol style="list-style-type: decimal">
-<li>
-<strong>Transfer of Power</strong>: The claim of transferring power
-‘back to the people’ is subjective and lacks specific evidence.</li>
-<li>
-<strong>Economic Claims</strong>: Statements about factories closing
-and wealth redistribution are broad and lack nuance or supporting
-data.</li>
-<li>
-<strong>Foreign Policy</strong>: Assertions about enriching foreign
-industries at the expense of American ones are oversimplified.</li>
-<li>
-<strong>Crime and Poverty</strong>: Descriptions of ‘American
-carnage’ and inner-city poverty are exaggerated and not universally
-applicable.</li>
-<li>
-<strong>Unity and Division</strong>: The speech emphasizes unity,
-but the political context may suggest otherwise.</li>
-</ol>
-Overall, the speech contains a mix of factual elements and political
-rhetoric, leading to a moderate truthfulness score.
+The speech contains several claims that are either exaggerated or lack
+nuance. The idea of transferring power from Washington to the people is
+a common rhetorical device but lacks specific mechanisms. The term
+‘American carnage’ is a dramatic portrayal that may not accurately
+reflect the state of the nation. Claims about wealth redistribution and
+protectionism ignore complex economic factors. The promise to eradicate
+terrorism is overly simplistic given the global nature of the issue.
+These elements reduce the overall truthfulness score.
 </td>
 </tr>
 <tr>
@@ -214,9 +197,8 @@ rhetoric, leading to a moderate truthfulness score.
 The text is a speech that emphasizes themes of unity, democracy, and
 hope. It accurately reflects historical events and current challenges,
 such as the COVID-19 pandemic and political divisions. The speech is
-largely aspirational and rhetorical, with no significant factual
-inaccuracies or misleading claims. The overall truthfulness score is
-high, as the content aligns with known facts and historical context.
+largely aspirational and does not contain factual inaccuracies or
+misleading claims. Therefore, it receives a high truthfulness score.
 </td>
 </tr>
 <tr>
@@ -234,12 +216,11 @@ ownership , Energy resources
 The text contains several misleading or inaccurate claims. Historical
 inaccuracies include the assertion about the Panama Canal being ‘given’
 to China, which is not true. Policy claims, such as ending the Green New
-Deal or revoking the electric vehicle mandate, are speculative and not
-factual statements. The claim of winning the popular vote by millions
-and sweeping all swing states lacks evidence. The statement about the
-U.S. having the largest oil and gas reserves is misleading, as it
-depends on definitions and measurements. These issues significantly
-reduce the truthfulness score.
+Deal and revoking the electric vehicle mandate, are presented without
+context or feasibility. The election results mentioned are speculative
+and lack evidence. The claim about the U.S. having the largest amount of
+oil and gas is misleading without context. These issues reduce the
+overall truthfulness of the text.
 </td>
 </tr>
 </tbody>
@@ -249,7 +230,7 @@ reduce the truthfulness score.
 <h3 id="using-annotate-for-fact-checking-with-a-specific-number-of-claims-to-check">Using <code>annotate()</code> for fact checking with a specific
 number of claims to check<a class="anchor" aria-label="anchor" href="#using-annotate-for-fact-checking-with-a-specific-number-of-claims-to-check"></a>
 </h3>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Apply predefined fact checking task with task_fact() in the annotate() function</span></span>
 <span><span class="va">result_claims</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../../reference/annotate.html">annotate</a></span><span class="op">(</span><span class="va">data_corpus_inaugural</span>, task <span class="op">=</span> <span class="fu"><a href="../../../reference/task_fact.html">task_fact</a></span><span class="op">(</span>max_topics <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>,</span>
 <span>                   model_name <span class="op">=</span> <span class="st">"openai/gpt-4o"</span>,</span>
@@ -285,11 +266,12 @@ explanation
 <td style="text-align:left;">
 The text is a ceremonial speech, likely an inaugural address, that
 emphasizes American values, historical references, and aspirations. It
-contains no factual inaccuracies or misleading claims. The themes of
-equality, democracy, and collective action are consistent with
-historical and contemporary American ideals. The speech is largely
-aspirational and rhetorical, which is typical for this genre, and does
-not make specific factual claims that could be easily disputed.
+contains broad, aspirational statements rather than specific factual
+claims, which are generally accurate in context. The speech reflects
+common themes in American political rhetoric, such as equality,
+democracy, and collective action. There are no specific misleading
+topics, but the nature of the speech is more about ideals than
+verifiable facts, which is typical for this genre.
 </td>
 </tr>
 <tr>
@@ -297,29 +279,29 @@ not make specific factual claims that could be easily disputed.
 2017-Trump
 </td>
 <td style="text-align:right;">
-6
+5
 </td>
 <td style="text-align:left;">
 Transfer of Power to the People, American Carnage , America First Policy
 </td>
 <td style="text-align:left;">
-<p>The text is a political speech, which often includes aspirational and
-rhetorical statements rather than factual claims.</p>
+<p>The text is a political speech that contains several broad and
+subjective claims.</p>
 <ol style="list-style-type: decimal">
 <li><p><strong>Transfer of Power to the People</strong>: The claim that
-power is being transferred from Washington to the people is more
-rhetorical than factual, as systemic changes in governance are complex
-and not solely determined by a change in administration.</p></li>
+power is being transferred from Washington to the people is a common
+rhetorical device but lacks specific evidence or mechanisms to
+substantiate how this is being achieved.</p></li>
 <li><p><strong>American Carnage</strong>: The depiction of the U.S. as
-suffering from widespread ‘carnage’ is a dramatic characterization that
-may not accurately reflect the overall state of the nation.</p></li>
+suffering from widespread ‘carnage’ is an exaggerated portrayal that may
+not accurately reflect the overall state of the nation.</p></li>
 <li><p><strong>America First Policy</strong>: The promise that all
-decisions will benefit American workers and families is an idealistic
-goal that may not always align with the complexities of global trade and
+decisions will benefit American workers and families is an aspirational
+statement that may not account for the complexities of global trade and
 diplomacy.</p></li>
 </ol>
-Overall, the speech contains a mix of factual statements and political
-rhetoric, leading to a moderate truthfulness score.
+These elements contribute to a mixed truthfulness score, as they are
+more rhetorical than factual.
 </td>
 </tr>
 <tr>
@@ -335,10 +317,11 @@ rhetoric, leading to a moderate truthfulness score.
 The text is a speech that emphasizes themes of unity, democracy, and
 hope. It accurately reflects historical events and current challenges,
 such as the COVID-19 pandemic and political divisions. The speech is
-largely aspirational and rhetorical, with no specific factual
-inaccuracies or misleading claims. The overall truthfulness score is
-high due to its alignment with known facts and its nature as a
-ceremonial address.
+largely aspirational and does not contain specific factual inaccuracies.
+However, as with any political speech, the effectiveness of proposed
+solutions and the realization of goals are subject to debate and
+interpretation. Overall, the speech is truthful and accurate in its
+representation of events and intentions.
 </td>
 </tr>
 <tr>
@@ -349,24 +332,16 @@ ceremonial address.
 3
 </td>
 <td style="text-align:left;">
-Historical Inaccuracies, Policy Claims , Election Results
+Historical inaccuracies, Policy claims , Election results
 </td>
 <td style="text-align:left;">
-<p>The speech contains several misleading or inaccurate claims.</p>
-<ol style="list-style-type: decimal">
-<li><p><strong>Historical Inaccuracies</strong>: The statement about the
-Panama Canal and its management by China is misleading. The canal is
-operated by the Panama Canal Authority, not China.</p></li>
-<li><p><strong>Policy Claims</strong>: The feasibility and legality of
-many proposed policies, such as changing the name of the Gulf of Mexico
-or declaring a national emergency to halt illegal entry, are
-questionable and lack context.</p></li>
-<li><p><strong>Election Results</strong>: Claims about winning the
-popular vote by millions and unifying support across all demographics
-are not substantiated with evidence and are likely exaggerated.</p></li>
-</ol>
-Overall, the speech is highly rhetorical with numerous unverified or
-exaggerated claims, reducing its truthfulness score.
+The text contains several factual inaccuracies and misleading claims.
+For instance, the statement about the Panama Canal being ‘given to
+China’ is incorrect; the canal is operated by Panama. The claim of
+winning ‘all seven swing states’ and the popular vote by ‘millions’
+lacks evidence. Additionally, the assertion of an ‘assassin’s bullet’
+incident is not corroborated by any known events. These issues
+significantly reduce the truthfulness score.
 </td>
 </tr>
 </tbody>

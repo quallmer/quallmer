@@ -108,6 +108,13 @@ For example, <code><a href="task_sentiment.html">task_sentiment()</a></code> ret
 
 </dl></div>
     <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Progress indicators and error handling are provided by the underlying
+<code><a href="https://ellmer.tidyverse.org/reference/parallel_chat.html" class="external-link">ellmer::parallel_chat_structured()</a></code> function. Set <code>verbose = TRUE</code> to see
+progress messages during batch annotation. Retry logic for API failures
+should be configured through ellmer's options.</p>
+    </div>
+    <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="task.html">task()</a></code> for creating custom tasks, <code><a href="task_sentiment.html">task_sentiment()</a></code>, <code><a href="task_stance.html">task_stance()</a></code>,
 <code><a href="task_ideology.html">task_ideology()</a></code>, <code><a href="task_salience.html">task_salience()</a></code>, <code><a href="task_fact.html">task_fact()</a></code> for predefined tasks,

@@ -69,17 +69,19 @@
 
 
 <dl><dt id="arg-provider">provider<a class="anchor" aria-label="anchor" href="#arg-provider"></a></dt>
-<dd><p>Character. Backend provider identifier, e.g. "openai",
-"ollama", "azure", etc.</p></dd>
+<dd><p>Character. Backend provider identifier supported by ellmer,
+e.g. "openai", "ollama", "anthropic". See
+<a href="https://ellmer.tidyverse.org/" class="external-link">ellmer documentation</a> for all supported providers.</p></dd>
 
 
 <dt id="arg-model">model<a class="anchor" aria-label="anchor" href="#arg-model"></a></dt>
 <dd><p>Character. Model identifier, e.g. "gpt-4o-mini",
-"llama3.2:1b".</p></dd>
+"llama3.2:1b", "claude-3-5-sonnet-20241022".</p></dd>
 
 
 <dt id="arg-temperature">temperature<a class="anchor" aria-label="anchor" href="#arg-temperature"></a></dt>
-<dd><p>Numeric scalar. Sampling temperature (default 0).</p></dd>
+<dd><p>Numeric scalar. Sampling temperature (default 0).
+Valid range depends on provider: OpenAI (0-2), Anthropic (0-1), etc.</p></dd>
 
 
 <dt id="arg-extra">extra<a class="anchor" aria-label="anchor" href="#arg-extra"></a></dt>
