@@ -210,22 +210,22 @@ meta_df %>%
   column_spec(1, bold = TRUE)
 ```
 
-| Field        | Value                      |
-|:-------------|:---------------------------|
-| timestamp    | 2025-12-16 21:57:40.635212 |
-| n_rows       | 4                          |
-| provider     | openai                     |
-| model        | gpt-4o-mini                |
-| temperature  | 0                          |
-| api_extra    | list()                     |
-| cache_dir    | NA                         |
-| cache_path   | NA                         |
-| id_col       | doc_id                     |
-| text_col     | text                       |
-| task_class   | task                       |
-| quallmer_ver | 0.1.1                      |
-| ellmer_ver   | 0.4.0                      |
-| R_ver        | 4.5.2                      |
+| Field        | Value                     |
+|:-------------|:--------------------------|
+| timestamp    | 2025-12-16 22:07:26.68208 |
+| n_rows       | 4                         |
+| provider     | openai                    |
+| model        | gpt-4o-mini               |
+| temperature  | 0                         |
+| api_extra    | list()                    |
+| cache_dir    | NA                        |
+| cache_path   | NA                        |
+| id_col       | doc_id                    |
+| text_col     | text                      |
+| task_class   | task                      |
+| quallmer_ver | 0.1.1                     |
+| ellmer_ver   | 0.4.0                     |
+| R_ver        | 4.5.2                     |
 
 ## Run multiple trails with different settings
 
@@ -252,8 +252,6 @@ label_col = "score"
 ```
 
     ## [working] (0 + 0) -> 3 -> 1 | ■■■■■■■■■                         25%
-
-    ## [working] (0 + 0) -> 1 -> 3 | ■■■■■■■■■■■■■■■■■■■■■■■           75%
 
     ## [working] (0 + 0) -> 0 -> 4 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100%
 
