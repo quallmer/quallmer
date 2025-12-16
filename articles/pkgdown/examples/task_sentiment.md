@@ -34,7 +34,7 @@ result <- annotate(texts, task = task_sentiment(),
                    params = list(temperature = 0))
 ```
 
-    ## [working] (0 + 0) -> 2 -> 2 | ■■■■■■■■■■■■■■■■                  50%
+    ## [working] (0 + 0) -> 3 -> 1 | ■■■■■■■■■                         25%
 
     ## [working] (0 + 0) -> 0 -> 4 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100%
 
@@ -75,7 +75,7 @@ custom_result <- annotate(texts, task = custom_sentiment,
 |  id | score | explanation                                                                                            | confidence |
 |----:|------:|:-------------------------------------------------------------------------------------------------------|-----------:|
 |   1 |   0.9 | The word ‘wonderful’ conveys a very positive sentiment.                                                |       0.95 |
-|   2 |  -0.8 | The word ‘dislike’ indicates a strong negative sentiment towards the approach.                         |       0.90 |
+|   2 |  -0.8 | The word ‘dislike’ indicates a strong negative sentiment towards the approach.                         |       0.95 |
 |   3 |  -0.5 | The word ‘disappointing’ indicates a negative sentiment, though ‘somewhat’ softens it slightly.        |       0.90 |
 |   4 |   0.9 | The phrase “Absolutely fantastic work!” is highly positive, expressing strong approval and admiration. |       0.95 |
 
@@ -105,7 +105,7 @@ likert_result <- annotate(texts, task = likert_sentiment,
 |  id | score | explanation                                                                                                          |
 |----:|------:|:---------------------------------------------------------------------------------------------------------------------|
 |   1 |     5 | The word ‘wonderful’ conveys a very positive sentiment, indicating delight or admiration.                            |
-|   2 |     2 | The sentiment is negative due to the use of the word ‘dislike,’ indicating dissatisfaction or disapproval.           |
+|   2 |     2 | The sentiment is negative due to the use of the word ‘dislike,’ indicating dissatisfaction.                          |
 |   3 |     2 | The word ‘disappointing’ indicates a negative sentiment, though ‘somewhat’ suggests it’s not extremely negative.     |
 |   4 |     5 | The phrase expresses strong positive sentiment with words like ‘absolutely’ and ‘fantastic,’ indicating high praise. |
 
