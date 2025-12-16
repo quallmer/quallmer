@@ -4,7 +4,13 @@
 \alias{validate_app}
 \title{Launch the Validate App}
 \usage{
-validate_app()
+validate_app(base_dir = getwd())
+}
+\arguments{
+\item{base_dir}{Base directory for saving uploaded files and progress.
+Defaults to current working directory. Use \code{tempdir()} for temporary
+storage (e.g., in examples or tests), but note that data will be lost when
+the R session ends.}
 }
 \value{
 A shiny.appobj

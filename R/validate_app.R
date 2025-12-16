@@ -628,9 +628,14 @@ humancheck_server <- function(
 #' - In Validation mode, select unit ID and coder columns (no text column),
 #'   and optionally specify a gold-standard coder.
 #'
+#' @param base_dir Base directory for saving uploaded files and progress.
+#'   Defaults to current working directory. Use \code{tempdir()} for temporary
+#'   storage (e.g., in examples or tests), but note that data will be lost when
+#'   the R session ends.
+#'
 #' @return A shiny.appobj
 #' @export
-validate_app <- function() {
+validate_app <- function(base_dir = getwd()) {
   ui <- fluidPage(
     theme = bs_theme(
       version        = 5,
@@ -681,7 +686,7 @@ validate_app <- function() {
         uiOutput("column_selectors"),
         br(),
         helpText(
-          "Progress is saved to *_assessed.rds in a temporary validate folder"
+          "Progress is saved to *_assessed.rds in the validate folder"
         )
       ),
       mainPanel(uiOutput("main_content"))
@@ -692,7 +697,7 @@ validate_app <- function() {
     dataset   <- reactiveVal(NULL)
     last_file <- reactiveVal(NULL)
 
-    state_path <- file.path(tempdir(), ".app_state.rds")
+    state_path <- file.path(base_dir, ".app_state.rds")
     hc         <- NULL
 
     get_hc_index <- function() {
@@ -750,8 +755,8 @@ validate_app <- function() {
         if (!is.null(st$mode)) {
           updateRadioButtons(session, "mode", selected = st$mode)
         }
-      } else if (is.null(dataset()) && file.exists(file.path(tempdir(), ".last_file.txt"))) {
-        lf <- readLines(file.path(tempdir(), ".last_file.txt"), warn = FALSE)
+      } else if (is.null(dataset()) && file.exists(file.path(base_dir, ".last_file.txt"))) {
+        lf <- readLines(file.path(base_dir, ".last_file.txt"), warn = FALSE)
         if (length(lf) == 1 && nzchar(lf) && file.exists(lf)) {
           obj <- tryCatch(
             read_data_file(lf, basename(lf)),
@@ -773,7 +778,7 @@ validate_app <- function() {
     # Persist upload locally to validate folder and validate
     observeEvent(input$file, {
       req(input$file)
-      validate_dir <- file.path(tempdir(), "validate")
+      validate_dir <- file.path(base_dir, "validate")
       dir.create(validate_dir, showWarnings = FALSE, recursive = TRUE)
       dest <- normalizePath(
         file.path(validate_dir, input$file$name),
@@ -800,14 +805,14 @@ validate_app <- function() {
       }
       dataset(obj)
       last_file(dest)
-      writeLines(dest, file.path(tempdir(), ".last_file.txt"))
+      writeLines(dest, file.path(base_dir, ".last_file.txt"))
       save_state()
     }, ignoreInit = TRUE)
 
     # Save and reset
     observeEvent(input$reset_btn, {
       if (file.exists(state_path))       try(unlink(state_path), silent = TRUE)
-      last_file_txt <- file.path(tempdir(), ".last_file.txt")
+      last_file_txt <- file.path(base_dir, ".last_file.txt")
       if (file.exists(last_file_txt)) try(unlink(last_file_txt), silent = TRUE)
       dataset(NULL)
       last_file(NULL)
