@@ -68,7 +68,7 @@ full result on disk.</p>
 <span>  <span class="va">task</span>,</span>
 <span>  <span class="va">setting</span>,</span>
 <span>  id_col <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  cache_dir <span class="op">=</span> <span class="st">"trail_cache"</span>,</span>
+<span>  cache_dir <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  overwrite <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  annotate_fun <span class="op">=</span> <span class="va">annotate</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -99,7 +99,8 @@ full result on disk.</p>
 
 
 <dt id="arg-cache-dir">cache_dir<a class="anchor" aria-label="anchor" href="#arg-cache-dir"></a></dt>
-<dd><p>Optional directory in which to cache Trails. If <code>NULL</code>, caching disabled.</p></dd>
+<dd><p>Optional directory in which to cache Trails. If <code>NULL</code>, caching disabled.
+For examples and tests, use <code><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir()</a></code> to comply with CRAN policies.</p></dd>
 
 
 <dt id="arg-overwrite">overwrite<a class="anchor" aria-label="anchor" href="#arg-overwrite"></a></dt>

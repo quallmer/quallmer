@@ -54,16 +54,11 @@ result <- annotate(data_corpus_inaugural, task = task_fact(),
 
     ## [working] (0 + 0) -> 3 -> 1 | ■■■■■■■■■                         25%
 
-    ## [working] (0 + 0) -> 2 -> 2 | ■■■■■■■■■■■■■■■■                  50%
+    ## [working] (0 + 0) -> 1 -> 3 | ■■■■■■■■■■■■■■■■■■■■■■■           75%
 
     ## [working] (0 + 0) -> 0 -> 4 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100%
 
-| id         | truth_score | misleading_topic                                                                                                                 | explanation                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-|:-----------|------------:|:---------------------------------------------------------------------------------------------------------------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 2013-Obama |           9 |                                                                                                                                  | The text is a ceremonial speech, likely an inaugural address, that emphasizes American values, historical references, and aspirations. It contains broad, aspirational statements rather than specific factual claims, which are generally accurate and consistent with historical and cultural narratives. There are no obvious misleading or false claims, hence a high truthfulness score is appropriate.                                                                                                                                                                                                                    |
-| 2017-Trump |           5 | Transfer of power to the people, American carnage , Protectionism benefits , Eradication of terrorism , Redistribution of wealth | The speech contains several claims and implications that are either exaggerated or lack nuance. The idea of transferring power from Washington to the people is a common political rhetoric that oversimplifies complex governance structures. The term ‘American carnage’ paints a bleak picture that may not accurately reflect the overall state of the nation. The benefits of protectionism are debated among economists, and the claim of eradicating terrorism is overly ambitious. Lastly, the notion of wealth being ‘ripped’ from the middle class and redistributed globally is a simplification of economic trends. |
-| 2021-Biden |           9 |                                                                                                                                  | The text is a speech that emphasizes themes of unity, democracy, and hope. It accurately reflects historical events and current challenges, such as the COVID-19 pandemic and political divisions. The speech is largely aspirational and rhetorical, with no significant factual inaccuracies or misleading claims. The overall truthfulness score is high, as the content aligns with known facts and historical context.                                                                                                                                                                                                     |
-| 2025-Trump |           3 | Historical inaccuracies , Policy claims , Election results , Panama Canal statements , Energy and environmental policies         | The text contains numerous factual inaccuracies and misleading claims. Historical inaccuracies include the statement about the Panama Canal and the role of President McKinley. Policy claims, such as ending the Green New Deal and revoking the electric vehicle mandate, are presented without context or feasibility. The election results and claims of national unity are exaggerated and lack evidence. The statement about the Gulf of Mexico being renamed is unrealistic. Overall, the speech is highly rhetorical with many unverifiable or misleading assertions.                                                   |
+[TABLE]
 
 ### Using `annotate()` for fact checking with a specific number of claims to check
 
@@ -75,6 +70,8 @@ result_claims <- annotate(data_corpus_inaugural, task = task_fact(max_topics = 3
 ```
 
     ## [working] (0 + 0) -> 3 -> 1 | ■■■■■■■■■                         25%
+
+    ## [working] (0 + 0) -> 1 -> 3 | ■■■■■■■■■■■■■■■■■■■■■■■           75%
 
     ## [working] (0 + 0) -> 0 -> 4 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100%
 

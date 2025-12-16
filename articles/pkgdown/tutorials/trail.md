@@ -156,7 +156,13 @@ task = ideology_scores,
 setting = setting_gptmini0,
 id_col = "doc_id"
 )
+```
 
+    ## [working] (0 + 0) -> 3 -> 1 | ■■■■■■■■■                         25%
+
+    ## [working] (0 + 0) -> 0 -> 4 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100%
+
+``` r
 # Display the recorded trail's settings
 library(dplyr)
 ```
@@ -204,22 +210,22 @@ meta_df %>%
   column_spec(1, bold = TRUE)
 ```
 
-| Field        | Value                                                  |
-|:-------------|:-------------------------------------------------------|
-| timestamp    | 2025-12-11 09:54:27.544492                             |
-| n_rows       | 4                                                      |
-| provider     | openai                                                 |
-| model        | gpt-4o-mini                                            |
-| temperature  | 0                                                      |
-| api_extra    | list()                                                 |
-| cache_dir    | trail_cache                                            |
-| cache_path   | trail_cache/trail_cc9fa6521417438b5124b757f7062345.rds |
-| id_col       | doc_id                                                 |
-| text_col     | text                                                   |
-| task_class   | task                                                   |
-| quallmer_ver | 0.1.1                                                  |
-| ellmer_ver   | 0.4.0                                                  |
-| R_ver        | 4.5.2                                                  |
+| Field        | Value                      |
+|:-------------|:---------------------------|
+| timestamp    | 2025-12-16 04:47:32.385402 |
+| n_rows       | 4                          |
+| provider     | openai                     |
+| model        | gpt-4o-mini                |
+| temperature  | 0                          |
+| api_extra    | list()                     |
+| cache_dir    | NA                         |
+| cache_path   | NA                         |
+| id_col       | doc_id                     |
+| text_col     | text                       |
+| task_class   | task                       |
+| quallmer_ver | 0.1.1                      |
+| ellmer_ver   | 0.4.0                      |
+| R_ver        | 4.5.2                      |
 
 ## Run multiple trails with different settings
 
@@ -243,7 +249,25 @@ settings = list(
 id_col = "doc_id",
 label_col = "score"
 )
+```
 
+    ## [working] (0 + 0) -> 3 -> 1 | ■■■■■■■■■                         25%
+
+    ## [working] (0 + 0) -> 0 -> 4 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100%
+
+    ## [working] (0 + 0) -> 3 -> 1 | ■■■■■■■■■                         25%
+
+    ## [working] (0 + 0) -> 0 -> 4 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100%
+
+    ## [working] (0 + 0) -> 3 -> 1 | ■■■■■■■■■                         25%
+
+    ## [working] (0 + 0) -> 0 -> 4 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100%
+
+    ## [working] (0 + 0) -> 3 -> 1 | ■■■■■■■■■                         25%
+
+    ## [working] (0 + 0) -> 0 -> 4 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100%
+
+``` r
 # Display the annotation matrix
 left_trails$matrix
 ```
@@ -251,7 +275,7 @@ left_trails$matrix
     ## # A tibble: 4 × 5
     ##   doc_id        T0   T07   T40  T407
     ##   <chr>      <dbl> <dbl> <dbl> <dbl>
-    ## 1 2013-Obama     2     2     2     3
+    ## 1 2013-Obama     2     2     2     2
     ## 2 2017-Trump     0     0     0     0
     ## 3 2021-Biden     2     2     2     2
     ## 4 2025-Trump     0     0     0     0
@@ -268,22 +292,22 @@ left_trails$icr
     ## [1] 4
     ## 
     ## $categories
-    ## [1] 3
+    ## [1] 2
     ## 
     ## $percent_unanimous_units
-    ## [1] 0.75
+    ## [1] 1
     ## 
     ## $mean_pairwise_percent_agreement
-    ## [1] 0.875
+    ## [1] 1
     ## 
     ## $mean_pairwise_cohens_kappa
-    ## [1] 0.8
+    ## [1] 1
     ## 
     ## $kripp_alpha_nominal
-    ## [1] 0.7793
+    ## [1] 1
     ## 
     ## $fleiss_kappa
-    ## [1] 0.7746
+    ## [1] 1
 
 The output above shows the annotation matrix where each row corresponds
 to a document and each column corresponds to a different trail setting.

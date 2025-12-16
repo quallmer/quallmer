@@ -6,8 +6,18 @@ agreement calculation.
 ## Usage
 
 ``` r
-validate_app()
+validate_app(base_dir = getwd())
 ```
+
+## Arguments
+
+- base_dir:
+
+  Base directory for saving uploaded files and progress. Defaults to
+  current working directory. Use
+  [`tempdir()`](https://rdrr.io/r/base/tempfile.html) for temporary
+  storage (e.g., in examples or tests), but note that data will be lost
+  when the R session ends.
 
 ## Value
 

@@ -14,7 +14,7 @@ trail_compare(
   settings,
   id_col = NULL,
   label_col = "label",
-  cache_dir = "trail_cache",
+  cache_dir = NULL,
   overwrite = FALSE,
   annotate_fun = annotate,
   min_coders = 2L
@@ -58,7 +58,9 @@ trail_compare(
   Optional character scalar specifying a directory to cache LLM outputs.
   Passed to
   [`trail_record()`](https://seraphinem.github.io/quallmer/reference/trail_record.md).
-  Defaults to `"trail_cache"`.
+  If `NULL`, caching disabled. For examples and tests, use
+  [`tempdir()`](https://rdrr.io/r/base/tempfile.html) to comply with
+  CRAN policies.
 
 - overwrite:
 

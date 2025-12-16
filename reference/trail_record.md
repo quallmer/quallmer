@@ -13,7 +13,7 @@ trail_record(
   task,
   setting,
   id_col = NULL,
-  cache_dir = "trail_cache",
+  cache_dir = NULL,
   overwrite = FALSE,
   annotate_fun = annotate
 )
@@ -44,7 +44,9 @@ trail_record(
 - cache_dir:
 
   Optional directory in which to cache Trails. If `NULL`, caching
-  disabled.
+  disabled. For examples and tests, use
+  [`tempdir()`](https://rdrr.io/r/base/tempfile.html) to comply with
+  CRAN policies.
 
 - overwrite:
 

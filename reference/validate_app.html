@@ -59,9 +59,20 @@ and validation / agreement calculation.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">validate_app</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">validate_app</span><span class="op">(</span>base_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
     </div>
 
+    <div class="section level2">
+    <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
+
+
+<dl><dt id="arg-base-dir">base_dir<a class="anchor" aria-label="anchor" href="#arg-base-dir"></a></dt>
+<dd><p>Base directory for saving uploaded files and progress.
+Defaults to current working directory. Use <code><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir()</a></code> for temporary
+storage (e.g., in examples or tests), but note that data will be lost when
+the R session ends.</p></dd>
+
+</dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A shiny.appobj</p>
