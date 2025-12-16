@@ -272,6 +272,7 @@ trail_compare <- function(
 # --------------------------------
 
 #' @export
+#' @return Invisibly returns the input object \code{x}. Called for side effects (printing to console).
 print.trail_compare <- function(x, ...) {
   cat("Trail compare\n")
   cat("  Settings: ", paste(x$meta$setting_ids, collapse = ", "), "\n", sep = "")

@@ -42,6 +42,7 @@ trail_settings <- function(
 }
 
 #' @export
+#' @return Invisibly returns the input object \code{x}. Called for side effects (printing to console).
 print.trail_setting <- function(x, ...) {
   cat("Trail setting\n")
   cat("  Provider:   ", x$provider, "\n", sep = "")
