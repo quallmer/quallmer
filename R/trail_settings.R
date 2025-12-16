@@ -2,10 +2,11 @@
 #'
 #' Simple description of an LLM configuration for use with quallmer Trails.
 #'
-#' @param provider Character. Backend provider identifier, e.g. "openai",
-#'   "ollama", "azure", etc.
+#' @param provider Character. Backend provider identifier supported by ellmer,
+#'   e.g. "openai", "ollama", "anthropic". See
+#'   \href{https://ellmer.tidyverse.org/}{ellmer documentation} for all supported providers.
 #' @param model Character. Model identifier, e.g. "gpt-4o-mini",
-#'   "llama3.2:1b".
+#'   "llama3.2:1b", "claude-3-5-sonnet-20241022".
 #' @param temperature Numeric scalar. Sampling temperature (default 0).
 #' @param extra Named list of extra arguments merged into `api_args`.
 #'

@@ -97,7 +97,7 @@ trail_record <- function(
     model        = setting$model,
     temperature  = setting$temperature,
     api_extra    = setting$extra,
-    cache_dir    = cache_dir,
+    cache_dir    = if (is.null(cache_dir)) NA_character_ else cache_dir,
     cache_path   = cache_path,
     id_col       = id_col,
     text_col     = text_col,
