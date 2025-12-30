@@ -281,7 +281,7 @@ Value
 timestamp
 </td>
 <td style="text-align:left;">
-2025-12-16 22:38:03.939736
+2025-12-30 23:08:48.551624
 </td>
 </tr>
 <tr>
@@ -417,7 +417,9 @@ to see how different configurations impact the LLM’s outputs.</p>
 <pre><code><span><span class="co">## [working] (0 + 0) -&gt; 0 -&gt; 4 | <span style="color: #00BB00;">■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ </span> 100%</span></span></code></pre>
 <pre><code><span><span class="co">## [working] (0 + 0) -&gt; 3 -&gt; 1 | <span style="color: #00BB00;">■■■■■■■■■                       </span>  25%</span></span></code></pre>
 <pre><code><span><span class="co">## [working] (0 + 0) -&gt; 0 -&gt; 4 | <span style="color: #00BB00;">■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ </span> 100%</span></span></code></pre>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<pre><code><span><span class="co">## [working] (0 + 0) -&gt; 3 -&gt; 1 | <span style="color: #00BB00;">■■■■■■■■■                       </span>  25%</span></span></code></pre>
+<pre><code><span><span class="co">## [working] (0 + 0) -&gt; 0 -&gt; 4 | <span style="color: #00BB00;">■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ </span> 100%</span></span></code></pre>
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Display the annotation matrix</span></span>
 <span><span class="va">left_trails</span><span class="op">$</span><span class="va">matrix</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 4 × 5</span></span></span>
@@ -427,7 +429,7 @@ to see how different configurations impact the LLM’s outputs.</p>
 <span><span class="co">## <span style="color: #BCBCBC;">2</span> 2017-Trump     0     0     0     0</span></span>
 <span><span class="co">## <span style="color: #BCBCBC;">3</span> 2021-Biden     2     2     2     2</span></span>
 <span><span class="co">## <span style="color: #BCBCBC;">4</span> 2025-Trump     0     0     0     0</span></span></code></pre>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Display the intercoder reliability results</span></span>
 <span><span class="va">left_trails</span><span class="op">$</span><span class="va">icr</span></span></code></pre></div>
 <pre><code><span><span class="co">## $units_included</span></span>
