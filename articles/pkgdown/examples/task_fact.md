@@ -54,8 +54,6 @@ result <- annotate(data_corpus_inaugural, task = task_fact(),
 
     ## [working] (0 + 0) -> 3 -> 1 | ■■■■■■■■■                         25%
 
-    ## [working] (0 + 0) -> 1 -> 3 | ■■■■■■■■■■■■■■■■■■■■■■■           75%
-
     ## [working] (0 + 0) -> 0 -> 4 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100%
 
 [TABLE]
@@ -70,6 +68,8 @@ result_claims <- annotate(data_corpus_inaugural, task = task_fact(max_topics = 3
 ```
 
     ## [working] (0 + 0) -> 3 -> 1 | ■■■■■■■■■                         25%
+
+    ## [working] (0 + 0) -> 1 -> 3 | ■■■■■■■■■■■■■■■■■■■■■■■           75%
 
     ## [working] (0 + 0) -> 0 -> 4 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100%
 
