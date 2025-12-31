@@ -33,6 +33,7 @@ Imports:
     tidyr,
     digest,
     irr,
+    lifecycle,
     bslib,
     stats,
     htmltools
@@ -40,11 +41,13 @@ Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
-Suggests: 
+Suggests:
     knitr,
     rmarkdown,
     testthat (>= 3.0.0),
     kableExtra,
-    quanteda
+    quanteda,
+    tibble,
+    withr
 Config/testthat/edition: 3
 VignetteBuilder: knitr

@@ -7,7 +7,7 @@
 task_sentiment()
 }
 \value{
-A task object
+A codebook object (qlm_codebook)
 }
 \description{
 Predefined task for sentiment analysis

@@ -18,7 +18,7 @@ or "inclusive - exclusive". The first pole corresponds to 0 and the second to 10
 If provided, it will be included in the system prompt to guide annotation.}
 }
 \value{
-A task object
+A codebook object (qlm_codebook)
 }
 \description{
 Ideological scaling on a specified dimension, with justification.

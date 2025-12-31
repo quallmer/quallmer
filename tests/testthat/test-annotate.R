@@ -1,22 +1,28 @@
 test_that("annotate validates task argument", {
   skip_if_not_installed("ellmer")
 
+  # Suppress deprecation warnings for testing deprecated function
+  withr::local_options(lifecycle_verbosity = "quiet")
+
   texts <- c("Hello", "World")
 
   # Not a task object
   expect_error(
     annotate(texts, task = list(name = "fake"), model_name = "openai"),
-    "`task` must be created using task()"
+    "must be created using.*qlm_codebook"
   )
 
   expect_error(
     annotate(texts, task = "not a task", model_name = "openai"),
-    "`task` must be created using task()"
+    "must be created using.*qlm_codebook"
   )
 })
 
 test_that("annotate validates input type", {
   skip_if_not_installed("ellmer")
+
+  # Suppress deprecation warnings for testing deprecated function
+  withr::local_options(lifecycle_verbosity = "quiet")
 
   type_obj <- ellmer::type_object(
     score = ellmer::type_number("A score")
@@ -81,6 +87,9 @@ test_that("annotate warns about unrecognized arguments", {
 
 test_that("annotate requires model_name argument", {
   skip_if_not_installed("ellmer")
+
+  # Suppress deprecation warnings for testing deprecated function
+  withr::local_options(lifecycle_verbosity = "quiet")
 
   type_obj <- ellmer::type_object(
     score = ellmer::type_number("A score")

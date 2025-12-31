@@ -1,8 +1,8 @@
 #' Predefined task for sentiment analysis
-#' @return A task object
+#' @return A codebook object (qlm_codebook)
 #' @export
 task_sentiment <- function() {
-  task(
+  qlm_codebook(
     name = "Sentiment analysis",
     system_prompt = "You are an expert annotator. Rate the sentiment of each text from -1 (very negative) to 1 (very positive) and briefly explain why.",
     type_def = ellmer::type_object(
@@ -16,10 +16,10 @@ task_sentiment <- function() {
 
 #' Predefined task for stance detection (position taking)
 #' @param topic A character string specifying the topic for stance detection.
-#' @return A task object
+#' @return A codebook object (qlm_codebook)
 #' @export
 task_stance <- function(topic = "the given topic") {
-  task(
+  qlm_codebook(
     name = "Stance detection",
     system_prompt = paste0(
       "You are an expert annotator. Read each short text carefully and determine its stance towards ",
@@ -44,7 +44,7 @@ task_stance <- function(topic = "the given topic") {
 #' @param definition Optional detailed explanation of what the dimension means.
 #'   If provided, it will be included in the system prompt to guide annotation.
 #'
-#' @return A task object
+#' @return A codebook object (qlm_codebook)
 #' @export
 task_ideology <- function(
     dimension = "the specified ideological dimension (0 = first pole, 10 = second pole)",
@@ -57,7 +57,7 @@ task_ideology <- function(
     ""
   }
 
-  task(
+  qlm_codebook(
     name = "Ideological scaling",
     system_prompt = paste0(
       "You are an expert political scientist performing ideological text scaling.\n\n",
@@ -95,7 +95,7 @@ task_ideology <- function(
 #' @param max_topics Integer: maximum number of topics to return when topics
 #'   are inferred from the text. Default is 5.
 #'
-#' @return A task object
+#' @return A codebook object (qlm_codebook)
 #' @export
 task_salience <- function(topics = NULL, max_topics = 5) {
 
@@ -140,7 +140,7 @@ task_salience <- function(topics = NULL, max_topics = 5) {
     )
   )
 
-  task(
+  qlm_codebook(
     name = "Salience (ranked topics)",
     system_prompt = paste0(system_prompt, topics_text),
     type_def = type_def,
@@ -157,7 +157,7 @@ task_salience <- function(topics = NULL, max_topics = 5) {
 #' @param max_topics Integer: maximum number of topics or issues to list as
 #'   reducing confidence in the truthfulness of the text. Default is 5.
 #'
-#' @return A task object
+#' @return A codebook object (qlm_codebook)
 #' @export
 task_fact <- function(max_topics = 5) {
 
@@ -206,7 +206,7 @@ task_fact <- function(max_topics = 5) {
     )
   )
 
-  task(
+  qlm_codebook(
     name = "Fact-checking",
     system_prompt = paste0(system_prompt, topics_text),
     type_def = type_def,

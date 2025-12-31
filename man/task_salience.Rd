@@ -16,7 +16,7 @@ If NULL, the model may infer topic labels directly from the text.}
 are inferred from the text. Default is 5.}
 }
 \value{
-A task object
+A codebook object (qlm_codebook)
 }
 \description{
 Ranked list of topics mentioned in a text, ordered by salience.

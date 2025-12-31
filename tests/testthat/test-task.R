@@ -1,6 +1,9 @@
 test_that("task creates a valid task object", {
   skip_if_not_installed("ellmer")
 
+  # Suppress deprecation warnings for testing deprecated function
+  withr::local_options(lifecycle_verbosity = "quiet")
+
   # Minimal type_object
   type_obj <- ellmer::type_object(
     score = ellmer::type_number("Numeric score between -1 and 1")
@@ -30,6 +33,9 @@ test_that("task creates a valid task object", {
 
 test_that("task validates input_type", {
   skip_if_not_installed("ellmer")
+
+  # Suppress deprecation warnings for testing deprecated function
+  withr::local_options(lifecycle_verbosity = "quiet")
 
   type_obj <- ellmer::type_object(
     label = ellmer::type_string("A label")

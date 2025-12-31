@@ -11,7 +11,7 @@ task_fact(max_topics = 5)
 reducing confidence in the truthfulness of the text. Default is 5.}
 }
 \value{
-A task object
+A codebook object (qlm_codebook)
 }
 \description{
 Assigns an overall truthfulness score to a text and lists topics that reduce

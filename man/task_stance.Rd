@@ -10,7 +10,7 @@ task_stance(topic = "the given topic")
 \item{topic}{A character string specifying the topic for stance detection.}
 }
 \value{
-A task object
+A codebook object (qlm_codebook)
 }
 \description{
 Predefined task for stance detection (position taking)
