@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# quallmer <a href="https://SeraphineM.github.io/quallmer/"><img src="man/figures/logo.png" align="center" height="180" alt="quallmer website" /></a>
+# quallmer <a href="https://SeraphineM.github.io/quallmer/"><img src="man/figures/logo.png" align="right" height="138" alt="quallmer website" /></a>
 
 <!-- badges: start -->
 
