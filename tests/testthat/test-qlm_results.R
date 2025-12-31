@@ -17,18 +17,23 @@ test_that("qlm_results extracts results from qlm_coded object", {
   )
 
   mock_coded <- new_qlm_coded(
-    codebook = codebook,
-    settings = list(model = "test/model"),
     results = mock_results,
+    codebook = codebook,
+    data = c("text1", "text2", "text3"),
+    chat_args = list(name = "test/model"),
+    pcs_args = list(),
     metadata = list(timestamp = Sys.time(), n_units = 3)
   )
 
   # Extract results
   extracted <- qlm_results(mock_coded)
 
-  expect_identical(extracted, mock_results)
+  # Results should have .id column (renamed from id)
   expect_true(is.data.frame(extracted))
   expect_equal(nrow(extracted), 3)
+  expect_true(".id" %in% names(extracted))
+  expect_true("score" %in% names(extracted))
+  expect_true("explanation" %in% names(extracted))
 })
 
 
@@ -62,9 +67,11 @@ test_that("qlm_results supports tibble format", {
   mock_results <- data.frame(id = 1:2, score = c(0.5, 0.8))
 
   mock_coded <- new_qlm_coded(
-    codebook = codebook,
-    settings = list(model = "test/model"),
     results = mock_results,
+    codebook = codebook,
+    data = c("text1", "text2"),
+    chat_args = list(name = "test/model"),
+    pcs_args = list(),
     metadata = list(timestamp = Sys.time(), n_units = 2)
   )
 

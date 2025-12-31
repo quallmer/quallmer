@@ -74,10 +74,15 @@ test_that("qlm_code returns qlm_coded object structure", {
 
   mock_results <- data.frame(id = 1:2, score = c(0.5, 0.8))
 
+  # Add id column to mock_results
+  mock_results$id <- 1:2
+
   mock_coded <- new_qlm_coded(
-    codebook = codebook,
-    settings = list(model = "test/model", extra = list()),
     results = mock_results,
+    codebook = codebook,
+    data = c("text1", "text2"),
+    chat_args = list(name = "test/model"),
+    pcs_args = list(),
     metadata = list(
       timestamp = Sys.time(),
       n_units = 2,
@@ -87,16 +92,20 @@ test_that("qlm_code returns qlm_coded object structure", {
     )
   )
 
-  # Verify structure
+  # Verify structure - qlm_coded is now a data.frame with attributes
   expect_true(inherits(mock_coded, "qlm_coded"))
-  expect_true(is.list(mock_coded))
-  expect_named(mock_coded, c("codebook", "settings", "results", "metadata"))
+  expect_true(inherits(mock_coded, "data.frame"))
+  expect_true(is.data.frame(mock_coded))
 
-  # Verify components
-  expect_identical(mock_coded$codebook, codebook)
-  expect_true(is.list(mock_coded$settings))
-  expect_true(is.data.frame(mock_coded$results))
-  expect_true(is.list(mock_coded$metadata))
+  # Verify data frame columns (id renamed to .id)
+  expect_true(".id" %in% names(mock_coded))
+  expect_true("score" %in% names(mock_coded))
+
+  # Verify attributes
+  expect_identical(attr(mock_coded, "codebook"), codebook)
+  expect_true(is.list(attr(mock_coded, "chat_args")))
+  expect_true(is.list(attr(mock_coded, "pcs_args")))
+  expect_true(is.list(attr(mock_coded, "metadata")))
 })
 
 
@@ -151,10 +160,14 @@ test_that("print.qlm_coded displays correctly", {
   type_obj <- ellmer::type_object(score = ellmer::type_number("Score"))
   codebook <- qlm_codebook("Test Codebook", "Test prompt", type_obj)
 
+  mock_results <- data.frame(id = 1:3, score = c(0.5, -0.3, 0.8))
+
   mock_coded <- new_qlm_coded(
+    results = mock_results,
     codebook = codebook,
-    settings = list(model = "test/model"),
-    results = data.frame(id = 1:3, score = c(0.5, -0.3, 0.8)),
+    data = c("text1", "text2", "text3"),
+    chat_args = list(name = "test/model"),
+    pcs_args = list(),
     metadata = list(timestamp = Sys.time(), n_units = 3)
   )
 
@@ -162,8 +175,5 @@ test_that("print.qlm_coded displays correctly", {
   output <- capture.output(print(mock_coded))
 
   expect_true(any(grepl("quallmer coded object", output)))
-  expect_true(any(grepl("Codebook", output)))
-  expect_true(any(grepl("Model", output)))
-  expect_true(any(grepl("Units.*3", output)))
-  expect_true(any(grepl("qlm_results", output)))
+  expect_true(any(grepl("Codebook.*Test Codebook", output)))
 })

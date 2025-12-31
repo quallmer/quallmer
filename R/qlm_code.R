@@ -148,15 +148,8 @@ qlm_code <- function(x, codebook, model, ...) {
     pcs_args
   ))
 
-  # Add ID and reorder columns
+  # Add ID column from input names or sequence
   results$id <- names(x) %||% seq_along(x)
-  results <- results[, c("id", setdiff(names(results), "id"))]
-
-  # Build settings list (capture key parameters)
-  settings <- list(
-    model = model,
-    extra = chat_args
-  )
 
   # Build metadata list
   metadata <- list(
@@ -173,11 +166,72 @@ qlm_code <- function(x, codebook, model, ...) {
     R_version = paste(R.version$major, R.version$minor, sep = ".")
   )
 
+  # Add model to chat_args for easy access
+  chat_args$name <- model
+
   # Create and return qlm_coded object
   new_qlm_coded(
-    codebook = codebook,
-    settings = settings,
     results = results,
+    codebook = codebook,
+    data = x,
+    chat_args = chat_args,
+    pcs_args = pcs_args,
     metadata = metadata
   )
 }
+
+#' Create a qlm_coded object (internal)
+#'
+#' Low-level constructor for qlm_coded objects. This function is not exported
+#' and is intended for internal use by [qlm_code()].
+#'
+#' The object is a tibble with additional qlm_coded class and attributes.
+#'
+#' @param results Data frame of coded results with id column.
+#' @param codebook A qlm_codebook object.
+#' @param data The original input data (x from qlm_code).
+#' @param chat_args List of arguments passed to ellmer::chat().
+#' @param pcs_args List of arguments passed to ellmer::parallel_chat_structured().
+#' @param metadata List of metadata (timestamp, versions, etc.).
+#'
+#' @return A qlm_coded object (tibble with attributes).
+#' @importFrom utils head
+#' @keywords internal
+#' @noRd
+new_qlm_coded <- function(results, codebook, data, chat_args, pcs_args, metadata) {
+  # Rename id column to .id
+  names(results)[names(results) == "id"] <- ".id"
+
+  # Reorder columns to put .id first
+  results <- results[, c(".id", setdiff(names(results), ".id"))]
+
+  # Convert to tibble (always available via ellmer)
+  results <- tibble::as_tibble(results)
+
+  # Add qlm_coded class and attributes
+  structure(
+    results,
+    class = c("qlm_coded", class(results)),
+    codebook = codebook,
+    data = data,
+    chat_args = chat_args,
+    pcs_args = pcs_args,
+    metadata = metadata
+  )
+}
+
+
+#' Print a qlm_coded object
+#'
+#' @param x A qlm_coded object.
+#' @param ... Additional arguments passed to print methods.
+#'
+#' @return Invisibly returns the input object \code{x}. Called for side effects (printing to console).
+#' @keywords internal
+#' @export
+print.qlm_coded <- function(x, ...) {
+  # cat("# quallmer coded object\n")
+  # cat("# Codebook:", attr(x, "codebook")$name, "\n\n")
+  NextMethod()
+}
+
