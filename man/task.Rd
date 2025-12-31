@@ -9,12 +9,7 @@ task(name, system_prompt, type_def, input_type = c("text", "image"))
 \arguments{
 \item{name}{Name of the codebook (character).}
 
-\item{system_prompt}{System prompt to guide the model.}
-
-\item{type_def}{Structured output definition, e.g., created by
-\code{\link[ellmer:type_boolean]{ellmer::type_object()}}, \code{\link[ellmer:type_boolean]{ellmer::type_array()}}, or \code{\link[ellmer:type_boolean]{ellmer::type_enum()}}.}
-
-\item{input_type}{Type of input data: \code{"text"} or \code{"image"}.}
+\item{input_type}{Type of input data: \code{"text"} (default) or \code{"image"}.}
 }
 \value{
 A task object (a list with class \code{"task"}) containing the task
@@ -34,19 +29,19 @@ and new APIs.
 my_task <- task(
   name = "Sentiment",
   system_prompt = "Rate the sentiment from -1 (negative) to 1 (positive).",
-  type_def = ellmer::type_object(
-    score = ellmer::type_number("Sentiment score from -1 to 1"),
-    explanation = ellmer::type_string("Brief explanation")
+  type_def = type_object(
+    score = type_number("Sentiment score from -1 to 1"),
+    explanation = type_string("Brief explanation")
   )
 )
 
 # New recommended usage
 my_codebook <- qlm_codebook(
   name = "Sentiment",
-  system_prompt = "Rate the sentiment from -1 (negative) to 1 (positive).",
-  type_def = ellmer::type_object(
-    score = ellmer::type_number("Sentiment score from -1 to 1"),
-    explanation = ellmer::type_string("Brief explanation")
+  instructions = "Rate the sentiment from -1 (negative) to 1 (positive).",
+  schema = type_object(
+    score = type_number("Sentiment score from -1 to 1"),
+    explanation = type_string("Brief explanation")
   )
 )
 }

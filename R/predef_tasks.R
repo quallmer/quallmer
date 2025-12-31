@@ -4,11 +4,12 @@
 task_sentiment <- function() {
   qlm_codebook(
     name = "Sentiment analysis",
-    system_prompt = "You are an expert annotator. Rate the sentiment of each text from -1 (very negative) to 1 (very positive) and briefly explain why.",
-    type_def = ellmer::type_object(
-      score = ellmer::type_number("Sentiment score between -1 (very negative) and 1 (very positive)"),
-      explanation = ellmer::type_string("Brief explanation of the rating")
+    instructions = "Rate the sentiment of each text from -1 (very negative) to 1 (very positive) and briefly explain why.",
+    schema = type_object(
+      score = type_number("Sentiment score between -1 (very negative) and 1 (very positive)"),
+      explanation = type_string("Brief explanation of the rating")
     ),
+    role = "You are an expert annotator.",
     input_type = "text"
   )
 }
@@ -21,15 +22,16 @@ task_sentiment <- function() {
 task_stance <- function(topic = "the given topic") {
   qlm_codebook(
     name = "Stance detection",
-    system_prompt = paste0(
-      "You are an expert annotator. Read each short text carefully and determine its stance towards ",
+    instructions = paste0(
+      "Read each short text carefully and determine its stance towards ",
       topic,
-      " Classify the stance as Pro, Neutral, or Contra, and provide a brief explanation for your classification."
+      ". Classify the stance as Pro, Neutral, or Contra, and provide a brief explanation for your classification."
     ),
-    type_def = ellmer::type_object(
-      stance = ellmer::type_string("Stance towards the topic: Pro, Neutral, or Contra"),
-      explanation = ellmer::type_string("Brief explanation of the classification")
+    schema = type_object(
+      stance = type_string("Stance towards the topic: Pro, Neutral, or Contra"),
+      explanation = type_string("Brief explanation of the classification")
     ),
+    role = "You are an expert annotator.",
     input_type = "text"
   )
 }
@@ -59,8 +61,7 @@ task_ideology <- function(
 
   qlm_codebook(
     name = "Ideological scaling",
-    system_prompt = paste0(
-      "You are an expert political scientist performing ideological text scaling.\n\n",
+    instructions = paste0(
       "Task:\n",
       "- Read each short text carefully.\n",
       "- Place the text on a 0 - 10 scale for the following ideological dimension: ",
@@ -71,15 +72,16 @@ task_ideology <- function(
       "- Base your decision only on the information in the text (do not infer external\n",
       "  knowledge about the author, party, or context).",
       definition_text,
-      "\nOutput:\n",
+      "\n\nOutput:\n",
       "- `score`: an integer from 0 to 10 indicating the position on the specified dimension.\n",
       "- `explanation`: a brief, text-based justification explaining why the score was chosen,\n",
       "  citing specific phrases or arguments from the text."
     ),
-    type_def = ellmer::type_object(
-      score       = ellmer::type_integer("Ideological position on the specified dimension (0 - 10, where 0 = first pole, 10 = second pole)"),
-      explanation = ellmer::type_string("Brief justification for the assigned score, referring to specific elements in the text")
+    schema = type_object(
+      score       = type_integer("Ideological position on the specified dimension (0 - 10, where 0 = first pole, 10 = second pole)"),
+      explanation = type_string("Brief justification for the assigned score, referring to specific elements in the text")
     ),
+    role = "You are an expert political scientist performing ideological text scaling.",
     input_type = "text"
   )
 }
@@ -99,8 +101,7 @@ task_ideology <- function(
 #' @export
 task_salience <- function(topics = NULL, max_topics = 5) {
 
-  system_prompt <- paste(
-    "You are an expert analysing the content of texts.",
+  instructions <- paste(
     "Extract structured data on the salience of topics discussed in texts.",
     "",
     "Task:",
@@ -129,21 +130,22 @@ task_salience <- function(topics = NULL, max_topics = 5) {
     )
   }
 
-  type_def <- ellmer::type_object(
-    topics = ellmer::type_array(
-      ellmer::type_string(
+  schema <- type_object(
+    topics = type_array(
+      type_string(
         paste0("Topics mentioned in the text, listed in order of salience (first = most salient, up to ", max_topics, " topics).")
       )
     ),
-    explanation = ellmer::type_string(
+    explanation = type_string(
       "A brief explanation of why these topics were selected and ordered in this way, referring to specific wording, emphasis, or sections of the text."
     )
   )
 
   qlm_codebook(
     name = "Salience (ranked topics)",
-    system_prompt = paste0(system_prompt, topics_text),
-    type_def = type_def,
+    instructions = paste0(instructions, topics_text),
+    schema = schema,
+    role = "You are an expert analysing the content of texts.",
     input_type = "text"
   )
 }
@@ -161,8 +163,7 @@ task_salience <- function(topics = NULL, max_topics = 5) {
 #' @export
 task_fact <- function(max_topics = 5) {
 
-  system_prompt <- paste(
-    "You are an expert fact-checker analysing the content of texts.",
+  instructions <- paste(
     "Your goal is to provide an overall assessment of how truthful and accurate",
     "the text is, and to highlight any topics that reduce your confidence.",
     "",
@@ -189,27 +190,28 @@ task_fact <- function(max_topics = 5) {
     " of the text. If none are clearly problematic, return an empty list."
   )
 
-  type_def <- ellmer::type_object(
-    truth_score = ellmer::type_integer(
+  schema <- type_object(
+    truth_score = type_integer(
       "Overall truthfulness and accuracy score from 0 (almost completely false or highly misleading) to 10 (highly accurate and truthful)."
     ),
-    misleading_topic = ellmer::type_array(
-      ellmer::type_string(
+    misleading_topic = type_array(
+      type_string(
         paste0(
           "Topics, issues, or themes that reduce confidence in the truthfulness of the text (up to ",
           max_topics, " items)."
         )
       )
     ),
-    explanation = ellmer::type_string(
+    explanation = type_string(
       "Brief explanation for the assigned truthfulness score and how the listed topics, if any, contribute to reduced confidence."
     )
   )
 
   qlm_codebook(
     name = "Fact-checking",
-    system_prompt = paste0(system_prompt, topics_text),
-    type_def = type_def,
+    instructions = paste0(instructions, topics_text),
+    schema = schema,
+    role = "You are an expert fact-checker analysing the content of texts.",
     input_type = "text"
   )
 }

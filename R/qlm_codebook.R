@@ -1,18 +1,21 @@
 #' Define a qualitative codebook
 #'
 #' Creates a codebook definition for use with [qlm_code()]. A codebook specifies
-#' what information to extract from input data, including the system prompt
-#' that guides the LLM and the structured output definition.
+#' what information to extract from input data, including the instructions
+#' that guide the LLM and the structured output schema.
 #'
 #' This function replaces [task()], which is now deprecated. The returned object
 #' has dual class inheritance (`c("qlm_codebook", "task")`) to maintain
 #' backward compatibility with existing code using [annotate()].
 #'
 #' @param name Name of the codebook (character).
-#' @param system_prompt System prompt to guide the model.
-#' @param type_def Structured output definition, e.g., created by
-#'   [ellmer::type_object()], [ellmer::type_array()], or [ellmer::type_enum()].
-#' @param input_type Type of input data: `"text"` or `"image"`.
+#' @param instructions Instructions to guide the model in performing the coding task.
+#' @param schema Structured output definition, e.g., created by
+#'   [type_object()], [type_array()], or [type_enum()].
+#' @param role Optional role description for the model (e.g., "You are an expert
+#'   annotator"). If provided, this will be prepended to the instructions when
+#'   creating the system prompt.
+#' @param input_type Type of input data: `"text"` (default) or `"image"`.
 #'
 #' @return A codebook object (a list with class `c("qlm_codebook", "task")`)
 #'   containing the codebook definition. Use with [qlm_code()] to apply the
@@ -27,11 +30,22 @@
 #' # Define a custom codebook
 #' my_codebook <- qlm_codebook(
 #'   name = "Sentiment",
-#'   system_prompt = "Rate the sentiment from -1 (negative) to 1 (positive).",
-#'   type_def = ellmer::type_object(
-#'     score = ellmer::type_number("Sentiment score from -1 to 1"),
-#'     explanation = ellmer::type_string("Brief explanation")
+#'   instructions = "Rate the sentiment from -1 (negative) to 1 (positive).",
+#'   schema = type_object(
+#'     score = type_number("Sentiment score from -1 to 1"),
+#'     explanation = type_string("Brief explanation")
 #'   )
+#' )
+#'
+#' # With a role
+#' my_codebook <- qlm_codebook(
+#'   name = "Sentiment",
+#'   instructions = "Rate the sentiment from -1 (negative) to 1 (positive).",
+#'   schema = type_object(
+#'     score = type_number("Sentiment score from -1 to 1"),
+#'     explanation = type_string("Brief explanation")
+#'   ),
+#'   role = "You are an expert sentiment analyst."
 #' )
 #'
 #' # Use with qlm_code()
@@ -41,14 +55,24 @@
 #' }
 #'
 #' @export
-qlm_codebook <- function(name, system_prompt, type_def, input_type = c("text", "image")) {
+qlm_codebook <- function(name, instructions, schema, role = NULL, input_type = c("text", "image")) {
   input_type <- match.arg(input_type)
+
+  # Build system prompt by combining role and instructions
+  system_prompt <- if (!is.null(role)) {
+    paste(role, instructions, sep = "\n\n")
+  } else {
+    instructions
+  }
 
   structure(
     list(
       name = name,
-      system_prompt = system_prompt,
-      type_def = type_def,
+      role = role,
+      instructions = instructions,
+      system_prompt = system_prompt,  # Combined role + instructions
+      schema = schema,
+      type_def = schema,  # Keep for backward compatibility
       input_type = input_type
     ),
     class = c("qlm_codebook", "task")  # Dual class for backward compatibility
@@ -101,9 +125,13 @@ as_qlm_codebook.qlm_codebook <- function(x, ...) {
 #' @return Invisibly returns the input object \code{x}. Called for side effects (printing to console).
 print.qlm_codebook <- function(x, ...) {
   cat("Quallmer codebook:", x$name, "\n")
-  cat("  Input type: ", x$input_type, "\n", sep = "")
-  cat("  Prompt:     ", substr(x$system_prompt, 1, 60),
-      if (nchar(x$system_prompt) > 60) "..." else "", "\n", sep = "")
-  cat("  Output:     ", class(x$type_def)[1], "\n", sep = "")
+  cat("  Input type:    ", x$input_type, "\n", sep = "")
+  if (!is.null(x$role)) {
+    cat("  Role:          ", substr(x$role, 1, 60),
+        if (nchar(x$role) > 60) "..." else "", "\n", sep = "")
+  }
+  cat("  Instructions:  ", substr(x$instructions, 1, 60),
+      if (nchar(x$instructions) > 60) "..." else "", "\n", sep = "")
+  cat("  Output schema: ", class(x$schema)[1], "\n", sep = "")
   invisible(x)
 }

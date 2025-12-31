@@ -19,19 +19,19 @@
 #' my_task <- task(
 #'   name = "Sentiment",
 #'   system_prompt = "Rate the sentiment from -1 (negative) to 1 (positive).",
-#'   type_def = ellmer::type_object(
-#'     score = ellmer::type_number("Sentiment score from -1 to 1"),
-#'     explanation = ellmer::type_string("Brief explanation")
+#'   type_def = type_object(
+#'     score = type_number("Sentiment score from -1 to 1"),
+#'     explanation = type_string("Brief explanation")
 #'   )
 #' )
 #'
 #' # New recommended usage
 #' my_codebook <- qlm_codebook(
 #'   name = "Sentiment",
-#'   system_prompt = "Rate the sentiment from -1 (negative) to 1 (positive).",
-#'   type_def = ellmer::type_object(
-#'     score = ellmer::type_number("Sentiment score from -1 to 1"),
-#'     explanation = ellmer::type_string("Brief explanation")
+#'   instructions = "Rate the sentiment from -1 (negative) to 1 (positive).",
+#'   schema = type_object(
+#'     score = type_number("Sentiment score from -1 to 1"),
+#'     explanation = type_string("Brief explanation")
 #'   )
 #' )
 #' }

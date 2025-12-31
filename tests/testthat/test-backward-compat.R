@@ -39,8 +39,8 @@ test_that("new qlm_codebook objects work with old annotate()", {
   # Create new-style codebook
   codebook <- qlm_codebook(
     name = "New Codebook",
-    system_prompt = "Test prompt",
-    type_def = type_obj
+    instructions = "Test prompt",
+    schema = type_obj
   )
 
   # annotate() should accept qlm_codebook because it inherits from "task"

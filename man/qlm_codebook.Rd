@@ -4,17 +4,27 @@
 \alias{qlm_codebook}
 \title{Define a qualitative codebook}
 \usage{
-qlm_codebook(name, system_prompt, type_def, input_type = c("text", "image"))
+qlm_codebook(
+  name,
+  instructions,
+  schema,
+  role = NULL,
+  input_type = c("text", "image")
+)
 }
 \arguments{
 \item{name}{Name of the codebook (character).}
 
-\item{system_prompt}{System prompt to guide the model.}
+\item{instructions}{Instructions to guide the model in performing the coding task.}
 
-\item{type_def}{Structured output definition, e.g., created by
+\item{schema}{Structured output definition, e.g., created by
 \code{\link[ellmer:type_boolean]{ellmer::type_object()}}, \code{\link[ellmer:type_boolean]{ellmer::type_array()}}, or \code{\link[ellmer:type_boolean]{ellmer::type_enum()}}.}
 
-\item{input_type}{Type of input data: \code{"text"} or \code{"image"}.}
+\item{role}{Optional role description for the model (e.g., "You are an expert
+annotator"). If provided, this will be prepended to the instructions when
+creating the system prompt.}
+
+\item{input_type}{Type of input data: \code{"text"} (default) or \code{"image"}.}
 }
 \value{
 A codebook object (a list with class \code{c("qlm_codebook", "task")})
@@ -23,8 +33,8 @@ codebook to data.
 }
 \description{
 Creates a codebook definition for use with \code{\link[=qlm_code]{qlm_code()}}. A codebook specifies
-what information to extract from input data, including the system prompt
-that guides the LLM and the structured output definition.
+what information to extract from input data, including the instructions
+that guide the LLM and the structured output schema.
 }
 \details{
 This function replaces \code{\link[=task]{task()}}, which is now deprecated. The returned object
@@ -36,11 +46,22 @@ backward compatibility with existing code using \code{\link[=annotate]{annotate(
 # Define a custom codebook
 my_codebook <- qlm_codebook(
   name = "Sentiment",
-  system_prompt = "Rate the sentiment from -1 (negative) to 1 (positive).",
-  type_def = ellmer::type_object(
-    score = ellmer::type_number("Sentiment score from -1 to 1"),
-    explanation = ellmer::type_string("Brief explanation")
+  instructions = "Rate the sentiment from -1 (negative) to 1 (positive).",
+  schema = type_object(
+    score = type_number("Sentiment score from -1 to 1"),
+    explanation = type_string("Brief explanation")
   )
+)
+
+# With a role
+my_codebook <- qlm_codebook(
+  name = "Sentiment",
+  instructions = "Rate the sentiment from -1 (negative) to 1 (positive).",
+  schema = type_object(
+    score = type_number("Sentiment score from -1 to 1"),
+    explanation = type_string("Brief explanation")
+  ),
+  role = "You are an expert sentiment analyst."
 )
 
 # Use with qlm_code()

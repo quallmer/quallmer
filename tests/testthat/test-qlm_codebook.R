@@ -8,14 +8,16 @@ test_that("qlm_codebook creates a valid codebook object", {
 
   codebook <- qlm_codebook(
     name = "Test Codebook",
-    system_prompt = "Rate the test.",
-    type_def = type_obj
+    instructions = "Rate the test.",
+    schema = type_obj
   )
 
   expect_true(is.list(codebook))
   expect_equal(codebook$name, "Test Codebook")
-  expect_equal(codebook$system_prompt, "Rate the test.")
-  expect_equal(codebook$type_def, type_obj)
+  expect_equal(codebook$instructions, "Rate the test.")
+  expect_equal(codebook$system_prompt, "Rate the test.")  # system_prompt = instructions when no role
+  expect_equal(codebook$schema, type_obj)
+  expect_equal(codebook$type_def, type_obj)  # type_def kept for backward compat
   expect_equal(codebook$input_type, "text")
 })
 
@@ -29,8 +31,8 @@ test_that("qlm_codebook has dual class inheritance", {
 
   codebook <- qlm_codebook(
     name = "Test",
-    system_prompt = "Test prompt",
-    type_def = type_obj
+    instructions = "Test prompt",
+    schema = type_obj
   )
 
   # Should have both classes
@@ -112,8 +114,9 @@ test_that("print.qlm_codebook works", {
 
   codebook <- qlm_codebook(
     name = "Test Codebook",
-    system_prompt = "This is a test prompt for printing",
-    type_def = type_obj
+    instructions = "This is a test prompt for printing",
+    schema = type_obj,
+    role = "You are an expert annotator."
   )
 
   # Capture print output
@@ -122,6 +125,38 @@ test_that("print.qlm_codebook works", {
   expect_true(any(grepl("Quallmer codebook", output)))
   expect_true(any(grepl("Test Codebook", output)))
   expect_true(any(grepl("Input type", output)))
+  expect_true(any(grepl("Role", output)))
+  expect_true(any(grepl("Instructions", output)))
+})
+
+
+test_that("qlm_codebook role parameter works correctly", {
+  skip_if_not_installed("ellmer")
+
+  type_obj <- ellmer::type_object(score = ellmer::type_number("Score"))
+
+  # Without role
+  cb_no_role <- qlm_codebook(
+    name = "Test",
+    instructions = "Rate the text.",
+    schema = type_obj
+  )
+
+  expect_null(cb_no_role$role)
+  expect_equal(cb_no_role$system_prompt, "Rate the text.")
+  expect_equal(cb_no_role$instructions, "Rate the text.")
+
+  # With role
+  cb_with_role <- qlm_codebook(
+    name = "Test",
+    instructions = "Rate the text.",
+    schema = type_obj,
+    role = "You are an expert."
+  )
+
+  expect_equal(cb_with_role$role, "You are an expert.")
+  expect_equal(cb_with_role$instructions, "Rate the text.")
+  expect_equal(cb_with_role$system_prompt, "You are an expert.\n\nRate the text.")
 })
 
 
