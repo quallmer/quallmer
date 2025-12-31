@@ -3,12 +3,12 @@ test_that("qlm_code validates codebook argument", {
 
   # Should error on invalid codebook objects
   expect_error(
-    qlm_code(c("test"), codebook = list(name = "fake"), model_name = "test"),
+    qlm_code(c("test"), codebook = list(name = "fake"), model = "test"),
     "must be created using.*qlm_codebook"
   )
 
   expect_error(
-    qlm_code(c("test"), codebook = "not valid", model_name = "test"),
+    qlm_code(c("test"), codebook = "not valid", model = "test"),
     "must be created using.*qlm_codebook"
   )
 })
@@ -44,12 +44,12 @@ test_that("qlm_code validates input type matches codebook", {
 
   # Should error on non-character input
   expect_error(
-    qlm_code(.data = 123, codebook = text_codebook, model_name = "test"),
+    qlm_code(x = 123, codebook = text_codebook, model = "test"),
     "expects text input.*character vector"
   )
 
   expect_error(
-    qlm_code(.data = list("a", "b"), codebook = text_codebook, model_name = "test"),
+    qlm_code(x = list("a", "b"), codebook = text_codebook, model = "test"),
     "expects text input.*character vector"
   )
 
@@ -57,7 +57,7 @@ test_that("qlm_code validates input type matches codebook", {
   image_codebook <- qlm_codebook("Test", "Prompt", type_obj, input_type = "image")
 
   expect_error(
-    qlm_code(.data = 123, codebook = image_codebook, model_name = "test"),
+    qlm_code(x = 123, codebook = image_codebook, model = "test"),
     "expects image file paths.*character vector"
   )
 })
@@ -76,7 +76,7 @@ test_that("qlm_code returns qlm_coded object structure", {
 
   mock_coded <- new_qlm_coded(
     codebook = codebook,
-    settings = list(model_name = "test/model", extra = list()),
+    settings = list(model = "test/model", extra = list()),
     results = mock_results,
     metadata = list(
       timestamp = Sys.time(),
@@ -153,7 +153,7 @@ test_that("print.qlm_coded displays correctly", {
 
   mock_coded <- new_qlm_coded(
     codebook = codebook,
-    settings = list(model_name = "test/model"),
+    settings = list(model = "test/model"),
     results = data.frame(id = 1:3, score = c(0.5, -0.3, 0.8)),
     metadata = list(timestamp = Sys.time(), n_units = 3)
   )
@@ -161,7 +161,7 @@ test_that("print.qlm_coded displays correctly", {
   # Capture print output
   output <- capture.output(print(mock_coded))
 
-  expect_true(any(grepl("Quallmer coded object", output)))
+  expect_true(any(grepl("quallmer coded object", output)))
   expect_true(any(grepl("Codebook", output)))
   expect_true(any(grepl("Model", output)))
   expect_true(any(grepl("Units.*3", output)))

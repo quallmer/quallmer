@@ -4,10 +4,10 @@
 \alias{qlm_code}
 \title{Code qualitative data with an LLM}
 \usage{
-qlm_code(.data, codebook, model_name, ...)
+qlm_code(x, codebook, model, ...)
 }
 \arguments{
-\item{.data}{Input data: a character vector of texts (for text codebooks) or
+\item{x}{Input data: a character vector of texts (for text codebooks) or
 file paths to images (for image codebooks). Named vectors will use names
 as identifiers in the output; unnamed vectors will use sequential integers.}
 
@@ -16,7 +16,7 @@ the predefined codebook functions (\code{\link[=task_sentiment]{task_sentiment()
 \code{\link[=task_ideology]{task_ideology()}}, \code{\link[=task_salience]{task_salience()}}, \code{\link[=task_fact]{task_fact()}}). Also accepts
 deprecated \code{\link[=task]{task()}} objects for backward compatibility.}
 
-\item{model_name}{Provider (and optionally model) name in the form
+\item{model}{Provider (and optionally model) name in the form
 \code{"provider/model"} or \code{"provider"} (which will use the default model for
 that provider). Passed to the \code{name} argument of \code{\link[ellmer:chat-any]{ellmer::chat()}}.
 Examples: \code{"openai/gpt-4o-mini"}, \code{"anthropic/claude-3-5-sonnet-20241022"},
@@ -53,24 +53,24 @@ should be configured through ellmer's options.
 \dontrun{
 # Basic sentiment analysis
 texts <- c("I love this product!", "This is terrible.")
-coded <- qlm_code(texts, task_sentiment(), model_name = "openai")
+coded <- qlm_code(texts, task_sentiment(), model = "openai")
 qlm_results(coded)
 
 # With named inputs (names become IDs in output)
 texts <- c(doc1 = "Great service!", doc2 = "Very disappointing.")
-coded <- qlm_code(texts, task_sentiment(), model_name = "openai")
+coded <- qlm_code(texts, task_sentiment(), model = "openai")
 
 # Specify provider and model
-coded <- qlm_code(texts, task_sentiment(), model_name = "openai/gpt-4o-mini")
+coded <- qlm_code(texts, task_sentiment(), model = "openai/gpt-4o-mini")
 
 # With execution control
 coded <- qlm_code(texts, task_sentiment(),
-                  model_name = "openai/gpt-4o-mini",
+                  model = "openai/gpt-4o-mini",
                   max_active = 5)
 
 # Include token usage
 coded <- qlm_code(texts, task_sentiment(),
-                  model_name = "openai",
+                  model = "openai",
                   include_tokens = TRUE)
 
 # Inspect metadata

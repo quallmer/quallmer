@@ -18,7 +18,7 @@ test_that("qlm_results extracts results from qlm_coded object", {
 
   mock_coded <- new_qlm_coded(
     codebook = codebook,
-    settings = list(model_name = "test/model"),
+    settings = list(model = "test/model"),
     results = mock_results,
     metadata = list(timestamp = Sys.time(), n_units = 3)
   )
@@ -63,7 +63,7 @@ test_that("qlm_results supports tibble format", {
 
   mock_coded <- new_qlm_coded(
     codebook = codebook,
-    settings = list(model_name = "test/model"),
+    settings = list(model = "test/model"),
     results = mock_results,
     metadata = list(timestamp = Sys.time(), n_units = 2)
   )

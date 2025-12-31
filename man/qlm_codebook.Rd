@@ -66,7 +66,7 @@ my_codebook <- qlm_codebook(
 
 # Use with qlm_code()
 texts <- c("I love this!", "This is terrible.")
-coded <- qlm_code(texts, my_codebook, model_name = "openai/gpt-4o-mini")
+coded <- qlm_code(texts, my_codebook, model = "openai/gpt-4o-mini")
 qlm_results(coded)
 }
 

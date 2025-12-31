@@ -4,7 +4,7 @@
 #' and is intended for internal use by [qlm_code()].
 #'
 #' @param codebook A qlm_codebook object.
-#' @param settings List of execution settings (model_name, extra args).
+#' @param settings List of execution settings (model, extra args).
 #' @param results Data frame of coded results.
 #' @param metadata List of metadata (timestamp, versions, etc.).
 #'
@@ -32,9 +32,9 @@ new_qlm_coded <- function(codebook, settings, results, metadata) {
 #' @return Invisibly returns the input object \code{x}. Called for side effects (printing to console).
 #' @export
 print.qlm_coded <- function(x, ...) {
-  cat("Quallmer coded object\n")
+  cat("quallmer coded object\n")
   cat("  Codebook:  ", x$codebook$name, "\n", sep = "")
-  cat("  Model:     ", x$settings$model_name, "\n", sep = "")
+  cat("  Model:     ", x$settings$model, "\n", sep = "")
   cat("  Units:     ", x$metadata$n_units, "\n", sep = "")
   cat("  Timestamp: ", format(x$metadata$timestamp, "%Y-%m-%d %H:%M:%S"), "\n", sep = "")
   cat("\n")

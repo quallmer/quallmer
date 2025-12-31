@@ -121,12 +121,12 @@ test_that("qlm_code validates codebook argument", {
 
   # Should error on non-task/non-codebook objects
   expect_error(
-    qlm_code(c("test"), codebook = list(name = "fake"), model_name = "test"),
+    qlm_code(c("test"), codebook = list(name = "fake"), model = "test"),
     "must be created using.*qlm_codebook"
   )
 
   expect_error(
-    qlm_code(c("test"), codebook = "not a codebook", model_name = "test"),
+    qlm_code(c("test"), codebook = "not a codebook", model = "test"),
     "must be created using.*qlm_codebook"
   )
 })

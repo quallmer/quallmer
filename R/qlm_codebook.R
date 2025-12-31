@@ -50,7 +50,7 @@
 #'
 #' # Use with qlm_code()
 #' texts <- c("I love this!", "This is terrible.")
-#' coded <- qlm_code(texts, my_codebook, model_name = "openai/gpt-4o-mini")
+#' coded <- qlm_code(texts, my_codebook, model = "openai/gpt-4o-mini")
 #' qlm_results(coded)
 #' }
 #'
@@ -58,21 +58,12 @@
 qlm_codebook <- function(name, instructions, schema, role = NULL, input_type = c("text", "image")) {
   input_type <- match.arg(input_type)
 
-  # Build system prompt by combining role and instructions
-  system_prompt <- if (!is.null(role)) {
-    paste(role, instructions, sep = "\n\n")
-  } else {
-    instructions
-  }
-
   structure(
     list(
       name = name,
-      role = role,
       instructions = instructions,
-      system_prompt = system_prompt,  # Combined role + instructions
       schema = schema,
-      type_def = schema,  # Keep for backward compatibility
+      role = role,
       input_type = input_type
     ),
     class = c("qlm_codebook", "task")  # Dual class for backward compatibility
@@ -124,14 +115,14 @@ as_qlm_codebook.qlm_codebook <- function(x, ...) {
 #' @keywords internal
 #' @return Invisibly returns the input object \code{x}. Called for side effects (printing to console).
 print.qlm_codebook <- function(x, ...) {
-  cat("Quallmer codebook:", x$name, "\n")
-  cat("  Input type:    ", x$input_type, "\n", sep = "")
+  cat("quallmer codebook:", x$name, "\n")
+  cat("  Input type:   ", x$input_type, "\n", sep = "")
   if (!is.null(x$role)) {
-    cat("  Role:          ", substr(x$role, 1, 60),
+    cat("  Role:         ", substr(x$role, 1, 60),
         if (nchar(x$role) > 60) "..." else "", "\n", sep = "")
   }
-  cat("  Instructions:  ", substr(x$instructions, 1, 60),
+  cat("  Instructions: ", substr(x$instructions, 1, 60),
       if (nchar(x$instructions) > 60) "..." else "", "\n", sep = "")
-  cat("  Output schema: ", class(x$schema)[1], "\n", sep = "")
+  cat("  Output schema:", class(x$schema)[1], "\n", sep = "")
   invisible(x)
 }

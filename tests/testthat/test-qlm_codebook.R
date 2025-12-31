@@ -15,9 +15,8 @@ test_that("qlm_codebook creates a valid codebook object", {
   expect_true(is.list(codebook))
   expect_equal(codebook$name, "Test Codebook")
   expect_equal(codebook$instructions, "Rate the test.")
-  expect_equal(codebook$system_prompt, "Rate the test.")  # system_prompt = instructions when no role
   expect_equal(codebook$schema, type_obj)
-  expect_equal(codebook$type_def, type_obj)  # type_def kept for backward compat
+  expect_null(codebook$role)
   expect_equal(codebook$input_type, "text")
 })
 
@@ -122,7 +121,7 @@ test_that("print.qlm_codebook works", {
   # Capture print output
   output <- capture.output(print(codebook))
 
-  expect_true(any(grepl("Quallmer codebook", output)))
+  expect_true(any(grepl("quallmer codebook", output)))
   expect_true(any(grepl("Test Codebook", output)))
   expect_true(any(grepl("Input type", output)))
   expect_true(any(grepl("Role", output)))
@@ -143,7 +142,6 @@ test_that("qlm_codebook role parameter works correctly", {
   )
 
   expect_null(cb_no_role$role)
-  expect_equal(cb_no_role$system_prompt, "Rate the text.")
   expect_equal(cb_no_role$instructions, "Rate the text.")
 
   # With role
@@ -156,7 +154,7 @@ test_that("qlm_codebook role parameter works correctly", {
 
   expect_equal(cb_with_role$role, "You are an expert.")
   expect_equal(cb_with_role$instructions, "Rate the text.")
-  expect_equal(cb_with_role$system_prompt, "You are an expert.\n\nRate the text.")
+  # Note: system_prompt is constructed in qlm_code(), not stored in codebook
 })
 
 

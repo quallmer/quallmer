@@ -7,14 +7,14 @@
 #' Arguments in `...` are dynamically routed to either [ellmer::chat()] or to
 #' [ellmer::parallel_chat_structured()] based on their names.
 #'
-#' @param .data Input data: a character vector of texts (for text codebooks) or
+#' @param x Input data: a character vector of texts (for text codebooks) or
 #'   file paths to images (for image codebooks). Named vectors will use names
 #'   as identifiers in the output; unnamed vectors will use sequential integers.
 #' @param codebook A codebook object created with [qlm_codebook()] or one of
 #'   the predefined codebook functions ([task_sentiment()], [task_stance()],
 #'   [task_ideology()], [task_salience()], [task_fact()]). Also accepts
 #'   deprecated [task()] objects for backward compatibility.
-#' @param model_name Provider (and optionally model) name in the form
+#' @param model Provider (and optionally model) name in the form
 #'   `"provider/model"` or `"provider"` (which will use the default model for
 #'   that provider). Passed to the `name` argument of [ellmer::chat()].
 #'   Examples: `"openai/gpt-4o-mini"`, `"anthropic/claude-3-5-sonnet-20241022"`,
@@ -46,24 +46,24 @@
 #' \dontrun{
 #' # Basic sentiment analysis
 #' texts <- c("I love this product!", "This is terrible.")
-#' coded <- qlm_code(texts, task_sentiment(), model_name = "openai")
+#' coded <- qlm_code(texts, task_sentiment(), model = "openai")
 #' qlm_results(coded)
 #'
 #' # With named inputs (names become IDs in output)
 #' texts <- c(doc1 = "Great service!", doc2 = "Very disappointing.")
-#' coded <- qlm_code(texts, task_sentiment(), model_name = "openai")
+#' coded <- qlm_code(texts, task_sentiment(), model = "openai")
 #'
 #' # Specify provider and model
-#' coded <- qlm_code(texts, task_sentiment(), model_name = "openai/gpt-4o-mini")
+#' coded <- qlm_code(texts, task_sentiment(), model = "openai/gpt-4o-mini")
 #'
 #' # With execution control
 #' coded <- qlm_code(texts, task_sentiment(),
-#'                   model_name = "openai/gpt-4o-mini",
+#'                   model = "openai/gpt-4o-mini",
 #'                   max_active = 5)
 #'
 #' # Include token usage
 #' coded <- qlm_code(texts, task_sentiment(),
-#'                   model_name = "openai",
+#'                   model = "openai",
 #'                   include_tokens = TRUE)
 #'
 #' # Inspect metadata
@@ -73,7 +73,7 @@
 #' }
 #'
 #' @export
-qlm_code <- function(.data, codebook, model_name, ...) {
+qlm_code <- function(x, codebook, model, ...) {
   # Accept both qlm_codebook and task objects, converting if needed
   if (inherits(codebook, "task") && !inherits(codebook, "qlm_codebook")) {
     codebook <- as_qlm_codebook(codebook)
@@ -87,10 +87,10 @@ qlm_code <- function(.data, codebook, model_name, ...) {
   }
 
   # Input validation
-  if (codebook$input_type == "text" && !is.character(.data)) {
+  if (codebook$input_type == "text" && !is.character(x)) {
     cli::cli_abort("This codebook expects text input (a character vector).")
   }
-  if (codebook$input_type == "image" && !is.character(.data)) {
+  if (codebook$input_type == "image" && !is.character(x)) {
     cli::cli_abort("This codebook expects image file paths (a character vector).")
   }
 
@@ -115,20 +115,27 @@ qlm_code <- function(.data, codebook, model_name, ...) {
     ))
   }
 
+  # Build system prompt from role and instructions
+  system_prompt <- if (!is.null(codebook$role)) {
+    paste(codebook$role, codebook$instructions, sep = "\n\n")
+  } else {
+    codebook$instructions
+  }
+
   # Build chat object using ellmer::chat()
   chat <- do.call(ellmer::chat, c(
     list(
-      name = model_name,
-      system_prompt = codebook$system_prompt
+      name = model,
+      system_prompt = system_prompt
     ),
     chat_args
   ))
 
   # Prepare prompts based on input type
   if (codebook$input_type == "image") {
-    prompts <- lapply(.data, ellmer::content_image_file)
+    prompts <- lapply(x, ellmer::content_image_file)
   } else {
-    prompts <- as.list(.data)
+    prompts <- as.list(x)
   }
 
   # Execute with parallel_chat_structured
@@ -136,25 +143,25 @@ qlm_code <- function(.data, codebook, model_name, ...) {
     list(
       chat = chat,
       prompts = prompts,
-      type = codebook$type_def
+      type = codebook$schema
     ),
     pcs_args
   ))
 
   # Add ID and reorder columns
-  results$id <- names(.data) %||% seq_along(.data)
+  results$id <- names(x) %||% seq_along(x)
   results <- results[, c("id", setdiff(names(results), "id"))]
 
   # Build settings list (capture key parameters)
   settings <- list(
-    model_name = model_name,
+    model = model,
     extra = chat_args
   )
 
   # Build metadata list
   metadata <- list(
     timestamp = Sys.time(),
-    n_units = length(.data),
+    n_units = length(x),
     ellmer_version = tryCatch(
       as.character(utils::packageVersion("ellmer")),
       error = function(e) NA_character_

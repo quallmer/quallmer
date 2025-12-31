@@ -7,19 +7,9 @@
 annotate(.data, task, model_name, ...)
 }
 \arguments{
-\item{.data}{Input data: a character vector of texts (for text codebooks) or
-file paths to images (for image codebooks). Named vectors will use names
-as identifiers in the output; unnamed vectors will use sequential integers.}
-
 \item{task}{A task object created with \code{\link[=task]{task()}} or \code{\link[=qlm_codebook]{qlm_codebook()}}. Also
 accepts predefined task functions (\code{\link[=task_sentiment]{task_sentiment()}}, \code{\link[=task_stance]{task_stance()}},
 \code{\link[=task_ideology]{task_ideology()}}, \code{\link[=task_salience]{task_salience()}}, \code{\link[=task_fact]{task_fact()}}).}
-
-\item{model_name}{Provider (and optionally model) name in the form
-\code{"provider/model"} or \code{"provider"} (which will use the default model for
-that provider). Passed to the \code{name} argument of \code{\link[ellmer:chat-any]{ellmer::chat()}}.
-Examples: \code{"openai/gpt-4o-mini"}, \code{"anthropic/claude-3-5-sonnet-20241022"},
-\code{"ollama/llama3.2"}, \code{"openai"} (uses default OpenAI model).}
 
 \item{...}{Additional arguments passed to either \code{\link[ellmer:chat-any]{ellmer::chat()}} or to
 \code{\link[ellmer:parallel_chat]{ellmer::parallel_chat_structured()}}, based on argument name.
