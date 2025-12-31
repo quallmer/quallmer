@@ -77,7 +77,7 @@ ideology_codebook <- qlm_codebook(
 
 We use the `qlm_code()` function to apply our custom codebook to the sample corpus of inaugural speeches. We specify the model to use via `model` (in this case, `"openai/gpt-4o"`) and any additional parameters as needed. For example, we set the temperature to 0 for more deterministic outputs, improving consistency in scoring across multiple runs and therefore increasing reliability.
 
-The `qlm_code()` function returns a rich `qlm_coded` object that contains the results along with metadata about the coding process. To extract just the results as a data frame, we use the `qlm_results()` function.
+The `qlm_code()` function returns a `qlm_coded` object, which is a tibble containing the coded results along with metadata stored as attributes. The object prints as a tibble and can be used directly in data manipulation workflows.
 
 ```{r apply-codebook}
 # Apply the custom codebook to the inaugural speeches corpus
@@ -86,14 +86,14 @@ coded <- qlm_code(data_corpus_inaugural,
                   model = "openai/gpt-4o",
                   temperature = 0)
 
-# Extract the results as a data frame
-result <- qlm_results(coded)
+# View the results
+coded
 ```
 
 ```{r display_results, echo = FALSE}
 # Display the ideology scoring results
 library(kableExtra)
-result %>%
+coded %>%
   kable("html", escape = FALSE) %>%
   kable_styling(bootstrap_options = c("striped", "hover")) %>%
   column_spec(3)

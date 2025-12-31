@@ -27,13 +27,12 @@ Examples: \code{"openai/gpt-4o-mini"}, \code{"anthropic/claude-3-5-sonnet-202410
 Arguments not recognized by either function will generate a warning.}
 }
 \value{
-A \code{qlm_coded} object containing:
+A \code{qlm_coded} object (a tibble with additional attributes):
 \describe{
-\item{\code{codebook}}{The codebook used for coding.}
-\item{\code{settings}}{Execution settings (model, additional parameters).}
-\item{\code{results}}{Data frame with coded results (extract with \code{\link[=qlm_results]{qlm_results()}}).}
-\item{\code{metadata}}{Metadata including timestamp, versions, number of units.}
+\item{Data columns}{The coded results with a \code{.id} column for identifiers.}
+\item{Attributes}{\code{codebook}, \code{data}, \code{chat_args}, \code{pcs_args}, and \code{metadata}.}
 }
+The object prints as a tibble and can be used directly in data manipulation workflows.
 }
 \description{
 Applies a codebook to input data using a large language model, returning
@@ -54,7 +53,7 @@ should be configured through ellmer's options.
 # Basic sentiment analysis
 texts <- c("I love this product!", "This is terrible.")
 coded <- qlm_code(texts, task_sentiment(), model = "openai")
-qlm_results(coded)
+coded  # Print results as tibble
 
 # With named inputs (names become IDs in output)
 texts <- c(doc1 = "Great service!", doc2 = "Very disappointing.")
@@ -75,13 +74,13 @@ coded <- qlm_code(texts, task_sentiment(),
 
 # Inspect metadata
 print(coded)
-coded$settings
-coded$metadata
+attr(coded, "chat_args")
+attr(coded, "metadata")
 }
 
 }
 \seealso{
-\code{\link[=qlm_codebook]{qlm_codebook()}} for creating codebooks, \code{\link[=qlm_results]{qlm_results()}} for extracting results,
+\code{\link[=qlm_codebook]{qlm_codebook()}} for creating codebooks,
 \code{\link[=task_sentiment]{task_sentiment()}}, \code{\link[=task_stance]{task_stance()}}, \code{\link[=task_ideology]{task_ideology()}}, \code{\link[=task_salience]{task_salience()}},
 \code{\link[=task_fact]{task_fact()}} for predefined codebooks, \code{\link[=annotate]{annotate()}} for the deprecated function.
 }

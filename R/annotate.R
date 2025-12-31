@@ -19,7 +19,7 @@
 #'   }
 #'
 #' @seealso
-#' [qlm_code()] for the replacement function, [qlm_results()] for extracting results.
+#' [qlm_code()] for the replacement function.
 #'
 #' @examples
 #' \dontrun{
@@ -28,8 +28,8 @@
 #' annotate(texts, task_sentiment(), model_name = "openai")
 #'
 #' # New recommended usage
-#' coded <- qlm_code(texts, task_sentiment(), model_name = "openai")
-#' qlm_results(coded)
+#' coded <- qlm_code(texts, task_sentiment(), model = "openai")
+#' coded  # Print as tibble
 #' }
 #'
 #' @keywords internal
@@ -37,7 +37,7 @@
 annotate <- function(.data, task, model_name, ...) {
   lifecycle::deprecate_warn("0.2.0", "annotate()", "qlm_code()")
 
-  # Call qlm_code() and extract results
+  # Call qlm_code() and extract results as data.frame
   coded <- qlm_code(.data, codebook = task, model_name = model_name, ...)
-  qlm_results(coded)
+  as.data.frame(coded)
 }

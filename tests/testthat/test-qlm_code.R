@@ -171,9 +171,9 @@ test_that("print.qlm_coded displays correctly", {
     metadata = list(timestamp = Sys.time(), n_units = 3)
   )
 
-  # Capture print output
-  output <- capture.output(print(mock_coded))
+  # Test that print works without error (delegates to tibble print)
+  expect_no_error(print(mock_coded))
 
-  expect_true(any(grepl("quallmer coded object", output)))
-  expect_true(any(grepl("Codebook.*Test Codebook", output)))
+  # Verify it's a tibble
+  expect_true(tibble::is_tibble(mock_coded))
 })

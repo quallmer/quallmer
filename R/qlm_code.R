@@ -29,16 +29,15 @@
 #' progress messages during batch coding. Retry logic for API failures
 #' should be configured through ellmer's options.
 #'
-#' @return A `qlm_coded` object containing:
+#' @return A `qlm_coded` object (a tibble with additional attributes):
 #'   \describe{
-#'     \item{`codebook`}{The codebook used for coding.}
-#'     \item{`settings`}{Execution settings (model, additional parameters).}
-#'     \item{`results`}{Data frame with coded results (extract with [qlm_results()]).}
-#'     \item{`metadata`}{Metadata including timestamp, versions, number of units.}
+#'     \item{Data columns}{The coded results with a `.id` column for identifiers.}
+#'     \item{Attributes}{`codebook`, `data`, `chat_args`, `pcs_args`, and `metadata`.}
 #'   }
+#'   The object prints as a tibble and can be used directly in data manipulation workflows.
 #'
 #' @seealso
-#' [qlm_codebook()] for creating codebooks, [qlm_results()] for extracting results,
+#' [qlm_codebook()] for creating codebooks,
 #' [task_sentiment()], [task_stance()], [task_ideology()], [task_salience()],
 #' [task_fact()] for predefined codebooks, [annotate()] for the deprecated function.
 #'
@@ -47,7 +46,7 @@
 #' # Basic sentiment analysis
 #' texts <- c("I love this product!", "This is terrible.")
 #' coded <- qlm_code(texts, task_sentiment(), model = "openai")
-#' qlm_results(coded)
+#' coded  # Print results as tibble
 #'
 #' # With named inputs (names become IDs in output)
 #' texts <- c(doc1 = "Great service!", doc2 = "Very disappointing.")
@@ -68,8 +67,8 @@
 #'
 #' # Inspect metadata
 #' print(coded)
-#' coded$settings
-#' coded$metadata
+#' attr(coded, "chat_args")
+#' attr(coded, "metadata")
 #' }
 #'
 #' @export

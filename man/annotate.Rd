@@ -38,12 +38,12 @@ texts <- c("I love this product!", "This is terrible.")
 annotate(texts, task_sentiment(), model_name = "openai")
 
 # New recommended usage
-coded <- qlm_code(texts, task_sentiment(), model_name = "openai")
-qlm_results(coded)
+coded <- qlm_code(texts, task_sentiment(), model = "openai")
+coded  # Print as tibble
 }
 
 }
 \seealso{
-\code{\link[=qlm_code]{qlm_code()}} for the replacement function, \code{\link[=qlm_results]{qlm_results()}} for extracting results.
+\code{\link[=qlm_code]{qlm_code()}} for the replacement function.
 }
 \keyword{internal}

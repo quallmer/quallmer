@@ -130,7 +130,7 @@ The package supports all LLMs currently available with the `ellmer`
 package. For authentication and usage of each of these LLMs, please
 refer to the respective
 [ellmer](https://ellmer.tidyverse.org/reference/index.html)
-documentation and see our [tutorial for setting up an openai API
+documentation and see our [tutorial for setting up an OpenAI API
 key](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/openai.html)
 or [getting started with an open-source Ollama
 model](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/ollama.html).
