@@ -1,5 +1,7 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://seraphinem.github.io/quallmer/404.html</loc></url>
+<url><loc>https://seraphinem.github.io/quallmer/AGENTS.html</loc></url>
+<url><loc>https://seraphinem.github.io/quallmer/CLAUDE.html</loc></url>
 <url><loc>https://seraphinem.github.io/quallmer/articles/getting-started.html</loc></url>
 <url><loc>https://seraphinem.github.io/quallmer/articles/index.html</loc></url>
 <url><loc>https://seraphinem.github.io/quallmer/articles/pkgdown/examples/overview.html</loc></url>
@@ -16,6 +18,7 @@
 <url><loc>https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/validate.html</loc></url>
 <url><loc>https://seraphinem.github.io/quallmer/authors.html</loc></url>
 <url><loc>https://seraphinem.github.io/quallmer/index.html</loc></url>
+<url><loc>https://seraphinem.github.io/quallmer/news/index.html</loc></url>
 <url><loc>https://seraphinem.github.io/quallmer/reference/annotate.html</loc></url>
 <url><loc>https://seraphinem.github.io/quallmer/reference/data_corpus_LMRDsample.html</loc></url>
 <url><loc>https://seraphinem.github.io/quallmer/reference/data_corpus_manifsentsUK2010sample.html</loc></url>
