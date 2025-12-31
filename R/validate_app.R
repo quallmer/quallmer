@@ -24,7 +24,7 @@ read_data_file <- function(path, name) {
   } else if (grepl("\\.csv$", name, ignore.case = TRUE)) {
     utils::read.csv(path, stringsAsFactors = FALSE, check.names = FALSE)
   } else {
-    stop("Unsupported file type. Please select a .rds or .csv file.")
+    cli::cli_abort("Unsupported file type. Please select a {.file .rds} or {.file .csv} file.")
   }
 }
 
@@ -215,7 +215,7 @@ humancheck_server <- function(
           if (file.copy(tmp, sp, overwrite = TRUE)) {
             unlink(tmp)
           } else {
-            stop("copy failed")
+            cli::cli_abort("File copy operation failed.")
           }
         }
         TRUE
