@@ -14,3 +14,5 @@
 ^data_creation$
 ^cran-comments\.md$
 ^CRAN-SUBMISSION$
+^AGENTS.md$
+^CLAUDE.md$
