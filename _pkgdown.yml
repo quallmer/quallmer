@@ -56,3 +56,8 @@ navbar:
       href: https://github.com/SeraphineM/quallmer
       aria-label: View on GitHub
 
+# Exclude maintainer/contributor Markdown files from home pages
+home:
+  exclude:
+    - AGENTS.md
+    - CLAUDE.md
