@@ -72,6 +72,7 @@ quallmer::validate_app()  # Launch validation interface
 - **Organization**: Newspaper-style - high-level functions first, helpers below
 - **Nested functions**: Avoid nested function definitions (except trivial lambdas)
 - **Imports**: Use namespace-qualified calls: `dplyr::mutate()`, `cli::cli_abort()`
+- **File endings**: Ensure that source files end with a trailing newline
 
 ### Error Messages
 - Use `cli::cli_abort()` for all user-facing errors (never `stop()`)
