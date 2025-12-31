@@ -70,15 +70,15 @@
 #' @export
 annotate <- function(.data, task, model_name, ...) {
   if (!inherits(task, "task")) {
-    stop("`task` must be created using task().")
+    cli::cli_abort("`task` must be created using task().")
   }
 
   # Input validation
   if (task$input_type == "text" && !is.character(.data)) {
-    stop("This task expects text input (a character vector).")
+    cli::cli_abort("This task expects text input (a character vector).")
   }
   if (task$input_type == "image" && !is.character(.data)) {
-    stop("This task expects image file paths (a character vector).")
+    cli::cli_abort("This task expects image file paths (a character vector).")
   }
 
   # Get valid argument names from ellmer functions
