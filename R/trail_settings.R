@@ -20,16 +20,16 @@ trail_settings <- function(
     extra       = list()
 ) {
   if (!is.character(provider) || length(provider) != 1L || !nzchar(provider)) {
-    stop("`provider` must be a non-empty character scalar.")
+    cli::cli_abort("{.arg provider} must be a non-empty character scalar.")
   }
   if (!is.character(model) || length(model) != 1L || !nzchar(model)) {
-    stop("`model` must be a non-empty character scalar.")
+    cli::cli_abort("{.arg model} must be a non-empty character scalar.")
   }
   if (!is.numeric(temperature) || length(temperature) != 1L) {
-    stop("`temperature` must be a numeric scalar.")
+    cli::cli_abort("{.arg temperature} must be a numeric scalar.")
   }
   if (!is.list(extra)) {
-    stop("`extra` must be a list.")
+    cli::cli_abort("{.arg extra} must be a list.")
   }
 
   structure(

@@ -35,20 +35,29 @@ trail_matrix <- function(x,
              all(vapply(x, inherits, logical(1), "trail_record"))) {
     records <- x
   } else {
-    stop("x must be a 'trail_compare' or a list of 'trail_record' objects.")
+    cli::cli_abort("{.arg x} must be a {.cls trail_compare} object or a list of {.cls trail_record} objects.")
   }
 
   if (is.null(names(records)) || any(!nzchar(names(records)))) {
-    stop("Records must be named; names are used as setting/coder IDs.")
+    cli::cli_abort(c(
+      "Records must be named.",
+      "i" = "Names are used as setting/coder IDs."
+    ))
   }
 
   df_list <- lapply(names(records), function(name) {
     ann <- records[[name]]$annotations
     if (!id_col %in% names(ann)) {
-      stop("id_col '", id_col, "' not found in annotations for record '", name, "'.")
+      cli::cli_abort(c(
+        "{.arg id_col} {.val {id_col}} not found in annotations for record {.val {name}}.",
+        "i" = "Check that the ID column name matches across all records."
+      ))
     }
     if (!label_col %in% names(ann)) {
-      stop("label_col '", label_col, "' not found in annotations for record '", name, "'.")
+      cli::cli_abort(c(
+        "{.arg label_col} {.val {label_col}} not found in annotations for record {.val {name}}.",
+        "i" = "Check that the label column name matches across all records."
+      ))
     }
     data.frame(
       unit_id = ann[[id_col]],
@@ -117,7 +126,7 @@ trail_icr <- function(
   # Validate min_coders
   if (!is.numeric(min_coders) || length(min_coders) != 1L ||
       is.na(min_coders) || min_coders < 2L || min_coders != as.integer(min_coders)) {
-    stop("`min_coders` must be an integer >= 2.")
+    cli::cli_abort("{.arg min_coders} must be an integer >= 2.")
   }
   min_coders <- as.integer(min_coders)
 
@@ -125,7 +134,7 @@ trail_icr <- function(
   coder_cols <- setdiff(names(wide), id_col)
 
   if (length(coder_cols) < 2L) {
-    stop("Need at least two setting/coder columns to compute intercoder reliability.")
+    cli::cli_abort("Need at least two setting/coder columns to compute intercoder reliability.")
   }
 
   args <- list(
@@ -208,22 +217,29 @@ trail_compare <- function(
   # Validate min_coders
   if (!is.numeric(min_coders) || length(min_coders) != 1L ||
       is.na(min_coders) || min_coders < 2L || min_coders != as.integer(min_coders)) {
-    stop("`min_coders` must be an integer >= 2.")
+    cli::cli_abort("{.arg min_coders} must be an integer >= 2.")
   }
   min_coders <- as.integer(min_coders)
 
-  stopifnot(is.list(settings), length(settings) > 0L)
-  if (is.null(names(settings)) || any(!nzchar(names(settings)))) {
-    stop("settings must be a named list; names will be used as setting IDs.")
+  if (!is.list(settings) || length(settings) == 0L) {
+    cli::cli_abort("{.arg settings} must be a non-empty list.")
   }
-  stopifnot(all(vapply(settings, inherits, logical(1), "trail_setting")))
+  if (is.null(names(settings)) || any(!nzchar(names(settings)))) {
+    cli::cli_abort(c(
+      "{.arg settings} must be a named list.",
+      "i" = "Names will be used as setting IDs."
+    ))
+  }
+  if (!all(vapply(settings, inherits, logical(1), "trail_setting"))) {
+    cli::cli_abort("All elements of {.arg settings} must be {.cls trail_setting} objects.")
+  }
 
   # Shared ID column for all records
   if (is.null(id_col)) {
     id_col <- ".trail_unit_id"
     data[[id_col]] <- seq_len(nrow(data))
   } else if (!id_col %in% names(data)) {
-    stop("id_col '", id_col, "' not found in data.")
+    cli::cli_abort("{.arg id_col} {.val {id_col}} not found in {.arg data}.")
   }
 
   # Run all settings (LLM variants)

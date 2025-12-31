@@ -11,7 +11,12 @@ NULL
 
 #' @noRd
 make_long_icr <- function(df, id, coder_cols) {
-  stopifnot(id %in% names(df), all(coder_cols %in% names(df)))
+  if (!id %in% names(df)) {
+    cli::cli_abort("{.arg id} must be a column in {.arg df}.")
+  }
+  if (!all(coder_cols %in% names(df))) {
+    cli::cli_abort("All {.arg coder_cols} must be columns in {.arg df}.")
+  }
   df %>%
     dplyr::mutate(unit_id = as.character(.data[[id]])) %>%
     dplyr::select(unit_id, dplyr::all_of(coder_cols)) %>%
@@ -190,7 +195,7 @@ compute_gold_summary <- function(long_df, gold) {
   }
 
   if (!gold %in% names(wide)) {
-    stop("Gold-standard coder '", gold, "' not found among coder columns.")
+    cli::cli_abort("Gold-standard coder {.val {gold}} not found among coder columns.")
   }
 
   ratings_raw <- wide %>% dplyr::select(-.data$unit_id)
@@ -408,32 +413,38 @@ validate <- function(data,
   output <- match.arg(output)
 
   # Validate min_coders
-
   if (!is.numeric(min_coders) || length(min_coders) != 1L ||
       is.na(min_coders) || min_coders < 2L || min_coders != as.integer(min_coders)) {
-    stop("`min_coders` must be an integer >= 2.")
+    cli::cli_abort("{.arg min_coders} must be an integer >= 2.")
   }
   min_coders <- as.integer(min_coders)
 
-  stopifnot(is.data.frame(data))
+  if (!is.data.frame(data)) {
+    cli::cli_abort("{.arg data} must be a data frame.")
+  }
   if (!id %in% names(data)) {
-    stop("id '", id, "' not found in data.")
+    cli::cli_abort("{.arg id} {.val {id}} not found in {.arg data}.")
   }
   if (!all(coder_cols %in% names(data))) {
     missing <- setdiff(coder_cols, names(data))
-    stop("The following coder_cols are not in data: ",
-         paste(missing, collapse = ", "))
+    cli::cli_abort(c(
+      "The following {.arg coder_cols} are not in {.arg data}:",
+      "x" = "{.val {missing}}"
+    ))
   }
   if (length(coder_cols) < 2L) {
-    stop("You must provide at least two coder columns.")
+    cli::cli_abort("You must provide at least two coder columns.")
   }
 
   if (mode == "gold") {
     if (is.null(gold)) {
-      stop("When mode = 'gold', you must supply `gold` as the name of the gold-standard coder column.")
+      cli::cli_abort(c(
+        "When {.code mode = \"gold\"}, you must supply {.arg gold}.",
+        "i" = "{.arg gold} should be the name of the gold-standard coder column."
+      ))
     }
     if (!gold %in% coder_cols) {
-      stop("`gold` must be one of the coder_cols.")
+      cli::cli_abort("{.arg gold} must be one of the {.arg coder_cols}.")
     }
   }
 

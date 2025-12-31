@@ -96,10 +96,10 @@ annotate <- function(.data, task, model_name, ...) {
   all_valid_names <- unique(c(chat_arg_names, pcs_arg_names))
   unknown_names <- setdiff(dot_names, all_valid_names)
   if (length(unknown_names) > 0) {
-    warning(
-      "The following argument(s) were not recognized and have been ignored: ",
-      paste(unknown_names, collapse = ", ")
-    )
+    cli::cli_warn(c(
+      "The following argument{?s} {?was/were} not recognized and {?has/have} been ignored:",
+      "x" = "{.arg {unknown_names}}"
+    ))
   }
 
   # Build chat object using ellmer::chat()

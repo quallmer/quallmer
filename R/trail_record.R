@@ -26,11 +26,15 @@ trail_record <- function(
     overwrite    = FALSE,
     annotate_fun = annotate
 ) {
-  stopifnot(inherits(setting, "trail_setting"))
-  stopifnot(is.data.frame(data))
+  if (!inherits(setting, "trail_setting")) {
+    cli::cli_abort("{.arg setting} must be a {.cls trail_setting} object.")
+  }
+  if (!is.data.frame(data)) {
+    cli::cli_abort("{.arg data} must be a data frame.")
+  }
 
   if (!text_col %in% names(data)) {
-    stop("text_col '", text_col, "' not found in data.")
+    cli::cli_abort("{.arg text_col} {.val {text_col}} not found in {.arg data}.")
   }
 
   # Ensure unique ID column
@@ -38,7 +42,7 @@ trail_record <- function(
     id_col <- ".trail_unit_id"
     data[[id_col]] <- seq_len(nrow(data))
   } else if (!id_col %in% names(data)) {
-    stop("id_col '", id_col, "' not found in data.")
+    cli::cli_abort("{.arg id_col} {.val {id_col}} not found in {.arg data}.")
   }
 
   # Cache directory initialization
@@ -62,7 +66,10 @@ trail_record <- function(
 
   # ---- annotation call: task expects text input (character) ----
   if (!requireNamespace("ellmer", quietly = TRUE)) {
-    stop("Package 'ellmer' is required for trail_record().")
+    cli::cli_abort(c(
+      "Package {.pkg ellmer} is required for {.fn trail_record}.",
+      "i" = "Install it with {.code install.packages(\"ellmer\")}"
+    ))
   }
 
   text_vec <- as.character(data[[text_col]])
