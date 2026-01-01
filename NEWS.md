@@ -7,6 +7,7 @@ The package introduces a new `qlm_*()` API with richer return objects and cleare
 * `qlm_codebook()` defines coding instructions, replacing `task()` (#27).
 * `qlm_code()` executes coding tasks and returns a tibble with coded results and metadata as attributes, replacing `annotate()` (#27). The returned `qlm_coded` object prints as a tibble and can be used directly in data manipulation workflows.
 * `qlm_compare()` compares multiple `qlm_coded` objects to assess inter-rater reliability using measures from the irr package (Krippendorff's alpha, Cohen's/Fleiss' kappa, Kendall's W, or percent agreement).
+* `qlm_validate()` validates a `qlm_coded` object against a gold standard (human-coded reference data) using classification metrics from the yardstick package. Computes accuracy, precision, recall, F1-score, and Cohen's kappa with support for multiple averaging methods (macro, micro, weighted, or per-class breakdown).
 
 The new API uses the `qlm_` prefix to avoid namespace conflicts (e.g., with `ggplot2::annotate()`) and follows the convention of verbs for workflow actions, nouns for accessor functions.
 

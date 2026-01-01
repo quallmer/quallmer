@@ -309,6 +309,7 @@ compute_reliability <- function(ratings, measure, level, tolerance) {
 #' @param ... Additional arguments (currently unused)
 #'
 #' @return Invisibly returns the input object
+#' @keywords internal
 #' @export
 print.qlm_comparison <- function(x, ...) {
   cat("# Inter-rater reliability comparison\n")

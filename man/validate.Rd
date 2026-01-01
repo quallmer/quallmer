@@ -59,6 +59,12 @@ columns:
 }
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#superseded}{\figure{lifecycle-superseded.svg}{options: alt='[Superseded]'}}}{\strong{[Superseded]}}
+}
+\details{
+This function has been superseded by \code{\link[=qlm_compare]{qlm_compare()}} for inter-rater
+reliability and \code{\link[=qlm_validate]{qlm_validate()}} for gold-standard validation.
+
 This function validates nominal coding data with multiple coders in two ways:
 Krippendorf's alpha (Krippendorf 2019) and Fleiss's kappa (Fleiss 1971) for
 inter-coder reliability statistics, and gold-standard classification metrics
@@ -111,3 +117,4 @@ res_gold <- validate(
 \item Sokolova, M., & Lapalme, G. (2009). A systematic analysis of performance measures for classification tasks. Information Processing & Management, 45(4), 427–437. \doi{10.1016/j.ipm.2009.03.002}
 }
 }
+\keyword{internal}

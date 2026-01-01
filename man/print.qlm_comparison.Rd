@@ -17,3 +17,4 @@ Invisibly returns the input object
 \description{
 Print a qlm_comparison object
 }
+\keyword{internal}
