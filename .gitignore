@@ -12,3 +12,7 @@ docs
 /Meta/
 issue-27-plan.md
 quallmer.Rcheck
+*.tar.gz
+*.bak*
+*.backup*
+tests/testthat/_problems/

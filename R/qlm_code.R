@@ -22,6 +22,7 @@
 #' @param ... Additional arguments passed to either [ellmer::chat()] or to
 #'   [ellmer::parallel_chat_structured()], based on argument name.
 #'   Arguments not recognized by either function will generate a warning.
+#' @param name Character string identifying this coding run. Default is `"original"`.
 #'
 #' @details
 #' Progress indicators and error handling are provided by the underlying
@@ -32,7 +33,7 @@
 #' @return A `qlm_coded` object (a tibble with additional attributes):
 #'   \describe{
 #'     \item{Data columns}{The coded results with a `.id` column for identifiers.}
-#'     \item{Attributes}{`codebook`, `data`, `chat_args`, `pcs_args`, and `metadata`.}
+#'     \item{Attributes}{`data`, `input_type`, and `run` (list containing name, call, codebook, chat_args, pcs_args, metadata, parent).}
 #'   }
 #'   The object prints as a tibble and can be used directly in data manipulation workflows.
 #'
@@ -65,14 +66,14 @@
 #'                   model = "openai",
 #'                   include_tokens = TRUE)
 #'
-#' # Inspect metadata
+#' # Inspect run information
 #' print(coded)
-#' attr(coded, "chat_args")
-#' attr(coded, "metadata")
+#' attr(coded, "run")$name
+#' attr(coded, "run")$metadata
 #' }
 #'
 #' @export
-qlm_code <- function(x, codebook, model, ...) {
+qlm_code <- function(x, codebook, model, ..., name = "original") {
   # Accept both qlm_codebook and task objects, converting if needed
   if (inherits(codebook, "task") && !inherits(codebook, "qlm_codebook")) {
     codebook <- as_qlm_codebook(codebook)
@@ -173,31 +174,40 @@ qlm_code <- function(x, codebook, model, ...) {
     results = results,
     codebook = codebook,
     data = x,
+    input_type = codebook$input_type,
     chat_args = chat_args,
     pcs_args = pcs_args,
-    metadata = metadata
+    metadata = metadata,
+    name = name,
+    call = match.call(),
+    parent = NULL
   )
 }
 
 #' Create a qlm_coded object (internal)
 #'
 #' Low-level constructor for qlm_coded objects. This function is not exported
-#' and is intended for internal use by [qlm_code()].
+#' and is intended for internal use by [qlm_code()] and [qlm_replicate()].
 #'
 #' The object is a tibble with additional qlm_coded class and attributes.
 #'
 #' @param results Data frame of coded results with id column.
 #' @param codebook A qlm_codebook object.
 #' @param data The original input data (x from qlm_code).
+#' @param input_type Type of input ("text" or "image").
 #' @param chat_args List of arguments passed to ellmer::chat().
 #' @param pcs_args List of arguments passed to ellmer::parallel_chat_structured().
 #' @param metadata List of metadata (timestamp, versions, etc.).
+#' @param name Character string identifying this run.
+#' @param call The call that created this object.
+#' @param parent Character string identifying parent run (NULL for originals).
 #'
 #' @return A qlm_coded object (tibble with attributes).
 #' @importFrom utils head
 #' @keywords internal
 #' @noRd
-new_qlm_coded <- function(results, codebook, data, chat_args, pcs_args, metadata) {
+new_qlm_coded <- function(results, codebook, data, input_type, chat_args,
+                           pcs_args, metadata, name, call, parent = NULL) {
   # Rename id column to .id
   names(results)[names(results) == "id"] <- ".id"
 
@@ -207,15 +217,21 @@ new_qlm_coded <- function(results, codebook, data, chat_args, pcs_args, metadata
   # Convert to tibble (always available via ellmer)
   results <- tibble::as_tibble(results)
 
-  # Add qlm_coded class and attributes
+  # Add qlm_coded class and attributes with hierarchical structure
   structure(
     results,
     class = c("qlm_coded", class(results)),
-    codebook = codebook,
     data = data,
-    chat_args = chat_args,
-    pcs_args = pcs_args,
-    metadata = metadata
+    input_type = input_type,
+    run = list(
+      name = name,
+      call = call,
+      codebook = codebook,
+      chat_args = chat_args,
+      pcs_args = pcs_args,
+      metadata = metadata,
+      parent = parent
+    )
   )
 }
 
@@ -229,8 +245,22 @@ new_qlm_coded <- function(results, codebook, data, chat_args, pcs_args, metadata
 #' @keywords internal
 #' @export
 print.qlm_coded <- function(x, ...) {
-  # cat("# quallmer coded object\n")
-  # cat("# Codebook:", attr(x, "codebook")$name, "\n\n")
+  run <- attr(x, "run")
+
+  # Print header
+  cat("# quallmer coded object\n")
+  cat("# Run:      ", run$name, "\n", sep = "")
+  cat("# Codebook: ", run$codebook$name, "\n", sep = "")
+  cat("# Model:    ", run$chat_args$name %||% "unknown", "\n", sep = "")
+  cat("# Units:    ", run$metadata$n_units, "\n", sep = "")
+
+  if (!is.null(run$parent)) {
+    cat("# Parent:   ", run$parent, "\n", sep = "")
+  }
+
+  cat("\n")
+
+  # Print data using parent class method
   NextMethod()
 }
 

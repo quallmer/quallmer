@@ -89,14 +89,9 @@ qlm_compare <- function(...,
   }
 
   # Check 'by' variable exists in all objects
-  has_var <- vapply(coded_list, function(x) by %in% names(x), logical(1))
-  if (!all(has_var)) {
-    missing_idx <- which(!has_var)
-    cli::cli_abort(c(
-      "Variable {.var {by}} not found in all {.cls qlm_coded} objects.",
-      "x" = "Missing in objects: {.val {missing_idx}}"
-    ))
-  }
+  named_list <- coded_list
+  names(named_list) <- paste("object", seq_along(coded_list))
+  validate_by_variable(by, named_list)
 
   # Extract data and merge by .id
   n_raters <- length(coded_list)

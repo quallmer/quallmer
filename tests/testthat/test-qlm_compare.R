@@ -9,9 +9,13 @@ test_that("qlm_compare validates inputs correctly", {
     results = mock_results1,
     codebook = codebook,
     data = c("text1", "text2", "text3"),
+    input_type = "text",
     chat_args = list(name = "test/model"),
     pcs_args = list(),
-    metadata = list(timestamp = Sys.time(), n_units = 3)
+    metadata = list(timestamp = Sys.time(), n_units = 3),
+    name = "original",
+    call = quote(qlm_code(...)),
+    parent = NULL
   )
 
   # Should error with only one object
@@ -39,9 +43,13 @@ test_that("qlm_compare checks for 'by' variable", {
     results = mock_results1,
     codebook = codebook,
     data = c("text1", "text2", "text3"),
+    input_type = "text",
     chat_args = list(name = "test/model"),
     pcs_args = list(),
-    metadata = list(timestamp = Sys.time(), n_units = 3)
+    metadata = list(timestamp = Sys.time(), n_units = 3),
+    name = "original",
+    call = quote(qlm_code(...)),
+    parent = NULL
   )
 
   mock_results2 <- data.frame(id = 1:3, score = c(1, 2, 2))
@@ -49,9 +57,13 @@ test_that("qlm_compare checks for 'by' variable", {
     results = mock_results2,
     codebook = codebook,
     data = c("text1", "text2", "text3"),
+    input_type = "text",
     chat_args = list(name = "test/model"),
     pcs_args = list(),
-    metadata = list(timestamp = Sys.time(), n_units = 3)
+    metadata = list(timestamp = Sys.time(), n_units = 3),
+    name = "original",
+    call = quote(qlm_code(...)),
+    parent = NULL
   )
 
   # Should error if 'by' variable doesn't exist
@@ -75,9 +87,13 @@ test_that("qlm_compare works with matching units", {
     results = mock_results1,
     codebook = codebook,
     data = paste0("text", 1:5),
+    input_type = "text",
     chat_args = list(name = "test/model"),
     pcs_args = list(),
-    metadata = list(timestamp = Sys.time(), n_units = 5)
+    metadata = list(timestamp = Sys.time(), n_units = 5),
+    name = "original",
+    call = quote(qlm_code(...)),
+    parent = NULL
   )
 
   mock_results2 <- data.frame(id = 1:5, score = c(1, 2, 2, 1, 3))
@@ -85,9 +101,13 @@ test_that("qlm_compare works with matching units", {
     results = mock_results2,
     codebook = codebook,
     data = paste0("text", 1:5),
+    input_type = "text",
     chat_args = list(name = "test/model"),
     pcs_args = list(),
-    metadata = list(timestamp = Sys.time(), n_units = 5)
+    metadata = list(timestamp = Sys.time(), n_units = 5),
+    name = "original",
+    call = quote(qlm_code(...)),
+    parent = NULL
   )
 
   # Compare using alpha
@@ -117,9 +137,13 @@ test_that("qlm_compare handles Cohen's kappa for 2 raters", {
     results = mock_results1,
     codebook = codebook,
     data = paste0("text", 1:10),
+    input_type = "text",
     chat_args = list(name = "test/model"),
     pcs_args = list(),
-    metadata = list(timestamp = Sys.time(), n_units = 10)
+    metadata = list(timestamp = Sys.time(), n_units = 10),
+    name = "original",
+    call = quote(qlm_code(...)),
+    parent = NULL
   )
 
   mock_results2 <- data.frame(id = 1:10, category = c(rep("A", 8), "B", "B"))
@@ -127,9 +151,13 @@ test_that("qlm_compare handles Cohen's kappa for 2 raters", {
     results = mock_results2,
     codebook = codebook,
     data = paste0("text", 1:10),
+    input_type = "text",
     chat_args = list(name = "test/model"),
     pcs_args = list(),
-    metadata = list(timestamp = Sys.time(), n_units = 10)
+    metadata = list(timestamp = Sys.time(), n_units = 10),
+    name = "original",
+    call = quote(qlm_code(...)),
+    parent = NULL
   )
 
   # Compare using kappa (should use Cohen's for 2 raters)
@@ -158,9 +186,13 @@ test_that("qlm_compare handles Fleiss' kappa for 3+ raters", {
     results = mock_results1,
     codebook = codebook,
     data = paste0("text", 1:8),
+    input_type = "text",
     chat_args = list(name = "test/model"),
     pcs_args = list(),
-    metadata = list(timestamp = Sys.time(), n_units = 8)
+    metadata = list(timestamp = Sys.time(), n_units = 8),
+    name = "original",
+    call = quote(qlm_code(...)),
+    parent = NULL
   )
 
   mock_results2 <- data.frame(id = 1:8, category = c(rep("A", 6), "B", "B"))
@@ -168,9 +200,13 @@ test_that("qlm_compare handles Fleiss' kappa for 3+ raters", {
     results = mock_results2,
     codebook = codebook,
     data = paste0("text", 1:8),
+    input_type = "text",
     chat_args = list(name = "test/model"),
     pcs_args = list(),
-    metadata = list(timestamp = Sys.time(), n_units = 8)
+    metadata = list(timestamp = Sys.time(), n_units = 8),
+    name = "original",
+    call = quote(qlm_code(...)),
+    parent = NULL
   )
 
   mock_results3 <- data.frame(id = 1:8, category = c(rep("A", 7), "B"))
@@ -178,9 +214,13 @@ test_that("qlm_compare handles Fleiss' kappa for 3+ raters", {
     results = mock_results3,
     codebook = codebook,
     data = paste0("text", 1:8),
+    input_type = "text",
     chat_args = list(name = "test/model"),
     pcs_args = list(),
-    metadata = list(timestamp = Sys.time(), n_units = 8)
+    metadata = list(timestamp = Sys.time(), n_units = 8),
+    name = "original",
+    call = quote(qlm_code(...)),
+    parent = NULL
   )
 
   # Compare using kappa (should use Fleiss' for 3 raters)
@@ -206,9 +246,13 @@ test_that("qlm_compare computes percent agreement", {
     results = mock_results1,
     codebook = codebook,
     data = paste0("text", 1:5),
+    input_type = "text",
     chat_args = list(name = "test/model"),
     pcs_args = list(),
-    metadata = list(timestamp = Sys.time(), n_units = 5)
+    metadata = list(timestamp = Sys.time(), n_units = 5),
+    name = "original",
+    call = quote(qlm_code(...)),
+    parent = NULL
   )
 
   mock_results2 <- data.frame(id = 1:5, score = c(1, 2, 3, 1, 3))  # 4/5 agree
@@ -216,9 +260,13 @@ test_that("qlm_compare computes percent agreement", {
     results = mock_results2,
     codebook = codebook,
     data = paste0("text", 1:5),
+    input_type = "text",
     chat_args = list(name = "test/model"),
     pcs_args = list(),
-    metadata = list(timestamp = Sys.time(), n_units = 5)
+    metadata = list(timestamp = Sys.time(), n_units = 5),
+    name = "original",
+    call = quote(qlm_code(...)),
+    parent = NULL
   )
 
   # Compare using agreement
@@ -243,9 +291,13 @@ test_that("qlm_compare handles mismatched units", {
     results = mock_results1,
     codebook = codebook,
     data = c("text1", "text2", "text3"),
+    input_type = "text",
     chat_args = list(name = "test/model"),
     pcs_args = list(),
-    metadata = list(timestamp = Sys.time(), n_units = 3)
+    metadata = list(timestamp = Sys.time(), n_units = 3),
+    name = "original",
+    call = quote(qlm_code(...)),
+    parent = NULL
   )
 
   mock_results2 <- data.frame(id = 4:6, score = c(1, 2, 3))  # Different IDs
@@ -253,9 +305,13 @@ test_that("qlm_compare handles mismatched units", {
     results = mock_results2,
     codebook = codebook,
     data = c("text4", "text5", "text6"),
+    input_type = "text",
     chat_args = list(name = "test/model"),
     pcs_args = list(),
-    metadata = list(timestamp = Sys.time(), n_units = 3)
+    metadata = list(timestamp = Sys.time(), n_units = 3),
+    name = "original",
+    call = quote(qlm_code(...)),
+    parent = NULL
   )
 
   # Should error with no common units
@@ -278,9 +334,13 @@ test_that("print.qlm_comparison displays correctly", {
     results = mock_results1,
     codebook = codebook,
     data = paste0("text", 1:5),
+    input_type = "text",
     chat_args = list(name = "test/model"),
     pcs_args = list(),
-    metadata = list(timestamp = Sys.time(), n_units = 5)
+    metadata = list(timestamp = Sys.time(), n_units = 5),
+    name = "original",
+    call = quote(qlm_code(...)),
+    parent = NULL
   )
 
   mock_results2 <- data.frame(id = 1:5, score = c(1, 2, 2, 1, 3))
@@ -288,9 +348,13 @@ test_that("print.qlm_comparison displays correctly", {
     results = mock_results2,
     codebook = codebook,
     data = paste0("text", 1:5),
+    input_type = "text",
     chat_args = list(name = "test/model"),
     pcs_args = list(),
-    metadata = list(timestamp = Sys.time(), n_units = 5)
+    metadata = list(timestamp = Sys.time(), n_units = 5),
+    name = "original",
+    call = quote(qlm_code(...)),
+    parent = NULL
   )
 
   comparison <- qlm_compare(mock_coded1, mock_coded2, by = "score", measure = "alpha")

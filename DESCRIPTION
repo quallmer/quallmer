@@ -47,6 +47,7 @@ Suggests:
     rmarkdown,
     testthat (>= 3.0.0),
     kableExtra,
+    mockery,
     quanteda,
     tibble,
     withr

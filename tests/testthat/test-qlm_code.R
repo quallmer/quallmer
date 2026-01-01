@@ -81,6 +81,7 @@ test_that("qlm_code returns qlm_coded object structure", {
     results = mock_results,
     codebook = codebook,
     data = c("text1", "text2"),
+    input_type = "text",
     chat_args = list(name = "test/model"),
     pcs_args = list(),
     metadata = list(
@@ -89,7 +90,10 @@ test_that("qlm_code returns qlm_coded object structure", {
       ellmer_version = "0.4.0",
       quallmer_version = "0.2.0",
       R_version = "4.3.0"
-    )
+    ),
+    name = "original",
+    call = quote(qlm_code(...)),
+    parent = NULL
   )
 
   # Verify structure - qlm_coded is now a data.frame with attributes
@@ -101,11 +105,17 @@ test_that("qlm_code returns qlm_coded object structure", {
   expect_true(".id" %in% names(mock_coded))
   expect_true("score" %in% names(mock_coded))
 
-  # Verify attributes
-  expect_identical(attr(mock_coded, "codebook"), codebook)
-  expect_true(is.list(attr(mock_coded, "chat_args")))
-  expect_true(is.list(attr(mock_coded, "pcs_args")))
-  expect_true(is.list(attr(mock_coded, "metadata")))
+  # Verify attributes with new hierarchical structure
+  expect_true(!is.null(attr(mock_coded, "data")))
+  expect_equal(attr(mock_coded, "input_type"), "text")
+  run_attr <- attr(mock_coded, "run")
+  expect_true(!is.null(run_attr))
+  expect_identical(run_attr[["codebook"]], codebook)
+  expect_true(is.list(run_attr[["chat_args"]]))
+  expect_true(is.list(run_attr[["pcs_args"]]))
+  expect_true(is.list(run_attr[["metadata"]]))
+  expect_equal(run_attr[["name"]], "original")
+  expect_null(run_attr[["parent"]])
 })
 
 
@@ -166,9 +176,13 @@ test_that("print.qlm_coded displays correctly", {
     results = mock_results,
     codebook = codebook,
     data = c("text1", "text2", "text3"),
+    input_type = "text",
     chat_args = list(name = "test/model"),
     pcs_args = list(),
-    metadata = list(timestamp = Sys.time(), n_units = 3)
+    metadata = list(timestamp = Sys.time(), n_units = 3),
+    name = "original",
+    call = quote(qlm_code(...)),
+    parent = NULL
   )
 
   # Test that print works without error (delegates to tibble print)

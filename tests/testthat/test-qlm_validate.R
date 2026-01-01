@@ -11,9 +11,13 @@ test_that("qlm_validate validates inputs correctly", {
     results = mock_results,
     codebook = codebook,
     data = paste0("text", 1:10),
+    input_type = "text",
     chat_args = list(name = "test/model"),
     pcs_args = list(),
-    metadata = list(timestamp = Sys.time(), n_units = 10)
+    metadata = list(timestamp = Sys.time(), n_units = 10),
+    name = "original",
+    call = quote(qlm_code(...)),
+    parent = NULL
   )
 
   # Create gold standard
@@ -64,9 +68,13 @@ test_that("qlm_validate handles mismatched IDs", {
     results = mock_results,
     codebook = codebook,
     data = paste0("text", 1:5),
+    input_type = "text",
     chat_args = list(name = "test/model"),
     pcs_args = list(),
-    metadata = list(timestamp = Sys.time(), n_units = 5)
+    metadata = list(timestamp = Sys.time(), n_units = 5),
+    name = "original",
+    call = quote(qlm_code(...)),
+    parent = NULL
   )
 
   # Gold with different IDs
@@ -91,9 +99,13 @@ test_that("qlm_validate warns about NA values", {
     results = mock_results,
     codebook = codebook,
     data = paste0("text", 1:10),
+    input_type = "text",
     chat_args = list(name = "test/model"),
     pcs_args = list(),
-    metadata = list(timestamp = Sys.time(), n_units = 10)
+    metadata = list(timestamp = Sys.time(), n_units = 10),
+    name = "original",
+    call = quote(qlm_code(...)),
+    parent = NULL
   )
 
   gold <- data.frame(.id = 1:10, category = rep(c("A", "B"), 5))
@@ -118,9 +130,13 @@ test_that("qlm_validate computes metrics correctly - perfect predictions", {
     results = mock_results,
     codebook = codebook,
     data = paste0("text", 1:10),
+    input_type = "text",
     chat_args = list(name = "test/model"),
     pcs_args = list(),
-    metadata = list(timestamp = Sys.time(), n_units = 10)
+    metadata = list(timestamp = Sys.time(), n_units = 10),
+    name = "original",
+    call = quote(qlm_code(...)),
+    parent = NULL
   )
 
   gold <- data.frame(.id = 1:10, category = rep(c("A", "B"), 5))
@@ -154,9 +170,13 @@ test_that("qlm_validate computes metrics correctly - imperfect predictions", {
     results = mock_results,
     codebook = codebook,
     data = paste0("text", 1:10),
+    input_type = "text",
     chat_args = list(name = "test/model"),
     pcs_args = list(),
-    metadata = list(timestamp = Sys.time(), n_units = 10)
+    metadata = list(timestamp = Sys.time(), n_units = 10),
+    name = "original",
+    call = quote(qlm_code(...)),
+    parent = NULL
   )
 
   gold <- data.frame(.id = 1:10, category = rep(c("A", "B"), 5))  # 5A, 5B
@@ -184,9 +204,13 @@ test_that("qlm_validate handles average parameter correctly", {
     results = mock_results,
     codebook = codebook,
     data = paste0("text", 1:12),
+    input_type = "text",
     chat_args = list(name = "test/model"),
     pcs_args = list(),
-    metadata = list(timestamp = Sys.time(), n_units = 12)
+    metadata = list(timestamp = Sys.time(), n_units = 12),
+    name = "original",
+    call = quote(qlm_code(...)),
+    parent = NULL
   )
 
   gold <- data.frame(.id = 1:12, category = rep(c("A", "B", "C"), 4))
@@ -226,9 +250,13 @@ test_that("qlm_validate handles single measure correctly", {
     results = mock_results,
     codebook = codebook,
     data = paste0("text", 1:10),
+    input_type = "text",
     chat_args = list(name = "test/model"),
     pcs_args = list(),
-    metadata = list(timestamp = Sys.time(), n_units = 10)
+    metadata = list(timestamp = Sys.time(), n_units = 10),
+    name = "original",
+    call = quote(qlm_code(...)),
+    parent = NULL
   )
 
   gold <- data.frame(.id = 1:10, category = rep(c("A", "B"), 5))
@@ -286,9 +314,13 @@ test_that("qlm_validate handles multiclass correctly", {
     results = mock_results,
     codebook = codebook,
     data = paste0("text", 1:20),
+    input_type = "text",
     chat_args = list(name = "test/model"),
     pcs_args = list(),
-    metadata = list(timestamp = Sys.time(), n_units = 20)
+    metadata = list(timestamp = Sys.time(), n_units = 20),
+    name = "original",
+    call = quote(qlm_code(...)),
+    parent = NULL
   )
 
   gold <- data.frame(.id = 1:20, category = rep(c("A", "B", "C", "D"), 5))
@@ -311,9 +343,13 @@ test_that("print.qlm_validation displays correctly", {
     results = mock_results,
     codebook = codebook,
     data = paste0("text", 1:10),
+    input_type = "text",
     chat_args = list(name = "test/model"),
     pcs_args = list(),
-    metadata = list(timestamp = Sys.time(), n_units = 10)
+    metadata = list(timestamp = Sys.time(), n_units = 10),
+    name = "original",
+    call = quote(qlm_code(...)),
+    parent = NULL
   )
 
   gold <- data.frame(.id = 1:10, category = rep(c("A", "B"), 5))
@@ -342,9 +378,13 @@ test_that("print.qlm_validation displays per-class metrics correctly", {
     results = mock_results,
     codebook = codebook,
     data = paste0("text", 1:12),
+    input_type = "text",
     chat_args = list(name = "test/model"),
     pcs_args = list(),
-    metadata = list(timestamp = Sys.time(), n_units = 12)
+    metadata = list(timestamp = Sys.time(), n_units = 12),
+    name = "original",
+    call = quote(qlm_code(...)),
+    parent = NULL
   )
 
   gold <- data.frame(.id = 1:12, category = rep(c("A", "B", "C"), 4))
@@ -373,9 +413,13 @@ test_that("qlm_validate handles partial overlap of IDs", {
     results = mock_results,
     codebook = codebook,
     data = paste0("text", 1:10),
+    input_type = "text",
     chat_args = list(name = "test/model"),
     pcs_args = list(),
-    metadata = list(timestamp = Sys.time(), n_units = 10)
+    metadata = list(timestamp = Sys.time(), n_units = 10),
+    name = "original",
+    call = quote(qlm_code(...)),
+    parent = NULL
   )
 
   # Gold with partial overlap (IDs 5-15)
@@ -399,9 +443,13 @@ test_that("qlm_validate handles all NAs error", {
     results = mock_results,
     codebook = codebook,
     data = paste0("text", 1:10),
+    input_type = "text",
     chat_args = list(name = "test/model"),
     pcs_args = list(),
-    metadata = list(timestamp = Sys.time(), n_units = 10)
+    metadata = list(timestamp = Sys.time(), n_units = 10),
+    name = "original",
+    call = quote(qlm_code(...)),
+    parent = NULL
   )
 
   gold <- data.frame(.id = 1:10, category = rep(c("A", "B"), 5))
@@ -426,9 +474,13 @@ test_that("qlm_validate accepts qlm_coded object as gold standard", {
     results = mock_results1,
     codebook = codebook,
     data = paste0("text", 1:10),
+    input_type = "text",
     chat_args = list(name = "test/model1"),
     pcs_args = list(),
-    metadata = list(timestamp = Sys.time(), n_units = 10)
+    metadata = list(timestamp = Sys.time(), n_units = 10),
+    name = "original",
+    call = quote(qlm_code(...)),
+    parent = NULL
   )
 
   # Create second qlm_coded object (gold standard)
@@ -437,9 +489,13 @@ test_that("qlm_validate accepts qlm_coded object as gold standard", {
     results = mock_results2,
     codebook = codebook,
     data = paste0("text", 1:10),
+    input_type = "text",
     chat_args = list(name = "test/model2"),
     pcs_args = list(),
-    metadata = list(timestamp = Sys.time(), n_units = 10)
+    metadata = list(timestamp = Sys.time(), n_units = 10),
+    name = "original",
+    call = quote(qlm_code(...)),
+    parent = NULL
   )
 
   # Should accept qlm_coded object as gold
@@ -466,9 +522,13 @@ test_that("qlm_validate with qlm_coded gold handles imperfect predictions", {
     results = mock_results1,
     codebook = codebook,
     data = paste0("text", 1:10),
+    input_type = "text",
     chat_args = list(name = "test/model1"),
     pcs_args = list(),
-    metadata = list(timestamp = Sys.time(), n_units = 10)
+    metadata = list(timestamp = Sys.time(), n_units = 10),
+    name = "original",
+    call = quote(qlm_code(...)),
+    parent = NULL
   )
 
   # Create gold standard (different predictions)
@@ -480,9 +540,13 @@ test_that("qlm_validate with qlm_coded gold handles imperfect predictions", {
     results = mock_results2,
     codebook = codebook,
     data = paste0("text", 1:10),
+    input_type = "text",
     chat_args = list(name = "test/model2"),
     pcs_args = list(),
-    metadata = list(timestamp = Sys.time(), n_units = 10)
+    metadata = list(timestamp = Sys.time(), n_units = 10),
+    name = "original",
+    call = quote(qlm_code(...)),
+    parent = NULL
   )
 
   validation <- qlm_validate(mock_coded1, gold = mock_coded2, by = "category")

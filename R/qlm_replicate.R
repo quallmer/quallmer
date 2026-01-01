@@ -1,0 +1,98 @@
+#' Replicate a coding task
+#'
+#' Re-executes a coding task from a `qlm_coded` object, optionally with
+#' modified settings. If no overrides are provided, uses identical settings
+#' to the original coding.
+#'
+#' @param x A `qlm_coded` object.
+#' @param ... Optional overrides passed to [qlm_code()], such as `temperature`
+#'   or `max_tokens`.
+#' @param codebook Optional replacement codebook. If `NULL` (default), uses
+#'   the codebook from `x`.
+#' @param model Optional replacement model (e.g., `"openai/gpt-4o"`). If `NULL`
+#'   (default), uses the model from `x`.
+#' @param name Optional name for this run. If `NULL`, defaults to the model
+#'   name (if changed) or `"replication_N"` where N is the replication count.
+#'
+#' @return A `qlm_coded` object with `run$parent` set to the parent's run name.
+#'
+#' @seealso [qlm_code()] for initial coding, [qlm_compare()] for comparing
+#'   replicated results.
+#'
+#' @examples
+#' \dontrun{
+#' set.seed(24)
+#' reviews <- data_corpus_LMRDsample[sample(length(data_corpus_LMRDsample), size = 20)]
+#'
+#' # Code movie reviews
+#' coded <- qlm_code(
+#'   reviews,
+#'   data_codebook_sentiment,
+#'   model = "google_gemini/gemini-2.5-flash"
+#' )
+#'
+#' # Replicate with different model
+#' coded2 <- qlm_replicate(coded, model = "anthropic/claude-sonnet-4-20250514")
+#'
+#' # Compare results
+#' qlm_compare(coded, coded2, by = "polarity")
+#' }
+#'
+#' @importFrom utils modifyList
+#' @export
+qlm_replicate <- function(x, ..., codebook = NULL, model = NULL, name = NULL) {
+  # Input validation
+  if (!inherits(x, "qlm_coded")) {
+    cli::cli_abort("{.arg x} must be a {.cls qlm_coded} object.")
+  }
+
+  # Extract original components
+  original_data <- attr(x, "data")
+  original_run <- attr(x, "run")
+  original_codebook <- original_run$codebook
+  original_model <- original_run$chat_args$name
+  original_pcs_args <- original_run$pcs_args
+  parent_name <- original_run$name
+
+  # Capture the current call
+  current_call <- match.call()
+
+  # Apply overrides (NULL means use original)
+  use_codebook <- codebook %||% original_codebook
+  use_model <- model %||% original_model
+
+  # Determine run name
+  if (is.null(name)) {
+    if (!is.null(model) && model != original_model) {
+      # Use new model name as run name
+      name <- sub(".*/", "", model)  # extract model part after provider/
+    } else {
+      # Generate replication name
+      name <- paste0("replication_",
+                     sum(grepl("^replication_", c(parent_name))) + 1)
+    }
+  }
+
+  # Merge additional overrides with original pcs_args
+  overrides <- list(...)
+  pcs_args <- modifyList(original_pcs_args, overrides)
+
+  # Call qlm_code with merged arguments
+  result <- do.call(qlm_code, c(
+    list(
+      x = original_data,
+      codebook = use_codebook,
+      model = use_model,
+      name = name
+    ),
+    pcs_args
+  ))
+
+  # Override the run attributes to reflect this is a replication
+  run <- attr(result, "run")
+  run$call <- current_call
+  run$parent <- parent_name
+  attr(result, "run") <- run
+
+  result
+}

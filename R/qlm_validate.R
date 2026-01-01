@@ -148,19 +148,8 @@ qlm_validate <- function(
     ))
   }
 
-  if (!by %in% names(x)) {
-    cli::cli_abort(c(
-      "Variable {.var {by}} not found in {.arg x}.",
-      "i" = "Available variables: {.val {setdiff(names(x), '.id')}}"
-    ))
-  }
-
-  if (!by %in% names(gold)) {
-    cli::cli_abort(c(
-      "Variable {.var {by}} not found in {.arg gold}.",
-      "i" = "Available variables: {.val {setdiff(names(gold), '.id')}}"
-    ))
-  }
+  # Check that 'by' variable exists in both objects
+  validate_by_variable(by, list(x = x, gold = gold))
 
   # Extract relevant columns
   x_data <- data.frame(

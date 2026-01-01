@@ -4,7 +4,7 @@
 \alias{qlm_code}
 \title{Code qualitative data with an LLM}
 \usage{
-qlm_code(x, codebook, model, ...)
+qlm_code(x, codebook, model, ..., name = "original")
 }
 \arguments{
 \item{x}{Input data: a character vector of texts (for text codebooks) or
@@ -25,12 +25,14 @@ Examples: \code{"openai/gpt-4o-mini"}, \code{"anthropic/claude-3-5-sonnet-202410
 \item{...}{Additional arguments passed to either \code{\link[ellmer:chat-any]{ellmer::chat()}} or to
 \code{\link[ellmer:parallel_chat]{ellmer::parallel_chat_structured()}}, based on argument name.
 Arguments not recognized by either function will generate a warning.}
+
+\item{name}{Character string identifying this coding run. Default is \code{"original"}.}
 }
 \value{
 A \code{qlm_coded} object (a tibble with additional attributes):
 \describe{
 \item{Data columns}{The coded results with a \code{.id} column for identifiers.}
-\item{Attributes}{\code{codebook}, \code{data}, \code{chat_args}, \code{pcs_args}, and \code{metadata}.}
+\item{Attributes}{\code{data}, \code{input_type}, and \code{run} (list containing name, call, codebook, chat_args, pcs_args, metadata, parent).}
 }
 The object prints as a tibble and can be used directly in data manipulation workflows.
 }
@@ -72,10 +74,10 @@ coded <- qlm_code(texts, task_sentiment(),
                   model = "openai",
                   include_tokens = TRUE)
 
-# Inspect metadata
+# Inspect run information
 print(coded)
-attr(coded, "chat_args")
-attr(coded, "metadata")
+attr(coded, "run")$name
+attr(coded, "run")$metadata
 }
 
 }
