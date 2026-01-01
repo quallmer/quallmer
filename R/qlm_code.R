@@ -110,7 +110,7 @@ qlm_code <- function(x, codebook, model, ..., name = "original") {
   unknown_names <- setdiff(dot_names, all_valid_names)
   if (length(unknown_names) > 0) {
     cli::cli_warn(c(
-      "The following argument{?s} {?was/were} not recognized and {?has/have} been ignored:",
+      "The following {cli::qty(length(unknown_names))} argument{?s} {?was/were} not recognized and {?has/have} been ignored:",
       "x" = "{.arg {unknown_names}}"
     ))
   }
