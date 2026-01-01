@@ -1063,7 +1063,7 @@ validate_app <- function(base_dir = getwd()) {
         return(list(kind = "gold", data = res_gold))
       }
 
-      # Default: intercoder reliability
+      # Default: inter-rater reliability
       res_icr <- tryCatch(
         validate(
           data       = df,
@@ -1079,7 +1079,7 @@ validate_app <- function(base_dir = getwd()) {
       if (inherits(res_icr, "error")) {
         return(list(
           kind    = "message",
-          message = paste("Error during intercoder reliability calculation:", res_icr$message)
+          message = paste("Error during inter-rater reliability calculation:", res_icr$message)
         ))
       }
 
@@ -1145,7 +1145,7 @@ validate_app <- function(base_dir = getwd()) {
       res <- icr_result()
       if (is.null(res)) return(NULL)
 
-      # ----- Intercoder reliability interpretation -----
+      # ----- Inter-rater reliability interpretation -----
       if (res$kind == "icr") {
         lst <- res$data
         alpha  <- suppressWarnings(as.numeric(lst[["kripp_alpha_nominal"]]))

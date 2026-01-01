@@ -6,7 +6,7 @@
 #'
 #' Treat each setting/record in a `trail_compare` object as a separate
 #' coder and convert the annotations into a wide data frame suitable for
-#' intercoder reliability analysis or other comparisons.
+#' inter-rater reliability analysis or other comparisons.
 #'
 #' @param x Either a \code{trail_compare} object or a named list of
 #'   \code{trail_record} objects.
@@ -81,12 +81,12 @@ trail_matrix <- function(x,
 }
 
 # =====================================================
-# trail_icr: compute intercoder reliability from matrix
+# trail_icr: compute inter-rater reliability from matrix
 # =====================================================
 
-#' Compute intercoder reliability across Trail settings
+#' Compute inter-rater reliability across Trail settings
 #'
-#' Convenience helper to compute intercoder reliability across multiple
+#' Convenience helper to compute inter-rater reliability across multiple
 #' Trail records or a `trail_compare` object by treating each setting as
 #' a coder and calling \code{validate()} in \code{mode = "icr"}.
 #'
@@ -98,7 +98,7 @@ trail_matrix <- function(x,
 #'   record's annotations (defaults to "label").
 #' @param min_coders Integer. Minimum number of non-missing coders per
 #'   unit required for inclusion.
-#' @param icr_fun Function used to compute intercoder reliability.
+#' @param icr_fun Function used to compute inter-rater reliability.
 #'   Defaults to \code{validate()}, which is expected to accept
 #'   \code{data}, \code{id}, \code{coder_cols}, \code{min_coders},
 #'   and \code{mode = "icr"}. It should also understand
@@ -107,7 +107,7 @@ trail_matrix <- function(x,
 #'
 #' @return The result of calling \code{icr_fun()} on the wide data.
 #'   With the default \code{validate()}, this is a named list of
-#'   intercoder reliability statistics.
+#'   inter-rater reliability statistics.
 #'
 #' @seealso
 #' * `trail_compare()` – run the same task across multiple settings
@@ -134,7 +134,7 @@ trail_icr <- function(
   coder_cols <- setdiff(names(wide), id_col)
 
   if (length(coder_cols) < 2L) {
-    cli::cli_abort("Need at least two setting/coder columns to compute intercoder reliability.")
+    cli::cli_abort("Need at least two setting/coder columns to compute inter-rater reliability.")
   }
 
   args <- list(
@@ -157,7 +157,7 @@ trail_icr <- function(
 #'
 #' Apply a quallmer task to the same text data under multiple settings,
 #' producing one `trail_record` per setting, and directly compute a
-#' coder-style wide matrix plus intercoder reliability scores.
+#' coder-style wide matrix plus inter-rater reliability scores.
 #'
 #' @param data A data frame containing the text to be annotated.
 #' @param text_col Character scalar. Name of the text column containing
@@ -180,13 +180,13 @@ trail_icr <- function(
 #' @param annotate_fun Annotation backend function used by
 #'   `trail_record()` (default = `annotate()`).
 #' @param min_coders Minimum number of non-missing coders per unit
-#'   required for inclusion in the intercoder reliability calculation.
+#'   required for inclusion in the inter-rater reliability calculation.
 #'
 #' @return A `trail_compare` object with components:
 #'   \describe{
 #'     \item{records}{Named list of `trail_record` objects (one per setting)}
 #'     \item{matrix}{Wide coder-style annotation matrix (settings = columns)}
-#'     \item{icr}{Named list of intercoder reliability statistics}
+#'     \item{icr}{Named list of inter-rater reliability statistics}
 #'     \item{meta}{Metadata on settings, identifiers, task, timestamp, etc.}
 #'   }
 #'
@@ -194,12 +194,12 @@ trail_icr <- function(
 #' All settings are applied to the same text units. Because the ID
 #' column is shared across settings, their annotation outputs can be
 #' directly compared via the `matrix` component, and summarized using
-#' intercoder reliability statistics in `icr`.
+#' inter-rater reliability statistics in `icr`.
 #'
 #' @seealso
 #' * `trail_record()` – run a task for a single setting
 #' * `trail_matrix()` – align records into coder-style wide format
-#' * `trail_icr()` – compute intercoder reliability across settings
+#' * `trail_icr()` – compute inter-rater reliability across settings
 #'
 #' @export
 trail_compare <- function(

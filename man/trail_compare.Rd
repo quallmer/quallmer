@@ -48,32 +48,32 @@ recompute annotations for every setting.}
 \code{trail_record()} (default = \code{annotate()}).}
 
 \item{min_coders}{Minimum number of non-missing coders per unit
-required for inclusion in the intercoder reliability calculation.}
+required for inclusion in the inter-rater reliability calculation.}
 }
 \value{
 A \code{trail_compare} object with components:
 \describe{
 \item{records}{Named list of \code{trail_record} objects (one per setting)}
 \item{matrix}{Wide coder-style annotation matrix (settings = columns)}
-\item{icr}{Named list of intercoder reliability statistics}
+\item{icr}{Named list of inter-rater reliability statistics}
 \item{meta}{Metadata on settings, identifiers, task, timestamp, etc.}
 }
 }
 \description{
 Apply a quallmer task to the same text data under multiple settings,
 producing one \code{trail_record} per setting, and directly compute a
-coder-style wide matrix plus intercoder reliability scores.
+coder-style wide matrix plus inter-rater reliability scores.
 }
 \details{
 All settings are applied to the same text units. Because the ID
 column is shared across settings, their annotation outputs can be
 directly compared via the \code{matrix} component, and summarized using
-intercoder reliability statistics in \code{icr}.
+inter-rater reliability statistics in \code{icr}.
 }
 \seealso{
 \itemize{
 \item \code{trail_record()} – run a task for a single setting
 \item \code{trail_matrix()} – align records into coder-style wide format
-\item \code{trail_icr()} – compute intercoder reliability across settings
+\item \code{trail_icr()} – compute inter-rater reliability across settings
 }
 }

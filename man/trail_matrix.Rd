@@ -26,5 +26,5 @@ setting/record. The unit ID column is retained under the name
 \description{
 Treat each setting/record in a \code{trail_compare} object as a separate
 coder and convert the annotations into a wide data frame suitable for
-intercoder reliability analysis or other comparisons.
+inter-rater reliability analysis or other comparisons.
 }

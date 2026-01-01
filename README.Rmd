@@ -23,9 +23,9 @@ knitr::opts_chunk$set(
 [![pkgdown](https://img.shields.io/badge/pkgdown-site-blue)](https://SeraphineM.github.io/quallmer/)
 <!-- badges: end -->
 
-The **quallmer** package is an **easy-to-use toolbox for qualitative researchers to quickly apply AI-assisted coding to texts, images, pdfs, tabular data and other structured data.**
+The **quallmer** package is an **easy-to-use toolbox to quickly apply AI-assisted qualitative coding to large amounts of texts, images, pdfs, tabular data and other structured data.**
 
-Using `qlm_code()`, users can apply codebook-based coding powered by large language models (LLMs) to generate structured, interpretable outputs. The package includes built-in codebooks for common applications and allows researchers to create custom codebooks tailored to their specific research questions using `qlm_codebook()`. To ensure quality and reliability of AI-generated coding, **quallmer** provides `qlm_validate()` for assessing accuracy against gold standards and `qlm_compare()` for evaluating inter-rater reliability. With `qlm_replicate()`, researchers can systematically compare results across different models and settings to assess sensitivity and reproducibility. The package also includes `validate_app()`, an interactive app for manual coding, reviewing AI-generated output, and computing agreement metrics.
+Using `qlm_code()`, users can apply codebook-based qualitative coding powered by large language models (LLMs) to generate structured, interpretable outputs. The package includes built-in codebooks for common applications and allows researchers to create custom codebooks tailored to their specific research questions using `qlm_codebook()`. To ensure quality and reliability of AI-generated coding, **quallmer** provides `qlm_compare()` for evaluating inter-rater reliability and `qlm_validate()` for assessing accuracy against gold standards. With `qlm_replicate()`, researchers can systematically compare results across different models and settings to assess sensitivity and reproducibility. The package also includes `validate_app()`, an interactive app for manual coding, reviewing AI-generated output, and computing agreement metrics.
 
 **The quallmer package makes AI-assisted qualitative coding accessible without requiring deep expertise in R, programming or machine learning.**
 
@@ -56,42 +56,17 @@ Using `qlm_code()`, users can apply codebook-based coding powered by large langu
 
 ## Replication
 
-### `qlm_replicate()`
+#### `qlm_replicate()`
 - Re-executes coding with optional overrides (different models, codebooks, or parameters).
 - Tracks provenance chain for comparing results across different configurations.
 - Enables systematic assessment of coding reliability and sensitivity to model choices.
 
 
-### The quallmer trail
-
-Apart from the core functions above, the **quallmer** package also provides a set of functions to ensure reproducibility and reliability of LLM-generated annotations through **systematic comparisons across multiple LLM runs with different settings.** This "trail" functionality adds a reproducibility layer on top of `annotate()` with the following workflow:
-
-![](man/figures/paw.png){width=40%}
-
-1. **Define trail settings**
-   Describe the LLM trail, i.e., how LLMs should be called (e.g., model, temperature).
-
-   `trail_settings()`
-   ↓
-
-2. **Record single LLM trails for reproducibility**
-   Record all information needed for reproducing LLM runs on a given task with a specific setting.
-
-   `trail_record(data, text_col, task, setting, id_col)`
-
-   ↓
-
-3. **Run multiple trails with different settings and assess sensitivity**
-   Run the *same* task and data across multiple settings (e.g., different LLMs, different temperatures) and compute agreement across trails to illustrate reliability and replication sensitivity of LLM annotations.
-
-   `trail_compare(data, text_col, task, settings = list(...), id_col, lablel_col)`
-
-
 ## Interactive validation
 
-The `validate_app()` function launches an interactive Shiny application for:  
-- **Manual coding**: Code qualitative data directly in the interface  
-- **Review AI-generated coding**: Examine LLM-produced codes alongside original data   
+The `validate_app()` function launches an interactive Shiny application for:
+- **Manual coding**: Code qualitative data directly in the interface
+- **Review AI-generated coding**: Examine LLM-produced codes alongside original data
 - **Compute agreement metrics**: Evaluate inter-rater reliability or validate against gold standards  
 
 

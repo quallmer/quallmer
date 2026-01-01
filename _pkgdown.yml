@@ -42,15 +42,15 @@ navbar:
       - text: Overview of predefined tasks
         href: articles/pkgdown/examples/overview.html
       - text: Sentiment analysis
-        href: articles/pkgdown/examples/task_sentiment.html
+        href: articles/pkgdown/examples/codebook_sentiment.html
       - text: Stance detection / position taking
-        href: articles/pkgdown/examples/task_stance.html
+        href: articles/pkgdown/examples/codebook_stance.html
       - text: Ideological scaling
-        href: articles/pkgdown/examples/task_ideology.html
+        href: articles/pkgdown/examples/codebook_ideology.html
       - text: Salience of topics
-        href: articles/pkgdown/examples/task_salience.html
+        href: articles/pkgdown/examples/codebook_salience.html
       - text: Fact-checking
-        href: articles/pkgdown/examples/task_fact.html
+        href: articles/pkgdown/examples/codebook_fact.html
     github:
       icon: fab fa-github
       href: https://github.com/SeraphineM/quallmer

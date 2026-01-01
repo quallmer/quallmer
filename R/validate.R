@@ -312,7 +312,7 @@ compute_gold_summary <- function(long_df, gold) {
 # User-facing API
 # -------------------------------
 
-#' Validate coding: intercoder reliability or gold-standard comparison
+#' Validate coding: inter-rater reliability or gold-standard comparison
 #'
 #' `r lifecycle::badge("superseded")`
 #'
@@ -321,10 +321,10 @@ compute_gold_summary <- function(long_df, gold) {
 #'
 #' This function validates nominal coding data with multiple coders in two ways:
 #' Krippendorf's alpha (Krippendorf 2019) and Fleiss's kappa (Fleiss 1971) for
-#' inter-coder reliability statistics, and gold-standard classification metrics
+#' inter-rater reliability statistics, and gold-standard classification metrics
 #' following Sokolova and Lapalme (2009).
 #' \itemize{
-#'   \item \code{mode = "icr"}: compute intercoder reliability statistics
+#'   \item \code{mode = "icr"}: compute inter-rater reliability statistics
 #'     (Krippendorff's alpha (nominal), Fleiss' kappa, mean pairwise Cohen's
 #'     kappa, mean pairwise percent agreement, share of unanimous units, and
 #'     basic counts).
@@ -340,7 +340,7 @@ compute_gold_summary <- function(long_df, gold) {
 #'   coders' codes (each column = one coder).
 #' @param min_coders Integer: minimum number of non-missing coders per unit
 #'   for that unit to be included. Default is 2.
-#' @param mode Character scalar: either \code{"icr"} for intercoder reliability
+#' @param mode Character scalar: either \code{"icr"} for inter-rater reliability
 #'   statistics, or \code{"gold"} to compare coders against a gold-standard
 #'   coder.
 #' @param gold Character scalar: name of the gold-standard coder column
@@ -381,7 +381,7 @@ compute_gold_summary <- function(long_df, gold) {
 #'
 #' @examples
 #' \dontrun{
-#' # Intercoder reliability (list output)
+#' # Inter-rater reliability (list output)
 #' res_icr <- validate(
 #'   data = my_df,
 #'   id   = "doc_id",
@@ -390,7 +390,7 @@ compute_gold_summary <- function(long_df, gold) {
 #' )
 #' res_icr$fleiss_kappa
 #'
-#' # Intercoder reliability (data.frame output)
+#' # Inter-rater reliability (data.frame output)
 #' res_icr_df <- validate(
 #'   data = my_df,
 #'   id   = "doc_id",

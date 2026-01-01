@@ -167,14 +167,14 @@ label_col = "score"
 left_trails$matrix
 
 
-# Display the intercoder reliability results
+# Display the inter-rater reliability results
 left_trails$icr
 
 
 ```
 The output above shows the annotation matrix where each row corresponds to a document and each column corresponds to a different trail setting. The values in the matrix represent the scores assigned by the LLM under each configuration. This allows us to see how consistent the LLM's annotations are across different settings.
 
-The intercoder reliability results provide a quantitative measure of agreement between the different trail settings. Higher values indicate greater consistency in the LLM's annotations across configurations.
+The inter-rater reliability results provide a quantitative measure of agreement between the different trail settings. Higher values indicate greater consistency in the LLM's annotations across configurations.
 
 Overall, the trail functionality in the `quallmer` package provides a systematic way to assess the reproducibility and reliability of LLM-generated annotations by **recording metadata for single LLM runs and and comparing results across multiple runs with different configurations.** This is particularly useful for researchers who want to ensure that their findings are robust and not overly dependent on specific LLM settings. It also helps with the decision of which model and settings to use for a given annotation task.
 
