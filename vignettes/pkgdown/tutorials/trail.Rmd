@@ -34,7 +34,7 @@ data_corpus_inaugural <- quanteda::convert(data_corpus_inaugural, to = "data.fra
 
 ### Defining a custom prompt
 
-This is very similar to defining a custom prompt for the `annotate()` function. Here, we define a prompt that instructs the LLM to score documents based on their alignment with the political left.
+This is very similar to defining a custom codebook for the `qlm_code()` function (see the [custom codebooks tutorial](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/custom-codebook.html)). Here, we define a prompt that instructs the LLM to score documents based on their alignment with the political left. Note that the trail functions currently use the `task()` function format for backward compatibility.
 
 ```{r define-prompt}
 

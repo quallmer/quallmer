@@ -40,7 +40,7 @@ library(quallmer)
 
 Before using large language models, most users will need to sign up for an API key from an LLM provider, such as OpenAI, or download an open-source model like those from Ollama. The `quallmer` package supports multiple LLM providers through the `ellmer` package, allowing users to choose the one that best fits their needs.
 
-Using `qlm_code()`, users can generate structured, interpretable outputs powered by large language models (LLMs). The package includes a library of [predefined codebooks for common qualitative coding needs](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/overview.html), such as sentiment analysis, thematic coding, and stance detection. It also allows users to [create their own custom codebooks tailored to their specific research questions and data types](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/customtask.html) using `qlm_codebook()`.
+Using `qlm_code()`, users can generate structured, interpretable outputs powered by large language models (LLMs). The package includes a library of [built-in codebooks for common qualitative coding needs](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/overview.html), such as sentiment analysis, thematic coding, and stance detection. It also allows users to [create their own custom codebooks tailored to their specific research questions and data types](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/custom-codebook.html) using `qlm_codebook()`.
 
 The package also provides functions for validating and comparing coded results:
 
@@ -54,9 +54,9 @@ Our tutorials will guide you through the following topics:
 
 2. [**Working with an open-source Ollama model**](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/ollama.html): This tutorial will demonstrate how to use the `quallmer` package with an open-source Ollama model for qualitative coding tasks.
 
-3. [**Using predefined codebooks**](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/overview.html): These illustrations will show you how to utilize the library of predefined codebooks available in the `quallmer` package to perform common qualitative coding tasks efficiently.
+3. [**Using built-in codebooks**](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/overview.html): These illustrations will show you how to utilize the library of built-in codebooks available in the `quallmer` package to perform common qualitative coding tasks efficiently.
 
-4. [**Creating custom codebooks**](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/customtask.html): This tutorial will walk you through the process of defining your own custom codebooks using the `qlm_codebook()` function, allowing you to tailor the LLM's output to your specific research needs.
+4. [**Creating custom codebooks**](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/custom-codebook.html): This tutorial will walk you through the process of defining your own custom codebooks using the `qlm_codebook()` function, allowing you to tailor the LLM's output to your specific research needs.
 
 5. [**Using the Validate App**](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/validate.html): This tutorial will introduce you to the Validate App to manually code data, check LLM annotations, and calculate inter-rater reliability in a user-friendly and intuitive interface.
 

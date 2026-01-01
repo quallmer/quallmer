@@ -7,7 +7,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-The `qlm_code()` function with the built-in `task_ideology()` codebook allows you to perform ideological scaling (0-10) on texts regarding a specified ideological dimension. In this example, we will demonstrate how to use the `task_ideology()` codebook for ideology detection on a sample corpus of innaugural speeches from U.S. presidents. We will use the dimension "inclusive–exclusive" as an example. To refine the codebook, we will also provide a definition of the dimension (optional).
+The `qlm_code()` function with the built-in `codebook_ideology()` codebook allows you to perform ideological scaling (0-10) on texts regarding a specified ideological dimension. In this example, we will demonstrate how to use the `codebook_ideology()` codebook for ideology detection on a sample corpus of innaugural speeches from U.S. presidents. We will use the dimension "inclusive–exclusive" as an example. To refine the codebook, we will also provide a definition of the dimension (optional).
 
 ### Loading packages and data
 
@@ -33,8 +33,8 @@ dimension <- "inclusive–exclusive"
 definition <- "Inclusive language emphasizes equal rights, diversity, pluralism,
 and protection of minorities, whereas exclusive language emphasizes exclusion
 of groups, national homogeneity, and restricting rights."
-# Apply predefined ideology codebook with task_ideology() in the qlm_code() function
-result <- qlm_code(data_corpus_inaugural, codebook = task_ideology(dimension, definition),
+# Apply built-in ideology codebook with codebook_ideology() in the qlm_code() function
+result <- qlm_code(data_corpus_inaugural, codebook = codebook_ideology(dimension, definition),
                    model = "openai/gpt-4o",
                    temperature = 0)
 ```
@@ -47,7 +47,7 @@ result %>%
   column_spec(3)
 ```
 ### Adjusting the ideology scaling task
-You can customize the ideological scaling task by defining your own codebook with `qlm_codebook()` (for a more detailed explanation, [see our "Defining custom tasks" tutorial](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/customtask.html)).
+You can customize the ideological scaling task by defining your own codebook with `qlm_codebook()` (for a more detailed explanation, [see our "Defining custom codebooks" tutorial](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/custom-codebook.html)).
 For example, you might like to change the scale from 0-10 to -5 to +5.
 ```{r custom_ideology}
 custom_ideology <- qlm_codebook(
@@ -80,4 +80,4 @@ custom_result %>%
   column_spec(3)
 ```
 
-In this example, we demonstrated how to use the `task_ideology()` codebook for scaling texts regarding their ideological position on a specified dimension. We also showed how to customize the codebook using the `qlm_codebook()` function for more tailored annotation needs, e.g., changing the scale from 0-10 to -5 to +5. Now you can apply these techniques to your own text data for ideological analysis!
+In this example, we demonstrated how to use the `codebook_ideology()` codebook for scaling texts regarding their ideological position on a specified dimension. We also showed how to customize the codebook using the `qlm_codebook()` function for more tailored annotation needs, e.g., changing the scale from 0-10 to -5 to +5. Now you can apply these techniques to your own text data for ideological analysis!

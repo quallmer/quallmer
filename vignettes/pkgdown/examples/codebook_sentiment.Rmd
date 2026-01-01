@@ -7,7 +7,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-The `qlm_code()` function with the built-in `task_sentiment()` codebook allows you to rate the sentiment of texts using an LLM. The predefined `task_sentiment()` codebook structures the response with a numeric sentiment score from -1 (very negative) to 1 (very positive) and a brief explanation. 
+The `qlm_code()` function with the built-in `codebook_sentiment()` codebook allows you to rate the sentiment of texts using an LLM. The built-in `codebook_sentiment()` codebook structures the response with a numeric sentiment score from -1 (very negative) to 1 (very positive) and a brief explanation. 
 
 ### Loading packages and data
 
@@ -23,11 +23,11 @@ texts <- c(
 )
 ```
 
-### Using `qlm_code()` for predefined sentiment analysis of texts
+### Using `qlm_code()` for built-in sentiment analysis of texts
 
 ```{r sentiment}
-# Apply predefined sentiment codebook with task_sentiment() in the qlm_code() function
-result <- qlm_code(texts, codebook = task_sentiment(),
+# Apply built-in sentiment codebook with codebook_sentiment() in the qlm_code() function
+result <- qlm_code(texts, codebook = codebook_sentiment(),
                    model = "openai/gpt-4o",
                    temperature = 0)
 ```
@@ -44,7 +44,7 @@ result %>%
 
 ### Adjusting the sentiment task
 
-You can customize the sentiment analysis task by defining your own codebook with `qlm_codebook()` (for a more detailed explanation, [see our "Defining custom tasks" tutorial](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/customtask.html)).
+You can customize the sentiment analysis task by defining your own codebook with `qlm_codebook()` (for a more detailed explanation, [see our "Defining custom codebooks" tutorial](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/custom-codebook.html)).
 
 For example, you might want to include an additional field for confidence level.
 ```{r custom_sentiment}

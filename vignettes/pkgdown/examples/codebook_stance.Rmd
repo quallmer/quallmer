@@ -7,7 +7,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-The `qlm_code()` function with the built-in `task_stance()` codebook allows you to perform stance detection on texts regarding a specific topic. This position taking analysis classifies texts as Pro, Neutral, or Contra towards the given topic, along with a brief explanation. In this example, we will analyze a set of inaugural speeches to determine their stance on "Climate Change".
+The `qlm_code()` function with the built-in `codebook_stance()` codebook allows you to perform stance detection on texts regarding a specific topic. This position taking analysis classifies texts as Pro, Neutral, or Contra towards the given topic, along with a brief explanation. In this example, we will analyze a set of inaugural speeches to determine their stance on "Climate Change".
 
 ### Loading packages and data
 
@@ -29,8 +29,8 @@ data_corpus_inaugural <- quanteda::data_corpus_inaugural[57:60]
 ```{r stance}
 # Define topic of interest
 topic <- "Climate Change"
-# Apply predefined stance codebook with task_stance() in the qlm_code() function
-result <- qlm_code(data_corpus_inaugural, codebook = task_stance(topic),
+# Apply built-in stance codebook with codebook_stance() in the qlm_code() function
+result <- qlm_code(data_corpus_inaugural, codebook = codebook_stance(topic),
                    model = "openai/gpt-4o",
                    temperature = 0)
 ```
@@ -43,7 +43,7 @@ result %>%
   column_spec(3)
 ```
 ### Adjusting the stance detection task
-You can customize the stance detection task by defining your own codebook with `qlm_codebook()` (for a more detailed explanation, [see our "Defining custom tasks" tutorial](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/customtask.html)).
+You can customize the stance detection task by defining your own codebook with `qlm_codebook()` (for a more detailed explanation, [see our "Defining custom codebooks" tutorial](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/custom-codebook.html)).
 For example, you might want to include an additional field for confidence level.
 ```{r custom_stance}
 custom_stance <- qlm_codebook(
@@ -105,4 +105,4 @@ argument_result %>%
   column_spec(3)
 ```
 
-In this example, we demonstrated how to use the `task_stance()` codebook for stance detection on texts regarding "Climate Change". We also showed how to customize the codebook to include additional fields such as confidence level and key arguments supporting the stance. Now it is your turn to explore stance detection with your own texts and topics of interest!
+In this example, we demonstrated how to use the `codebook_stance()` codebook for stance detection on texts regarding "Climate Change". We also showed how to customize the codebook to include additional fields such as confidence level and key arguments supporting the stance. Now it is your turn to explore stance detection with your own texts and topics of interest!

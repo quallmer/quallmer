@@ -25,10 +25,10 @@ navbar:
         href: articles/pkgdown/tutorials/openai.html
       - text: Working with an open-source Ollama model
         href: articles/pkgdown/tutorials/ollama.html
-      - text: Using predefined tasks
-        href: articles/pkgdown/tutorials/predefined.html
-      - text: Defining custom tasks
-        href: articles/pkgdown/tutorials/customtask.html
+      - text: Using built-in codebooks
+        href: articles/pkgdown/tutorials/built-in-codebooks.html
+      - text: Defining custom codebooks
+        href: articles/pkgdown/tutorials/custom-codebook.html
       - text: Using the Agreement App
         href: articles/pkgdown/tutorials/validate.html
       - text: The quallmer trail
@@ -37,9 +37,9 @@ navbar:
       text: Reference
       href: reference/index.html
     examples:
-      text: Predefined tasks
+      text: Built-in codebooks
       menu:
-      - text: Overview of predefined tasks
+      - text: Overview of built-in codebooks
         href: articles/pkgdown/examples/overview.html
       - text: Sentiment analysis
         href: articles/pkgdown/examples/codebook_sentiment.html

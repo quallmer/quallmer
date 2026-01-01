@@ -45,11 +45,14 @@ learning.**
 
 - Creates custom codebooks tailored to specific research questions and
   data types.
-- Uses `system_prompt` and type specifications from
+- Uses `instructions` and type specifications from
   [ellmer](https://ellmer.tidyverse.org/reference/type_boolean.html) to
   define coding instructions and output structure.
-- Built-in codebooks (e.g., `data_codebook_sentiment`) provide
-  ready-to-use examples for common applications.
+- **Built-in codebook functions** (e.g., `codebook_sentiment()`,
+  `codebook_stance()`) provide ready-to-use codebooks for common
+  qualitative coding tasks.
+- **Example codebook objects** (e.g., `data_codebook_sentiment`)
+  demonstrate complete workflows paired with example datasets.
 - Extensible framework allows researchers to define domain-specific
   coding schemes.
 
@@ -124,5 +127,5 @@ pak::pak("SeraphineM/quallmer")
 To learn more about how to use the package, please refer to our
 [step-by-step
 tutorials](https://seraphinem.github.io/quallmer/articles/getting-started.html)
-and the illustrations on [how to use the predefined
-tasks](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/overview.html).
+and the illustrations on [how to use the built-in
+codebooks](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/overview.html).

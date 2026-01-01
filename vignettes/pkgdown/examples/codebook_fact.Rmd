@@ -7,7 +7,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-The `qlm_code()` function with the built-in `task_fact()` codebook can be used to fact-check claims made in texts. In this example, we will demonstrate how to apply this codebook to a sample corpus of inaugural speeches from US presidents. The fact-checking process involves evaluating the truthfulness of claims made in the speeches and providing explanations for each claim. The outcome is a **truthfulness score from 0 to 10, where 0 indicates completely false claims and 10 indicates highest confidence in the truthfulness of the claims.**
+The `qlm_code()` function with the built-in `codebook_fact()` codebook can be used to fact-check claims made in texts. In this example, we will demonstrate how to apply this codebook to a sample corpus of inaugural speeches from US presidents. The fact-checking process involves evaluating the truthfulness of claims made in the speeches and providing explanations for each claim. The outcome is a **truthfulness score from 0 to 10, where 0 indicates completely false claims and 10 indicates highest confidence in the truthfulness of the claims.**
 
 ### Loading packages and data
 
@@ -28,9 +28,9 @@ data_corpus_inaugural <- quanteda::data_corpus_inaugural[57:60]
 ### Using `qlm_code()` for fact checking of claims in texts
 ```{r fact}
 
-# Apply fact checking with task_fact() codebook in the qlm_code() function
+# Apply fact checking with codebook_fact() codebook in the qlm_code() function
 result <- qlm_code(data_corpus_inaugural,
-                   codebook = task_fact(),
+                   codebook = codebook_fact(),
                    model = "openai/gpt-4o",
                    temperature = 0)
 ```
@@ -46,9 +46,9 @@ result %>%
 ### Using `qlm_code()` for fact checking with a specific number of claims to check
 ```{r fact2}
 
-# Apply fact checking with task_fact() codebook specifying max_topics
+# Apply fact checking with codebook_fact() codebook specifying max_topics
 result_claims <- qlm_code(data_corpus_inaugural,
-                          codebook = task_fact(max_topics = 3),
+                          codebook = codebook_fact(max_topics = 3),
                           model = "openai/gpt-4o",
                           temperature = 0)
 ```
@@ -61,4 +61,4 @@ result_claims %>%
   column_spec(3)
 ```
 
-In this example, we demonstrated how to use the `qlm_code()` function with the `task_fact()` codebook to fact-check claims in a corpus of inaugural speeches. The results include a truth score, identified misleading topics, and explanations for each claim evaluated. The amount of claims to check can be adjusted using the `max_topics` parameter in the `task_fact()` function. Now you can apply this approach to your own texts for fact-checking purposes!
+In this example, we demonstrated how to use the `qlm_code()` function with the `codebook_fact()` codebook to fact-check claims in a corpus of inaugural speeches. The results include a truth score, identified misleading topics, and explanations for each claim evaluated. The amount of claims to check can be adjusted using the `max_topics` parameter in the `codebook_fact()` function. Now you can apply this approach to your own texts for fact-checking purposes!
