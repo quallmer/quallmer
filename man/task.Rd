@@ -2,50 +2,52 @@
 % Please edit documentation in R/task.R
 \name{task}
 \alias{task}
-\title{Define an annotation task}
+\title{Define an annotation task (deprecated)}
 \usage{
 task(name, system_prompt, type_def, input_type = c("text", "image"))
 }
 \arguments{
-\item{name}{Name of the task (character).}
+\item{name}{Name of the codebook (character).}
 
-\item{system_prompt}{System prompt to guide the model.}
-
-\item{type_def}{Structured output definition, e.g., created by
-\code{\link[ellmer:type_boolean]{ellmer::type_object()}}, \code{\link[ellmer:type_boolean]{ellmer::type_array()}}, or \code{\link[ellmer:type_boolean]{ellmer::type_enum()}}.}
-
-\item{input_type}{Type of input data: \code{"text"} or \code{"image"}.}
+\item{input_type}{Type of input data: \code{"text"} (default) or \code{"image"}.}
 }
 \value{
 A task object (a list with class \code{"task"}) containing the task
-
-definition. Use with \code{\link[=annotate]{annotate()}} to apply the task to data.
+definition.
 }
 \description{
-Creates a task definition for use with \code{\link[=annotate]{annotate()}}. A task specifies
-what information to extract from input data, including the system prompt
-that guides the LLM and the structured output definition.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+}
+\details{
+\code{task()} has been deprecated in favor of \code{\link[=qlm_codebook]{qlm_codebook()}}. The new function
+returns an object with dual class inheritance that works with both the old
+and new APIs.
 }
 \examples{
 \dontrun{
-# Define a custom task
+# Deprecated usage
 my_task <- task(
   name = "Sentiment",
   system_prompt = "Rate the sentiment from -1 (negative) to 1 (positive).",
-  type_def = ellmer::type_object(
-    score = ellmer::type_number("Sentiment score from -1 to 1"),
-    explanation = ellmer::type_string("Brief explanation")
+  type_def = type_object(
+    score = type_number("Sentiment score from -1 to 1"),
+    explanation = type_string("Brief explanation")
   )
 )
 
-# Use with annotate()
-texts <- c("I love this!", "This is terrible.")
-annotate(texts, my_task, model_name = "openai/gpt-4o-mini")
+# New recommended usage
+my_codebook <- qlm_codebook(
+  name = "Sentiment",
+  instructions = "Rate the sentiment from -1 (negative) to 1 (positive).",
+  schema = type_object(
+    score = type_number("Sentiment score from -1 to 1"),
+    explanation = type_string("Brief explanation")
+  )
+)
 }
 
 }
 \seealso{
-\code{\link[=annotate]{annotate()}} for applying tasks to data, \code{\link[=task_sentiment]{task_sentiment()}},
-\code{\link[=task_stance]{task_stance()}}, \code{\link[=task_ideology]{task_ideology()}}, \code{\link[=task_salience]{task_salience()}}, \code{\link[=task_fact]{task_fact()}}
-for predefined tasks.
+\code{\link[=qlm_codebook]{qlm_codebook()}} for the replacement function.
 }
+\keyword{internal}

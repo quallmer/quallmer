@@ -2,24 +2,14 @@
 % Please edit documentation in R/annotate.R
 \name{annotate}
 \alias{annotate}
-\title{Apply an annotation task to input data}
+\title{Apply an annotation task to input data (deprecated)}
 \usage{
 annotate(.data, task, model_name, ...)
 }
 \arguments{
-\item{.data}{Input data: a character vector of texts (for text tasks) or
-file paths to images (for image tasks). Named vectors will use names
-as identifiers in the output; unnamed vectors will use sequential integers.}
-
-\item{task}{A task object created with \code{\link[=task]{task()}} or one of the predefined
-task functions (\code{\link[=task_sentiment]{task_sentiment()}}, \code{\link[=task_stance]{task_stance()}}, \code{\link[=task_ideology]{task_ideology()}},
-\code{\link[=task_salience]{task_salience()}}, \code{\link[=task_fact]{task_fact()}}).}
-
-\item{model_name}{Provider (and optionally model) name in the form
-\code{"provider/model"} or \code{"provider"} (which will use the default model for
-that provider). Passed to the \code{name} argument of \code{\link[ellmer:chat-any]{ellmer::chat()}}.
-Examples: \code{"openai/gpt-4o-mini"}, \code{"anthropic/claude-3-5-sonnet-20241022"},
-\code{"ollama/llama3.2"}, \code{"openai"} (uses default OpenAI model).}
+\item{task}{A task object created with \code{\link[=task]{task()}} or \code{\link[=qlm_codebook]{qlm_codebook()}}. Also
+accepts predefined task functions (\code{\link[=task_sentiment]{task_sentiment()}}, \code{\link[=task_stance]{task_stance()}},
+\code{\link[=task_ideology]{task_ideology()}}, \code{\link[=task_salience]{task_salience()}}, \code{\link[=task_fact]{task_fact()}}).}
 
 \item{...}{Additional arguments passed to either \code{\link[ellmer:chat-any]{ellmer::chat()}} or to
 \code{\link[ellmer:parallel_chat]{ellmer::parallel_chat_structured()}}, based on argument name.
@@ -35,48 +25,25 @@ For example, \code{\link[=task_sentiment]{task_sentiment()}} returns \code{score
 }
 }
 \description{
-Applies an annotation task to input data using a large language model.
-Arguments in \code{...} are dynamically routed to either \code{\link[ellmer:chat-any]{ellmer::chat()}} or to
-\code{\link[ellmer:parallel_chat]{ellmer::parallel_chat_structured()}} based on their names.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
 }
 \details{
-Progress indicators and error handling are provided by the underlying
-\code{\link[ellmer:parallel_chat]{ellmer::parallel_chat_structured()}} function. Set \code{verbose = TRUE} to see
-progress messages during batch annotation. Retry logic for API failures
-should be configured through ellmer's options.
+\code{annotate()} has been deprecated in favor of \code{\link[=qlm_code]{qlm_code()}}. The new function
+returns a richer object that includes metadata and settings for reproducibility.
 }
 \examples{
 \dontrun{
-# Basic sentiment analysis
+# Deprecated usage
 texts <- c("I love this product!", "This is terrible.")
 annotate(texts, task_sentiment(), model_name = "openai")
 
-# With named inputs (names become IDs in output)
-texts <- c(doc1 = "Great service!", doc2 = "Very disappointing.")
-annotate(texts, task_sentiment(), model_name = "openai")
-
-# Specify provider and model
-annotate(texts, task_sentiment(), model_name = "openai/gpt-4o-mini")
-
-# With execution control
-annotate(texts, task_sentiment(),
-         model_name = "openai/gpt-4o-mini",
-         max_active = 5)
-
-# Include token usage
-annotate(texts, task_sentiment(), model_name = "openai", include_tokens = TRUE)
-
-# Using Ollama locally
-annotate(texts, task_sentiment(), model_name = "ollama/llama3.2")
-
-# Using Anthropic
-annotate(texts, task_sentiment(),
-         model_name = "anthropic/claude-3-5-sonnet-20241022")
+# New recommended usage
+coded <- qlm_code(texts, task_sentiment(), model = "openai")
+coded  # Print as tibble
 }
 
 }
 \seealso{
-\code{\link[=task]{task()}} for creating custom tasks, \code{\link[=task_sentiment]{task_sentiment()}}, \code{\link[=task_stance]{task_stance()}},
-\code{\link[=task_ideology]{task_ideology()}}, \code{\link[=task_salience]{task_salience()}}, \code{\link[=task_fact]{task_fact()}} for predefined tasks,
-\code{\link[=validate]{validate()}} for computing agreement metrics on annotations.
+\code{\link[=qlm_code]{qlm_code()}} for the replacement function.
 }
+\keyword{internal}

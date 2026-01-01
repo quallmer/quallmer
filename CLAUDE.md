@@ -72,6 +72,7 @@ quallmer::validate_app()  # Launch validation interface
 - **Organization**: Newspaper-style - high-level functions first, helpers below
 - **Nested functions**: Avoid nested function definitions (except trivial lambdas)
 - **Imports**: Use namespace-qualified calls: `dplyr::mutate()`, `cli::cli_abort()`
+- **File endings**: Ensure that source files end with a trailing newline
 
 ### Error Messages
 - Use `cli::cli_abort()` for all user-facing errors (never `stop()`)
@@ -210,3 +211,7 @@ Follow tidyverse style:
 - [testthat documentation](https://testthat.r-lib.org/): Testing framework
 - [pkgdown documentation](https://pkgdown.r-lib.org/): Website generation
 - [ellmer documentation](https://ellmer.tidyverse.org/): LLM integration framework
+- [quallmer documentation](https://seraphinem.github.io/quallmer/index.html)
+
+## General attitude
+If I suggest a change, think about it critically, don't just tell me that it is a great or brilliant improvement and start trying to implement it. Not all of my suggestions will be great.

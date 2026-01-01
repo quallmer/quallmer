@@ -1,42 +1,46 @@
-#' Define an annotation task
+#' Define an annotation task (deprecated)
 #'
-#' Creates a task definition for use with [annotate()]. A task specifies
-#' what information to extract from input data, including the system prompt
-#' that guides the LLM and the structured output definition.
+#' `r lifecycle::badge("deprecated")`
 #'
-#' @param name Name of the task (character).
-#' @param system_prompt System prompt to guide the model.
-#' @param type_def Structured output definition, e.g., created by
-#'   [ellmer::type_object()], [ellmer::type_array()], or [ellmer::type_enum()].
-#' @param input_type Type of input data: `"text"` or `"image"`.
+#' `task()` has been deprecated in favor of [qlm_codebook()]. The new function
+#' returns an object with dual class inheritance that works with both the old
+#' and new APIs.
+#'
+#' @inheritParams qlm_codebook
 #'
 #' @return A task object (a list with class `"task"`) containing the task
+#'   definition.
 #'
-#'   definition. Use with [annotate()] to apply the task to data.
-#'
-#' @seealso [annotate()] for applying tasks to data, [task_sentiment()],
-#'   [task_stance()], [task_ideology()], [task_salience()], [task_fact()]
-#'   for predefined tasks.
+#' @seealso [qlm_codebook()] for the replacement function.
 #'
 #' @examples
 #' \dontrun{
-#' # Define a custom task
+#' # Deprecated usage
 #' my_task <- task(
 #'   name = "Sentiment",
 #'   system_prompt = "Rate the sentiment from -1 (negative) to 1 (positive).",
-#'   type_def = ellmer::type_object(
-#'     score = ellmer::type_number("Sentiment score from -1 to 1"),
-#'     explanation = ellmer::type_string("Brief explanation")
+#'   type_def = type_object(
+#'     score = type_number("Sentiment score from -1 to 1"),
+#'     explanation = type_string("Brief explanation")
 #'   )
 #' )
 #'
-#' # Use with annotate()
-#' texts <- c("I love this!", "This is terrible.")
-#' annotate(texts, my_task, model_name = "openai/gpt-4o-mini")
+#' # New recommended usage
+#' my_codebook <- qlm_codebook(
+#'   name = "Sentiment",
+#'   instructions = "Rate the sentiment from -1 (negative) to 1 (positive).",
+#'   schema = type_object(
+#'     score = type_number("Sentiment score from -1 to 1"),
+#'     explanation = type_string("Brief explanation")
+#'   )
+#' )
 #' }
 #'
+#' @keywords internal
 #' @export
 task <- function(name, system_prompt, type_def, input_type = c("text", "image")) {
+  lifecycle::deprecate_warn("0.2.0", "task()", "qlm_codebook()")
+
   input_type <- match.arg(input_type)
 
   structure(

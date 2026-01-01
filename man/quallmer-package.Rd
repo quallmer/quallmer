@@ -8,7 +8,7 @@
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
-Tools for AI-assisted qualitative data annotation using large language models (LLMs). Provides predefined tasks for sentiment analysis, stance detection, ideological scaling, topic salience, and fact-checking, as well as custom task definitions. Includes functions for computing intercoder reliability and gold-standard validation metrics, reproducible annotation trails across multiple LLM configurations, and an interactive 'shiny' application for manual coding and LLM output validation.
+Tools for AI-assisted qualitative data coding using large language models (LLMs). Provides a codebook-based workflow for defining coding instructions and applying them to texts, images, and other data. Includes built-in codebooks for common applications and functions for creating custom codebooks tailored to specific research questions. Supports replication across models and settings, computing inter-coder reliability and gold-standard validation metrics, and an interactive 'shiny' application for manual coding and validation.
 }
 \references{
 Krippendorff, K. (2019). Content Analysis: An Introduction to Its

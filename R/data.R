@@ -179,3 +179,49 @@
 #' agreement(result, "id", coder_cols = c("polarity_llm", "polarity_human"))
 #' }
 "data_corpus_LMRDsample"
+
+
+#' Sentiment analysis codebook for movie reviews
+#'
+#' A `qlm_codebook` object defining instructions for sentiment analysis of movie
+#' reviews. Designed to work with [data_corpus_LMRDsample] but with an expanded
+#' polarity scale that includes a "mixed" category.
+#'
+#' @format A `qlm_codebook` object containing:
+#'   \describe{
+#'     \item{name}{Task name: "Movie Review Sentiment"}
+#'     \item{instructions}{Coding instructions for analyzing movie review sentiment}
+#'     \item{schema}{Response schema with two fields:}
+#'       \itemize{
+#'         \item `polarity`: Enum of "neg" (negative), "mixed", or "pos" (positive)
+#'         \item `rating`: Integer from 1 (most negative) to 10 (most positive)
+#'       }
+#'     \item{role}{Expert film critic persona}
+#'     \item{input_type}{"text"}
+#'   }
+#'
+#' @seealso [qlm_codebook()], [qlm_code()], [qlm_compare()], [data_corpus_LMRDsample]
+#' @keywords data
+#' @examples
+#' \dontrun{
+#' # View the codebook
+#' data_codebook_sentiment
+#'
+#' # Use with movie review corpus
+#' coded <- qlm_code(data_corpus_LMRDsample[1:10],
+#'                   data_codebook_sentiment,
+#'                   model = "openai")
+#'
+#' # Create multiple coded versions for comparison
+#' coded1 <- qlm_code(data_corpus_LMRDsample[1:20],
+#'                    data_codebook_sentiment,
+#'                    model = "openai/gpt-4o-mini")
+#' coded2 <- qlm_code(data_corpus_LMRDsample[1:20],
+#'                    data_codebook_sentiment,
+#'                    model = "anthropic/claude-sonnet-4-20250514")
+#'
+#' # Compare inter-rater reliability
+#' comparison <- qlm_compare(coded1, coded2, by = "rating", measure = "alpha")
+#' print(comparison)
+#' }
+"data_codebook_sentiment"
