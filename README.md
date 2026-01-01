@@ -16,80 +16,81 @@ coverage](https://codecov.io/gh/SeraphineM/quallmer/graph/badge.svg)](https://ap
 <!-- badges: end -->
 
 The **quallmer** package is an **easy-to-use toolbox for qualitative
-researchers to quickly apply AI-assisted annotation to texts, images,
-pdfs, tabular data and other structured data.**
+researchers to quickly apply AI-assisted coding to texts, images, pdfs,
+tabular data and other structured data.**
 
-Using `annotate()`, users can generate structured, interpretable outputs
-powered by large language models (LLMs). The package includes a library
-of [predefined tasks for common qualitative coding
-needs](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/overview.html),
-such as sentiment analysis, thematic coding, and stance detection. It
-also allows users to [create their own custom annotation tasks tailored
-to their specific research questions and data
-types](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/customtask.html)
-using `task()`. To ensure quality and reliability of AI-generated
-annotations, **quallmer** offers tools for comparing LLM outputs with
-human-coded data and assessing inter-coder reliability. With
-`validation_app()`, users can launch an interactive app to manually code
-data, review AI annotations, and evaluate agreement between human and AI
-codings. The package also includes a `trail_` functionality that enables
-systematic comparisons across multiple LLM runs (“trails”) with
-different settings to ensure reproducibility and reliability of
-AI-assisted coding.
+Using `qlm_code()`, users can apply codebook-based coding powered by
+large language models (LLMs) to generate structured, interpretable
+outputs. The package includes built-in codebooks for common applications
+and allows researchers to create custom codebooks tailored to their
+specific research questions using `qlm_codebook()`. To ensure quality
+and reliability of AI-generated coding, **quallmer** provides
+`qlm_validate()` for assessing accuracy against gold standards and
+`qlm_compare()` for evaluating inter-rater reliability. With
+`qlm_replicate()`, researchers can systematically compare results across
+different models and settings to assess sensitivity and reproducibility.
+The package also includes `validate_app()`, an interactive app for
+manual coding, reviewing AI-generated output, and computing agreement
+metrics.
 
 **The quallmer package makes AI-assisted qualitative coding accessible
 without requiring deep expertise in R, programming or machine
 learning.**
 
-# Core functions
+## Core functions
 
-The package provides the following core functions:
+### Coding and validation workflow
 
-### `annotate()`
+#### `qlm_codebook()`
 
-- A generic function that works with any LLM supported by
-  [ellmer](https://ellmer.tidyverse.org/index.html).  
-- Generates structured responses based on
-  [predefined](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/overview.html)
-  or [user-defined
-  tasks](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/customtask.html).
+- Creates custom codebooks tailored to specific research questions and
+  data types.
+- Uses `system_prompt` and type specifications from
+  [ellmer](https://ellmer.tidyverse.org/reference/type_boolean.html) to
+  define coding instructions and output structure.
+- Built-in codebooks (e.g., `data_codebook_sentiment`) provide
+  ready-to-use examples for common applications.
+- Extensible framework allows researchers to define domain-specific
+  coding schemes.
 
-### `task()`
+#### `qlm_code()`
 
-- Creates custom annotation tasks tailored to specific research
-  questions and data types.
-- Uses `system_prompt` and various type specifications from the
-  [ellmer](https://ellmer.tidyverse.org/reference/type_boolean.html)
-  package to define how the LLM should interpret inputs and format
-  outputs.  
-- Tasks created with `task()` can be passed directly to `annotate()`.  
-- This allows users to tailor the annotation process to their specific
-  data types and makes our package extensible for future use cases.
+- Applies LLM-based coding to qualitative data using a codebook
+  specification.
+- Works with any LLM supported by
+  [ellmer](https://ellmer.tidyverse.org/index.html).
+- Returns a `qlm_coded` object containing the coded results and metadata
+  for reproducibility.
 
-### `validate_app()`
+#### `qlm_compare()`
 
-- Launches an interactive app to
-  - Manually code data
-  - Review and validate LLM-generated annotations
-  - Compare human-coded data with LLM-generated annotations to evaluate
-    inter-coder reliability (e.g., Krippendorff’s alpha, Cohen’s or
-    Fleiss’ kappa) or, if a gold standard is available, accuracy (e.g.,
-    accuracy, precision, recall, F1-score).
+- Compares multiple `qlm_coded` objects to assess inter-rater
+  reliability.
+- Computes agreement metrics including Krippendorff’s alpha, Cohen’s
+  kappa, and Fleiss’ kappa.
+- Useful for evaluating consistency across different coders, models, or
+  coding runs.
 
-### `validate()`
+#### `qlm_validate()`
 
-- Works similar to our validation app but can be used programmatically
-  without launching the app if data has been already manually coded by
-  humans.
-- Has two modes:
-  1.  **No gold standard available**: Compare LLM-generated annotations
-      with multiple human coders to assess inter-coder reliability
-      (e.g., Krippendorff’s alpha, Cohen’s or Fleiss’ kappa).
-  2.  **Gold standard available**: Compare LLM-generated annotations
-      against a human-coded gold standard to assess accuracy (e.g.,
-      accuracy, precision, recall, F1-score).
+- Validates LLM-coded output against gold standard human coding.
+- Computes classification metrics: accuracy, precision, recall,
+  F1-score, and Cohen’s kappa.
+- Supports multiple averaging methods (macro, micro, weighted) and
+  per-class breakdowns.
 
-# The quallmer trail
+## Replication
+
+### `qlm_replicate()`
+
+- Re-executes coding with optional overrides (different models,
+  codebooks, or parameters).
+- Tracks provenance chain for comparing results across different
+  configurations.
+- Enables systematic assessment of coding reliability and sensitivity to
+  model choices.
+
+### The quallmer trail
 
 Apart from the core functions above, the **quallmer** package also
 provides a set of functions to ensure reproducibility and reliability of
@@ -100,31 +101,38 @@ workflow:
 
 <img src="man/figures/paw.png" style="width:40.0%" />
 
-1.  **Define trail settings**  
-    Describe the LLM trail, i.e., how LLMs should be called (e.g.,
-    model, temperature).
+1.  **Define trail settings** Describe the LLM trail, i.e., how LLMs
+    should be called (e.g., model, temperature).
 
-    `trail_settings()`  
-    ↓
+    `trail_settings()` ↓
 
-2.  **Record single LLM trails for reproducibility**  
-    Record all information needed for reproducing LLM runs on a given
-    task with a specific setting.
+2.  **Record single LLM trails for reproducibility** Record all
+    information needed for reproducing LLM runs on a given task with a
+    specific setting.
 
     `trail_record(data, text_col, task, setting, id_col)`
 
     ↓
 
 3.  **Run multiple trails with different settings and assess
-    sensitivity**  
-    Run the *same* task and data across multiple settings (e.g.,
-    different LLMs, different temperatures) and compute agreement across
-    trails to illustrate reliability and replication sensitivity of LLM
-    annotations.
+    sensitivity** Run the *same* task and data across multiple settings
+    (e.g., different LLMs, different temperatures) and compute agreement
+    across trails to illustrate reliability and replication sensitivity
+    of LLM annotations.
 
     `trail_compare(data, text_col, task, settings = list(...), id_col, lablel_col)`
 
-# Supported LLMs
+## Interactive validation
+
+The `validate_app()` function launches an interactive Shiny application
+for:  
+- **Manual coding**: Code qualitative data directly in the interface  
+- **Review AI-generated coding**: Examine LLM-produced codes alongside
+original data  
+- **Compute agreement metrics**: Evaluate inter-rater reliability or
+validate against gold standards
+
+## Supported LLMs
 
 The package supports all LLMs currently available with the `ellmer`
 package. For authentication and usage of each of these LLMs, please
