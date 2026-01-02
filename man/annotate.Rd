@@ -11,9 +11,12 @@ annotate(.data, task, model_name, ...)
 accepts predefined task functions (\code{\link[=task_sentiment]{task_sentiment()}}, \code{\link[=task_stance]{task_stance()}},
 \code{\link[=task_ideology]{task_ideology()}}, \code{\link[=task_salience]{task_salience()}}, \code{\link[=task_fact]{task_fact()}}).}
 
-\item{...}{Additional arguments passed to either \code{\link[ellmer:chat-any]{ellmer::chat()}} or to
-\code{\link[ellmer:parallel_chat]{ellmer::parallel_chat_structured()}}, based on argument name.
-Arguments not recognized by either function will generate a warning.}
+\item{...}{Additional arguments passed to \code{\link[ellmer:chat-any]{ellmer::chat()}},
+\code{\link[ellmer:parallel_chat]{ellmer::parallel_chat_structured()}}, or \code{\link[ellmer:batch_chat]{ellmer::batch_chat_structured()}},
+based on argument name. Arguments recognized by
+\code{\link[ellmer:parallel_chat]{ellmer::parallel_chat_structured()}} take priority when there are overlaps.
+Batch-specific arguments (\code{path}, \code{wait}, \code{ignore_hash}) are only used when
+\code{batch = TRUE}. Arguments not recognized by any function will generate a warning.}
 }
 \value{
 A data frame with one row per input element, containing:

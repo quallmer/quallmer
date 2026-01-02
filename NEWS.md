@@ -14,7 +14,9 @@ The new API uses the `qlm_` prefix to avoid namespace conflicts (e.g., with `ggp
 
 ### Restructured qlm_coded objects
 
-* `qlm_coded` objects now use a hierarchical attribute structure with a `run` list containing `name`, `call`, `codebook`, `chat_args`, `pcs_args`, `metadata`, and `parent` fields. This structure supports provenance tracking across replication chains and provides clearer organization of coding metadata.
+* `qlm_coded` objects now use a hierarchical attribute structure with a `run` list containing `name`, `batch`, `call`, `codebook`, `chat_args`, `execution_args`, `metadata`, and `parent` fields. This structure supports provenance tracking across replication chains and provides clearer organization of coding metadata (#26).
+  - The `batch` flag indicates whether batch processing was used.
+  - `execution_args` replaces `pcs_args` and stores all non-chat execution arguments for both parallel and batch processing. Old objects with `pcs_args` remain compatible.
 
 ## Deprecated and superseded functions
 
