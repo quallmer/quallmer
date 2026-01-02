@@ -11,6 +11,10 @@
 #'   the codebook from `x`.
 #' @param model Optional replacement model (e.g., `"openai/gpt-4o"`). If `NULL`
 #'   (default), uses the model from `x`.
+#' @param batch Optional logical to override batch processing setting. If `NULL`
+#'   (default), uses the batch setting from `x`. Set to `TRUE` to use batch
+#'   processing or `FALSE` to use parallel processing, regardless of the
+#'   original setting.
 #' @param name Optional name for this run. If `NULL`, defaults to the model
 #'   name (if changed) or `"replication_N"` where N is the replication count.
 #'
@@ -34,13 +38,16 @@
 #' # Replicate with different model
 #' coded2 <- qlm_replicate(coded, model = "anthropic/claude-sonnet-4-20250514")
 #'
+#' # Replicate using batch processing for cost savings
+#' coded3 <- qlm_replicate(coded, batch = TRUE, path = "batch_results.json")
+#'
 #' # Compare results
 #' qlm_compare(coded, coded2, by = "polarity")
 #' }
 #'
 #' @importFrom utils modifyList
 #' @export
-qlm_replicate <- function(x, ..., codebook = NULL, model = NULL, name = NULL) {
+qlm_replicate <- function(x, ..., codebook = NULL, model = NULL, batch = NULL, name = NULL) {
   # Input validation
   if (!inherits(x, "qlm_coded")) {
     cli::cli_abort("{.arg x} must be a {.cls qlm_coded} object.")
@@ -57,6 +64,9 @@ qlm_replicate <- function(x, ..., codebook = NULL, model = NULL, name = NULL) {
   # Extract batch flag (default to FALSE for backward compatibility)
   original_batch <- original_run$batch %||% FALSE
   parent_name <- original_run$name
+
+  # Apply batch override if provided, otherwise use original
+  use_batch <- batch %||% original_batch
 
   # Capture the current call
   current_call <- match.call()
@@ -87,7 +97,7 @@ qlm_replicate <- function(x, ..., codebook = NULL, model = NULL, name = NULL) {
       x = original_data,
       codebook = use_codebook,
       model = use_model,
-      batch = original_batch,
+      batch = use_batch,
       name = name
     ),
     execution_args
