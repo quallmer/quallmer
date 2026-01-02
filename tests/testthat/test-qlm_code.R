@@ -280,3 +280,126 @@ test_that("new_qlm_coded maintains backward compatibility with pcs_args", {
   expect_true(is.list(run_attr[["execution_args"]]))
   expect_equal(run_attr[["execution_args"]]$max_active, 5)
 })
+
+
+test_that("qlm_code warns about unrecognized arguments", {
+  skip_if_not_installed("ellmer")
+
+  type_obj <- ellmer::type_object(score = ellmer::type_number("Score"))
+  codebook <- qlm_codebook("Test", "Test prompt", type_obj)
+
+  # Mock the chat and execution functions to avoid actual API calls
+  mock_chat <- structure(list(), class = "ellmer_chat")
+  mock_results <- data.frame(id = 1:2, score = c(0.5, 0.8))
+
+  mockery::stub(qlm_code, "ellmer::chat", mock_chat)
+  mockery::stub(qlm_code, "ellmer::parallel_chat_structured", mock_results)
+
+  # Capture warnings from cli::cli_warn
+  warnings_list <- list()
+  withCallingHandlers(
+    qlm_code(c("text1", "text2"), codebook, model = "test/model",
+             fake_argument = "value"),
+    warning = function(w) {
+      warnings_list <<- c(warnings_list, list(conditionMessage(w)))
+      invokeRestart("muffleWarning")
+    }
+  )
+
+  # Verify warning was issued
+  expect_true(any(grepl("fake_argument", unlist(warnings_list))))
+  expect_true(any(grepl("not recognized", unlist(warnings_list))))
+})
+
+
+test_that("qlm_code uses parallel_chat_structured when batch=FALSE", {
+  skip_if_not_installed("ellmer")
+
+  type_obj <- ellmer::type_object(score = ellmer::type_number("Score"))
+  codebook <- qlm_codebook("Test", "Test prompt", type_obj)
+
+  # Mock the functions
+  mock_chat <- structure(list(), class = "ellmer_chat")
+  mock_results <- data.frame(id = 1:2, score = c(0.5, 0.8))
+
+  mockery::stub(qlm_code, "ellmer::chat", mock_chat)
+
+  # Mock parallel_chat_structured and verify it's called
+  mock_pcs <- mockery::mock(mock_results, cycle = TRUE)
+  mockery::stub(qlm_code, "ellmer::parallel_chat_structured", mock_pcs)
+
+  result <- qlm_code(c("text1", "text2"), codebook,
+                     model = "test/model", batch = FALSE)
+
+  # Verify parallel_chat_structured was called
+  mockery::expect_called(mock_pcs, 1)
+
+  # Verify result structure
+  expect_s3_class(result, "qlm_coded")
+  expect_false(attr(result, "run")$batch)
+})
+
+
+test_that("qlm_code uses batch_chat_structured when batch=TRUE", {
+  skip_if_not_installed("ellmer")
+
+  type_obj <- ellmer::type_object(score = ellmer::type_number("Score"))
+  codebook <- qlm_codebook("Test", "Test prompt", type_obj)
+
+  # Mock the functions
+  mock_chat <- structure(list(), class = "ellmer_chat")
+  mock_results <- data.frame(id = 1:2, score = c(0.5, 0.8))
+
+  mockery::stub(qlm_code, "ellmer::chat", mock_chat)
+
+  # Mock batch_chat_structured and verify it's called
+  mock_bcs <- mockery::mock(mock_results, cycle = TRUE)
+  mockery::stub(qlm_code, "ellmer::batch_chat_structured", mock_bcs)
+
+  # Use an execution arg that's valid (convert is in both parallel and batch)
+  result <- suppressWarnings(
+    qlm_code(c("text1", "text2"), codebook,
+             model = "test/model", batch = TRUE,
+             convert = TRUE)
+  )
+
+  # Verify batch_chat_structured was called
+  mockery::expect_called(mock_bcs, 1)
+
+  # Verify result structure
+  expect_s3_class(result, "qlm_coded")
+  expect_true(attr(result, "run")$batch)
+  expect_equal(attr(result, "run")$execution_args$convert, TRUE)
+})
+
+
+test_that("qlm_code builds metadata correctly", {
+  skip_if_not_installed("ellmer")
+
+  type_obj <- ellmer::type_object(score = ellmer::type_number("Score"))
+  codebook <- qlm_codebook("Test", "Test prompt", type_obj)
+
+  # Mock the functions
+  mock_chat <- structure(list(), class = "ellmer_chat")
+  mock_results <- data.frame(id = 1:3, score = c(0.5, 0.8, 0.2))
+
+  mockery::stub(qlm_code, "ellmer::chat", mock_chat)
+  mockery::stub(qlm_code, "ellmer::parallel_chat_structured", mock_results)
+
+  result <- qlm_code(c("text1", "text2", "text3"), codebook,
+                     model = "test/model")
+
+  metadata <- attr(result, "run")$metadata
+
+  # Verify metadata structure
+  expect_true(is.list(metadata))
+  expect_true("timestamp" %in% names(metadata))
+  expect_equal(metadata$n_units, 3)
+  expect_true("ellmer_version" %in% names(metadata))
+  expect_true("quallmer_version" %in% names(metadata))
+  expect_true("R_version" %in% names(metadata))
+
+  # Verify timestamp is recent
+  expect_true(inherits(metadata$timestamp, "POSIXct"))
+  expect_true(difftime(Sys.time(), metadata$timestamp, units = "secs") < 1)
+})
