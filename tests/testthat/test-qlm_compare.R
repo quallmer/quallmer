@@ -110,15 +110,17 @@ test_that("qlm_compare works with matching units", {
     parent = NULL
   )
 
-  # Compare using alpha
-  comparison <- qlm_compare(mock_coded1, mock_coded2, by = "score", measure = "alpha")
+  # Compare using interval level
+  comparison <- qlm_compare(mock_coded1, mock_coded2, by = "score", level = "interval")
 
   expect_true(inherits(comparison, "qlm_comparison"))
-  expect_equal(comparison$measure, "alpha")
-  expect_true(is.numeric(comparison$value))
+  expect_equal(comparison$level, "interval")
+  expect_true(is.numeric(comparison$alpha_interval))
+  expect_true(is.numeric(comparison$icc))
+  expect_true(is.numeric(comparison$r))
+  expect_true(is.numeric(comparison$percent_agreement))
   expect_equal(comparison$subjects, 5)
   expect_equal(comparison$raters, 2)
-  expect_true(!is.null(comparison$detail))
 })
 
 
@@ -160,14 +162,17 @@ test_that("qlm_compare handles Cohen's kappa for 2 raters", {
     parent = NULL
   )
 
-  # Compare using kappa (should use Cohen's for 2 raters)
+  # Compare using nominal level (should compute Cohen's kappa for 2 raters)
   comparison <- qlm_compare(mock_coded1, mock_coded2,
                            by = "category",
-                           measure = "kappa")
+                           level = "nominal")
 
-  expect_equal(comparison$measure, "kappa")
+  expect_equal(comparison$level, "nominal")
   expect_equal(comparison$raters, 2)
-  expect_true(is.numeric(comparison$value))
+  expect_equal(comparison$kappa_type, "Cohen's")
+  expect_true(is.numeric(comparison$kappa))
+  expect_true(is.numeric(comparison$alpha_nominal))
+  expect_true(is.numeric(comparison$percent_agreement))
 })
 
 
@@ -223,14 +228,17 @@ test_that("qlm_compare handles Fleiss' kappa for 3+ raters", {
     parent = NULL
   )
 
-  # Compare using kappa (should use Fleiss' for 3 raters)
+  # Compare using nominal level (should compute Fleiss' kappa for 3 raters)
   comparison <- qlm_compare(mock_coded1, mock_coded2, mock_coded3,
                            by = "category",
-                           measure = "kappa")
+                           level = "nominal")
 
-  expect_equal(comparison$measure, "kappa")
+  expect_equal(comparison$level, "nominal")
   expect_equal(comparison$raters, 3)
-  expect_true(is.numeric(comparison$value))
+  expect_equal(comparison$kappa_type, "Fleiss'")
+  expect_true(is.numeric(comparison$kappa))
+  expect_true(is.numeric(comparison$alpha_nominal))
+  expect_true(is.numeric(comparison$percent_agreement))
 })
 
 
@@ -269,13 +277,15 @@ test_that("qlm_compare computes percent agreement", {
     parent = NULL
   )
 
-  # Compare using agreement
+  # Compare using nominal level (includes percent agreement)
   comparison <- qlm_compare(mock_coded1, mock_coded2,
                            by = "score",
-                           measure = "agreement")
+                           level = "nominal")
 
-  expect_equal(comparison$measure, "agreement")
-  expect_equal(comparison$value, 0.8)  # 4 out of 5
+  expect_equal(comparison$level, "nominal")
+  expect_equal(comparison$percent_agreement, 0.8)  # 4 out of 5
+  expect_true(is.numeric(comparison$kappa))
+  expect_true(is.numeric(comparison$alpha_nominal))
 })
 
 
@@ -357,13 +367,17 @@ test_that("print.qlm_comparison displays correctly", {
     parent = NULL
   )
 
-  comparison <- qlm_compare(mock_coded1, mock_coded2, by = "score", measure = "alpha")
+  comparison <- qlm_compare(mock_coded1, mock_coded2, by = "score", level = "interval")
 
   # Capture print output
   output <- capture.output(print(comparison))
 
   expect_true(any(grepl("Inter-rater reliability", output)))
-  expect_true(any(grepl("Measure.*alpha", output)))
+  expect_true(any(grepl("Level.*interval", output)))
   expect_true(any(grepl("Subjects.*5", output)))
   expect_true(any(grepl("Raters.*2", output)))
+  expect_true(any(grepl("Krippendorff's alpha", output)))
+  expect_true(any(grepl("ICC", output)))
+  expect_true(any(grepl("Pearson's r", output)))
+  expect_true(any(grepl("Percent agreement", output)))
 })
