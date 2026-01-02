@@ -115,15 +115,15 @@ test_that("annotate routes arguments correctly", {
 
   # Test that argument routing logic works by checking formals detection
   chat_args <- names(formals(ellmer::chat))
-  pcs_args <- names(formals(ellmer::parallel_chat_structured))
+  execution_args <- names(formals(ellmer::parallel_chat_structured))
 
   # echo should go to chat
   expect_true("echo" %in% chat_args)
 
   # max_active should go to parallel_chat_structured
-  expect_true("max_active" %in% pcs_args)
+  expect_true("max_active" %in% execution_args)
 
   # No overlap between the key arguments we care about
-  expect_false("echo" %in% pcs_args)
+  expect_false("echo" %in% execution_args)
   expect_false("max_active" %in% chat_args)
 })
