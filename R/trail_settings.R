@@ -1,6 +1,10 @@
-#' Trail settings specification
+#' Trail settings specification (deprecated)
 #'
-#' Simple description of an LLM configuration for use with quallmer Trails.
+#' `r lifecycle::badge("deprecated")`
+#'
+#' `trail_settings()` is deprecated. Use [qlm_code()] with the `model` and
+#' `temperature` parameters directly instead. For systematic comparisons across
+#' different models or settings, see [qlm_replicate()].
 #'
 #' @param provider Character. Backend provider identifier supported by ellmer,
 #'   e.g. "openai", "ollama", "anthropic". See
@@ -12,6 +16,7 @@
 #' @param extra Named list of extra arguments merged into `api_args`.
 #'
 #' @return An object of class \code{"trail_setting"}.
+#' @keywords internal
 #' @export
 trail_settings <- function(
     provider    = "openai",
@@ -19,6 +24,7 @@ trail_settings <- function(
     temperature = 0,
     extra       = list()
 ) {
+  lifecycle::deprecate_warn("0.2.0", "trail_settings()", "qlm_code()")
   if (!is.character(provider) || length(provider) != 1L || !nzchar(provider)) {
     cli::cli_abort("{.arg provider} must be a non-empty character scalar.")
   }

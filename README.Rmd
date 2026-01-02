@@ -29,8 +29,6 @@ Using `qlm_code()`, users can apply codebook-based qualitative coding powered by
 
 **The quallmer package makes AI-assisted qualitative coding accessible without requiring deep expertise in R, programming or machine learning.**
 
-## Core functions
-
 ### Coding and validation workflow
 
 #### `qlm_codebook()`

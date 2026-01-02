@@ -37,8 +37,6 @@ metrics.
 without requiring deep expertise in R, programming or machine
 learning.**
 
-## Core functions
-
 ### Coding and validation workflow
 
 #### `qlm_codebook()`

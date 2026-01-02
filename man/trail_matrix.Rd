@@ -2,7 +2,7 @@
 % Please edit documentation in R/trail_compare.R
 \name{trail_matrix}
 \alias{trail_matrix}
-\title{Convert Trail records to coder-style wide data}
+\title{Convert Trail records to coder-style wide data (deprecated)}
 \usage{
 trail_matrix(x, id_col = "id", label_col = "label")
 }
@@ -24,7 +24,10 @@ setting/record. The unit ID column is retained under the name
 \code{id_col}.
 }
 \description{
-Treat each setting/record in a \code{trail_compare} object as a separate
-coder and convert the annotations into a wide data frame suitable for
-inter-rater reliability analysis or other comparisons.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
 }
+\details{
+\code{trail_matrix()} is deprecated. Use \code{\link[=qlm_compare]{qlm_compare()}} to compare multiple
+coded objects directly.
+}
+\keyword{internal}

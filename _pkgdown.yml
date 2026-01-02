@@ -12,6 +12,7 @@ navbar:
     - quick-start
     - reference
     - examples
+    - news
     right:
     - search
     - github
@@ -31,13 +32,11 @@ navbar:
         href: articles/pkgdown/tutorials/custom-codebook.html
       - text: Using the Validate App (quallmer.app)
         href: articles/pkgdown/tutorials/validate.html
-      - text: The quallmer trail
-        href: articles/pkgdown/tutorials/trail.html
     reference:
       text: Reference
       href: reference/index.html
     examples:
-      text: Built-in codebooks
+      text: Example codebooks
       menu:
       - text: Overview of built-in codebooks
         href: articles/pkgdown/examples/overview.html

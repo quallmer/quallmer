@@ -2,7 +2,7 @@
 % Please edit documentation in R/trail_settings.R
 \name{trail_settings}
 \alias{trail_settings}
-\title{Trail settings specification}
+\title{Trail settings specification (deprecated)}
 \usage{
 trail_settings(
   provider = "openai",
@@ -28,5 +28,11 @@ Valid range depends on provider: OpenAI (0-2), Anthropic (0-1), etc.}
 An object of class \code{"trail_setting"}.
 }
 \description{
-Simple description of an LLM configuration for use with quallmer Trails.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
 }
+\details{
+\code{trail_settings()} is deprecated. Use \code{\link[=qlm_code]{qlm_code()}} with the \code{model} and
+\code{temperature} parameters directly instead. For systematic comparisons across
+different models or settings, see \code{\link[=qlm_replicate]{qlm_replicate()}}.
+}
+\keyword{internal}

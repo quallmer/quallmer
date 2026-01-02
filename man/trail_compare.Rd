@@ -2,7 +2,7 @@
 % Please edit documentation in R/trail_compare.R
 \name{trail_compare}
 \alias{trail_compare}
-\title{trail_compare: run a task across multiple settings and compute reliability}
+\title{trail_compare: run a task across multiple settings and compute reliability (deprecated)}
 \usage{
 trail_compare(
   data,
@@ -60,11 +60,13 @@ A \code{trail_compare} object with components:
 }
 }
 \description{
-Apply a quallmer task to the same text data under multiple settings,
-producing one \code{trail_record} per setting, and directly compute a
-coder-style wide matrix plus inter-rater reliability scores.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
 }
 \details{
+\code{trail_compare()} is deprecated. Use \code{\link[=qlm_replicate]{qlm_replicate()}} to re-run coding with
+different models or settings, then use \code{\link[=qlm_compare]{qlm_compare()}} to assess inter-rater
+reliability.
+
 All settings are applied to the same text units. Because the ID
 column is shared across settings, their annotation outputs can be
 directly compared via the \code{matrix} component, and summarized using
@@ -77,3 +79,4 @@ inter-rater reliability statistics in \code{icr}.
 \item \code{trail_icr()} – compute inter-rater reliability across settings
 }
 }
+\keyword{internal}

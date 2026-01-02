@@ -2,11 +2,12 @@
 # trail_matrix: records -> coder-style wide data
 # ===============================================
 
-#' Convert Trail records to coder-style wide data
+#' Convert Trail records to coder-style wide data (deprecated)
 #'
-#' Treat each setting/record in a `trail_compare` object as a separate
-#' coder and convert the annotations into a wide data frame suitable for
-#' inter-rater reliability analysis or other comparisons.
+#' `r lifecycle::badge("deprecated")`
+#'
+#' `trail_matrix()` is deprecated. Use [qlm_compare()] to compare multiple
+#' coded objects directly.
 #'
 #' @param x Either a \code{trail_compare} object or a named list of
 #'   \code{trail_record} objects.
@@ -23,10 +24,12 @@
 #'
 #' @importFrom dplyr bind_rows
 #' @importFrom tidyr pivot_wider
+#' @keywords internal
 #' @export
 trail_matrix <- function(x,
                          id_col    = "id",
                          label_col = "label") {
+  lifecycle::deprecate_warn("0.2.0", "trail_matrix()", "qlm_compare()")
 
   records <- NULL
   if (inherits(x, "trail_compare")) {
@@ -84,11 +87,12 @@ trail_matrix <- function(x,
 # trail_icr: compute inter-rater reliability from matrix
 # =====================================================
 
-#' Compute inter-rater reliability across Trail settings
+#' Compute inter-rater reliability across Trail settings (deprecated)
 #'
-#' Convenience helper to compute inter-rater reliability across multiple
-#' Trail records or a `trail_compare` object by treating each setting as
-#' a coder and calling \code{validate()} in \code{mode = "icr"}.
+#' `r lifecycle::badge("deprecated")`
+#'
+#' `trail_icr()` is deprecated. Use [qlm_compare()] to compute inter-rater
+#' reliability across multiple coded objects.
 #'
 #' @param x A \code{trail_compare} object or a list of \code{trail_record}
 #'   objects.
@@ -114,6 +118,7 @@ trail_matrix <- function(x,
 #' * `trail_matrix()` – underlying wide data used here
 #' * `validate()` – core validation / ICR engine
 #'
+#' @keywords internal
 #' @export
 trail_icr <- function(
     x,
@@ -122,6 +127,7 @@ trail_icr <- function(
     min_coders = 2L,
     icr_fun    = validate,
     ...) {
+  lifecycle::deprecate_warn("0.2.0", "trail_icr()", "qlm_compare()")
 
   # Validate min_coders
   if (!is.numeric(min_coders) || length(min_coders) != 1L ||
@@ -153,11 +159,13 @@ trail_icr <- function(
 # trail_compare: run settings AND return matrix + ICR together
 # ============================================================
 
-#' trail_compare: run a task across multiple settings and compute reliability
+#' trail_compare: run a task across multiple settings and compute reliability (deprecated)
 #'
-#' Apply a quallmer task to the same text data under multiple settings,
-#' producing one `trail_record` per setting, and directly compute a
-#' coder-style wide matrix plus inter-rater reliability scores.
+#' `r lifecycle::badge("deprecated")`
+#'
+#' `trail_compare()` is deprecated. Use [qlm_replicate()] to re-run coding with
+#' different models or settings, then use [qlm_compare()] to assess inter-rater
+#' reliability.
 #'
 #' @param data A data frame containing the text to be annotated.
 #' @param text_col Character scalar. Name of the text column containing
@@ -201,6 +209,7 @@ trail_icr <- function(
 #' * `trail_matrix()` – align records into coder-style wide format
 #' * `trail_icr()` – compute inter-rater reliability across settings
 #'
+#' @keywords internal
 #' @export
 trail_compare <- function(
     data,
@@ -214,6 +223,7 @@ trail_compare <- function(
     annotate_fun = annotate,
     min_coders   = 2L
 ) {
+  lifecycle::deprecate_warn("0.2.0", "trail_compare()", "qlm_replicate()")
   # Validate min_coders
   if (!is.numeric(min_coders) || length(min_coders) != 1L ||
       is.na(min_coders) || min_coders < 2L || min_coders != as.integer(min_coders)) {

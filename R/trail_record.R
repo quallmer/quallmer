@@ -1,8 +1,10 @@
-#' Trail record: reproducible quallmer annotation
+#' Trail record: reproducible quallmer annotation (deprecated)
 #'
-#' Run a quallmer task on a data frame with a specified LLM setting,
-#' capturing metadata for reproducibility and optionally caching the
-#' full result on disk.
+#' `r lifecycle::badge("deprecated")`
+#'
+#' `trail_record()` is deprecated. Use [qlm_code()] instead, which automatically
+#' captures metadata for reproducibility. For systematic comparisons across
+#' different models or settings, see [qlm_replicate()].
 #'
 #' @param data A data frame containing the text to be annotated.
 #' @param text_col Character scalar. Name of the text column.
@@ -15,6 +17,7 @@
 #' @param annotate_fun Function used to perform the annotation (default \code{annotate()}).
 #'
 #' @return An object of class \code{"trail_record"}.
+#' @keywords internal
 #' @export
 trail_record <- function(
     data,
@@ -26,6 +29,7 @@ trail_record <- function(
     overwrite    = FALSE,
     annotate_fun = annotate
 ) {
+  lifecycle::deprecate_warn("0.2.0", "trail_record()", "qlm_code()")
   if (!inherits(setting, "trail_setting")) {
     cli::cli_abort("{.arg setting} must be a {.cls trail_setting} object.")
   }
