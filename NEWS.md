@@ -5,16 +5,18 @@
 The package introduces a new `qlm_*()` API with richer return objects and clearer terminology for qualitative researchers:
 
 * `qlm_codebook()` defines coding instructions, replacing `task()` (#27).
-* `qlm_code()` executes coding tasks and returns a tibble with coded results and metadata as attributes, replacing `annotate()` (#27). The returned `qlm_coded` object prints as a tibble and can be used directly in data manipulation workflows. Now includes `name` parameter for tracking runs and hierarchical attribute structure with provenance support.
+* `qlm_code()` executes coding tasks and returns a tibble with coded results and metadata as attributes, replacing `annotate()` (#27). The returned `qlm_coded` object prints as a tibble and can be used directly in data manipulation workflows. Now includes `name` parameter for tracking runs and hierarchical attribute structure with provenance support. Supports batch processing via `batch = TRUE` parameter for cost-effective large-scale coding using `ellmer::batch_chat_structured()` (#26).
 * `qlm_compare()` compares multiple `qlm_coded` objects to assess inter-rater reliability using measures from the irr package (Krippendorff's alpha, Cohen's/Fleiss' kappa, Kendall's W, or percent agreement).
 * `qlm_validate()` validates a `qlm_coded` object against a gold standard (human-coded reference data) using classification metrics from the yardstick package. Computes accuracy, precision, recall, F1-score, and Cohen's kappa with support for multiple averaging methods (macro, micro, weighted, or per-class breakdown).
-* `qlm_replicate()` re-executes coding with optional overrides (model, codebook, parameters) while tracking provenance chain. Enables systematic assessment of coding reliability and sensitivity to model choices.
+* `qlm_replicate()` re-executes coding with optional overrides (model, codebook, batch, parameters) while tracking provenance chain. Enables systematic assessment of coding reliability and sensitivity to model choices. Now supports overriding the batch processing setting via `batch` parameter (#26).
 
 The new API uses the `qlm_` prefix to avoid namespace conflicts (e.g., with `ggplot2::annotate()`) and follows the convention of verbs for workflow actions, nouns for accessor functions.
 
 ### Restructured qlm_coded objects
 
-* `qlm_coded` objects now use a hierarchical attribute structure with a `run` list containing `name`, `call`, `codebook`, `chat_args`, `pcs_args`, `metadata`, and `parent` fields. This structure supports provenance tracking across replication chains and provides clearer organization of coding metadata.
+* `qlm_coded` objects now use a hierarchical attribute structure with a `run` list containing `name`, `batch`, `call`, `codebook`, `chat_args`, `execution_args`, `metadata`, and `parent` fields. This structure supports provenance tracking across replication chains and provides clearer organization of coding metadata (#26).
+  - The `batch` flag indicates whether batch processing was used.
+  - `execution_args` replaces `pcs_args` and stores all non-chat execution arguments for both parallel and batch processing. Old objects with `pcs_args` remain compatible.
 
 ## Deprecated and superseded functions
 
