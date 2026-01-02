@@ -238,66 +238,6 @@ test_that("qlm_validate handles average parameter correctly", {
   expect_true("f1" %in% names(val_none$by_class))
 })
 
-test_that("qlm_validate handles single measure correctly", {
-  skip_if_not_installed("ellmer")
-  skip_if_not_installed("yardstick")
-
-  type_obj <- ellmer::type_object(category = ellmer::type_string("Category"))
-  codebook <- qlm_codebook("Test", "Test prompt", type_obj)
-
-  mock_results <- data.frame(id = 1:10, category = rep(c("A", "B"), 5))
-  mock_coded <- new_qlm_coded(
-    results = mock_results,
-    codebook = codebook,
-    data = paste0("text", 1:10),
-    input_type = "text",
-    chat_args = list(name = "test/model"),
-    execution_args = list(),
-    metadata = list(timestamp = Sys.time(), n_units = 10),
-    name = "original",
-    call = quote(qlm_code(...)),
-    parent = NULL
-  )
-
-  gold <- data.frame(.id = 1:10, category = rep(c("A", "B"), 5))
-
-  # Test individual measures
-  val_acc <- qlm_validate(mock_coded, gold, by = "category", measure = "accuracy")
-  expect_false(is.null(val_acc$accuracy))
-  expect_true(is.null(val_acc$precision))
-  expect_true(is.null(val_acc$recall))
-  expect_true(is.null(val_acc$f1))
-  expect_true(is.null(val_acc$kappa))
-
-  val_prec <- qlm_validate(mock_coded, gold, by = "category", measure = "precision")
-  expect_true(is.null(val_prec$accuracy))
-  expect_false(is.null(val_prec$precision))
-  expect_true(is.null(val_prec$recall))
-  expect_true(is.null(val_prec$f1))
-  expect_true(is.null(val_prec$kappa))
-
-  val_rec <- qlm_validate(mock_coded, gold, by = "category", measure = "recall")
-  expect_true(is.null(val_rec$accuracy))
-  expect_true(is.null(val_rec$precision))
-  expect_false(is.null(val_rec$recall))
-  expect_true(is.null(val_rec$f1))
-  expect_true(is.null(val_rec$kappa))
-
-  val_f1 <- qlm_validate(mock_coded, gold, by = "category", measure = "f1")
-  expect_true(is.null(val_f1$accuracy))
-  expect_true(is.null(val_f1$precision))
-  expect_true(is.null(val_f1$recall))
-  expect_false(is.null(val_f1$f1))
-  expect_true(is.null(val_f1$kappa))
-
-  val_kappa <- qlm_validate(mock_coded, gold, by = "category", measure = "kappa")
-  expect_true(is.null(val_kappa$accuracy))
-  expect_true(is.null(val_kappa$precision))
-  expect_true(is.null(val_kappa$recall))
-  expect_true(is.null(val_kappa$f1))
-  expect_false(is.null(val_kappa$kappa))
-})
-
 test_that("qlm_validate handles multiclass correctly", {
   skip_if_not_installed("ellmer")
   skip_if_not_installed("yardstick")
@@ -559,3 +499,193 @@ test_that("qlm_validate with qlm_coded gold handles imperfect predictions", {
   expect_true(is.numeric(validation$f1))
   expect_true(is.numeric(validation$kappa))
 })
+
+test_that("qlm_validate ordinal level computes only appropriate metrics", {
+  skip_if_not_installed("ellmer")
+  skip_if_not_installed("yardstick")
+
+  type_obj <- ellmer::type_object(rating = ellmer::type_integer("Rating"))
+  codebook <- qlm_codebook("Test", "Test prompt", type_obj)
+
+  # Create mock ratings data (1-5 scale)
+  mock_results <- data.frame(
+    id = 1:20,
+    rating = c(1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 2, 3, 4, 5, 1, 3, 4, 5, 1, 2)
+  )
+  mock_coded <- new_qlm_coded(
+    results = mock_results,
+    codebook = codebook,
+    data = paste0("text", 1:20),
+    input_type = "text",
+    chat_args = list(name = "test/model"),
+    pcs_args = list(),
+    metadata = list(timestamp = Sys.time(), n_units = 20),
+    name = "original",
+    call = quote(qlm_code(...)),
+    parent = NULL
+  )
+
+  # Gold standard - slightly different ratings
+  gold <- data.frame(
+    .id = 1:20,
+    rating = c(1, 2, 3, 4, 5, 2, 3, 4, 5, 4, 2, 3, 3, 5, 1, 3, 4, 4, 2, 2)
+  )
+
+  # Validate with ordinal level
+  validation <- qlm_validate(mock_coded, gold, by = "rating", level = "ordinal")
+
+  expect_true(inherits(validation, "qlm_validation"))
+  expect_equal(validation$level, "ordinal")
+
+  # Should have rho, tau, mae for ordinal data
+  expect_true(is.numeric(validation$rho))
+  expect_true(is.numeric(validation$tau))
+  expect_true(is.numeric(validation$mae))
+
+  # Should NOT have nominal metrics
+  expect_null(validation$accuracy)
+  expect_null(validation$precision)
+  expect_null(validation$recall)
+  expect_null(validation$f1)
+  expect_null(validation$kappa)
+
+  # Should NOT have interval metrics
+  expect_null(validation$pearson)
+  expect_null(validation$icc)
+  expect_null(validation$rmse)
+
+  # Should NOT have by_class or confusion for ordinal data
+  expect_null(validation$by_class)
+  expect_null(validation$confusion)
+})
+
+test_that("qlm_validate ordinal correlation measures work correctly", {
+  skip_if_not_installed("ellmer")
+  skip_if_not_installed("yardstick")
+
+  type_obj <- ellmer::type_object(rating = ellmer::type_integer("Rating"))
+  codebook <- qlm_codebook("Test", "Test prompt", type_obj)
+
+  # Create mock data with strong positive correlation
+  mock_results <- data.frame(
+    id = 1:10,
+    rating = c(1, 2, 3, 4, 5, 1, 2, 3, 4, 5)  # Predictions
+  )
+  mock_coded <- new_qlm_coded(
+    results = mock_results,
+    codebook = codebook,
+    data = paste0("text", 1:10),
+    input_type = "text",
+    chat_args = list(name = "test/model"),
+    pcs_args = list(),
+    metadata = list(timestamp = Sys.time(), n_units = 10),
+    name = "original",
+    call = quote(qlm_code(...)),
+    parent = NULL
+  )
+
+  # Gold standard - same rankings, slightly different values
+  gold <- data.frame(
+    .id = 1:10,
+    rating = c(1, 2, 3, 4, 5, 2, 3, 4, 5, 5)  # Truth
+  )
+
+  # Validate with ordinal
+  validation_ordinal <- qlm_validate(mock_coded, gold, by = "rating", level = "ordinal")
+
+  # Should have high correlations due to similar rankings
+  expect_true(is.numeric(validation_ordinal$rho))
+  expect_true(is.numeric(validation_ordinal$tau))
+  expect_true(validation_ordinal$rho > 0.8)
+  expect_true(validation_ordinal$tau > 0.6)
+
+  # MAE should be small
+  expect_true(is.numeric(validation_ordinal$mae))
+  expect_true(validation_ordinal$mae < 1.0)
+})
+
+test_that("qlm_validate nominal level computes all metrics", {
+  skip_if_not_installed("ellmer")
+  skip_if_not_installed("yardstick")
+
+  type_obj <- ellmer::type_object(category = ellmer::type_string("Category"))
+  codebook <- qlm_codebook("Test", "Test prompt", type_obj)
+
+  mock_results <- data.frame(
+    id = 1:20,
+    category = rep(c("A", "B", "C"), length.out = 20)
+  )
+  mock_coded <- new_qlm_coded(
+    results = mock_results,
+    codebook = codebook,
+    data = paste0("text", 1:20),
+    input_type = "text",
+    chat_args = list(name = "test/model"),
+    pcs_args = list(),
+    metadata = list(timestamp = Sys.time(), n_units = 20),
+    name = "original",
+    call = quote(qlm_code(...)),
+    parent = NULL
+  )
+
+  gold <- data.frame(
+    .id = 1:20,
+    category = rep(c("A", "B", "C"), length.out = 20)
+  )
+
+  # Validate with nominal level
+  validation <- qlm_validate(mock_coded, gold, by = "category", level = "nominal")
+
+  expect_true(inherits(validation, "qlm_validation"))
+  expect_equal(validation$level, "nominal")
+
+  # Should have all metrics for nominal data
+  expect_true(is.numeric(validation$accuracy))
+  expect_true(is.numeric(validation$precision))
+  expect_true(is.numeric(validation$recall))
+  expect_true(is.numeric(validation$f1))
+  expect_true(is.numeric(validation$kappa))
+})
+
+test_that("qlm_validate prints appropriate terminology for ordinal vs nominal", {
+  skip_if_not_installed("ellmer")
+  skip_if_not_installed("yardstick")
+
+  type_obj <- ellmer::type_object(rating = ellmer::type_integer("Rating"))
+  codebook <- qlm_codebook("Test", "Test prompt", type_obj)
+
+  mock_results <- data.frame(id = 1:10, rating = c(1, 2, 3, 4, 5, 1, 2, 3, 4, 5))
+  mock_coded <- new_qlm_coded(
+    results = mock_results,
+    codebook = codebook,
+    data = paste0("text", 1:10),
+    input_type = "text",
+    chat_args = list(name = "test/model"),
+    pcs_args = list(),
+    metadata = list(timestamp = Sys.time(), n_units = 10),
+    name = "original",
+    call = quote(qlm_code(...)),
+    parent = NULL
+  )
+
+  gold <- data.frame(.id = 1:10, rating = c(1, 2, 3, 4, 5, 1, 2, 3, 4, 5))
+
+  # Ordinal validation should print "levels" not "classes"
+  validation_ordinal <- qlm_validate(mock_coded, gold, by = "rating", level = "ordinal")
+  output_ordinal <- capture.output(print(validation_ordinal))
+  expect_true(any(grepl("levels:", output_ordinal)))
+  expect_false(any(grepl("classes:", output_ordinal)))
+  expect_false(any(grepl("average:", output_ordinal)))  # No average for ordinal
+  # Should show ordinal metrics with proper labels
+  expect_true(any(grepl("Spearman's rho:", output_ordinal)))
+  expect_true(any(grepl("Kendall's tau:", output_ordinal)))
+  expect_true(any(grepl("MAE:", output_ordinal)))
+
+  # Nominal validation should print "classes" and "average"
+  validation_nominal <- qlm_validate(mock_coded, gold, by = "rating", level = "nominal")
+  output_nominal <- capture.output(print(validation_nominal))
+  expect_true(any(grepl("classes:", output_nominal)))
+  expect_true(any(grepl("average:", output_nominal)))
+  expect_false(any(grepl("levels:", output_nominal)))
+})
+

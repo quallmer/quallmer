@@ -8,9 +8,8 @@ qlm_validate(
   x,
   gold,
   by,
-  measure = c("all", "accuracy", "precision", "recall", "f1", "kappa"),
-  average = c("macro", "micro", "weighted", "none"),
-  level = c("nominal", "ordinal", "interval")
+  level = c("nominal", "ordinal", "interval"),
+  average = c("macro", "micro", "weighted", "none")
 )
 }
 \arguments{
@@ -23,39 +22,37 @@ a \code{.id} column for joining with \code{x} and the variable specified in \cod
 \item{by}{Character scalar. Name of the variable to validate. Must be present
 in both \code{x} and \code{gold}.}
 
-\item{measure}{Character scalar. Which metrics to compute:
-\describe{
-\item{\code{"all"}}{Compute all metrics (default)}
-\item{\code{"accuracy"}}{Overall accuracy only}
-\item{\code{"precision"}}{Precision only}
-\item{\code{"recall"}}{Recall only}
-\item{\code{"f1"}}{F1-score only}
-\item{\code{"kappa"}}{Cohen's kappa only}
-}}
+\item{level}{Character scalar. Measurement level of the variable: \code{"nominal"},
+\code{"ordinal"}, or \code{"interval"}. Default is \code{"nominal"}. Determines which
+validation metrics are computed.}
 
-\item{average}{Character scalar. Averaging method for multiclass metrics:
+\item{average}{Character scalar. Averaging method for multiclass metrics
+(nominal level only):
 \describe{
 \item{\code{"macro"}}{Unweighted mean across classes (default)}
 \item{\code{"micro"}}{Aggregate contributions globally (sum TP, FP, FN)}
 \item{\code{"weighted"}}{Weighted mean by class prevalence}
 \item{\code{"none"}}{Return per-class metrics in addition to global metrics}
 }}
-
-\item{level}{Character scalar. Measurement level of the variable:
-\code{"nominal"}, \code{"ordinal"}, \code{"interval"}, or \code{"ratio"}. Default is \code{"nominal"}.}
 }
 \value{
 A \code{qlm_validation} object containing:
 \describe{
-\item{\code{accuracy}}{Overall accuracy (if computed)}
-\item{\code{precision}}{Precision (if computed)}
-\item{\code{recall}}{Recall (if computed)}
-\item{\code{f1}}{F1-score (if computed)}
-\item{\code{kappa}}{Cohen's kappa (if computed)}
-\item{\code{by_class}}{Per-class metrics (only when \code{average = "none"})}
-\item{\code{confusion}}{Confusion matrix (yardstick conf_mat object)}
+\item{\code{accuracy}}{Overall accuracy (nominal only)}
+\item{\code{precision}}{Precision (nominal only)}
+\item{\code{recall}}{Recall (nominal only)}
+\item{\code{f1}}{F1-score (nominal only)}
+\item{\code{kappa}}{Cohen's kappa (nominal only)}
+\item{\code{rho}}{Spearman's rho rank correlation (ordinal only)}
+\item{\code{tau}}{Kendall's tau rank correlation (ordinal only)}
+\item{\code{r}}{Pearson's r correlation (interval only)}
+\item{\code{icc}}{Intraclass correlation coefficient (interval only)}
+\item{\code{mae}}{Mean absolute error (ordinal/interval)}
+\item{\code{rmse}}{Root mean squared error (interval only)}
+\item{\code{by_class}}{Per-class metrics (nominal with \code{average = "none"} only)}
+\item{\code{confusion}}{Confusion matrix (nominal only)}
 \item{\code{n}}{Number of units compared}
-\item{\code{classes}}{Class labels}
+\item{\code{classes}}{Class/level labels}
 \item{\code{average}}{Averaging method used}
 \item{\code{level}}{Measurement level}
 \item{\code{variable}}{Variable name validated}
@@ -64,8 +61,10 @@ A \code{qlm_validation} object containing:
 }
 \description{
 Validates LLM-coded results from a \code{qlm_coded} object against a gold standard
-(typically human annotations) using classification metrics from the yardstick
-package. Computes accuracy, precision, recall, F1-score, and Cohen's kappa.
+(typically human annotations) using appropriate metrics based on measurement
+level. For nominal data, computes accuracy, precision, recall, F1-score, and
+Cohen's kappa. For ordinal data, computes accuracy and weighted kappa (linear
+weighting), which accounts for the ordering and distance between categories.
 }
 \details{
 The function performs an inner join between \code{x} and \code{gold} using the \code{.id}
@@ -73,8 +72,24 @@ column, so only units present in both datasets are included in validation.
 Missing values (NA) in either predictions or gold standard are excluded with
 a warning.
 
-For multiclass problems, the \code{average} parameter controls how per-class
-metrics are aggregated:
+\strong{Measurement levels:}
+\itemize{
+\item \strong{Nominal}: Categories with no inherent ordering (e.g., topics, sentiment
+polarity). Metrics: accuracy, precision, recall, F1-score, Cohen's kappa
+(unweighted).
+\item \strong{Ordinal}: Categories with meaningful ordering but unequal intervals
+(e.g., ratings 1-5, Likert scales). Metrics: Spearman's rho (\code{rho}, rank
+correlation), Kendall's tau (\code{tau}, rank correlation), and MAE (\code{mae}, mean
+absolute error). These measures account for the ordering of categories
+without assuming equal intervals.
+\item \strong{Interval/Ratio}: Numeric data with equal intervals (e.g., counts,
+continuous measurements). Metrics: ICC (intraclass correlation), Pearson's r
+(linear correlation), MAE (mean absolute error), and RMSE (root mean squared
+error).
+}
+
+For multiclass problems with nominal data, the \code{average} parameter controls
+how per-class metrics are aggregated:
 \itemize{
 \item \strong{Macro averaging} computes metrics for each class independently and takes
 the unweighted mean. This treats all classes equally regardless of size.
@@ -86,6 +101,9 @@ weighted by class size.
 \item \strong{No averaging} (\code{average = "none"}) returns global macro-averaged metrics
 plus per-class breakdown.
 }
+
+Note: The \code{average} parameter only affects precision, recall, and F1 for
+nominal data. For ordinal data, these metrics are not computed.
 }
 \examples{
 \dontrun{
@@ -107,18 +125,24 @@ gold <- data.frame(
   polarity = quanteda::docvars(reviews, "polarity")
 )
 
-# Validate
-validation <- qlm_validate(coded, gold, by = "polarity")
+# Validate polarity (nominal data)
+validation <- qlm_validate(coded, gold, by = "polarity", level = "nominal")
 print(validation)
 
-# Compute only specific metrics
-qlm_validate(coded, gold, by = "polarity", measure = "f1")
+# Validate ratings (ordinal data)
+gold_ratings <- data.frame(
+  .id = coded$.id,
+  rating = quanteda::docvars(reviews, "rating")
+)
+validation_ordinal <- qlm_validate(coded, gold_ratings, by = "rating", level = "ordinal")
+print(validation_ordinal)
 
-# Use micro-averaging
-qlm_validate(coded, gold, by = "polarity", average = "micro")
+# Use micro-averaging (nominal level only)
+qlm_validate(coded, gold, by = "polarity", level = "nominal", average = "micro")
 
-# Get per-class breakdown
-validation_detailed <- qlm_validate(coded, gold, by = "polarity", average = "none")
+# Get per-class breakdown (for nominal data only)
+validation_detailed <- qlm_validate(coded, gold, by = "polarity",
+                                    level = "nominal", average = "none")
 print(validation_detailed)
 validation_detailed$by_class$precision
 }
