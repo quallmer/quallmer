@@ -1,5 +1,12 @@
 # quallmer (development version)
 
+## Provenance tracking
+
+* New `qlm_trail()` function extracts and displays provenance chains from coded objects, showing the complete history of coding runs including model parameters, timestamps, and parent-child relationships.
+* Export functions allow saving provenance trails: `qlm_trail_save()` for RDS archival, `qlm_trail_export()` for JSON format, and `qlm_trail_report()` for human-readable Quarto/RMarkdown documents.
+* All `qlm_comparison` and `qlm_validation` objects now include run attributes capturing parent provenance, enabling full workflow traceability across comparisons and validations.
+* Provenance trail automatically captures branching workflows when multiple coded objects are compared or validated.
+
 ## New API
 
 The package introduces a new `qlm_*()` API with richer return objects and clearer terminology for qualitative researchers:

@@ -150,7 +150,17 @@ qlm_compare <- function(...,
   # Compute reliability measure
   result <- compute_reliability(ratings, measure, level, tolerance)
 
-  # Build qlm_comparison object
+  # Extract parent run names from coded objects
+  parent_names <- vapply(coded_list, function(obj) {
+    run <- attr(obj, "run")
+    if (!is.null(run) && !is.null(run$name)) {
+      run$name
+    } else {
+      NA_character_
+    }
+  }, character(1))
+
+  # Build qlm_comparison object with run attribute
   structure(
     list(
       measure = measure,
@@ -161,7 +171,20 @@ qlm_compare <- function(...,
       detail = result$detail,
       call = match.call()
     ),
-    class = "qlm_comparison"
+    class = "qlm_comparison",
+    run = list(
+      name = paste0("comparison_", substr(digest::digest(parent_names), 1, 8)),
+      call = match.call(),
+      parent = parent_names[!is.na(parent_names)],  # Multiple parents
+      metadata = list(
+        timestamp = Sys.time(),
+        n_subjects = n_subjects,
+        n_raters = n_raters,
+        measure = measure,
+        quallmer_version = tryCatch(as.character(utils::packageVersion("quallmer")), error = function(e) NA_character_),
+        R_version = paste(R.version$major, R.version$minor, sep = ".")
+      )
+    )
   )
 }
 

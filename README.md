@@ -29,9 +29,6 @@ provides `qlm_compare()` for evaluating inter-rater reliability and
 `qlm_validate()` for assessing accuracy against gold standards. With
 `qlm_replicate()`, researchers can systematically compare results across
 different models and settings to assess sensitivity and reproducibility.
-The package also includes `validate_app()`, an interactive app for
-manual coding, reviewing AI-generated output, and computing agreement
-metrics.
 
 **The quallmer package makes AI-assisted qualitative coding accessible
 without requiring deep expertise in R, programming or machine
@@ -88,6 +85,33 @@ learning.**
   configurations.
 - Enables systematic assessment of coding reliability and sensitivity to
   model choices.
+
+## Provenance tracking
+
+All `qlm_coded`, `qlm_comparison`, and `qlm_validation` objects
+automatically capture provenance metadata including model parameters,
+timestamps, and parent-child relationships. This enables full workflow
+traceability and reproducibility.
+
+#### `qlm_trail()`
+
+- Extracts and displays the complete provenance chain from coded
+  objects.
+- Shows the history of coding runs including model parameters,
+  timestamps, and parent relationships.
+- Reconstructs full lineage by following parent-child references across
+  multiple objects.
+- Automatically captures branching workflows when multiple coded objects
+  are compared or validated.
+
+#### `qlm_trail_save()`, `qlm_trail_export()`, `qlm_trail_report()`
+
+- **Save**: Archive provenance trails to RDS format for long-term
+  storage.
+- **Export**: Convert trails to JSON format for portability and
+  integration with other tools.
+- **Report**: Generate human-readable Quarto/RMarkdown documents
+  summarizing the complete workflow history.
 
 ## Interactive validation
 

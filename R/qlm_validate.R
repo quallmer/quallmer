@@ -334,7 +334,25 @@ qlm_validate <- function(
     by_class <- tibble::as_tibble(by_class_data)
   }
 
-  # Build return object
+  # Extract parent run name from coded object
+  parent_name <- NA_character_
+  if (inherits(x, "qlm_coded")) {
+    run <- attr(x, "run")
+    if (!is.null(run) && !is.null(run$name)) {
+      parent_name <- run$name
+    }
+  }
+
+  # Extract gold run name if it's a qlm_coded object
+  gold_name <- NA_character_
+  if (inherits(gold, "qlm_coded")) {
+    gold_run <- attr(gold, "run")
+    if (!is.null(gold_run) && !is.null(gold_run$name)) {
+      gold_name <- gold_run$name
+    }
+  }
+
+  # Build return object with run attribute
   result <- list(
     accuracy = results$accuracy,
     precision = results$precision,
@@ -351,8 +369,25 @@ qlm_validate <- function(
     call = match.call()
   )
 
-  # Set class
-  structure(result, class = "qlm_validation")
+  # Set class and add run attribute
+  structure(
+    result,
+    class = "qlm_validation",
+    run = list(
+      name = paste0("validation_", substr(digest::digest(list(parent_name, gold_name)), 1, 8)),
+      call = match.call(),
+      parent = c(parent_name, gold_name)[!is.na(c(parent_name, gold_name))],  # Parent(s)
+      metadata = list(
+        timestamp = Sys.time(),
+        n_subjects = nrow(merged),
+        n_classes = length(all_levels),
+        measure = paste(measure, collapse = ","),
+        average = average,
+        quallmer_version = tryCatch(as.character(utils::packageVersion("quallmer")), error = function(e) NA_character_),
+        R_version = paste(R.version$major, R.version$minor, sep = ".")
+      )
+    )
+  )
 }
 
 
