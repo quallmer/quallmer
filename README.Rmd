@@ -29,7 +29,7 @@ Using `qlm_code()`, users can apply codebook-based qualitative coding powered by
 
 **The quallmer package makes AI-assisted qualitative coding accessible without requiring deep expertise in R, programming or machine learning.**
 
-### Coding and validation workflow
+## Coding and validation workflow
 
 #### `qlm_codebook()`
 - Creates custom codebooks tailored to specific research questions and data types.
@@ -62,7 +62,7 @@ Using `qlm_code()`, users can apply codebook-based qualitative coding powered by
 
 ## The quallmer trail
 
-All `qlm_coded`, `qlm_comparison`, and `qlm_validation` objects automatically capture provenance metadata including model parameters, timestamps, and parent-child relationships. This enables full workflow traceability and reproducibility.
+All `qlm_coded`, `qlm_comparison`, and `qlm_validation` objects automatically capture provenance metadata including model parameters, timestamps, and parent-child relationships. This enables full workflow traceability. It also allows users to assess the impact of different models and settings on coding results as well as on downstream analyses.
 
 #### `qlm_trail()`
 - Extracts and displays the complete provenance chain from coded objects.
@@ -73,7 +73,7 @@ All `qlm_coded`, `qlm_comparison`, and `qlm_validation` objects automatically ca
 #### `qlm_trail_save()`, `qlm_trail_export()`, `qlm_trail_report()`
 - **Save**: Archive provenance trails to RDS format for long-term storage.
 - **Export**: Convert trails to JSON format for portability and integration with other tools.
-- **Report**: Generate human-readable Quarto/RMarkdown documents summarizing the complete workflow history.
+- **Report**: Generate human-readable Quarto/RMarkdown documents summarizing the complete workflow history, including an assessment of the impact of different models and settings on coding results and downstream analyses.
 
 
 ## Interactive validation

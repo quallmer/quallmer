@@ -4,19 +4,25 @@
 \alias{qlm_trail_report}
 \title{Generate trail report}
 \usage{
-qlm_trail_report(trail, file)
+qlm_trail_report(trail, file, analyses = NULL, robustness = NULL)
 }
 \arguments{
 \item{trail}{A \code{qlm_trail} object from \code{\link[=qlm_trail]{qlm_trail()}}.}
 
 \item{file}{Path to save the report file (\code{.qmd} or \code{.Rmd}).}
+
+\item{analyses}{Optional. A \code{qlm_trail_analyses} object from \code{\link[=qlm_trail_analyses]{qlm_trail_analyses()}}
+containing comparison and validation metrics to include in the report.}
+
+\item{robustness}{Optional. A \code{qlm_robustness} object from \code{\link[=qlm_trail_robustness]{qlm_trail_robustness()}}
+containing downstream analysis robustness metrics to include in the report.}
 }
 \value{
 Invisibly returns the file path.
 }
 \description{
 Generates a human-readable Quarto/RMarkdown document summarizing the
-provenance trail.
+provenance trail, optionally including assessment metrics across runs.
 }
 \details{
 Creates a formatted document showing:
@@ -25,6 +31,12 @@ Creates a formatted document showing:
 \item Timeline of runs
 \item Model parameters and settings for each run
 \item Parent-child relationships
+\item Assessment metrics (if provided):
+\itemize{
+\item Inter-rater reliability comparisons
+\item Validation results against gold standards
+\item Downstream analysis robustness
+}
 }
 
 The generated file can be rendered to HTML, PDF, or other formats using
@@ -32,11 +44,21 @@ Quarto or RMarkdown.
 }
 \examples{
 \dontrun{
+# Basic trail report
 trail <- qlm_trail(coded1, coded2, coded3)
 qlm_trail_report(trail, "analysis_trail.qmd")
 
+# Include assessment metrics
+analyses <- qlm_trail_analyses(coded1, coded2, comparison)
+robustness <- qlm_trail_robustness(coded1, coded2, coded3,
+                                   reference = "run1",
+                                   analysis_fn = my_analysis)
+qlm_trail_report(trail, "full_report.qmd",
+                 analyses = analyses,
+                 robustness = robustness)
+
 # Render to HTML
-quarto::quarto_render("analysis_trail.qmd")
+quarto::quarto_render("full_report.qmd")
 }
 
 }

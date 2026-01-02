@@ -1,16 +1,17 @@
 ---
-title: "The quallmer trail for traceability"
+title: "The quallmer trail"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 ```
 
 In this tutorial, we will explore the quallmer trail system, which automatically captures provenance metadata for full workflow traceability. The trail system helps you:
 
 - Track the complete history of your coding workflow
 - Document model parameters and settings used
+- Assess robustness of downstream analyses
 - Maintain parent-child relationships across coding runs
 - Export provenance information for reproducibility
 - Generate human-readable reports of your analysis pipeline
@@ -26,7 +27,7 @@ All `qlm_coded`, `qlm_comparison`, and `qlm_validation` objects in quallmer auto
 - **Parent runs**: Links to previous runs in a replication chain
 - **Metadata**: Package versions, number of units coded, etc.
 
-This metadata enables full workflow traceability and reproducibility.
+This metadata enables full workflow traceability.
 
 ## Loading packages and data
 
@@ -127,60 +128,149 @@ The output shows:
 - Codebook used
 
 
-## Assessing robustness across runs
+## Assessing robustness of downstream analysis
 
-The `qlm_trail_robustness()` function helps you assess how stable your coding results are across different models, parameters, or codebooks. This is crucial for understanding whether your findings are robust or sensitive to methodological choices.
+The `qlm_trail_robustness()` function helps you assess whether your **substantive findings** change across different models or settings. Instead of just comparing raw coded values (as qlm_compare() already does), it compares the results of your downstream analysis (means, proportions, correlations, etc.).
 
-### Computing robustness scores
+### Defining your downstream analysis
+
+First, define a function that performs your analysis on coded data:
+
+```{r robustness-define}
+# Define what analysis you want to compare
+my_analysis <- function(coded) {
+  list(
+    mean_score = mean(coded$score, na.rm = TRUE),
+    sd_score = sd(coded$score, na.rm = TRUE),
+    n_units = sum(!is.na(coded$score))
+  )
+}
+```
+
+The analysis function should:
+- Take a `qlm_coded` object as input
+- Return a named list of numeric statistics
+- Each statistic should be a single number (e.g., mean, proportion, correlation)
+
+### Computing robustness
 
 ```{r robustness-basic}
-# Compute how much results differ from the initial run
+# Compute how much your analysis results differ across models
 robustness <- qlm_trail_robustness(coded1, coded2, coded3,
                                    reference = "initial_gpt4o",
-                                   by = "score")
+                                   analysis_fn = my_analysis)
 
 # View the robustness scale
 robustness
 ```
 
-The robustness scale shows:
-- **run**: Name of each comparison run
-- **variable**: Variable being compared
-- **agreement**: Percent agreement with the reference run (0-100)
-- **n**: Number of units compared
+The output shows:
 
-Higher agreement values (closer to 100) indicate more robust results that don't change much when using different models or settings.
+- **run**: Name of each run 
+- **statistic**: Which analysis statistic (e.g., mean_score) 
+- **value**: Value from this run 
+- **reference_value**: Value from the reference run 
+- **abs_diff**: Absolute difference from reference 
+- **pct_diff**: Percent change from reference 
 
-### Interpreting robustness scores
+### Interpreting robustness
 
 ```{r robustness-interpret}
-# Check which runs have high robustness (>90% agreement)
-high_robustness <- robustness[robustness$agreement > 90, ]
+# Check which statistics have large differences (>5% change)
+concerning <- robustness[abs(robustness$pct_diff) > 5 & !is.na(robustness$pct_diff), ]
 
-# Check which runs have concerning differences (<80% agreement)
-low_robustness <- robustness[robustness$agreement < 80, ]
+# Check which are highly stable (<1% change)
+stable <- robustness[abs(robustness$pct_diff) < 1 & !is.na(robustness$pct_diff), ]
 ```
 
 **Interpretation guidelines:**
-- **>95% agreement**: Very robust, results are highly stable
-- **90-95% agreement**: Good robustness, minor variations
-- **80-90% agreement**: Moderate robustness, some sensitivity to settings
-- **<80% agreement**: Low robustness, results vary substantially
 
-### Comparing across multiple variables
+- **<1% difference**: Highly robust, findings are very stable 
+- **1-5% difference**: Good robustness, minor variations 
+- **5-10% difference**: Moderate robustness, some sensitivity 
+- **>10% difference**: Low robustness, conclusions may change 
 
-```{r robustness-multiple}
-# If your codebook has multiple output variables
-# robustness <- qlm_trail_robustness(coded1, coded2, coded3,
-#                                    reference = "initial_gpt4o",
-#                                    by = c("score", "explanation"))
-#
-# # Aggregate across variables
-# library(dplyr)
-# robustness %>%
-#   group_by(run) %>%
-#   summarize(mean_agreement = mean(agreement, na.rm = TRUE))
+The acceptable threshold depends on your research context and the magnitude of effects you're studying.
+
+
+## Integrating comparisons and validations
+
+The trail system automatically tracks comparisons and validations. Use `qlm_trail_analyses()` to extract all reliability and validity metrics from your workflow.
+
+### Complete workflow example
+
+```{r workflow-complete}
+# 1. Code with two different models
+coded_gpt4o <- qlm_code(data_corpus_inaugural,
+                        codebook = data_codebook_ideology,
+                        model = "openai/gpt-4o",
+                        temperature = 0,
+                        name = "gpt4o_run")
+
+coded_mini <- qlm_replicate(coded_gpt4o,
+                            model = "openai/gpt-4o-mini",
+                            name = "mini_run")
+
+# 2. Compare inter-rater reliability
+comparison <- qlm_compare(coded_gpt4o, coded_mini,
+                          by = "score",
+                          measure = "alpha")
+
+# 3. Validate against gold standard (if you have one)
+# gold <- data.frame(.id = coded_gpt4o$.id, score = c(2, 3, 1, ...))
+# validation <- qlm_validate(coded_gpt4o, gold = gold, by = "score")
+
+# 4. Extract all comparisons and validations
+analyses <- qlm_trail_analyses(coded_gpt4o, coded_mini, comparison)
+print(analyses)
 ```
+
+The output shows:
+
+- **Comparisons**: Which runs were compared, what metric was used, the value, and how many subjects/raters 
+- **Validations**: Which runs were validated, and all accuracy metrics
+
+### Viewing complete workflow trail
+
+```{r workflow-trail}
+# Get full provenance trail including comparisons
+full_trail <- qlm_trail(coded_gpt4o, coded_mini, comparison)
+print(full_trail)
+
+# The trail shows parent-child relationships:
+# - gpt4o_run (original)
+# - mini_run (parent: gpt4o_run)
+# - comparison_... (parents: gpt4o_run, mini_run)
+```
+
+### Assessing robustness with comparisons
+
+Combine robustness assessment with comparison metrics:
+
+```{r workflow-robustness-compare}
+# Define your analysis
+my_analysis <- function(coded) {
+  list(
+    mean_score = mean(coded$score, na.rm = TRUE),
+    sd_score = sd(coded$score, na.rm = TRUE)
+  )
+}
+
+# Check robustness
+robustness <- qlm_trail_robustness(coded_gpt4o, coded_mini,
+                                   reference = "gpt4o_run",
+                                   analysis_fn = my_analysis)
+
+# View alongside comparison metrics
+print(comparison)  # Inter-rater reliability (how much codings agree)
+print(robustness)  # Downstream analysis (how much findings change)
+```
+
+This gives you a complete picture:
+
+- **Comparison** shows how much the raw codings agree 
+- **Robustness** shows how much your conclusions change 
+- **Trail** documents the full workflow for reproducibility
 
 ## Exporting provenance trails
 
@@ -188,59 +278,69 @@ The trail system provides three export formats for different purposes:
 
 ### Saving to RDS (for archival)
 
-```{.r trail-save}
+```{r trail-save}
 # Extract the trail
 trail <- qlm_trail(coded3, coded2, coded1)
 
 # Save to RDS for long-term storage
-qlm_trail_save(trail, "sentiment_analysis_trail.rds")
+#qlm_trail_save(trail, "sentiment_analysis_trail.rds")
 
-# Later, you can load it back
-loaded_trail <- readRDS("sentiment_analysis_trail.rds")
 ```
 
 ### Exporting to JSON (for portability)
 
-```{.r trail-json}
+```{r trail-json}
 # Export to JSON format for integration with other tools
-qlm_trail_export(trail, "sentiment_analysis_trail.json")
+#qlm_trail_export(trail, "sentiment_analysis_trail.json")
 ```
-
-The JSON file includes:
-
-- Run names and parent relationships
-- Timestamps
-- Model names and parameters
-- Codebook names
-- Metadata (package versions, etc.)
-
-This format is useful for:
-
-- Sharing with collaborators
-- Integration with data management systems
-- Long-term archival in repositories
 
 ### Generating human-readable reports
 
-```{.r trail-report}
-# Generate a Quarto report
-qlm_trail_report(trail, "sentiment_analysis_trail.qmd")
-
+```{r trail-report-basic}
+# Generate a basic Quarto report
+trail <- qlm_trail(coded1, coded2, coded3)
+#qlm_trail_report(trail, "sentiment_analysis_trail.qmd")
 ```
 
-The report includes:
+The basic report includes:
 
 - Trail summary (number of runs, completeness)
 - Timeline of all coding runs
 - Detailed information for each run (model, parameters, timestamps)
 - System information (R version, package versions)
 
-This is ideal for:
+### Including assessment metrics in reports
+
+For a comprehensive report that includes quality metrics, provide the analyses and robustness results:
+
+```{r trail-report-comprehensive}
+# First, compute your assessment metrics
+analyses <- qlm_trail_analyses(coded_gpt4o, coded_mini, comparison)
+
+robustness <- qlm_trail_robustness(coded_gpt4o, coded_mini,
+                                   reference = "gpt4o_run",
+                                   analysis_fn = my_analysis)
+
+# Generate comprehensive report with all metrics
+trail <- qlm_trail(coded_gpt4o, coded_mini, comparison)
+#qlm_trail_report(trail, "comprehensive_report.qmd",
+#                 analyses = analyses,
+#                 robustness = robustness)
+```
+
+The comprehensive report adds:
+
+- **Inter-rater reliability comparisons**: Shows agreement metrics between runs 
+- **Validation results**: Displays accuracy metrics against gold standards (if validated) 
+- **Downstream analysis robustness**: Shows how substantive findings change across runs
+
+This comprehensive report is ideal for:
 
 - Methods sections in papers
-- Supplementary materials
-- Research documentation
-- Reproducibility reports
+- Supplementary materials for peer review
+- Research documentation and notebooks
+- Replication packages
+- Transparency and reproducibility reports
 
 
 ## Best practices for provenance tracking
@@ -251,9 +351,11 @@ This is ideal for:
 
 3. **Preserve all objects**: Keep all intermediate `qlm_coded` objects if you want to reconstruct the full trail later
 
-4. **Export trails regularly**: Save trails at key milestones using `qlm_trail_save()`
+4. **Assess robustness**: Use `qlm_trail_robustness()` to check how stable your results are across different settings. Report robustness scores in your research.
 
-5. **Generate reports**: Create trail reports for:
+5. **Export trails regularly**: Save trails at key milestones using `qlm_trail_save()`
+
+6. **Generate reports**: Create trail reports for:
    - Paper submissions (methods documentation)
    - Research notebooks
    - Replication packages
@@ -264,10 +366,14 @@ This is ideal for:
 In this tutorial, you learned how to:
 
 - Understand automatic provenance tracking in quallmer objects
-- Create coding workflows with parent-child relationships
+- Create coding workflows with parent-child relationships using `qlm_replicate()`
 - Use `qlm_trail()` to extract and display provenance chains
+- Assess robustness of downstream analysis using `qlm_trail_robustness()`
+- Extract comparison and validation metrics with `qlm_trail_analyses()`
+- Integrate `qlm_compare()` and `qlm_validate()` into your workflow
 - Export trails to RDS, JSON, and report formats
+- Generate comprehensive reports with assessment metrics using `qlm_trail_report()`
 - Document complex workflows with branching and replication
 - Access provenance information programmatically
 
-The quallmer trail system ensures your qualitative coding research is fully traceable, reproducible, and well-documented for scientific rigor and transparency.
+The quallmer trail system ensures your qualitative coding research is fully traceable and well-documented for scientific rigor and transparency.

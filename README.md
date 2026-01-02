@@ -36,7 +36,7 @@ full workflow traceability using `qlm_trail()` and related functions.
 without requiring deep expertise in R, programming or machine
 learning.**
 
-### Coding and validation workflow
+## Coding and validation workflow
 
 #### `qlm_codebook()`
 
@@ -92,7 +92,8 @@ learning.**
 All `qlm_coded`, `qlm_comparison`, and `qlm_validation` objects
 automatically capture provenance metadata including model parameters,
 timestamps, and parent-child relationships. This enables full workflow
-traceability and reproducibility.
+traceability. It also allows users to assess the impact of different
+models and settings on coding results as well as on downstream analyses.
 
 #### `qlm_trail()`
 
@@ -112,7 +113,9 @@ traceability and reproducibility.
 - **Export**: Convert trails to JSON format for portability and
   integration with other tools.
 - **Report**: Generate human-readable Quarto/RMarkdown documents
-  summarizing the complete workflow history.
+  summarizing the complete workflow history, including an assessment of
+  the impact of different models and settings on coding results and
+  downstream analyses.
 
 ## Interactive validation
 
