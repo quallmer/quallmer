@@ -36,20 +36,8 @@ navbar:
       text: Reference
       href: reference/index.html
     examples:
-      text: Example codebooks
-      menu:
-      - text: Overview of built-in codebooks
-        href: articles/pkgdown/examples/overview.html
-      - text: Sentiment analysis
-        href: articles/pkgdown/examples/codebook_sentiment.html
-      - text: Stance detection / position taking
-        href: articles/pkgdown/examples/codebook_stance.html
-      - text: Ideological scaling
-        href: articles/pkgdown/examples/codebook_ideology.html
-      - text: Salience of topics
-        href: articles/pkgdown/examples/codebook_salience.html
-      - text: Fact-checking
-        href: articles/pkgdown/examples/codebook_fact.html
+      text: Example
+      href: articles/pkgdown/examples/codebook_sentiment.html
     github:
       icon: fab fa-github
       href: https://github.com/SeraphineM/quallmer

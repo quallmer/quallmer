@@ -2,7 +2,7 @@
 % Please edit documentation in R/custom_codebooks.R
 \name{codebook_fact}
 \alias{codebook_fact}
-\title{Built-in codebook for overall truthfulness assessment}
+\title{Built-in codebook for fact-checking (deprecated)}
 \usage{
 codebook_fact(max_topics = 5)
 }
@@ -14,6 +14,11 @@ reducing confidence in the truthfulness of the text. Default is 5.}
 A codebook object (qlm_codebook)
 }
 \description{
-Assigns an overall truthfulness score to a text and lists topics that reduce
-confidence in its accuracy.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
 }
+\details{
+\code{codebook_fact()} is deprecated. Use the data object \link{data_codebook_fact}
+as an example, or create a custom codebook with \code{\link[=qlm_codebook]{qlm_codebook()}} for your
+specific max_topics setting.
+}
+\keyword{internal}

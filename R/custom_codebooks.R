@@ -1,7 +1,15 @@
-#' Built-in codebook for sentiment analysis
+#' Built-in codebook for sentiment analysis (deprecated)
+#'
+#' `r lifecycle::badge("deprecated")`
+#'
+#' `codebook_sentiment()` is deprecated. Use the data object [data_codebook_sentiment]
+#' instead, which provides a ready-to-use codebook example.
+#'
 #' @return A codebook object (qlm_codebook)
+#' @keywords internal
 #' @export
 codebook_sentiment <- function() {
+  lifecycle::deprecate_warn("0.2.0", "codebook_sentiment()", "data_codebook_sentiment")
   qlm_codebook(
     name = "Sentiment analysis",
     instructions = "Rate the sentiment of each text from -1 (very negative) to 1 (very positive) and briefly explain why.",
@@ -29,11 +37,20 @@ task_sentiment <- function() {
 }
 
 
-#' Built-in codebook for stance detection (position taking)
+#' Built-in codebook for stance detection (deprecated)
+#'
+#' `r lifecycle::badge("deprecated")`
+#'
+#' `codebook_stance()` is deprecated. Use the data object [data_codebook_stance]
+#' as an example, or create a custom codebook with [qlm_codebook()] for your
+#' specific topic.
+#'
 #' @param topic A character string specifying the topic for stance detection.
 #' @return A codebook object (qlm_codebook)
+#' @keywords internal
 #' @export
 codebook_stance <- function(topic = "the given topic") {
+  lifecycle::deprecate_warn("0.2.0", "codebook_stance()", "data_codebook_stance")
   qlm_codebook(
     name = "Stance detection",
     instructions = paste0(
@@ -65,9 +82,13 @@ task_stance <- function(topic = "the given topic") {
   codebook_stance(topic)
 }
 
-#' Built-in codebook for ideological scaling on a specified dimension
+#' Built-in codebook for ideological scaling (deprecated)
 #'
-#' Ideological scaling on a specified dimension, with justification.
+#' `r lifecycle::badge("deprecated")`
+#'
+#' `codebook_ideology()` is deprecated. Use the data object [data_codebook_ideology]
+#' as an example, or create a custom codebook with [qlm_codebook()] for your
+#' specific ideological dimension.
 #'
 #' @param dimension A character string specifying the ideological dimension,
 #'   ideally naming both poles, e.g., "liberal - illiberal", "left - right",
@@ -76,11 +97,13 @@ task_stance <- function(topic = "the given topic") {
 #'   If provided, it will be included in the system prompt to guide annotation.
 #'
 #' @return A codebook object (qlm_codebook)
+#' @keywords internal
 #' @export
 codebook_ideology <- function(
     dimension = "the specified ideological dimension (0 = first pole, 10 = second pole)",
     definition = NULL
 ) {
+  lifecycle::deprecate_warn("0.2.0", "codebook_ideology()", "data_codebook_ideology")
 
   definition_text <- if (!is.null(definition)) {
     paste0("\n\nDefinition of the dimension:\n", definition, "\n")
@@ -134,9 +157,13 @@ task_ideology <- function(
   codebook_ideology(dimension, definition)
 }
 
-#' Built-in codebook for salience of topics discussed (ranked topics)
+#' Built-in codebook for salience of topics (deprecated)
 #'
-#' Ranked list of topics mentioned in a text, ordered by salience.
+#' `r lifecycle::badge("deprecated")`
+#'
+#' `codebook_salience()` is deprecated. Use the data object [data_codebook_salience]
+#' as an example, or create a custom codebook with [qlm_codebook()] for your
+#' specific topic list or max_topics setting.
 #'
 #' @param topics Optional character vector of predefined topic labels
 #'   (e.g., c("economy", "health", "education", "environment")).
@@ -146,8 +173,10 @@ task_ideology <- function(
 #'   are inferred from the text. Default is 5.
 #'
 #' @return A codebook object (qlm_codebook)
+#' @keywords internal
 #' @export
 codebook_salience <- function(topics = NULL, max_topics = 5) {
+  lifecycle::deprecate_warn("0.2.0", "codebook_salience()", "data_codebook_salience")
 
   instructions <- paste(
     "Extract structured data on the salience of topics discussed in texts.",
@@ -215,17 +244,22 @@ task_salience <- function(topics = NULL, max_topics = 5) {
 }
 
 
-#' Built-in codebook for overall truthfulness assessment
+#' Built-in codebook for fact-checking (deprecated)
 #'
-#' Assigns an overall truthfulness score to a text and lists topics that reduce
-#' confidence in its accuracy.
+#' `r lifecycle::badge("deprecated")`
+#'
+#' `codebook_fact()` is deprecated. Use the data object [data_codebook_fact]
+#' as an example, or create a custom codebook with [qlm_codebook()] for your
+#' specific max_topics setting.
 #'
 #' @param max_topics Integer: maximum number of topics or issues to list as
 #'   reducing confidence in the truthfulness of the text. Default is 5.
 #'
 #' @return A codebook object (qlm_codebook)
+#' @keywords internal
 #' @export
 codebook_fact <- function(max_topics = 5) {
+  lifecycle::deprecate_warn("0.2.0", "codebook_fact()", "data_codebook_fact")
 
   instructions <- paste(
     "Your goal is to provide an overall assessment of how truthful and accurate",

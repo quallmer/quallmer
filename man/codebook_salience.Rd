@@ -2,7 +2,7 @@
 % Please edit documentation in R/custom_codebooks.R
 \name{codebook_salience}
 \alias{codebook_salience}
-\title{Built-in codebook for salience of topics discussed (ranked topics)}
+\title{Built-in codebook for salience of topics (deprecated)}
 \usage{
 codebook_salience(topics = NULL, max_topics = 5)
 }
@@ -19,5 +19,11 @@ are inferred from the text. Default is 5.}
 A codebook object (qlm_codebook)
 }
 \description{
-Ranked list of topics mentioned in a text, ordered by salience.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
 }
+\details{
+\code{codebook_salience()} is deprecated. Use the data object \link{data_codebook_salience}
+as an example, or create a custom codebook with \code{\link[=qlm_codebook]{qlm_codebook()}} for your
+specific topic list or max_topics setting.
+}
+\keyword{internal}

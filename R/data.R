@@ -225,3 +225,128 @@
 #' print(comparison)
 #' }
 "data_codebook_sentiment"
+
+
+#' Stance detection codebook for climate change
+#'
+#' A `qlm_codebook` object defining instructions for detecting stance towards
+#' climate change in texts.
+#'
+#' @format A `qlm_codebook` object containing:
+#'   \describe{
+#'     \item{name}{Task name: "Stance detection"}
+#'     \item{instructions}{Coding instructions for classifying stance}
+#'     \item{schema}{Response schema with two fields:}
+#'       \itemize{
+#'         \item `stance`: String indicating "Pro", "Neutral", or "Contra"
+#'         \item `explanation`: Brief explanation of the classification
+#'       }
+#'     \item{role}{Expert annotator persona}
+#'     \item{input_type}{"text"}
+#'   }
+#'
+#' @seealso [qlm_codebook()], [qlm_code()]
+#' @keywords data
+#' @examples
+#' \dontrun{
+#' # View the codebook
+#' data_codebook_stance
+#'
+#' # Use with text data
+#' coded <- qlm_code(my_texts, data_codebook_stance, model = "openai/gpt-4o-mini")
+#' }
+"data_codebook_stance"
+
+
+#' Ideological scaling codebook for left-right dimension
+#'
+#' A `qlm_codebook` object defining instructions for scaling texts on a
+#' left-right ideological dimension.
+#'
+#' @format A `qlm_codebook` object containing:
+#'   \describe{
+#'     \item{name}{Task name: "Ideological scaling"}
+#'     \item{instructions}{Coding instructions for ideological scaling}
+#'     \item{schema}{Response schema with two fields:}
+#'       \itemize{
+#'         \item `score`: Integer from 0 (left) to 10 (right)
+#'         \item `explanation`: Brief justification for the assigned score
+#'       }
+#'     \item{role}{Expert political scientist persona}
+#'     \item{input_type}{"text"}
+#'   }
+#'
+#' @seealso [qlm_codebook()], [qlm_code()]
+#' @keywords data
+#' @examples
+#' \dontrun{
+#' # View the codebook
+#' data_codebook_ideology
+#'
+#' # Use with political texts
+#' coded <- qlm_code(manifestos, data_codebook_ideology, model = "openai/gpt-4o-mini")
+#' }
+"data_codebook_ideology"
+
+
+#' Topic salience codebook
+#'
+#' A `qlm_codebook` object defining instructions for extracting and ranking
+#' topics discussed in texts by their salience.
+#'
+#' @format A `qlm_codebook` object containing:
+#'   \describe{
+#'     \item{name}{Task name: "Salience (ranked topics)"}
+#'     \item{instructions}{Coding instructions for topic salience ranking}
+#'     \item{schema}{Response schema with two fields:}
+#'       \itemize{
+#'         \item `topics`: Array of strings listing topics by salience (up to 5)
+#'         \item `explanation`: Brief explanation of topic selection and ordering
+#'       }
+#'     \item{role}{Expert content analyst persona}
+#'     \item{input_type}{"text"}
+#'   }
+#'
+#' @seealso [qlm_codebook()], [qlm_code()]
+#' @keywords data
+#' @examples
+#' \dontrun{
+#' # View the codebook
+#' data_codebook_salience
+#'
+#' # Use with documents
+#' coded <- qlm_code(documents, data_codebook_salience, model = "openai/gpt-4o-mini")
+#' }
+"data_codebook_salience"
+
+
+#' Fact-checking codebook
+#'
+#' A `qlm_codebook` object defining instructions for assessing the truthfulness
+#' and accuracy of texts.
+#'
+#' @format A `qlm_codebook` object containing:
+#'   \describe{
+#'     \item{name}{Task name: "Fact-checking"}
+#'     \item{instructions}{Coding instructions for truthfulness assessment}
+#'     \item{schema}{Response schema with three fields:}
+#'       \itemize{
+#'         \item `truth_score`: Integer from 0 (false/misleading) to 10 (accurate)
+#'         \item `misleading_topic`: Array of topics that reduce confidence (up to 5)
+#'         \item `explanation`: Brief explanation of the truthfulness score
+#'       }
+#'     \item{role}{Expert fact-checker persona}
+#'     \item{input_type}{"text"}
+#'   }
+#'
+#' @seealso [qlm_codebook()], [qlm_code()]
+#' @keywords data
+#' @examples
+#' \dontrun{
+#' # View the codebook
+#' data_codebook_fact
+#'
+#' # Use with claims or articles
+#' coded <- qlm_code(claims, data_codebook_fact, model = "openai/gpt-4o-mini")
+#' }
+"data_codebook_fact"

@@ -2,7 +2,7 @@
 % Please edit documentation in R/custom_codebooks.R
 \name{codebook_sentiment}
 \alias{codebook_sentiment}
-\title{Built-in codebook for sentiment analysis}
+\title{Built-in codebook for sentiment analysis (deprecated)}
 \usage{
 codebook_sentiment()
 }
@@ -10,5 +10,10 @@ codebook_sentiment()
 A codebook object (qlm_codebook)
 }
 \description{
-Built-in codebook for sentiment analysis
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
 }
+\details{
+\code{codebook_sentiment()} is deprecated. Use the data object \link{data_codebook_sentiment}
+instead, which provides a ready-to-use codebook example.
+}
+\keyword{internal}

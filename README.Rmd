@@ -34,8 +34,7 @@ Using `qlm_code()`, users can apply codebook-based qualitative coding powered by
 #### `qlm_codebook()`
 - Creates custom codebooks tailored to specific research questions and data types.
 - Uses `instructions` and type specifications from [ellmer](https://ellmer.tidyverse.org/reference/type_boolean.html) to define coding instructions and output structure.
-- **Built-in codebook functions** (e.g., `codebook_sentiment()`, `codebook_stance()`) provide ready-to-use codebooks for common qualitative coding tasks.
-- **Example codebook objects** (e.g., `data_codebook_sentiment`) demonstrate complete workflows paired with example datasets.
+- **Example codebook objects** (e.g., `data_codebook_sentiment`, `data_codebook_stance`, `data_codebook_ideology`) demonstrate complete workflows for common qualitative coding tasks.
 - Extensible framework allows researchers to define domain-specific coding schemes.
 
 #### `qlm_code()`
@@ -85,7 +84,7 @@ pak::pak("SeraphineM/quallmer")
 ## Example use and tutorials
 
 To learn more about how to use the package, please refer to our [step-by-step tutorials](https://seraphinem.github.io/quallmer/articles/getting-started.html) and
-the illustrations on [how to use the built-in codebooks](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/overview.html).
+the [example codebook](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/codebook_sentiment.html) illustrating a complete workflow.
 
 ## Acknowledgments
 

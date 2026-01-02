@@ -16,10 +16,10 @@ The new API uses the `qlm_` prefix to avoid namespace conflicts (e.g., with `ggp
 
 * `qlm_coded` objects now use a hierarchical attribute structure with a `run` list containing `name`, `call`, `codebook`, `chat_args`, `pcs_args`, `metadata`, and `parent` fields. This structure supports provenance tracking across replication chains and provides clearer organization of coding metadata.
 
-## Built-in codebooks
+## Example codebooks
 
-* New `codebook_*()` functions provide ready-to-use codebooks for common tasks: `codebook_sentiment()`, `codebook_stance()`, `codebook_ideology()`, `codebook_salience()`, and `codebook_fact()`.
-* All predefined `task_*()` functions (`task_sentiment()`, `task_stance()`, `task_ideology()`, `task_salience()`, `task_fact()`) are deprecated in favor of the new `codebook_*()` equivalents.
+* New example codebook data objects provide ready-to-use codebooks for common tasks: `data_codebook_sentiment`, `data_codebook_stance`, `data_codebook_ideology`, `data_codebook_salience`, and `data_codebook_fact`. These demonstrate complete workflows for qualitative coding tasks.
+* All predefined `task_*()` and `codebook_*()` functions are deprecated in favor of using the data objects or creating custom codebooks with `qlm_codebook()`.
 
 ## Deprecated and superseded functions
 

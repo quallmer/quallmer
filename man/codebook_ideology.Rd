@@ -2,7 +2,7 @@
 % Please edit documentation in R/custom_codebooks.R
 \name{codebook_ideology}
 \alias{codebook_ideology}
-\title{Built-in codebook for ideological scaling on a specified dimension}
+\title{Built-in codebook for ideological scaling (deprecated)}
 \usage{
 codebook_ideology(
   dimension = "the specified ideological dimension (0 = first pole, 10 = second pole)",
@@ -21,5 +21,11 @@ If provided, it will be included in the system prompt to guide annotation.}
 A codebook object (qlm_codebook)
 }
 \description{
-Ideological scaling on a specified dimension, with justification.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
 }
+\details{
+\code{codebook_ideology()} is deprecated. Use the data object \link{data_codebook_ideology}
+as an example, or create a custom codebook with \code{\link[=qlm_codebook]{qlm_codebook()}} for your
+specific ideological dimension.
+}
+\keyword{internal}

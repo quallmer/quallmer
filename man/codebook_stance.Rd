@@ -2,7 +2,7 @@
 % Please edit documentation in R/custom_codebooks.R
 \name{codebook_stance}
 \alias{codebook_stance}
-\title{Built-in codebook for stance detection (position taking)}
+\title{Built-in codebook for stance detection (deprecated)}
 \usage{
 codebook_stance(topic = "the given topic")
 }
@@ -13,5 +13,11 @@ codebook_stance(topic = "the given topic")
 A codebook object (qlm_codebook)
 }
 \description{
-Built-in codebook for stance detection (position taking)
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
 }
+\details{
+\code{codebook_stance()} is deprecated. Use the data object \link{data_codebook_stance}
+as an example, or create a custom codebook with \code{\link[=qlm_codebook]{qlm_codebook()}} for your
+specific topic.
+}
+\keyword{internal}
