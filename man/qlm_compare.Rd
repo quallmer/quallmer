@@ -63,8 +63,7 @@ exclude that unit from analysis.
 set.seed(42)
 reviews <- data_corpus_LMRDsample[sample(length(data_corpus_LMRDsample), size = 20)]
 coded1 <- qlm_code(reviews, data_codebook_sentiment, model = "openai/gpt-4o-mini")
-coded2 <- qlm_code(reviews, data_codebook_sentiment,
-                   model = "anthropic/claude-sonnet-4-20250514")
+coded2 <- qlm_code(reviews, data_codebook_sentiment, model = "openai/gpt-4o")
 
 # Compute agreement for the polarity variable
 qlm_compare(coded1, coded2, by = "polarity", measure = "agreement")
@@ -74,7 +73,7 @@ qlm_compare(coded1, coded2, by = "polarity", measure = "alpha")
 qlm_compare(coded1, coded2, by = "rating", measure = "alpha", level = "ordinal")
 
 # Compare three raters using Fleiss' kappa on polarity
-coded3 <- qlm_code(reviews, data_codebook_sentiment, model = "openai/gpt-4o")
+coded3 <- qlm_replicate(coded1, temperature = 0.5)
 qlm_compare(coded1, coded2, coded3, by = "polarity", measure = "kappa", level = "nominal")
 }
 

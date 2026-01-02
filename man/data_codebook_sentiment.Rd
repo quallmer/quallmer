@@ -42,7 +42,7 @@ coded1 <- qlm_code(data_corpus_LMRDsample[1:20],
                    model = "openai/gpt-4o-mini")
 coded2 <- qlm_code(data_corpus_LMRDsample[1:20],
                    data_codebook_sentiment,
-                   model = "anthropic/claude-sonnet-4-20250514")
+                   model = "openai/gpt-4o")
 
 # Compare inter-rater reliability
 comparison <- qlm_compare(coded1, coded2, by = "rating", measure = "alpha")

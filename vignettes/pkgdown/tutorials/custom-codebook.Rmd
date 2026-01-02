@@ -1,5 +1,5 @@
 ---
-title: "Defining custom tasks"
+title: "Creating codebooks"
 output: html_document
 ---
 
@@ -7,10 +7,15 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-In this tutorial, we will explore how to create custom annotation tasks using the `quallmer` package. Custom tasks allow you to tailor the LLM's output to your specific research questions and data types using the `qlm_codebook()` function, providing greater flexibility and control over the annotation process.
+In this tutorial, we will learn how to create custom codebooks for qualitative coding tasks using the `quallmer` package. Codebooks are essential for guiding large language models (LLMs) in generating structured and meaningful outputs based on your research questions.
 
-In the following example, we will demonstrate how to define a custom codebook for scoring documents
-based on their alignment with political left ideologies. For this, we formulate instructions that ask the LLM to score documents on a scale of political left alignment. We then define the expected response structure using the `qlm_codebook()` function. Finally, we will use the `qlm_code()` function to apply this custom codebook to a sample corpus of inaugural speeches from US presidents.
+We'll demonstrate two approaches:
+
+1. **Learning from built-in examples**: Inspect the built-in example `data_codebook_sentiment` to understand codebook structure
+
+2. **Creating custom codebooks**: Build a domain-specific codebook for political ideology scoring
+
+The built-in codebooks serve as educational templates showing basic principles of instruction writing, schema design, and role definition. For actual research, you can create more detailed custom codebooks using `qlm_codebook()` that match your specific needs.
 
 ### Loading packages and data
 
@@ -24,10 +29,34 @@ library(quallmer)
 
 # For educational purposes, 
 # we will use a subset of the inaugural speeches corpus
-# The three most recent speeches in the corpus
-data_corpus_inaugural <- quanteda::data_corpus_inaugural[57:60]
+# The ten most recent speeches in the corpus
+data_corpus_inaugural <- quanteda::data_corpus_inaugural[50:60]
 
 ```
+
+### Learning from built-in codebooks examples
+
+Before creating a custom codebook, let's inspect the built-in `data_codebook_sentiment` to understand the structure:
+
+```{r inspect-builtin}
+# View the codebook
+data_codebook_sentiment
+
+# Inspect the role
+data_codebook_sentiment$role
+
+# Inspect the instructions
+data_codebook_sentiment$instructions
+
+```
+
+This shows us:
+- The input type is text
+- The role defines the model as a political communication analyst
+- The instructions guide the model to analyze sentiment on a 1-10 scale and classify polarity
+- The schema specifies the expected output structure with fields for polarity and rating
+
+Now let's create a custom codebook for our specific research question.
 
 ### Defining custom instructions
 
@@ -99,4 +128,11 @@ coded %>%
   column_spec(3)
 ```
 
-Now you have successfully created and applied a custom annotation codebook using the `quallmer` package! You can further modify the instructions, role, and response structure to suit your specific research needs.
+## Summary
+
+Now you have successfully learned how to:
+1. Inspect built-in codebooks to understand best practices
+2. Create custom codebooks from scratch for specific research questions
+3. Apply codebooks to data using `qlm_code()`
+
+The flexibility of custom codebooks allows you to adapt quallmer to any qualitative coding task in your research!

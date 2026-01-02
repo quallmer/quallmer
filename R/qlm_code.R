@@ -10,18 +10,20 @@
 #' @param x Input data: a character vector of texts (for text codebooks) or
 #'   file paths to images (for image codebooks). Named vectors will use names
 #'   as identifiers in the output; unnamed vectors will use sequential integers.
-#' @param codebook A codebook object created with [qlm_codebook()] or one of
-#'   the predefined codebook functions ([task_sentiment()], [task_stance()],
-#'   [task_ideology()], [task_salience()], [task_fact()]). Also accepts
+#' @param codebook A codebook object created with [qlm_codebook()]. Also accepts
 #'   deprecated [task()] objects for backward compatibility.
 #' @param model Provider (and optionally model) name in the form
 #'   `"provider/model"` or `"provider"` (which will use the default model for
 #'   that provider). Passed to the `name` argument of [ellmer::chat()].
 #'   Examples: `"openai/gpt-4o-mini"`, `"anthropic/claude-3-5-sonnet-20241022"`,
 #'   `"ollama/llama3.2"`, `"openai"` (uses default OpenAI model).
-#' @param ... Additional arguments passed to either [ellmer::chat()] or to
-#'   [ellmer::parallel_chat_structured()], based on argument name.
-#'   Arguments not recognized by either function will generate a warning.
+#' @param ... Additional arguments:
+#'   - **Model parameters**: `temperature`, `max_tokens`, `top_p`, `top_k`,
+#'     `frequency_penalty`, `presence_penalty`, `stop`, `seed`, `response_format`
+#'     are passed to the model via `params` in [ellmer::chat()].
+#'   - **Other arguments**: Passed to either [ellmer::chat()] or
+#'     [ellmer::parallel_chat_structured()] based on argument name.
+#'   Arguments not recognized will generate a warning.
 #' @param name Character string identifying this coding run. Default is `"original"`.
 #'
 #' @details
@@ -38,32 +40,31 @@
 #'   The object prints as a tibble and can be used directly in data manipulation workflows.
 #'
 #' @seealso
-#' [qlm_codebook()] for creating codebooks,
-#' [task_sentiment()], [task_stance()], [task_ideology()], [task_salience()],
-#' [task_fact()] for predefined codebooks, [annotate()] for the deprecated function.
+#' [qlm_codebook()] for creating codebooks, [annotate()] for the deprecated function.
 #'
 #' @examples
 #' \dontrun{
-#' # Basic sentiment analysis
+#' # Basic sentiment analysis using built-in codebook
 #' texts <- c("I love this product!", "This is terrible.")
-#' coded <- qlm_code(texts, task_sentiment(), model = "openai")
+#' coded <- qlm_code(texts, data_codebook_sentiment, model = "openai/gpt-4o")
 #' coded  # Print results as tibble
 #'
 #' # With named inputs (names become IDs in output)
 #' texts <- c(doc1 = "Great service!", doc2 = "Very disappointing.")
-#' coded <- qlm_code(texts, task_sentiment(), model = "openai")
+#' coded <- qlm_code(texts, data_codebook_sentiment, model = "openai/gpt-4o")
 #'
-#' # Specify provider and model
-#' coded <- qlm_code(texts, task_sentiment(), model = "openai/gpt-4o-mini")
+#' # Specify different model
+#' coded <- qlm_code(texts, data_codebook_sentiment, model = "openai/gpt-4o-mini")
 #'
-#' # With execution control
-#' coded <- qlm_code(texts, task_sentiment(),
+#' # With model parameters
+#' coded <- qlm_code(texts, data_codebook_sentiment,
 #'                   model = "openai/gpt-4o-mini",
-#'                   max_active = 5)
+#'                   temperature = 0,
+#'                   max_tokens = 100)
 #'
 #' # Include token usage
-#' coded <- qlm_code(texts, task_sentiment(),
-#'                   model = "openai",
+#' coded <- qlm_code(texts, data_codebook_sentiment,
+#'                   model = "openai/gpt-4o",
 #'                   include_tokens = TRUE)
 #'
 #' # Inspect run information
@@ -98,15 +99,27 @@ qlm_code <- function(x, codebook, model, ..., name = "original") {
   chat_arg_names <- names(formals(ellmer::chat))
   pcs_arg_names <- names(formals(ellmer::parallel_chat_structured))
 
+  # Common model parameters that should go in params
+  model_param_names <- c("temperature", "max_tokens", "top_p", "top_k",
+                         "frequency_penalty", "presence_penalty", "stop",
+                         "seed", "response_format")
+
   # Route ... arguments
   dots <- list(...)
   dot_names <- names(dots)
 
-  chat_args <- dots[dot_names %in% chat_arg_names]
+  # Separate into chat args, pcs args, and model params
+  chat_args <- dots[dot_names %in% setdiff(chat_arg_names, "params")]
   pcs_args <- dots[dot_names %in% pcs_arg_names]
+  model_params <- dots[dot_names %in% model_param_names]
+
+  # If there are model params, add them to chat_args as a params list
+  if (length(model_params) > 0) {
+    chat_args$params <- model_params
+  }
 
   # Warn about unrecognized arguments
-  all_valid_names <- unique(c(chat_arg_names, pcs_arg_names))
+  all_valid_names <- unique(c(chat_arg_names, pcs_arg_names, model_param_names))
   unknown_names <- setdiff(dot_names, all_valid_names)
   if (length(unknown_names) > 0) {
     cli::cli_warn(c(

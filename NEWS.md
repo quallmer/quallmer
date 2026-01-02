@@ -1,6 +1,6 @@
-# quallmer (development version)
+# quallmer 0.2.0
 
-## Provenance tracking
+## The quallmer trail
 
 * New `qlm_trail()` function extracts and displays provenance chains from coded objects, showing the complete history of coding runs including model parameters, timestamps, and parent-child relationships.
 * Export functions allow saving provenance trails: `qlm_trail_save()` for RDS archival, `qlm_trail_export()` for JSON format, and `qlm_trail_report()` for human-readable Quarto/RMarkdown documents.
@@ -25,8 +25,8 @@ The new API uses the `qlm_` prefix to avoid namespace conflicts (e.g., with `ggp
 
 ## Example codebooks
 
-* New example codebook data objects provide ready-to-use codebooks for common tasks: `data_codebook_sentiment`, `data_codebook_stance`, `data_codebook_ideology`, `data_codebook_salience`, and `data_codebook_fact`. These demonstrate complete workflows for qualitative coding tasks.
-* All predefined `task_*()` and `codebook_*()` functions are deprecated in favor of using the data objects or creating custom codebooks with `qlm_codebook()`.
+* New example codebook data objects provide ready-to-use codebooks for common tasks: `data_codebook_sentiment`, `data_codebook_stance`, `data_codebook_ideology`, `data_codebook_salience`, and `data_codebook_fact`. 
+* All predefined `task_*()` functions are deprecated in favor of using the data objects or creating custom codebooks with `qlm_codebook()`.
 
 ## Deprecated and superseded functions
 
@@ -44,7 +44,6 @@ The new API uses the `qlm_` prefix to avoid namespace conflicts (e.g., with `ggp
 ## Other changes
 
 - Improved error messages in `qlm_compare()` and `qlm_validate()` now show which objects are missing the requested variable and list available alternatives.
-- Add contributor guides (`AGENTS.md`, `CLAUDE.md`) with structure, style, and testing guidance.
 - Adopt tidyverse-style error messaging via `cli::cli_abort()` and `cli::cli_warn()` throughout the package, replacing all `stop()`, `stopifnot()`, and `warning()` calls with structured, informative error messages.
 - Documentation and CI notes refreshed.
 

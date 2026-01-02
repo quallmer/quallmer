@@ -7,21 +7,23 @@
 annotate(.data, task, model_name, ...)
 }
 \arguments{
-\item{task}{A task object created with \code{\link[=task]{task()}} or \code{\link[=qlm_codebook]{qlm_codebook()}}. Also
-accepts predefined task functions (\code{\link[=task_sentiment]{task_sentiment()}}, \code{\link[=task_stance]{task_stance()}},
-\code{\link[=task_ideology]{task_ideology()}}, \code{\link[=task_salience]{task_salience()}}, \code{\link[=task_fact]{task_fact()}}).}
+\item{task}{A task object created with \code{\link[=task]{task()}} or \code{\link[=qlm_codebook]{qlm_codebook()}}.}
 
-\item{...}{Additional arguments passed to either \code{\link[ellmer:chat-any]{ellmer::chat()}} or to
-\code{\link[ellmer:parallel_chat]{ellmer::parallel_chat_structured()}}, based on argument name.
-Arguments not recognized by either function will generate a warning.}
+\item{...}{Additional arguments:
+\itemize{
+\item \strong{Model parameters}: \code{temperature}, \code{max_tokens}, \code{top_p}, \code{top_k},
+\code{frequency_penalty}, \code{presence_penalty}, \code{stop}, \code{seed}, \code{response_format}
+are passed to the model via \code{params} in \code{\link[ellmer:chat-any]{ellmer::chat()}}.
+\item \strong{Other arguments}: Passed to either \code{\link[ellmer:chat-any]{ellmer::chat()}} or
+\code{\link[ellmer:parallel_chat]{ellmer::parallel_chat_structured()}} based on argument name.
+Arguments not recognized will generate a warning.
+}}
 }
 \value{
 A data frame with one row per input element, containing:
 \describe{
 \item{\code{id}}{Identifier for each input (from names or sequential integers).}
-\item{...}{Additional columns as defined by the task's \code{type_def}.
-For example, \code{\link[=task_sentiment]{task_sentiment()}} returns \code{score} and \code{explanation};
-\code{\link[=task_stance]{task_stance()}} returns \code{stance} and \code{explanation}.}
+\item{...}{Additional columns as defined by the task's schema.}
 }
 }
 \description{

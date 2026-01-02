@@ -11,9 +11,7 @@ qlm_code(x, codebook, model, ..., name = "original")
 file paths to images (for image codebooks). Named vectors will use names
 as identifiers in the output; unnamed vectors will use sequential integers.}
 
-\item{codebook}{A codebook object created with \code{\link[=qlm_codebook]{qlm_codebook()}} or one of
-the predefined codebook functions (\code{\link[=task_sentiment]{task_sentiment()}}, \code{\link[=task_stance]{task_stance()}},
-\code{\link[=task_ideology]{task_ideology()}}, \code{\link[=task_salience]{task_salience()}}, \code{\link[=task_fact]{task_fact()}}). Also accepts
+\item{codebook}{A codebook object created with \code{\link[=qlm_codebook]{qlm_codebook()}}. Also accepts
 deprecated \code{\link[=task]{task()}} objects for backward compatibility.}
 
 \item{model}{Provider (and optionally model) name in the form
@@ -22,9 +20,15 @@ that provider). Passed to the \code{name} argument of \code{\link[ellmer:chat-an
 Examples: \code{"openai/gpt-4o-mini"}, \code{"anthropic/claude-3-5-sonnet-20241022"},
 \code{"ollama/llama3.2"}, \code{"openai"} (uses default OpenAI model).}
 
-\item{...}{Additional arguments passed to either \code{\link[ellmer:chat-any]{ellmer::chat()}} or to
-\code{\link[ellmer:parallel_chat]{ellmer::parallel_chat_structured()}}, based on argument name.
-Arguments not recognized by either function will generate a warning.}
+\item{...}{Additional arguments:
+\itemize{
+\item \strong{Model parameters}: \code{temperature}, \code{max_tokens}, \code{top_p}, \code{top_k},
+\code{frequency_penalty}, \code{presence_penalty}, \code{stop}, \code{seed}, \code{response_format}
+are passed to the model via \code{params} in \code{\link[ellmer:chat-any]{ellmer::chat()}}.
+\item \strong{Other arguments}: Passed to either \code{\link[ellmer:chat-any]{ellmer::chat()}} or
+\code{\link[ellmer:parallel_chat]{ellmer::parallel_chat_structured()}} based on argument name.
+Arguments not recognized will generate a warning.
+}}
 
 \item{name}{Character string identifying this coding run. Default is \code{"original"}.}
 }
@@ -52,26 +56,27 @@ should be configured through ellmer's options.
 }
 \examples{
 \dontrun{
-# Basic sentiment analysis
+# Basic sentiment analysis using built-in codebook
 texts <- c("I love this product!", "This is terrible.")
-coded <- qlm_code(texts, task_sentiment(), model = "openai")
+coded <- qlm_code(texts, data_codebook_sentiment, model = "openai/gpt-4o")
 coded  # Print results as tibble
 
 # With named inputs (names become IDs in output)
 texts <- c(doc1 = "Great service!", doc2 = "Very disappointing.")
-coded <- qlm_code(texts, task_sentiment(), model = "openai")
+coded <- qlm_code(texts, data_codebook_sentiment, model = "openai/gpt-4o")
 
-# Specify provider and model
-coded <- qlm_code(texts, task_sentiment(), model = "openai/gpt-4o-mini")
+# Specify different model
+coded <- qlm_code(texts, data_codebook_sentiment, model = "openai/gpt-4o-mini")
 
-# With execution control
-coded <- qlm_code(texts, task_sentiment(),
+# With model parameters
+coded <- qlm_code(texts, data_codebook_sentiment,
                   model = "openai/gpt-4o-mini",
-                  max_active = 5)
+                  temperature = 0,
+                  max_tokens = 100)
 
 # Include token usage
-coded <- qlm_code(texts, task_sentiment(),
-                  model = "openai",
+coded <- qlm_code(texts, data_codebook_sentiment,
+                  model = "openai/gpt-4o",
                   include_tokens = TRUE)
 
 # Inspect run information
@@ -82,7 +87,5 @@ attr(coded, "run")$metadata
 
 }
 \seealso{
-\code{\link[=qlm_codebook]{qlm_codebook()}} for creating codebooks,
-\code{\link[=task_sentiment]{task_sentiment()}}, \code{\link[=task_stance]{task_stance()}}, \code{\link[=task_ideology]{task_ideology()}}, \code{\link[=task_salience]{task_salience()}},
-\code{\link[=task_fact]{task_fact()}} for predefined codebooks, \code{\link[=annotate]{annotate()}} for the deprecated function.
+\code{\link[=qlm_codebook]{qlm_codebook()}} for creating codebooks, \code{\link[=annotate]{annotate()}} for the deprecated function.
 }

@@ -5,6 +5,7 @@
 ^pkgdown$
 ^\.github$
 ^README\.Rmd$
+^README\.html$
 ^\.claude$
 ^doc$
 ^Meta$

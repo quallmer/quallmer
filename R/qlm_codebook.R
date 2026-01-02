@@ -21,9 +21,10 @@
 #'   containing the codebook definition. Use with [qlm_code()] to apply the
 #'   codebook to data.
 #'
-#' @seealso [qlm_code()] for applying codebooks to data, [task_sentiment()],
-#'   [task_stance()], [task_ideology()], [task_salience()], [task_fact()]
-#'   for predefined codebooks, [task()] for the deprecated function.
+#' @seealso [qlm_code()] for applying codebooks to data,
+#'   [data_codebook_sentiment], [data_codebook_stance], [data_codebook_ideology],
+#'   [data_codebook_salience], [data_codebook_fact] for predefined codebooks,
+#'   [task()] for the deprecated function.
 #'
 #' @examples
 #' \dontrun{

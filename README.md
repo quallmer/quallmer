@@ -29,6 +29,8 @@ provides `qlm_compare()` for evaluating inter-rater reliability and
 `qlm_validate()` for assessing accuracy against gold standards. With
 `qlm_replicate()`, researchers can systematically compare results across
 different models and settings to assess sensitivity and reproducibility.
+The quallmer trail system automatically captures provenance metadata for
+full workflow traceability using `qlm_trail()` and related functions.
 
 **The quallmer package makes AI-assisted qualitative coding accessible
 without requiring deep expertise in R, programming or machine
@@ -51,8 +53,7 @@ learning.**
 
 #### `qlm_code()`
 
-- Applies LLM-based coding to qualitative data using a codebook
-  specification.
+- Applies LLM-based coding to qualitative data using a `qlm_codebook`.
 - Works with any LLM supported by
   [ellmer](https://ellmer.tidyverse.org/index.html).
 - Returns a `qlm_coded` object containing the coded results and metadata
@@ -86,7 +87,7 @@ learning.**
 - Enables systematic assessment of coding reliability and sensitivity to
   model choices.
 
-## Provenance tracking
+## The quallmer trail
 
 All `qlm_coded`, `qlm_comparison`, and `qlm_validation` objects
 automatically capture provenance metadata including model parameters,

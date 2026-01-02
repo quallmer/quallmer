@@ -10,34 +10,36 @@ navbar:
     left:
     - home
     - quick-start
-    - reference
     - examples
+    - reference
     - news
     right:
     - search
     - github
   components:
     quick-start:
-      text: Tutorials
+      text: Getting started
       menu:
       - text: Quick start guide
         href: articles/getting-started.html
+    examples:
+      text: Tutorials
+      menu:
       - text: Signing up for an OpenAI API key
         href: articles/pkgdown/tutorials/openai.html
       - text: Working with an open-source Ollama model
         href: articles/pkgdown/tutorials/ollama.html
-      - text: Using built-in codebooks
-        href: articles/pkgdown/tutorials/built-in-codebooks.html
-      - text: Defining custom codebooks
+      - text: Creating codebooks
         href: articles/pkgdown/tutorials/custom-codebook.html
+      - text: Comparing and replicating coded results
+        href: articles/pkgdown/tutorials/compare.html
+      - text: The quallmer trail for traceability
+        href: articles/pkgdown/tutorials/trail.html
       - text: Using the Validate App (quallmer.app)
         href: articles/pkgdown/tutorials/validate.html
     reference:
       text: Reference
       href: reference/index.html
-    examples:
-      text: Example
-      href: articles/pkgdown/examples/codebook_sentiment.html
     github:
       icon: fab fa-github
       href: https://github.com/SeraphineM/quallmer

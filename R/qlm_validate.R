@@ -82,7 +82,7 @@ utils::globalVariables(c("truth", "estimate"))
 #' coded <- qlm_code(
 #'   reviews,
 #'   data_codebook_sentiment,
-#'   model = "google_gemini/gemini-2.5-flash"
+#'   model = "openai/gpt-4o"
 #' )
 #'
 #' # Create gold standard from corpus metadata

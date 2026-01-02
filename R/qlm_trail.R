@@ -35,7 +35,7 @@
 #' qlm_trail(coded1)
 #'
 #' # Create replication chain
-#' coded2 <- qlm_replicate(coded1, model = "anthropic/claude-sonnet-4-20250514")
+#' coded2 <- qlm_replicate(coded1, model = "openai/gpt-4o-mini")
 #' coded3 <- qlm_replicate(coded2, temperature = 0.7)
 #'
 #' # Reconstruct full chain

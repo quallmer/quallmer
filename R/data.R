@@ -106,19 +106,19 @@
 #' pro- or anti-immigration stance generally, despite making some statement
 #' about immigration."
 #'
-#' # define a sentiment task
-#' task_immigration <- task(
+#' # define a codebook
+#' codebook_immigration <- qlm_codebook(
 #'   name = "Immigration policy",
-#'   system_prompt = immigration_instructions,
-#'   type_def = type_object(
+#'   instructions = immigration_instructions,
+#'   schema = type_object(
 #'     llm_immigration_label = type_enum(c("Immigration", "Not immmigration")),
-#'     llm_immigration_scale = type_integer(immigration_scale),
+#'     llm_immigration_scale = type_integer(immigration_scale)
 #'   )
 #' )
 #'
-#' result <- data_corpus_manifsentsUK2010sample %>%
-#'   annotate(task_immigration,
-#'            chat_fn = chat_google_gemini, model = "gemini-2.5-flash")
+#' result <- qlm_code(data_corpus_manifsentsUK2010sample,
+#'                    codebook_immigration,
+#'                    model = "openai/gpt-4o")
 #'
 #' result_combined <- cbind(
 #'   result,
@@ -158,11 +158,11 @@
 #' \dontrun{
 #' library(quanteda)
 #'
-#' # define a sentiment task
-#' task_posneg <- task(
+#' # define a sentiment codebook
+#' codebook_posneg <- qlm_codebook(
 #'   name = "Sentiment analysis of movie reviews",
-#'   system_prompt = "You will rate the sentiment from movie reviews.",
-#'   type_def = type_object(
+#'   instructions = "You will rate the sentiment from movie reviews.",
+#'   schema = type_object(
 #'     polarity_llm = type_enum(c("pos", "neg"),
 #'     description = "Sentiment label (pos = positive, neg = negative")
 #'   )
@@ -172,11 +172,13 @@
 #' test_corpus <- data_corpus_LMRDsample %>%
 #'   corpus_sample(size = 10, by = polarity)
 #'
-#' result <- test_corpus %>%
-#'   annotate(task_posneg, chat_fn = chat_openai, model = "gpt-4.1-mini") %>%
-#'   cbind(data.frame(polarity_human = test_corpus$polarity))
+#' result <- qlm_code(test_corpus, codebook_posneg, model = "openai/gpt-4o-mini")
 #'
-#' agreement(result, "id", coder_cols = c("polarity_llm", "polarity_human"))
+#' # Create gold standard from corpus metadata
+#' gold <- data.frame(.id = result$.id, polarity_human = test_corpus$polarity)
+#'
+#' # Validate against human annotations
+#' qlm_validate(result, gold, by = "polarity_llm")
 #' }
 "data_corpus_LMRDsample"
 
@@ -218,7 +220,7 @@
 #'                    model = "openai/gpt-4o-mini")
 #' coded2 <- qlm_code(data_corpus_LMRDsample[1:20],
 #'                    data_codebook_sentiment,
-#'                    model = "anthropic/claude-sonnet-4-20250514")
+#'                    model = "openai/gpt-4o")
 #'
 #' # Compare inter-rater reliability
 #' comparison <- qlm_compare(coded1, coded2, by = "rating", measure = "alpha")

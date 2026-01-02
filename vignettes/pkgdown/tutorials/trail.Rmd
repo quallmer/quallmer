@@ -1,0 +1,273 @@
+---
+title: "The quallmer trail for traceability"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+In this tutorial, we will explore the quallmer trail system, which automatically captures provenance metadata for full workflow traceability. The trail system helps you:
+
+- Track the complete history of your coding workflow
+- Document model parameters and settings used
+- Maintain parent-child relationships across coding runs
+- Export provenance information for reproducibility
+- Generate human-readable reports of your analysis pipeline
+
+## Understanding provenance tracking
+
+All `qlm_coded`, `qlm_comparison`, and `qlm_validation` objects in quallmer automatically capture provenance metadata, including:
+
+- **Run name**: A unique identifier for each coding run
+- **Timestamp**: When the coding was executed
+- **Model**: The LLM model and parameters used
+- **Codebook**: The coding instructions applied
+- **Parent runs**: Links to previous runs in a replication chain
+- **Metadata**: Package versions, number of units coded, etc.
+
+This metadata enables full workflow traceability and reproducibility.
+
+## Loading packages and data
+
+```{r getting-started}
+# We will use the quanteda package
+# for loading a sample corpus of inaugural speeches
+library(quanteda)
+library(quallmer)
+
+# For educational purposes,
+# we will use a subset of the inaugural speeches corpus
+data_corpus_inaugural <- quanteda::data_corpus_inaugural[50:60]
+```
+
+## Creating a workflow with provenance tracking
+
+Let's build a coding workflow that demonstrates the trail system. We'll use sentiment analysis as our example.
+
+### Initial coding run
+
+```{r initial-run}
+# For this tutorial, we'll use the built-in sentiment codebook
+# For real research, you would create a custom codebook tailored to your
+# specific research question (see the "Creating codebooks" tutorial)
+
+# Code with GPT-4o (note the 'name' parameter for tracking)
+coded1 <- qlm_code(data_corpus_inaugural,
+                   codebook = data_codebook_ideology,
+                   model = "openai/gpt-4o",
+                   temperature = 0,
+                   name = "initial_gpt4o")
+
+# Each qlm_coded object has a 'run' attribute with metadata
+attr(coded1, "run")$name
+attr(coded1, "run")$metadata$timestamp
+```
+
+### Creating a replication chain
+
+When you use `qlm_replicate()`, the new run automatically links to its parent:
+
+```{r replication-chain}
+# Replicate with GPT-4o-mini
+coded2 <- qlm_replicate(coded1,
+                        model = "openai/gpt-4o-mini",
+                        name = "replicate_mini")
+
+# Check the parent relationship
+attr(coded2, "run")$parent  # Shows "initial_gpt4o"
+
+# Replicate again with different temperature
+coded3 <- qlm_replicate(coded2,
+                        temperature = 0.7,
+                        name = "mini_temp07")
+
+# This creates a chain: initial_gpt4o -> replicate_mini -> mini_temp07
+attr(coded3, "run")$parent  # Shows "replicate_mini"
+```
+
+## Extracting and displaying provenance trails
+
+The `qlm_trail()` function extracts and displays the complete provenance chain from your quallmer objects.
+
+### Viewing a single run
+
+```{r trail-single}
+# Extract trail from a single object
+trail1 <- qlm_trail(coded1)
+
+# Print the trail
+trail1
+```
+
+This displays:
+- Run name
+- Parent (if any)
+- Creation timestamp
+- Model used
+
+### Reconstructing a complete chain
+
+To see the full provenance chain, provide all objects in the lineage:
+
+```{r trail-chain}
+# Provide all objects to reconstruct the complete chain
+full_trail <- qlm_trail(coded3, coded2, coded1)
+
+# Print shows the complete history
+full_trail
+```
+
+The output shows:
+
+- All runs in chronological order
+- Parent-child relationships
+- Model and parameter changes across runs
+- Timestamps for each step
+- Codebook used
+
+
+## Assessing robustness across runs
+
+The `qlm_trail_robustness()` function helps you assess how stable your coding results are across different models, parameters, or codebooks. This is crucial for understanding whether your findings are robust or sensitive to methodological choices.
+
+### Computing robustness scores
+
+```{r robustness-basic}
+# Compute how much results differ from the initial run
+robustness <- qlm_trail_robustness(coded1, coded2, coded3,
+                                   reference = "initial_gpt4o",
+                                   by = "score")
+
+# View the robustness scale
+robustness
+```
+
+The robustness scale shows:
+- **run**: Name of each comparison run
+- **variable**: Variable being compared
+- **agreement**: Percent agreement with the reference run (0-100)
+- **n**: Number of units compared
+
+Higher agreement values (closer to 100) indicate more robust results that don't change much when using different models or settings.
+
+### Interpreting robustness scores
+
+```{r robustness-interpret}
+# Check which runs have high robustness (>90% agreement)
+high_robustness <- robustness[robustness$agreement > 90, ]
+
+# Check which runs have concerning differences (<80% agreement)
+low_robustness <- robustness[robustness$agreement < 80, ]
+```
+
+**Interpretation guidelines:**
+- **>95% agreement**: Very robust, results are highly stable
+- **90-95% agreement**: Good robustness, minor variations
+- **80-90% agreement**: Moderate robustness, some sensitivity to settings
+- **<80% agreement**: Low robustness, results vary substantially
+
+### Comparing across multiple variables
+
+```{r robustness-multiple}
+# If your codebook has multiple output variables
+# robustness <- qlm_trail_robustness(coded1, coded2, coded3,
+#                                    reference = "initial_gpt4o",
+#                                    by = c("score", "explanation"))
+#
+# # Aggregate across variables
+# library(dplyr)
+# robustness %>%
+#   group_by(run) %>%
+#   summarize(mean_agreement = mean(agreement, na.rm = TRUE))
+```
+
+## Exporting provenance trails
+
+The trail system provides three export formats for different purposes:
+
+### Saving to RDS (for archival)
+
+```{.r trail-save}
+# Extract the trail
+trail <- qlm_trail(coded3, coded2, coded1)
+
+# Save to RDS for long-term storage
+qlm_trail_save(trail, "sentiment_analysis_trail.rds")
+
+# Later, you can load it back
+loaded_trail <- readRDS("sentiment_analysis_trail.rds")
+```
+
+### Exporting to JSON (for portability)
+
+```{.r trail-json}
+# Export to JSON format for integration with other tools
+qlm_trail_export(trail, "sentiment_analysis_trail.json")
+```
+
+The JSON file includes:
+
+- Run names and parent relationships
+- Timestamps
+- Model names and parameters
+- Codebook names
+- Metadata (package versions, etc.)
+
+This format is useful for:
+
+- Sharing with collaborators
+- Integration with data management systems
+- Long-term archival in repositories
+
+### Generating human-readable reports
+
+```{.r trail-report}
+# Generate a Quarto report
+qlm_trail_report(trail, "sentiment_analysis_trail.qmd")
+
+```
+
+The report includes:
+
+- Trail summary (number of runs, completeness)
+- Timeline of all coding runs
+- Detailed information for each run (model, parameters, timestamps)
+- System information (R version, package versions)
+
+This is ideal for:
+
+- Methods sections in papers
+- Supplementary materials
+- Research documentation
+- Reproducibility reports
+
+
+## Best practices for provenance tracking
+
+1. **Name your runs**: Always use the `name` parameter in `qlm_code()` and `qlm_replicate()` with descriptive names
+
+2. **Document major steps**: Create named runs for significant changes in your workflow (model changes, parameter adjustments, codebook revisions)
+
+3. **Preserve all objects**: Keep all intermediate `qlm_coded` objects if you want to reconstruct the full trail later
+
+4. **Export trails regularly**: Save trails at key milestones using `qlm_trail_save()`
+
+5. **Generate reports**: Create trail reports for:
+   - Paper submissions (methods documentation)
+   - Research notebooks
+   - Replication packages
+   - Peer review
+
+## Summary
+
+In this tutorial, you learned how to:
+
+- Understand automatic provenance tracking in quallmer objects
+- Create coding workflows with parent-child relationships
+- Use `qlm_trail()` to extract and display provenance chains
+- Export trails to RDS, JSON, and report formats
+- Document complex workflows with branching and replication
+- Access provenance information programmatically
+
+The quallmer trail system ensures your qualitative coding research is fully traceable, reproducible, and well-documented for scientific rigor and transparency.

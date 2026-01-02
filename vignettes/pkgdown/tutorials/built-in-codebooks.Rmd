@@ -1,5 +1,0 @@
----
-title: "Using built-in codebooks"
-output: html_document
----
-You can use built-in codebooks in `quallmer` to quickly set up common text analysis tasks without having to define them from scratch. For a list of available built-in codebooks, see the [overview of built-in codebooks](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/overview.html). Each built-in codebook comes with an illustration on how to use and customize it.

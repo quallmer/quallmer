@@ -111,19 +111,19 @@ for handling immigration or asylum seekers; Statements that do not take a
 pro- or anti-immigration stance generally, despite making some statement
 about immigration."
 
-# define a sentiment task
-task_immigration <- task(
+# define a codebook
+codebook_immigration <- qlm_codebook(
   name = "Immigration policy",
-  system_prompt = immigration_instructions,
-  type_def = type_object(
+  instructions = immigration_instructions,
+  schema = type_object(
     llm_immigration_label = type_enum(c("Immigration", "Not immmigration")),
-    llm_immigration_scale = type_integer(immigration_scale),
+    llm_immigration_scale = type_integer(immigration_scale)
   )
 )
 
-result <- data_corpus_manifsentsUK2010sample \%>\%
-  annotate(task_immigration,
-           chat_fn = chat_google_gemini, model = "gemini-2.5-flash")
+result <- qlm_code(data_corpus_manifsentsUK2010sample,
+                   codebook_immigration,
+                   model = "openai/gpt-4o")
 
 result_combined <- cbind(
   result,
