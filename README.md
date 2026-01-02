@@ -95,11 +95,10 @@ learning.**
 
 ## Interactive validation
 
-The `validate_app()` function launches an interactive Shiny application
-for: - **Manual coding**: Code qualitative data directly in the
-interface - **Review AI-generated coding**: Examine LLM-produced codes
-alongside original data - **Compute agreement metrics**: Evaluate
-inter-rater reliability or validate against gold standards
+For an interactive Shiny application to perform manual coding, review
+AI-generated annotations, and compute agreement metrics, see the
+companion package
+[quallmer.app](https://github.com/SeraphineM/quallmer.app).
 
 ## Supported LLMs
 
@@ -129,3 +128,10 @@ To learn more about how to use the package, please refer to our
 tutorials](https://seraphinem.github.io/quallmer/articles/getting-started.html)
 and the illustrations on [how to use the built-in
 codebooks](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/overview.html).
+
+## Acknowledgments
+
+Development of this package was assisted by [Claude
+Code](https://claude.com/claude-code), an AI coding assistant by
+Anthropic, for code refactoring, documentation updates, and package
+restructuring.

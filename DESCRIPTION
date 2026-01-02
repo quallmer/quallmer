@@ -20,8 +20,7 @@ Description: Tools for AI-assisted qualitative data coding using large language
     built-in codebooks for common applications and functions for creating custom
     codebooks tailored to specific research questions. Supports replication across
     models and settings, computing inter-coder reliability and gold-standard
-    validation metrics, and an interactive 'shiny' application for manual coding
-    and validation.
+    validation metrics.
 License: GPL-3
 URL: https://seraphinem.github.io/quallmer/
 Depends:
@@ -29,15 +28,12 @@ Depends:
     ellmer (>= 0.4.0)
 Imports:
     cli,
-    shiny,
     dplyr,
     tidyr,
     digest,
     irr,
     lifecycle,
-    bslib,
     stats,
-    htmltools,
     yardstick
 Encoding: UTF-8
 LazyData: true
