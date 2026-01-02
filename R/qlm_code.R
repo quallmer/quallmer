@@ -4,8 +4,9 @@
 #' a rich object that includes the codebook, execution settings, results, and
 #' metadata for reproducibility.
 #'
-#' Arguments in `...` are dynamically routed to either [ellmer::chat()] or to
-#' [ellmer::parallel_chat_structured()] based on their names.
+#' Arguments in `...` are dynamically routed to either [ellmer::chat()],
+#' [ellmer::parallel_chat_structured()], or [ellmer::batch_chat_structured()]
+#' based on their names.
 #'
 #' @param x Input data: a character vector of texts (for text codebooks) or
 #'   file paths to images (for image codebooks). Named vectors will use names
@@ -17,64 +18,83 @@
 #'   that provider). Passed to the `name` argument of [ellmer::chat()].
 #'   Examples: `"openai/gpt-4o-mini"`, `"anthropic/claude-3-5-sonnet-20241022"`,
 #'   `"ollama/llama3.2"`, `"openai"` (uses default OpenAI model).
-#' @param ... Additional arguments:
-#'   - **Model parameters**: `temperature`, `max_tokens`, `top_p`, `top_k`,
-#'     `frequency_penalty`, `presence_penalty`, `stop`, `seed`, `response_format`
-#'     are passed to the model via `params` in [ellmer::chat()].
-#'   - **Other arguments**: Passed to either [ellmer::chat()] or
-#'     [ellmer::parallel_chat_structured()] based on argument name.
-#'   Arguments not recognized will generate a warning.
+#' @param batch Logical. If `TRUE`, uses [ellmer::batch_chat_structured()]
+#'   instead of [ellmer::parallel_chat_structured()]. Batch processing is more
+#'   cost-effective for large jobs but may have longer turnaround times.
+#'   Default is `FALSE`. See [ellmer::batch_chat_structured()] for details.
+#' @param ... Additional arguments passed to [ellmer::chat()],
+#'   [ellmer::parallel_chat_structured()], or [ellmer::batch_chat_structured()],
+#'   based on argument name. Arguments recognized by
+#'   [ellmer::parallel_chat_structured()] take priority when there are overlaps.
+#'   Batch-specific arguments (`path`, `wait`, `ignore_hash`) are only used when
+#'   `batch = TRUE`. Arguments not recognized by any function will generate a warning.
 #' @param name Character string identifying this coding run. Default is `"original"`.
 #'
 #' @details
 #' Progress indicators and error handling are provided by the underlying
-#' [ellmer::parallel_chat_structured()] function. Set `verbose = TRUE` to see
-#' progress messages during batch coding. Retry logic for API failures
-#' should be configured through ellmer's options.
+#' [ellmer::parallel_chat_structured()] or [ellmer::batch_chat_structured()]
+#' function. Set `verbose = TRUE` to see progress messages during coding.
+#' Retry logic for API failures should be configured through ellmer's options.
+#'
+#' When `batch = TRUE`, the function uses [ellmer::batch_chat_structured()]
+#' which submits jobs to the provider's batch API. This is typically more
+#' cost-effective but has longer turnaround times. The `path` argument specifies
+#' where batch results are cached, `wait` controls whether to wait for completion,
+#' and `ignore_hash` can force reprocessing of cached results.
 #'
 #' @return A `qlm_coded` object (a tibble with additional attributes):
 #'   \describe{
 #'     \item{Data columns}{The coded results with a `.id` column for identifiers.}
-#'     \item{Attributes}{`data`, `input_type`, and `run` (list containing name, call, codebook, chat_args, pcs_args, metadata, parent).}
+#'     \item{Attributes}{`data`, `input_type`, and `run` (list containing name, batch, call, codebook, chat_args, execution_args, metadata, parent).}
 #'   }
 #'   The object prints as a tibble and can be used directly in data manipulation workflows.
+#'   The `batch` flag in the `run` attribute indicates whether batch processing was used.
+#'   The `execution_args` contains all non-chat execution arguments (for either parallel or batch processing).
 #'
 #' @seealso
 #' [qlm_codebook()] for creating codebooks, [annotate()] for the deprecated function.
 #'
 #' @examples
 #' \dontrun{
-#' # Basic sentiment analysis using built-in codebook
-#' texts <- c("I love this product!", "This is terrible.")
-#' coded <- qlm_code(texts, data_codebook_sentiment, model = "openai/gpt-4o")
+#' set.seed(24)
+#' texts <- data_corpus_LMRDsample[sample(length(data_corpus_LMRDsample), size = 20)]
+#'
+#' # Basic sentiment analysis
+#' coded <- qlm_code(texts, data_codebook_sentiment, model = "openai")
 #' coded  # Print results as tibble
 #'
 #' # With named inputs (names become IDs in output)
 #' texts <- c(doc1 = "Great service!", doc2 = "Very disappointing.")
-#' coded <- qlm_code(texts, data_codebook_sentiment, model = "openai/gpt-4o")
+#' coded <- qlm_code(texts, data_codebook_sentiment, model = "openai")
 #'
-#' # Specify different model
+#' # Specify provider and model
 #' coded <- qlm_code(texts, data_codebook_sentiment, model = "openai/gpt-4o-mini")
 #'
-#' # With model parameters
+#' # With execution control
 #' coded <- qlm_code(texts, data_codebook_sentiment,
 #'                   model = "openai/gpt-4o-mini",
 #'                   temperature = 0,
 #'                   max_tokens = 100)
 #'
-#' # Include token usage
+#' # Include token usage and cost
 #' coded <- qlm_code(texts, data_codebook_sentiment,
-#'                   model = "openai/gpt-4o",
-#'                   include_tokens = TRUE)
+#'                   model = "openai",
+#'                   include_tokens = TRUE,
+#'                   include_cost = TRUE)
+#' coded
 #'
-#' # Inspect run information
-#' print(coded)
-#' attr(coded, "run")$name
-#' attr(coded, "run")$metadata
+#' # Use batch processing for cost-effective large-scale coding
+#' coded_batch <- qlm_code(texts, data_codebook_sentiment,
+#'                         model = "openai",
+#'                         batch = TRUE,
+#'                         path = "batch_results.json",
+#'                         ignore_hash = TRUE,
+#'                         include_cost = TRUE)
+#' coded_batch
 #' }
 #'
 #' @export
-qlm_code <- function(x, codebook, model, ..., name = "original") {
+qlm_code <- function(x, codebook, model, ..., batch = FALSE, name = "original") {
   # Accept both qlm_codebook and task objects, converting if needed
   if (inherits(codebook, "task") && !inherits(codebook, "qlm_codebook")) {
     codebook <- as_qlm_codebook(codebook)
@@ -98,6 +118,7 @@ qlm_code <- function(x, codebook, model, ..., name = "original") {
   # Get valid argument names from ellmer functions
   chat_arg_names <- names(formals(ellmer::chat))
   pcs_arg_names <- names(formals(ellmer::parallel_chat_structured))
+  batch_arg_names <- names(formals(ellmer::batch_chat_structured))
 
   # Common model parameters that should go in params
   model_param_names <- c("temperature", "max_tokens", "top_p", "top_k",
@@ -105,21 +126,18 @@ qlm_code <- function(x, codebook, model, ..., name = "original") {
                          "seed", "response_format")
 
   # Route ... arguments
+  # All non-chat arguments go to execution_args (for either parallel or batch execution)
   dots <- list(...)
   dot_names <- names(dots)
 
-  # Separate into chat args, pcs args, and model params
-  chat_args <- dots[dot_names %in% setdiff(chat_arg_names, "params")]
-  pcs_args <- dots[dot_names %in% pcs_arg_names]
-  model_params <- dots[dot_names %in% model_param_names]
+  chat_args <- dots[dot_names %in% chat_arg_names]
 
-  # If there are model params, add them to chat_args as a params list
-  if (length(model_params) > 0) {
-    chat_args$params <- model_params
-  }
+  # execution_args contains everything that's for parallel_chat_structured or batch_chat_structured
+  execution_arg_names <- unique(c(pcs_arg_names, batch_arg_names))
+  execution_args <- dots[dot_names %in% execution_arg_names]
 
   # Warn about unrecognized arguments
-  all_valid_names <- unique(c(chat_arg_names, pcs_arg_names, model_param_names))
+  all_valid_names <- unique(c(chat_arg_names, execution_arg_names))
   unknown_names <- setdiff(dot_names, all_valid_names)
   if (length(unknown_names) > 0) {
     cli::cli_warn(c(
@@ -151,15 +169,26 @@ qlm_code <- function(x, codebook, model, ..., name = "original") {
     prompts <- as.list(x)
   }
 
-  # Execute with parallel_chat_structured
-  results <- do.call(ellmer::parallel_chat_structured, c(
-    list(
-      chat = chat,
-      prompts = prompts,
-      type = codebook$schema
-    ),
-    pcs_args
-  ))
+  # Execute with appropriate function based on batch parameter
+  if (batch) {
+    results <- do.call(ellmer::batch_chat_structured, c(
+      list(
+        chat = chat,
+        prompts = prompts,
+        type = codebook$schema
+      ),
+      execution_args
+    ))
+  } else {
+    results <- do.call(ellmer::parallel_chat_structured, c(
+      list(
+        chat = chat,
+        prompts = prompts,
+        type = codebook$schema
+      ),
+      execution_args
+    ))
+  }
 
   # Add ID column from input names or sequence
   results$id <- names(x) %||% seq_along(x)
@@ -189,7 +218,8 @@ qlm_code <- function(x, codebook, model, ..., name = "original") {
     data = x,
     input_type = codebook$input_type,
     chat_args = chat_args,
-    pcs_args = pcs_args,
+    execution_args = execution_args,
+    batch = batch,
     metadata = metadata,
     name = name,
     call = match.call(),
@@ -209,18 +239,27 @@ qlm_code <- function(x, codebook, model, ..., name = "original") {
 #' @param data The original input data (x from qlm_code).
 #' @param input_type Type of input ("text" or "image").
 #' @param chat_args List of arguments passed to ellmer::chat().
-#' @param pcs_args List of arguments passed to ellmer::parallel_chat_structured().
+#' @param execution_args List of arguments passed to ellmer::parallel_chat_structured()
+#'   or ellmer::batch_chat_structured(). For backward compatibility, also accepts
+#'   pcs_args as an alias.
+#' @param batch Logical indicating whether batch processing was used.
 #' @param metadata List of metadata (timestamp, versions, etc.).
 #' @param name Character string identifying this run.
 #' @param call The call that created this object.
 #' @param parent Character string identifying parent run (NULL for originals).
+#' @param pcs_args Deprecated. Use execution_args instead.
 #'
 #' @return A qlm_coded object (tibble with attributes).
 #' @importFrom utils head
 #' @keywords internal
 #' @noRd
 new_qlm_coded <- function(results, codebook, data, input_type, chat_args,
-                           pcs_args, metadata, name, call, parent = NULL) {
+                           execution_args = NULL, batch = FALSE, metadata,
+                           name, call, parent = NULL, pcs_args = NULL) {
+  # Backward compatibility: if pcs_args is provided but execution_args is not
+  if (is.null(execution_args) && !is.null(pcs_args)) {
+    execution_args <- pcs_args
+  }
   # Rename id column to .id
   names(results)[names(results) == "id"] <- ".id"
 
@@ -238,10 +277,11 @@ new_qlm_coded <- function(results, codebook, data, input_type, chat_args,
     input_type = input_type,
     run = list(
       name = name,
+      batch = batch,
       call = call,
       codebook = codebook,
       chat_args = chat_args,
-      pcs_args = pcs_args,
+      execution_args = execution_args,
       metadata = metadata,
       parent = parent
     )

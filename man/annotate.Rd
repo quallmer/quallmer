@@ -9,15 +9,12 @@ annotate(.data, task, model_name, ...)
 \arguments{
 \item{task}{A task object created with \code{\link[=task]{task()}} or \code{\link[=qlm_codebook]{qlm_codebook()}}.}
 
-\item{...}{Additional arguments:
-\itemize{
-\item \strong{Model parameters}: \code{temperature}, \code{max_tokens}, \code{top_p}, \code{top_k},
-\code{frequency_penalty}, \code{presence_penalty}, \code{stop}, \code{seed}, \code{response_format}
-are passed to the model via \code{params} in \code{\link[ellmer:chat-any]{ellmer::chat()}}.
-\item \strong{Other arguments}: Passed to either \code{\link[ellmer:chat-any]{ellmer::chat()}} or
-\code{\link[ellmer:parallel_chat]{ellmer::parallel_chat_structured()}} based on argument name.
-Arguments not recognized will generate a warning.
-}}
+\item{...}{Additional arguments passed to \code{\link[ellmer:chat-any]{ellmer::chat()}},
+\code{\link[ellmer:parallel_chat]{ellmer::parallel_chat_structured()}}, or \code{\link[ellmer:batch_chat]{ellmer::batch_chat_structured()}},
+based on argument name. Arguments recognized by
+\code{\link[ellmer:parallel_chat]{ellmer::parallel_chat_structured()}} take priority when there are overlaps.
+Batch-specific arguments (\code{path}, \code{wait}, \code{ignore_hash}) are only used when
+\code{batch = TRUE}. Arguments not recognized by any function will generate a warning.}
 }
 \value{
 A data frame with one row per input element, containing:

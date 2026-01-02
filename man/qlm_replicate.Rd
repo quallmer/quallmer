@@ -4,7 +4,7 @@
 \alias{qlm_replicate}
 \title{Replicate a coding task}
 \usage{
-qlm_replicate(x, ..., codebook = NULL, model = NULL, name = NULL)
+qlm_replicate(x, ..., codebook = NULL, model = NULL, batch = NULL, name = NULL)
 }
 \arguments{
 \item{x}{A \code{qlm_coded} object.}
@@ -17,6 +17,11 @@ the codebook from \code{x}.}
 
 \item{model}{Optional replacement model (e.g., \code{"openai/gpt-4o"}). If \code{NULL}
 (default), uses the model from \code{x}.}
+
+\item{batch}{Optional logical to override batch processing setting. If \code{NULL}
+(default), uses the batch setting from \code{x}. Set to \code{TRUE} to use batch
+processing or \code{FALSE} to use parallel processing, regardless of the
+original setting.}
 
 \item{name}{Optional name for this run. If \code{NULL}, defaults to the model
 name (if changed) or \code{"replication_N"} where N is the replication count.}
@@ -43,6 +48,9 @@ coded <- qlm_code(
 
 # Replicate with different model
 coded2 <- qlm_replicate(coded, model = "openai/gpt-4o-mini")
+
+# Replicate using batch processing for cost savings
+coded3 <- qlm_replicate(coded, batch = TRUE, path = "batch_results.json")
 
 # Compare results
 qlm_compare(coded, coded2, by = "polarity")

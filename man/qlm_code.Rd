@@ -4,7 +4,7 @@
 \alias{qlm_code}
 \title{Code qualitative data with an LLM}
 \usage{
-qlm_code(x, codebook, model, ..., name = "original")
+qlm_code(x, codebook, model, ..., batch = FALSE, name = "original")
 }
 \arguments{
 \item{x}{Input data: a character vector of texts (for text codebooks) or
@@ -20,15 +20,17 @@ that provider). Passed to the \code{name} argument of \code{\link[ellmer:chat-an
 Examples: \code{"openai/gpt-4o-mini"}, \code{"anthropic/claude-3-5-sonnet-20241022"},
 \code{"ollama/llama3.2"}, \code{"openai"} (uses default OpenAI model).}
 
-\item{...}{Additional arguments:
-\itemize{
-\item \strong{Model parameters}: \code{temperature}, \code{max_tokens}, \code{top_p}, \code{top_k},
-\code{frequency_penalty}, \code{presence_penalty}, \code{stop}, \code{seed}, \code{response_format}
-are passed to the model via \code{params} in \code{\link[ellmer:chat-any]{ellmer::chat()}}.
-\item \strong{Other arguments}: Passed to either \code{\link[ellmer:chat-any]{ellmer::chat()}} or
-\code{\link[ellmer:parallel_chat]{ellmer::parallel_chat_structured()}} based on argument name.
-Arguments not recognized will generate a warning.
-}}
+\item{...}{Additional arguments passed to \code{\link[ellmer:chat-any]{ellmer::chat()}},
+\code{\link[ellmer:parallel_chat]{ellmer::parallel_chat_structured()}}, or \code{\link[ellmer:batch_chat]{ellmer::batch_chat_structured()}},
+based on argument name. Arguments recognized by
+\code{\link[ellmer:parallel_chat]{ellmer::parallel_chat_structured()}} take priority when there are overlaps.
+Batch-specific arguments (\code{path}, \code{wait}, \code{ignore_hash}) are only used when
+\code{batch = TRUE}. Arguments not recognized by any function will generate a warning.}
+
+\item{batch}{Logical. If \code{TRUE}, uses \code{\link[ellmer:batch_chat]{ellmer::batch_chat_structured()}}
+instead of \code{\link[ellmer:parallel_chat]{ellmer::parallel_chat_structured()}}. Batch processing is more
+cost-effective for large jobs but may have longer turnaround times.
+Default is \code{FALSE}. See \code{\link[ellmer:batch_chat]{ellmer::batch_chat_structured()}} for details.}
 
 \item{name}{Character string identifying this coding run. Default is \code{"original"}.}
 }
@@ -36,9 +38,11 @@ Arguments not recognized will generate a warning.
 A \code{qlm_coded} object (a tibble with additional attributes):
 \describe{
 \item{Data columns}{The coded results with a \code{.id} column for identifiers.}
-\item{Attributes}{\code{data}, \code{input_type}, and \code{run} (list containing name, call, codebook, chat_args, pcs_args, metadata, parent).}
+\item{Attributes}{\code{data}, \code{input_type}, and \code{run} (list containing name, batch, call, codebook, chat_args, execution_args, metadata, parent).}
 }
 The object prints as a tibble and can be used directly in data manipulation workflows.
+The \code{batch} flag in the \code{run} attribute indicates whether batch processing was used.
+The \code{execution_args} contains all non-chat execution arguments (for either parallel or batch processing).
 }
 \description{
 Applies a codebook to input data using a large language model, returning
@@ -46,43 +50,58 @@ a rich object that includes the codebook, execution settings, results, and
 metadata for reproducibility.
 }
 \details{
-Arguments in \code{...} are dynamically routed to either \code{\link[ellmer:chat-any]{ellmer::chat()}} or to
-\code{\link[ellmer:parallel_chat]{ellmer::parallel_chat_structured()}} based on their names.
+Arguments in \code{...} are dynamically routed to either \code{\link[ellmer:chat-any]{ellmer::chat()}},
+\code{\link[ellmer:parallel_chat]{ellmer::parallel_chat_structured()}}, or \code{\link[ellmer:batch_chat]{ellmer::batch_chat_structured()}}
+based on their names.
 
 Progress indicators and error handling are provided by the underlying
-\code{\link[ellmer:parallel_chat]{ellmer::parallel_chat_structured()}} function. Set \code{verbose = TRUE} to see
-progress messages during batch coding. Retry logic for API failures
-should be configured through ellmer's options.
+\code{\link[ellmer:parallel_chat]{ellmer::parallel_chat_structured()}} or \code{\link[ellmer:batch_chat]{ellmer::batch_chat_structured()}}
+function. Set \code{verbose = TRUE} to see progress messages during coding.
+Retry logic for API failures should be configured through ellmer's options.
+
+When \code{batch = TRUE}, the function uses \code{\link[ellmer:batch_chat]{ellmer::batch_chat_structured()}}
+which submits jobs to the provider's batch API. This is typically more
+cost-effective but has longer turnaround times. The \code{path} argument specifies
+where batch results are cached, \code{wait} controls whether to wait for completion,
+and \code{ignore_hash} can force reprocessing of cached results.
 }
 \examples{
 \dontrun{
-# Basic sentiment analysis using built-in codebook
-texts <- c("I love this product!", "This is terrible.")
-coded <- qlm_code(texts, data_codebook_sentiment, model = "openai/gpt-4o")
+set.seed(24)
+texts <- data_corpus_LMRDsample[sample(length(data_corpus_LMRDsample), size = 20)]
+
+# Basic sentiment analysis
+coded <- qlm_code(texts, data_codebook_sentiment, model = "openai")
 coded  # Print results as tibble
 
 # With named inputs (names become IDs in output)
 texts <- c(doc1 = "Great service!", doc2 = "Very disappointing.")
-coded <- qlm_code(texts, data_codebook_sentiment, model = "openai/gpt-4o")
+coded <- qlm_code(texts, data_codebook_sentiment, model = "openai")
 
-# Specify different model
+# Specify provider and model
 coded <- qlm_code(texts, data_codebook_sentiment, model = "openai/gpt-4o-mini")
 
-# With model parameters
+# With execution control
 coded <- qlm_code(texts, data_codebook_sentiment,
                   model = "openai/gpt-4o-mini",
                   temperature = 0,
                   max_tokens = 100)
 
-# Include token usage
+# Include token usage and cost
 coded <- qlm_code(texts, data_codebook_sentiment,
-                  model = "openai/gpt-4o",
-                  include_tokens = TRUE)
+                  model = "openai",
+                  include_tokens = TRUE,
+                  include_cost = TRUE)
+coded
 
-# Inspect run information
-print(coded)
-attr(coded, "run")$name
-attr(coded, "run")$metadata
+# Use batch processing for cost-effective large-scale coding
+coded_batch <- qlm_code(texts, data_codebook_sentiment,
+                        model = "openai",
+                        batch = TRUE,
+                        path = "batch_results.json",
+                        ignore_hash = TRUE,
+                        include_cost = TRUE)
+coded_batch
 }
 
 }

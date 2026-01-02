@@ -22,7 +22,7 @@ test_that("qlm_replicate works with no overrides", {
     data = paste0("text", 1:5),
     input_type = "text",
     chat_args = list(name = "test/model"),
-    pcs_args = list(),
+    execution_args = list(),
     metadata = list(timestamp = Sys.time(), n_units = 5),
     name = "original",
     call = quote(qlm_code(...)),
@@ -55,7 +55,7 @@ test_that("qlm_replicate applies model override", {
     data = paste0("text", 1:5),
     input_type = "text",
     chat_args = list(name = "test/model"),
-    pcs_args = list(),
+    execution_args = list(),
     metadata = list(timestamp = Sys.time(), n_units = 5),
     name = "original",
     call = quote(qlm_code(...)),
@@ -69,7 +69,7 @@ test_that("qlm_replicate applies model override", {
     data = paste0("text", 1:5),
     input_type = "text",
     chat_args = list(name = "openai/gpt-4o-mini"),
-    pcs_args = list(),
+    execution_args = list(),
     metadata = list(timestamp = Sys.time(), n_units = 5),
     name = "gpt-4o-mini",
     call = quote(qlm_code(...)),
@@ -101,7 +101,7 @@ test_that("qlm_replicate applies codebook override", {
     data = paste0("text", 1:5),
     input_type = "text",
     chat_args = list(name = "test/model"),
-    pcs_args = list(),
+    execution_args = list(),
     metadata = list(timestamp = Sys.time(), n_units = 5),
     name = "original",
     call = quote(qlm_code(...)),
@@ -115,7 +115,7 @@ test_that("qlm_replicate applies codebook override", {
     data = paste0("text", 1:5),
     input_type = "text",
     chat_args = list(name = "test/model"),
-    pcs_args = list(),
+    execution_args = list(),
     metadata = list(timestamp = Sys.time(), n_units = 5),
     name = "replication_1",
     call = quote(qlm_code(...)),
@@ -145,7 +145,7 @@ test_that("qlm_replicate applies name override", {
     data = paste0("text", 1:5),
     input_type = "text",
     chat_args = list(name = "test/model"),
-    pcs_args = list(),
+    execution_args = list(),
     metadata = list(timestamp = Sys.time(), n_units = 5),
     name = "original",
     call = quote(qlm_code(...)),
@@ -159,7 +159,7 @@ test_that("qlm_replicate applies name override", {
     data = paste0("text", 1:5),
     input_type = "text",
     chat_args = list(name = "test/model"),
-    pcs_args = list(),
+    execution_args = list(),
     metadata = list(timestamp = Sys.time(), n_units = 5),
     name = "my_replication",
     call = quote(qlm_code(...)),
@@ -188,7 +188,7 @@ test_that("qlm_replicate auto-generates name from model", {
     data = paste0("text", 1:5),
     input_type = "text",
     chat_args = list(name = "test/model"),
-    pcs_args = list(),
+    execution_args = list(),
     metadata = list(timestamp = Sys.time(), n_units = 5),
     name = "original",
     call = quote(qlm_code(...)),
@@ -202,7 +202,7 @@ test_that("qlm_replicate auto-generates name from model", {
     data = paste0("text", 1:5),
     input_type = "text",
     chat_args = list(name = "anthropic/claude-sonnet-4-20250514"),
-    pcs_args = list(),
+    execution_args = list(),
     metadata = list(timestamp = Sys.time(), n_units = 5),
     name = "claude-sonnet-4-20250514",
     call = quote(qlm_code(...)),
@@ -231,7 +231,7 @@ test_that("qlm_replicate passes through additional arguments", {
     data = paste0("text", 1:5),
     input_type = "text",
     chat_args = list(name = "test/model"),
-    pcs_args = list(),
+    execution_args = list(),
     metadata = list(timestamp = Sys.time(), n_units = 5),
     name = "original",
     call = quote(qlm_code(...)),
@@ -245,7 +245,7 @@ test_that("qlm_replicate passes through additional arguments", {
     data = paste0("text", 1:5),
     input_type = "text",
     chat_args = list(name = "test/model"),
-    pcs_args = list(temperature = 0.7),
+    execution_args = list(temperature = 0.7),
     metadata = list(timestamp = Sys.time(), n_units = 5),
     name = "replication_1",
     call = quote(qlm_code(...)),
@@ -256,7 +256,7 @@ test_that("qlm_replicate passes through additional arguments", {
 
   result <- qlm_replicate(coded, temperature = 0.7)
 
-  expect_equal(attr(result, "run")$pcs_args$temperature, 0.7)
+  expect_equal(attr(result, "run")$execution_args$temperature, 0.7)
 })
 
 test_that("qlm_replicate stores correct call", {
@@ -274,7 +274,7 @@ test_that("qlm_replicate stores correct call", {
     data = paste0("text", 1:5),
     input_type = "text",
     chat_args = list(name = "test/model"),
-    pcs_args = list(),
+    execution_args = list(),
     metadata = list(timestamp = Sys.time(), n_units = 5),
     name = "original",
     call = quote(qlm_code(...)),
@@ -288,7 +288,7 @@ test_that("qlm_replicate stores correct call", {
     data = paste0("text", 1:5),
     input_type = "text",
     chat_args = list(name = "openai/gpt-4o-mini"),
-    pcs_args = list(),
+    execution_args = list(),
     metadata = list(timestamp = Sys.time(), n_units = 5),
     name = "gpt-4o-mini",
     call = quote(qlm_code(...)),
@@ -301,4 +301,142 @@ test_that("qlm_replicate stores correct call", {
 
   expect_true(inherits(attr(result, "run")$call, "call"))
   expect_true(grepl("qlm_replicate", deparse(attr(result, "run")$call)[1]))
+})
+
+
+test_that("qlm_replicate preserves batch flag by default", {
+  skip_if_not_installed("ellmer")
+
+  # Create mock with batch=TRUE
+  type_obj <- ellmer::type_object(category = ellmer::type_string("Category"))
+  codebook <- qlm_codebook("Test", "Test prompt", type_obj)
+
+  mock_results <- data.frame(id = 1:5, category = c("A", "B", "A", "B", "C"))
+  coded <- new_qlm_coded(
+    results = mock_results,
+    codebook = codebook,
+    data = paste0("text", 1:5),
+    input_type = "text",
+    chat_args = list(name = "test/model"),
+    execution_args = list(path = "/tmp/batch"),
+    batch = TRUE,
+    metadata = list(timestamp = Sys.time(), n_units = 5),
+    name = "original",
+    call = quote(qlm_code(...)),
+    parent = NULL
+  )
+
+  # Create expected result that also has batch=TRUE
+  expected_result <- new_qlm_coded(
+    results = mock_results,
+    codebook = codebook,
+    data = paste0("text", 1:5),
+    input_type = "text",
+    chat_args = list(name = "test/model"),
+    execution_args = list(path = "/tmp/batch"),
+    batch = TRUE,
+    metadata = list(timestamp = Sys.time(), n_units = 5),
+    name = "replication_1",
+    call = quote(qlm_code(...)),
+    parent = NULL
+  )
+
+  mockery::stub(qlm_replicate, "qlm_code", expected_result)
+
+  result <- qlm_replicate(coded)
+
+  # Verify batch flag is preserved
+  expect_true(attr(result, "run")$batch)
+})
+
+
+test_that("qlm_replicate allows batch override to TRUE", {
+  skip_if_not_installed("ellmer")
+
+  # Create mock with batch=FALSE
+  type_obj <- ellmer::type_object(category = ellmer::type_string("Category"))
+  codebook <- qlm_codebook("Test", "Test prompt", type_obj)
+
+  mock_results <- data.frame(id = 1:5, category = c("A", "B", "A", "B", "C"))
+  coded <- new_qlm_coded(
+    results = mock_results,
+    codebook = codebook,
+    data = paste0("text", 1:5),
+    input_type = "text",
+    chat_args = list(name = "test/model"),
+    execution_args = list(),
+    batch = FALSE,
+    metadata = list(timestamp = Sys.time(), n_units = 5),
+    name = "original",
+    call = quote(qlm_code(...)),
+    parent = NULL
+  )
+
+  # Create expected result with batch=TRUE
+  expected_result <- new_qlm_coded(
+    results = mock_results,
+    codebook = codebook,
+    data = paste0("text", 1:5),
+    input_type = "text",
+    chat_args = list(name = "test/model"),
+    execution_args = list(path = "/tmp/batch"),
+    batch = TRUE,
+    metadata = list(timestamp = Sys.time(), n_units = 5),
+    name = "replication_1",
+    call = quote(qlm_code(...)),
+    parent = NULL
+  )
+
+  mockery::stub(qlm_replicate, "qlm_code", expected_result)
+
+  result <- qlm_replicate(coded, batch = TRUE, path = "/tmp/batch")
+
+  # Verify batch flag was overridden
+  expect_true(attr(result, "run")$batch)
+})
+
+
+test_that("qlm_replicate allows batch override to FALSE", {
+  skip_if_not_installed("ellmer")
+
+  # Create mock with batch=TRUE
+  type_obj <- ellmer::type_object(category = ellmer::type_string("Category"))
+  codebook <- qlm_codebook("Test", "Test prompt", type_obj)
+
+  mock_results <- data.frame(id = 1:5, category = c("A", "B", "A", "B", "C"))
+  coded <- new_qlm_coded(
+    results = mock_results,
+    codebook = codebook,
+    data = paste0("text", 1:5),
+    input_type = "text",
+    chat_args = list(name = "test/model"),
+    execution_args = list(path = "/tmp/batch"),
+    batch = TRUE,
+    metadata = list(timestamp = Sys.time(), n_units = 5),
+    name = "original",
+    call = quote(qlm_code(...)),
+    parent = NULL
+  )
+
+  # Create expected result with batch=FALSE
+  expected_result <- new_qlm_coded(
+    results = mock_results,
+    codebook = codebook,
+    data = paste0("text", 1:5),
+    input_type = "text",
+    chat_args = list(name = "test/model"),
+    execution_args = list(max_active = 5),
+    batch = FALSE,
+    metadata = list(timestamp = Sys.time(), n_units = 5),
+    name = "replication_1",
+    call = quote(qlm_code(...)),
+    parent = NULL
+  )
+
+  mockery::stub(qlm_replicate, "qlm_code", expected_result)
+
+  result <- qlm_replicate(coded, batch = FALSE, max_active = 5)
+
+  # Verify batch flag was overridden
+  expect_false(attr(result, "run")$batch)
 })
