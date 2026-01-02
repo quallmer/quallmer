@@ -1,0 +1,199 @@
+---
+title: "Example: Sentiment analysis"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This example demonstrates sentiment analysis of movie reviews using `qlm_code()` with the predefined `data_codebook_sentiment` codebook. We'll analyze reviews from the Large Movie Review Dataset (Maas et al. 2011) and validate the results against movie ratings and polarity assigned by the people who left these reviews, from the original dataset.
+
+## Loading packages and data
+
+```{r getting-started}
+library(quanteda.tidy)
+library(dplyr)
+library(tidyr)
+library(quallmer)
+
+# inspect the labelled data
+convert(data_corpus_LMRDsample) %>%
+  count(polarity, rating) %>%
+  pivot_wider(names_from = polarity, values_from = n, values_fill = 0) %>%
+  janitor::adorn_totals("row")
+```
+
+## Inspecting the codebook
+
+The `data_codebook_sentiment` codebook provides structured sentiment analysis. Let's examine its components:
+
+```{r inspect-codebook}
+# View the codebook name and role
+cat("Codebook name:", data_codebook_sentiment$name, "\n\n")
+cat("Role:", data_codebook_sentiment$role, "\n\n")
+
+# View the instructions
+cat("Instructions:\n", data_codebook_sentiment$instructions, "\n\n")
+
+# View the schema structure
+cat("Schema:\n")
+print(data_codebook_sentiment$schema)
+```
+
+The codebook produces two outputs:
+- `polarity`: Categorical sentiment (negative or positive)
+- `rating`: Numeric sentiment rating from 1 (most negative) to 10 (most positive)
+
+## Coding movie reviews using Gemini 2.5 Flash
+
+```{r sentiment-flash, eval=FALSE}
+# Apply sentiment analysis using qlm_code()
+coded_g2.5_flash <- qlm_code(
+  data_corpus_LMRDsample,
+  codebook = data_codebook_sentiment,
+  model = "google_gemini/gemini-2.5-flash",
+  max_active = 20,
+  include_cost = TRUE,
+  params = params(temperature = 0)
+)
+```
+
+```{r load-g25-flash, echo=FALSE}
+coded_g2.5_flash <- readRDS("data/coded_sentiment_g2.5_flash.rds")
+```
+
+```{r display-results, echo=FALSE, eval=FALSE}
+# Display results
+library(kableExtra)
+coded_g2.5_flash %>%
+  kable("html", escape = FALSE) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"))
+```
+
+Total cost:
+```{r flash-cost}
+cat("Total cost: $", round(sum(coded_g2.5_flash$cost), 4), sep = "")
+```
+
+## Validating against gold standard
+
+The corpus includes human-coded sentiment labels in its docvars. We can use `qlm_validate()` to assess the LLM's performance:
+
+```{r validation}
+# Extract gold standard labels from corpus docvars
+# The docvars include both 'polarity' (neg/pos) and 'rating' (1-10)
+gold_standard <- data_corpus_LMRDsample |>
+  mutate(.id = docnames(data_corpus_LMRDsample)) |>
+  docvars()
+
+# Validate polarity predictions (nominal data)
+polarity_validation <- qlm_validate(
+  coded_g2.5_flash,
+  gold = gold_standard,
+  by = "polarity",
+  level = "nominal"
+)
+print(polarity_validation)
+
+# Validate rating predictions (ordinal data)
+rating_validation <- qlm_validate(
+  coded_g2.5_flash,
+  gold = gold_standard,
+  by = "rating",
+  level = "ordinal"
+)
+print(rating_validation)
+```
+If we were to treat the `rating` variable as interval, then we get these validation metrics:
+```{r validation-rating-interval}
+qlm_validate(
+  coded_g2.5_flash,
+  gold = gold_standard,
+  by = "rating",
+  level = "interval"
+)
+```
+
+## Comparing to a second LLM coding from GPT-5.1
+
+### Compared to the previous LLM scoring
+
+We can use `qlm_compare()` to try a more advanced model, to see how this changes things, comparing its performance to the previous model, and also to the gold standard.
+
+```{r sentiment-gpt-5, eval=FALSE}
+# Apply sentiment analysis using qlm_code()
+coded_gpt5.1 <- qlm_code(
+  data_corpus_LMRDsample,
+  codebook = data_codebook_sentiment,
+  model = "openai/gpt-5.1",
+  max_active = 10,
+  include_cost = TRUE,
+  params = params(temperature = 0)
+)
+```
+```{r load-gpt51-results, echo=FALSE}
+coded_gpt5.1 <- readRDS("data/coded_sentiment_gpt5.1.rds")
+```
+
+Now we can compare the agreement between the two LLM codings, for polarity:
+```{r compare-polarity}
+qlm_compare(coded_g2.5_flash, coded_gpt5.1, by = "polarity", level = "nominal")
+```
+
+For the numerical (1-10) variable for rating, we can specify the level as ordinal:
+```{r compare-rating-ordinal}
+qlm_compare(coded_g2.5_flash, coded_gpt5.1, by = "rating", level = "ordinal")
+```
+If we change the tolerance for agreement, we see that agreement changes but that no other measures do:
+```{r compare-rating-tolerance}
+qlm_compare(coded_g2.5_flash, coded_gpt5.1, by = "rating", level = "ordinal",
+            tolerance = 1)
+```
+If we treat the 1-10 ratings as interval, then we see:
+```{r compare-rating-interval}
+qlm_compare(coded_g2.5_flash, coded_gpt5.1, by = "rating", level = "interval")
+```
+
+### GPT-5.1 versus the "gold standard"
+
+Finally, we can compare the new LLM scoring to the gold standard, for polarity:
+```{r validation-gpt51-nominal}
+qlm_validate(
+  coded_gpt5.1,
+  gold = gold_standard,
+  by = "polarity",
+  level = "nominal"
+)
+```
+Compare this to the previous values from Gemini 2.5 Flash:
+```{r echo=FALSE}
+qlm_validate(
+  coded_g2.5_flash,
+  gold = gold_standard,
+  by = "polarity",
+  level = "nominal"
+)
+```
+That's only a tiny improvement.
+
+For the interval rating:
+```{r validation-gpt51-interval}
+qlm_validate(
+  coded_gpt5.1,
+  gold = gold_standard,
+  by = "rating",
+  level = "interval"
+)
+```
+Compared to Gemini 2.5 Flash:
+```{r echo=FALSE}
+qlm_validate(
+  coded_g2.5_flash,
+  gold = gold_standard,
+  by = "rating",
+  level = "interval"
+)
+```
+Call it a draw!
+

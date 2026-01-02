@@ -42,7 +42,7 @@ navbar:
       - text: Overview of predefined tasks
         href: articles/pkgdown/examples/overview.html
       - text: Sentiment analysis
-        href: articles/pkgdown/examples/task_sentiment.html
+        href: articles/pkgdown/examples/example_sentiment.html
       - text: Stance detection / position taking
         href: articles/pkgdown/examples/task_stance.html
       - text: Ideological scaling
