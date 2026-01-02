@@ -51,7 +51,11 @@ qlm_replicate <- function(x, ..., codebook = NULL, model = NULL, name = NULL) {
   original_run <- attr(x, "run")
   original_codebook <- original_run$codebook
   original_model <- original_run$chat_args$name
-  original_pcs_args <- original_run$pcs_args
+  # Backward compatibility: support both execution_args and pcs_args
+  # Ensure it's always a list (empty if NULL)
+  original_execution_args <- original_run$execution_args %||% original_run$pcs_args %||% list()
+  # Extract batch flag (default to FALSE for backward compatibility)
+  original_batch <- original_run$batch %||% FALSE
   parent_name <- original_run$name
 
   # Capture the current call
@@ -73,19 +77,20 @@ qlm_replicate <- function(x, ..., codebook = NULL, model = NULL, name = NULL) {
     }
   }
 
-  # Merge additional overrides with original pcs_args
+  # Merge additional overrides with original execution_args
   overrides <- list(...)
-  pcs_args <- modifyList(original_pcs_args, overrides)
+  execution_args <- modifyList(original_execution_args, overrides)
 
-  # Call qlm_code with merged arguments
+  # Call qlm_code with merged arguments, including batch flag
   result <- do.call(qlm_code, c(
     list(
       x = original_data,
       codebook = use_codebook,
       model = use_model,
+      batch = original_batch,
       name = name
     ),
-    pcs_args
+    execution_args
   ))
 
   # Override the run attributes to reflect this is a replication

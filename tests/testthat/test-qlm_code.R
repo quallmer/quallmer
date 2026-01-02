@@ -83,7 +83,7 @@ test_that("qlm_code returns qlm_coded object structure", {
     data = c("text1", "text2"),
     input_type = "text",
     chat_args = list(name = "test/model"),
-    pcs_args = list(),
+    execution_args = list(),
     metadata = list(
       timestamp = Sys.time(),
       n_units = 2,
@@ -112,7 +112,8 @@ test_that("qlm_code returns qlm_coded object structure", {
   expect_true(!is.null(run_attr))
   expect_identical(run_attr[["codebook"]], codebook)
   expect_true(is.list(run_attr[["chat_args"]]))
-  expect_true(is.list(run_attr[["pcs_args"]]))
+  expect_true(is.list(run_attr[["execution_args"]]))
+  expect_false(run_attr[["batch"]])  # batch flag should be FALSE by default
   expect_true(is.list(run_attr[["metadata"]]))
   expect_equal(run_attr[["name"]], "original")
   expect_null(run_attr[["parent"]])
@@ -178,7 +179,7 @@ test_that("print.qlm_coded displays correctly", {
     data = c("text1", "text2", "text3"),
     input_type = "text",
     chat_args = list(name = "test/model"),
-    pcs_args = list(),
+    execution_args = list(),
     metadata = list(timestamp = Sys.time(), n_units = 3),
     name = "original",
     call = quote(qlm_code(...)),
@@ -190,4 +191,92 @@ test_that("print.qlm_coded displays correctly", {
 
   # Verify it's a tibble
   expect_true(tibble::is_tibble(mock_coded))
+})
+
+
+test_that("qlm_code routes all execution arguments to execution_args", {
+  skip_if_not_installed("ellmer")
+
+  # Get valid argument names from both functions
+  pcs_arg_names <- names(formals(ellmer::parallel_chat_structured))
+  batch_arg_names <- names(formals(ellmer::batch_chat_structured))
+
+  # All of these should be routed to execution_args
+  expect_true("path" %in% batch_arg_names)  # batch-specific
+  expect_true("wait" %in% batch_arg_names)  # batch-specific
+  expect_true("ignore_hash" %in% batch_arg_names)  # batch-specific
+  expect_true("max_active" %in% pcs_arg_names)  # parallel-specific
+  expect_true("rpm" %in% pcs_arg_names)  # parallel-specific
+  expect_true("on_error" %in% pcs_arg_names)  # parallel-specific
+
+  # Shared args
+  expect_true("convert" %in% pcs_arg_names)
+  expect_true("convert" %in% batch_arg_names)
+  expect_true("include_tokens" %in% pcs_arg_names)
+  expect_true("include_tokens" %in% batch_arg_names)
+})
+
+
+test_that("new_qlm_coded stores batch flag and execution_args", {
+  skip_if_not_installed("ellmer")
+
+  type_obj <- ellmer::type_object(score = ellmer::type_number("Score"))
+  codebook <- qlm_codebook("Test", "Test prompt", type_obj)
+
+  mock_results <- data.frame(id = 1:2, score = c(0.5, 0.8))
+
+  # Test with batch=TRUE and mixed execution args (parallel + batch)
+  mock_coded <- new_qlm_coded(
+    results = mock_results,
+    codebook = codebook,
+    data = c("text1", "text2"),
+    input_type = "text",
+    chat_args = list(name = "test/model"),
+    execution_args = list(path = "/tmp/batch", wait = TRUE, max_active = 5, convert = TRUE),
+    batch = TRUE,
+    metadata = list(timestamp = Sys.time(), n_units = 2),
+    name = "batch_test",
+    call = quote(qlm_code(...)),
+    parent = NULL
+  )
+
+  # Verify batch flag is stored
+  run_attr <- attr(mock_coded, "run")
+  expect_true(run_attr[["batch"]])
+
+  # Verify execution_args contains all args (both parallel and batch specific)
+  expect_true(is.list(run_attr[["execution_args"]]))
+  expect_equal(run_attr[["execution_args"]]$path, "/tmp/batch")
+  expect_true(run_attr[["execution_args"]]$wait)
+  expect_equal(run_attr[["execution_args"]]$max_active, 5)
+  expect_true(run_attr[["execution_args"]]$convert)
+})
+
+
+test_that("new_qlm_coded maintains backward compatibility with pcs_args", {
+  skip_if_not_installed("ellmer")
+
+  type_obj <- ellmer::type_object(score = ellmer::type_number("Score"))
+  codebook <- qlm_codebook("Test", "Test prompt", type_obj)
+
+  mock_results <- data.frame(id = 1:2, score = c(0.5, 0.8))
+
+  # Test with old pcs_args parameter
+  mock_coded <- new_qlm_coded(
+    results = mock_results,
+    codebook = codebook,
+    data = c("text1", "text2"),
+    input_type = "text",
+    chat_args = list(name = "test/model"),
+    pcs_args = list(max_active = 5),
+    metadata = list(timestamp = Sys.time(), n_units = 2),
+    name = "compat_test",
+    call = quote(qlm_code(...)),
+    parent = NULL
+  )
+
+  # Verify pcs_args are converted to execution_args
+  run_attr <- attr(mock_coded, "run")
+  expect_true(is.list(run_attr[["execution_args"]]))
+  expect_equal(run_attr[["execution_args"]]$max_active, 5)
 })
