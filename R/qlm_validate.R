@@ -539,15 +539,18 @@ qlm_validate <- function(
 #' @export
 print.qlm_validation <- function(x, ...) {
   cat("# quallmer validation\n")
-  cat("# n: ", x$n, " | ", sep = "")
+  cat("# n: ", x$n, sep = "")
 
-  # Use "levels" for ordinal data, "classes" for nominal data
-  if (x$level == "ordinal") {
-    cat("levels: ", length(x$classes), "\n\n", sep = "")
-  } else {
-    cat("classes: ", length(x$classes), " | ", sep = "")
-    cat("average: ", x$average, "\n\n", sep = "")
+  # Print classes/levels/average based on measurement level
+  if (x$level == "nominal") {
+    cat(" | classes: ", length(x$classes), " | ", sep = "")
+    cat("average: ", x$average, sep = "")
+  } else if (x$level == "ordinal") {
+    cat(" | levels: ", length(x$classes), sep = "")
   }
+  # For interval/ratio: no classes or levels (continuous numeric data)
+
+  cat("\n\n")
 
   # Print metrics based on level
   if (x$level == "nominal" && x$average == "none") {
