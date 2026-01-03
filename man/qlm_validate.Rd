@@ -2,7 +2,7 @@
 % Please edit documentation in R/qlm_validate.R
 \name{qlm_validate}
 \alias{qlm_validate}
-\title{Validate coded results against gold standard}
+\title{Validate coded results against a gold standard}
 \usage{
 qlm_validate(
   x,

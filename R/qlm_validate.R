@@ -1,7 +1,7 @@
 # Declare global variables used in yardstick functions to avoid R CMD check NOTEs
 utils::globalVariables(c("truth", "estimate"))
 
-#' Validate coded results against gold standard
+#' Validate coded results against a gold standard
 #'
 #' Validates LLM-coded results from a `qlm_coded` object against a gold standard
 #' (typically human annotations) using appropriate metrics based on measurement
