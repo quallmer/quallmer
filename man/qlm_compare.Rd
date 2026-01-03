@@ -7,7 +7,6 @@
 qlm_compare(
   ...,
   by,
-  measure = c("alpha", "kappa", "kendall", "agreement"),
   level = c("nominal", "ordinal", "interval", "ratio"),
   tolerance = 0
 )
@@ -21,29 +20,43 @@ values).}
 \item{by}{Character scalar. Name of the variable to compare across raters.
 Must be present in all \code{qlm_coded} objects.}
 
-\item{measure}{Character scalar. The reliability/agreement measure to compute:
-\describe{
-\item{\code{"alpha"}}{Krippendorff's alpha (default)}
-\item{\code{"kappa"}}{Fleiss' kappa (for 3+ raters) or Cohen's kappa (for 2 raters)}
-\item{\code{"kendall"}}{Kendall's W coefficient of concordance}
-\item{\code{"agreement"}}{Simple percent agreement}
-}}
-
 \item{level}{Character scalar. Measurement level of the variable:
-\code{"nominal"}, \code{"ordinal"}, \code{"interval"}, or \code{"ratio"}. Default is \code{"nominal"}.}
+\code{"nominal"}, \code{"ordinal"}, \code{"interval"}, or \code{"ratio"}. Default is \code{"nominal"}.
+Different sets of agreement statistics are computed for each level.}
 
 \item{tolerance}{Numeric. Tolerance for agreement with numeric data.
-Default is 0 (exact agreement required).}
+Default is 0 (exact agreement required). Used for percent agreement calculation.}
 }
 \value{
-A \code{qlm_comparison} object containing:
+A \code{qlm_comparison} object containing agreement statistics appropriate
+for the measurement level:
 \describe{
-\item{\code{measure}}{The reliability measure used}
-\item{\code{value}}{The computed reliability/agreement value}
+\item{\strong{Nominal level:}}{
+\itemize{
+\item \code{alpha_nominal}: Krippendorff's alpha
+\item \code{kappa}: Cohen's kappa (2 raters) or Fleiss' kappa (3+ raters)
+\item \code{kappa_type}: Character indicating "Cohen's" or "Fleiss'"
+\item \code{percent_agreement}: Simple percent agreement
+}
+}
+\item{\strong{Ordinal level:}}{
+\itemize{
+\item \code{alpha_ordinal}: Krippendorff's alpha (ordinal)
+\item \code{kappa_weighted}: Weighted kappa (2 raters only)
+\item \code{w}: Kendall's W coefficient of concordance
+\item \code{rho}: Spearman's rho (average pairwise correlation)
+}
+}
+\item{\strong{Interval/Ratio level:}}{
+\itemize{
+\item \code{alpha_interval}: Krippendorff's alpha (interval/ratio)
+\item \code{icc}: Intraclass correlation coefficient
+\item \code{r}: Pearson's r (average pairwise correlation)
+}
+}
 \item{\code{subjects}}{Number of units compared}
 \item{\code{raters}}{Number of raters}
 \item{\code{level}}{Measurement level}
-\item{\code{detail}}{Original output from the irr package function}
 \item{\code{call}}{The function call}
 }
 }
@@ -56,6 +69,16 @@ result and computes reliability statistics using the irr package.
 The function merges the coded objects by their \code{.id} column and only includes
 units that are present in all objects. Missing values in any rater will
 exclude that unit from analysis.
+
+\strong{Measurement levels and statistics:}
+\itemize{
+\item \strong{Nominal}: For unordered categories. Computes Krippendorff's alpha,
+Cohen's/Fleiss' kappa, and percent agreement.
+\item \strong{Ordinal}: For ordered categories. Computes Krippendorff's alpha (ordinal),
+weighted kappa (2 raters only), Kendall's W, and Spearman's rho.
+\item \strong{Interval/Ratio}: For continuous data. Computes Krippendorff's alpha
+(interval/ratio), ICC, and Pearson's r.
+}
 }
 \examples{
 \dontrun{
@@ -65,19 +88,16 @@ reviews <- data_corpus_LMRDsample[sample(length(data_corpus_LMRDsample), size = 
 coded1 <- qlm_code(reviews, data_codebook_sentiment, model = "openai/gpt-4o-mini")
 coded2 <- qlm_code(reviews, data_codebook_sentiment, model = "openai/gpt-4o")
 
-# Compute agreement for the polarity variable
-qlm_compare(coded1, coded2, by = "polarity", measure = "agreement")
-qlm_compare(coded1, coded2, by = "polarity", measure = "alpha")
+# Compare nominal data (polarity: neg/pos)
+qlm_compare(coded1, coded2, by = "polarity", level = "nominal")
 
-# Compute Krippendorf's alpha for the rating variable
-qlm_compare(coded1, coded2, by = "rating", measure = "alpha", level = "ordinal")
+# Compare ordinal data (rating: 1-10)
+qlm_compare(coded1, coded2, by = "rating", level = "ordinal")
 
 # Compare three raters using Fleiss' kappa on polarity
-coded3 <- qlm_replicate(coded1, temperature = 0.5)
+coded3 <- qlm_replicate(coded1, params = params(temperature = 0.5))
 qlm_compare(coded1, coded2, coded3, by = "polarity", measure = "kappa", level = "nominal")
 }
-
-}
 \seealso{
-\code{\link[=validate]{validate()}} for validation of coding against gold standards.
+\code{\link[=qlm_validate]{qlm_validate()}} for validation of coding against gold standards.
 }

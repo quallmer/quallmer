@@ -10,26 +10,41 @@
 #'   values).
 #' @param by Character scalar. Name of the variable to compare across raters.
 #'   Must be present in all `qlm_coded` objects.
-#' @param measure Character scalar. The reliability/agreement measure to compute:
-#'   \describe{
-#'     \item{`"alpha"`}{Krippendorff's alpha (default)}
-#'     \item{`"kappa"`}{Fleiss' kappa (for 3+ raters) or Cohen's kappa (for 2 raters)}
-#'     \item{`"kendall"`}{Kendall's W coefficient of concordance}
-#'     \item{`"agreement"`}{Simple percent agreement}
-#'   }
 #' @param level Character scalar. Measurement level of the variable:
 #'   `"nominal"`, `"ordinal"`, `"interval"`, or `"ratio"`. Default is `"nominal"`.
+#'   Different sets of agreement statistics are computed for each level.
 #' @param tolerance Numeric. Tolerance for agreement with numeric data.
-#'   Default is 0 (exact agreement required).
+#'   Default is 0 (exact agreement required). Used for percent agreement calculation.
 #'
-#' @return A `qlm_comparison` object containing:
+#' @return A `qlm_comparison` object containing agreement statistics appropriate
+#'   for the measurement level:
 #'   \describe{
-#'     \item{`measure`}{The reliability measure used}
-#'     \item{`value`}{The computed reliability/agreement value}
+#'     \item{**Nominal level:**}{
+#'       \itemize{
+#'         \item `alpha_nominal`: Krippendorff's alpha
+#'         \item `kappa`: Cohen's kappa (2 raters) or Fleiss' kappa (3+ raters)
+#'         \item `kappa_type`: Character indicating "Cohen's" or "Fleiss'"
+#'         \item `percent_agreement`: Simple percent agreement
+#'       }
+#'     }
+#'     \item{**Ordinal level:**}{
+#'       \itemize{
+#'         \item `alpha_ordinal`: Krippendorff's alpha (ordinal)
+#'         \item `kappa_weighted`: Weighted kappa (2 raters only)
+#'         \item `w`: Kendall's W coefficient of concordance
+#'         \item `rho`: Spearman's rho (average pairwise correlation)
+#'       }
+#'     }
+#'     \item{**Interval/Ratio level:**}{
+#'       \itemize{
+#'         \item `alpha_interval`: Krippendorff's alpha (interval/ratio)
+#'         \item `icc`: Intraclass correlation coefficient
+#'         \item `r`: Pearson's r (average pairwise correlation)
+#'       }
+#'     }
 #'     \item{`subjects`}{Number of units compared}
 #'     \item{`raters`}{Number of raters}
 #'     \item{`level`}{Measurement level}
-#'     \item{`detail`}{Original output from the irr package function}
 #'     \item{`call`}{The function call}
 #'   }
 #'
@@ -38,7 +53,15 @@
 #' units that are present in all objects. Missing values in any rater will
 #' exclude that unit from analysis.
 #'
-#' @seealso [validate()] for validation of coding against gold standards.
+#' **Measurement levels and statistics:**
+#' - **Nominal**: For unordered categories. Computes Krippendorff's alpha,
+#'   Cohen's/Fleiss' kappa, and percent agreement.
+#' - **Ordinal**: For ordered categories. Computes Krippendorff's alpha (ordinal),
+#'   weighted kappa (2 raters only), Kendall's W, and Spearman's rho.
+#' - **Interval/Ratio**: For continuous data. Computes Krippendorff's alpha
+#'   (interval/ratio), ICC, and Pearson's r.
+#'
+#' @seealso [qlm_validate()] for validation of coding against gold standards.
 #'
 #' @examples
 #' \dontrun{
@@ -48,26 +71,23 @@
 #' coded1 <- qlm_code(reviews, data_codebook_sentiment, model = "openai/gpt-4o-mini")
 #' coded2 <- qlm_code(reviews, data_codebook_sentiment, model = "openai/gpt-4o")
 #'
-#' # Compute agreement for the polarity variable
-#' qlm_compare(coded1, coded2, by = "polarity", measure = "agreement")
-#' qlm_compare(coded1, coded2, by = "polarity", measure = "alpha")
+#' # Compare nominal data (polarity: neg/pos)
+#' qlm_compare(coded1, coded2, by = "polarity", level = "nominal")
 #'
-#' # Compute Krippendorf's alpha for the rating variable
-#' qlm_compare(coded1, coded2, by = "rating", measure = "alpha", level = "ordinal")
+#' # Compare ordinal data (rating: 1-10)
+#' qlm_compare(coded1, coded2, by = "rating", level = "ordinal")
 #'
 #' # Compare three raters using Fleiss' kappa on polarity
-#' coded3 <- qlm_replicate(coded1, temperature = 0.5)
+#' coded3 <- qlm_replicate(coded1, params = params(temperature = 0.5))
 #' qlm_compare(coded1, coded2, coded3, by = "polarity", measure = "kappa", level = "nominal")
 #' }
 #'
 #' @export
 qlm_compare <- function(...,
                         by,
-                        measure = c("alpha", "kappa", "kendall", "agreement"),
                         level = c("nominal", "ordinal", "interval", "ratio"),
                         tolerance = 0) {
 
-  measure <- match.arg(measure)
   level <- match.arg(level)
 
   # Capture coded objects
@@ -146,8 +166,8 @@ qlm_compare <- function(...,
   ratings <- ratings[complete_rows, , drop = FALSE]
   n_subjects <- nrow(ratings)
 
-  # Compute reliability measure
-  result <- compute_reliability(ratings, measure, level, tolerance)
+  # Compute all reliability measures appropriate for this level
+  results <- compute_reliability_by_level(ratings, n_raters, level, tolerance)
 
   # Extract parent run names from coded objects
   parent_names <- vapply(coded_list, function(obj) {
@@ -161,14 +181,14 @@ qlm_compare <- function(...,
 
   # Build qlm_comparison object with run attribute
   structure(
-    list(
-      measure = measure,
-      value = result$value,
-      subjects = n_subjects,
-      raters = n_raters,
-      level = level,
-      detail = result$detail,
-      call = match.call()
+    c(
+      results,
+      list(
+        subjects = n_subjects,
+        raters = n_raters,
+        level = level,
+        call = match.call()
+      )
     ),
     class = "qlm_comparison",
     run = list(
@@ -219,7 +239,180 @@ convert_to_numeric <- function(ratings) {
 }
 
 
-#' Compute reliability statistic
+#' Compute all reliability statistics for a given level
+#'
+#' @param ratings Matrix where rows are subjects and columns are raters
+#' @param n_raters Number of raters
+#' @param level Measurement level
+#' @param tolerance Tolerance for agreement
+#'
+#' @return List with all computed measures
+#' @keywords internal
+#' @noRd
+compute_reliability_by_level <- function(ratings, n_raters, level, tolerance) {
+
+  results <- list()
+
+  # Percent agreement (computed for all levels)
+  # For nominal data: exact agreement (tolerance is ignored)
+  # For ordinal/interval/ratio: agreement within tolerance
+  agrees <- apply(ratings, 1, function(row) {
+    if (is.numeric(row)) {
+      max(row) - min(row) <= tolerance
+    } else {
+      length(unique(as.character(row))) == 1
+    }
+  })
+  results$percent_agreement <- mean(agrees)
+
+  if (level == "nominal") {
+    # Nominal measures: alpha, kappa
+
+    # Krippendorff's alpha (nominal)
+    ratings_numeric <- convert_to_numeric(ratings)
+    ratings_t <- t(ratings_numeric)
+
+    alpha_result <- tryCatch({
+      irr::kripp.alpha(ratings_t, method = "nominal")
+    }, error = function(e) {
+      cli::cli_warn(c(
+        "Failed to compute Krippendorff's alpha.",
+        "x" = conditionMessage(e)
+      ))
+      list(value = NA_real_)
+    })
+    results$alpha_nominal <- alpha_result$value
+
+    # Cohen's/Fleiss' kappa
+    kappa_result <- tryCatch({
+      if (n_raters == 2) {
+        irr::kappa2(ratings_numeric)
+      } else {
+        irr::kappam.fleiss(ratings_numeric)
+      }
+    }, error = function(e) {
+      cli::cli_warn(c(
+        "Failed to compute kappa.",
+        "x" = conditionMessage(e)
+      ))
+      list(value = NA_real_)
+    })
+    results$kappa <- kappa_result$value
+    results$kappa_type <- if (n_raters == 2) "Cohen's" else "Fleiss'"
+
+  } else if (level == "ordinal") {
+    # Ordinal measures: alpha_ordinal, kappa_weighted, w, rho
+
+    # Krippendorff's alpha (ordinal)
+    ratings_numeric <- convert_to_numeric(ratings)
+    ratings_t <- t(ratings_numeric)
+
+    alpha_result <- tryCatch({
+      irr::kripp.alpha(ratings_t, method = "ordinal")
+    }, error = function(e) {
+      cli::cli_warn(c(
+        "Failed to compute Krippendorff's alpha (ordinal).",
+        "x" = conditionMessage(e)
+      ))
+      list(value = NA_real_)
+    })
+    results$alpha_ordinal <- alpha_result$value
+
+    # Weighted kappa (only for 2 raters)
+    if (n_raters == 2) {
+      kappa_weighted_result <- tryCatch({
+        irr::kappa2(ratings_numeric, weight = "squared")
+      }, error = function(e) {
+        cli::cli_warn(c(
+          "Failed to compute weighted kappa.",
+          "x" = conditionMessage(e)
+        ))
+        list(value = NA_real_)
+      })
+      results$kappa_weighted <- kappa_weighted_result$value
+    } else {
+      results$kappa_weighted <- NULL
+    }
+
+    # Kendall's W
+    kendall_result <- tryCatch({
+      irr::kendall(ratings_numeric)
+    }, error = function(e) {
+      cli::cli_warn(c(
+        "Failed to compute Kendall's W.",
+        "x" = conditionMessage(e)
+      ))
+      list(value = NA_real_)
+    })
+    results$w <- kendall_result$value
+
+    # Spearman's rho (average pairwise correlation)
+    if (n_raters >= 2) {
+      rho_values <- c()
+      for (i in 1:(n_raters - 1)) {
+        for (j in (i + 1):n_raters) {
+          rho_values <- c(rho_values,
+                          stats::cor(ratings_numeric[, i],
+                                     ratings_numeric[, j],
+                                     method = "spearman"))
+        }
+      }
+      results$rho <- mean(rho_values)
+    } else {
+      results$rho <- NA_real_
+    }
+
+  } else if (level == "interval" || level == "ratio") {
+    # Interval measures: alpha_interval, icc, r
+
+    # Krippendorff's alpha (interval/ratio)
+    ratings_numeric <- convert_to_numeric(ratings)
+    ratings_t <- t(ratings_numeric)
+
+    alpha_result <- tryCatch({
+      irr::kripp.alpha(ratings_t, method = if (level == "interval") "interval" else "ratio")
+    }, error = function(e) {
+      cli::cli_warn(c(
+        "Failed to compute Krippendorff's alpha (interval/ratio).",
+        "x" = conditionMessage(e)
+      ))
+      list(value = NA_real_)
+    })
+    results$alpha_interval <- alpha_result$value
+
+    # ICC
+    icc_result <- tryCatch({
+      irr::icc(ratings_numeric, model = "twoway", type = "agreement", unit = "single")
+    }, error = function(e) {
+      cli::cli_warn(c(
+        "Failed to compute ICC.",
+        "x" = conditionMessage(e)
+      ))
+      list(value = NA_real_)
+    })
+    results$icc <- icc_result$value
+
+    # Pearson's r (average pairwise correlation)
+    if (n_raters >= 2) {
+      r_values <- c()
+      for (i in 1:(n_raters - 1)) {
+        for (j in (i + 1):n_raters) {
+          r_values <- c(r_values,
+                        stats::cor(ratings_numeric[, i],
+                                   ratings_numeric[, j],
+                                   method = "pearson"))
+        }
+      }
+      results$r <- mean(r_values)
+    } else {
+      results$r <- NA_real_
+    }
+  }
+
+  results
+}
+
+#' Compute reliability statistic (deprecated, kept for backward compatibility)
 #'
 #' @param ratings Matrix where rows are subjects and columns are raters
 #' @param measure Reliability measure
@@ -329,32 +522,57 @@ compute_reliability <- function(ratings, measure, level, tolerance) {
 #' @keywords internal
 #' @export
 print.qlm_comparison <- function(x, ...) {
-  cat("# Inter-rater reliability comparison\n")
-  cat("# Measure:", x$measure, "\n")
-  cat("# Value:  ", sprintf("%.4f", x$value), "\n")
+  cat("# Inter-rater reliability\n")
   cat("# Subjects:", x$subjects, "\n")
   cat("# Raters:  ", x$raters, "\n")
-  cat("# Level:   ", x$level, "\n")
-  cat("\n")
+  cat("# Level:   ", x$level, "\n\n")
 
-  # Interpretation
-  if (x$measure == "alpha" || x$measure == "kappa") {
-    cat("Interpretation:\n")
-    if (x$value < 0) {
-      cat("  Poor agreement (systematic disagreement)\n")
-    } else if (x$value < 0.20) {
-      cat("  Slight agreement\n")
-    } else if (x$value < 0.40) {
-      cat("  Fair agreement\n")
-    } else if (x$value < 0.60) {
-      cat("  Moderate agreement\n")
-    } else if (x$value < 0.80) {
-      cat("  Substantial agreement\n")
-    } else {
-      cat("  Almost perfect agreement\n")
+  # Print measures based on level
+  if (x$level == "nominal") {
+    # Nominal measures
+    if (!is.null(x$alpha_nominal) && !is.na(x$alpha_nominal)) {
+      cat("Krippendorff's alpha: ", sprintf("%.4f", x$alpha_nominal), "\n", sep = "")
     }
-  } else if (x$measure == "agreement") {
-    cat(sprintf("Percent agreement: %.1f%%\n", x$value * 100))
+    if (!is.null(x$kappa) && !is.na(x$kappa)) {
+      kappa_label <- paste0(x$kappa_type, " kappa:")
+      cat(sprintf("%-22s", kappa_label), sprintf("%.4f", x$kappa), "\n", sep = "")
+    }
+    if (!is.null(x$percent_agreement) && !is.na(x$percent_agreement)) {
+      cat("Percent agreement:    ", sprintf("%.4f", x$percent_agreement), "\n", sep = "")
+    }
+
+  } else if (x$level == "ordinal") {
+    # Ordinal measures
+    if (!is.null(x$alpha_ordinal) && !is.na(x$alpha_ordinal)) {
+      cat("Krippendorff's alpha: ", sprintf("%.4f", x$alpha_ordinal), "\n", sep = "")
+    }
+    if (!is.null(x$kappa_weighted) && !is.na(x$kappa_weighted)) {
+      cat("Weighted kappa:       ", sprintf("%.4f", x$kappa_weighted), "\n", sep = "")
+    }
+    if (!is.null(x$w) && !is.na(x$w)) {
+      cat("Kendall's W:          ", sprintf("%.4f", x$w), "\n", sep = "")
+    }
+    if (!is.null(x$rho) && !is.na(x$rho)) {
+      cat("Spearman's rho:       ", sprintf("%.4f", x$rho), "\n", sep = "")
+    }
+    if (!is.null(x$percent_agreement) && !is.na(x$percent_agreement)) {
+      cat("Percent agreement:    ", sprintf("%.4f", x$percent_agreement), "\n", sep = "")
+    }
+
+  } else if (x$level == "interval" || x$level == "ratio") {
+    # Interval measures
+    if (!is.null(x$alpha_interval) && !is.na(x$alpha_interval)) {
+      cat("Krippendorff's alpha: ", sprintf("%.4f", x$alpha_interval), "\n", sep = "")
+    }
+    if (!is.null(x$icc) && !is.na(x$icc)) {
+      cat("ICC:                  ", sprintf("%.4f", x$icc), "\n", sep = "")
+    }
+    if (!is.null(x$r) && !is.na(x$r)) {
+      cat("Pearson's r:          ", sprintf("%.4f", x$r), "\n", sep = "")
+    }
+    if (!is.null(x$percent_agreement) && !is.na(x$percent_agreement)) {
+      cat("Percent agreement:    ", sprintf("%.4f", x$percent_agreement), "\n", sep = "")
+    }
   }
 
   invisible(x)

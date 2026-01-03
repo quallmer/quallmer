@@ -4,8 +4,10 @@ utils::globalVariables(c("truth", "estimate"))
 #' Validate coded results against gold standard
 #'
 #' Validates LLM-coded results from a `qlm_coded` object against a gold standard
-#' (typically human annotations) using classification metrics from the yardstick
-#' package. Computes accuracy, precision, recall, F1-score, and Cohen's kappa.
+#' (typically human annotations) using appropriate metrics based on measurement
+#' level. For nominal data, computes accuracy, precision, recall, F1-score, and
+#' Cohen's kappa. For ordinal data, computes accuracy and weighted kappa (linear
+#' weighting), which accounts for the ordering and distance between categories.
 #'
 #' @param x A `qlm_coded` object containing LLM predictions to validate.
 #' @param gold A data frame containing gold standard annotations. Must include
@@ -13,34 +15,34 @@ utils::globalVariables(c("truth", "estimate"))
 #'   (Can also be a qlm_coded object.)
 #' @param by Character scalar. Name of the variable to validate. Must be present
 #'   in both `x` and `gold`.
-#' @param measure Character scalar. Which metrics to compute:
-#'   \describe{
-#'     \item{`"all"`}{Compute all metrics (default)}
-#'     \item{`"accuracy"`}{Overall accuracy only}
-#'     \item{`"precision"`}{Precision only}
-#'     \item{`"recall"`}{Recall only}
-#'     \item{`"f1"`}{F1-score only}
-#'     \item{`"kappa"`}{Cohen's kappa only}
-#'   }
-#' @param average Character scalar. Averaging method for multiclass metrics:
+#' @param level Character scalar. Measurement level of the variable: `"nominal"`,
+#'   `"ordinal"`, or `"interval"`. Default is `"nominal"`. Determines which
+#'   validation metrics are computed.
+#' @param average Character scalar. Averaging method for multiclass metrics
+#'   (nominal level only):
 #'   \describe{
 #'     \item{`"macro"`}{Unweighted mean across classes (default)}
 #'     \item{`"micro"`}{Aggregate contributions globally (sum TP, FP, FN)}
 #'     \item{`"weighted"`}{Weighted mean by class prevalence}
 #'     \item{`"none"`}{Return per-class metrics in addition to global metrics}
 #'   }
-#' @inheritParams qlm_compare
 #' @return A `qlm_validation` object containing:
 #'   \describe{
-#'     \item{`accuracy`}{Overall accuracy (if computed)}
-#'     \item{`precision`}{Precision (if computed)}
-#'     \item{`recall`}{Recall (if computed)}
-#'     \item{`f1`}{F1-score (if computed)}
-#'     \item{`kappa`}{Cohen's kappa (if computed)}
-#'     \item{`by_class`}{Per-class metrics (only when `average = "none"`)}
-#'     \item{`confusion`}{Confusion matrix (yardstick conf_mat object)}
+#'     \item{`accuracy`}{Overall accuracy (nominal only)}
+#'     \item{`precision`}{Precision (nominal only)}
+#'     \item{`recall`}{Recall (nominal only)}
+#'     \item{`f1`}{F1-score (nominal only)}
+#'     \item{`kappa`}{Cohen's kappa (nominal only)}
+#'     \item{`rho`}{Spearman's rho rank correlation (ordinal only)}
+#'     \item{`tau`}{Kendall's tau rank correlation (ordinal only)}
+#'     \item{`r`}{Pearson's r correlation (interval only)}
+#'     \item{`icc`}{Intraclass correlation coefficient (interval only)}
+#'     \item{`mae`}{Mean absolute error (ordinal/interval)}
+#'     \item{`rmse`}{Root mean squared error (interval only)}
+#'     \item{`by_class`}{Per-class metrics (nominal with `average = "none"` only)}
+#'     \item{`confusion`}{Confusion matrix (nominal only)}
 #'     \item{`n`}{Number of units compared}
-#'     \item{`classes`}{Class labels}
+#'     \item{`classes`}{Class/level labels}
 #'     \item{`average`}{Averaging method used}
 #'     \item{`level`}{Measurement level}
 #'     \item{`variable`}{Variable name validated}
@@ -53,8 +55,22 @@ utils::globalVariables(c("truth", "estimate"))
 #' Missing values (NA) in either predictions or gold standard are excluded with
 #' a warning.
 #'
-#' For multiclass problems, the `average` parameter controls how per-class
-#' metrics are aggregated:
+#' **Measurement levels:**
+#' - **Nominal**: Categories with no inherent ordering (e.g., topics, sentiment
+#'   polarity). Metrics: accuracy, precision, recall, F1-score, Cohen's kappa
+#'   (unweighted).
+#' - **Ordinal**: Categories with meaningful ordering but unequal intervals
+#'   (e.g., ratings 1-5, Likert scales). Metrics: Spearman's rho (`rho`, rank
+#'   correlation), Kendall's tau (`tau`, rank correlation), and MAE (`mae`, mean
+#'   absolute error). These measures account for the ordering of categories
+#'   without assuming equal intervals.
+#' - **Interval/Ratio**: Numeric data with equal intervals (e.g., counts,
+#'   continuous measurements). Metrics: ICC (intraclass correlation), Pearson's r
+#'   (linear correlation), MAE (mean absolute error), and RMSE (root mean squared
+#'   error).
+#'
+#' For multiclass problems with nominal data, the `average` parameter controls
+#' how per-class metrics are aggregated:
 #' - **Macro averaging** computes metrics for each class independently and takes
 #'   the unweighted mean. This treats all classes equally regardless of size.
 #' - **Micro averaging** aggregates all true positives, false positives, and
@@ -64,6 +80,9 @@ utils::globalVariables(c("truth", "estimate"))
 #'   weighted by class size.
 #' - **No averaging** (`average = "none"`) returns global macro-averaged metrics
 #'   plus per-class breakdown.
+#'
+#' Note: The `average` parameter only affects precision, recall, and F1 for
+#' nominal data. For ordinal data, these metrics are not computed.
 #'
 #' @seealso
 #' [qlm_compare()] for inter-rater reliability between coded objects,
@@ -91,18 +110,24 @@ utils::globalVariables(c("truth", "estimate"))
 #'   polarity = quanteda::docvars(reviews, "polarity")
 #' )
 #'
-#' # Validate
-#' validation <- qlm_validate(coded, gold, by = "polarity")
+#' # Validate polarity (nominal data)
+#' validation <- qlm_validate(coded, gold, by = "polarity", level = "nominal")
 #' print(validation)
 #'
-#' # Compute only specific metrics
-#' qlm_validate(coded, gold, by = "polarity", measure = "f1")
+#' # Validate ratings (ordinal data)
+#' gold_ratings <- data.frame(
+#'   .id = coded$.id,
+#'   rating = quanteda::docvars(reviews, "rating")
+#' )
+#' validation_ordinal <- qlm_validate(coded, gold_ratings, by = "rating", level = "ordinal")
+#' print(validation_ordinal)
 #'
-#' # Use micro-averaging
-#' qlm_validate(coded, gold, by = "polarity", average = "micro")
+#' # Use micro-averaging (nominal level only)
+#' qlm_validate(coded, gold, by = "polarity", level = "nominal", average = "micro")
 #'
-#' # Get per-class breakdown
-#' validation_detailed <- qlm_validate(coded, gold, by = "polarity", average = "none")
+#' # Get per-class breakdown (for nominal data only)
+#' validation_detailed <- qlm_validate(coded, gold, by = "polarity",
+#'                                     level = "nominal", average = "none")
 #' print(validation_detailed)
 #' validation_detailed$by_class$precision
 #' }
@@ -112,15 +137,24 @@ qlm_validate <- function(
     x,
     gold,
     by,
-    measure = c("all", "accuracy", "precision", "recall", "f1", "kappa"),
-    average = c("macro", "micro", "weighted", "none"),
-    level = c("nominal", "ordinal", "interval")
+    level = c("nominal", "ordinal", "interval"),
+    average = c("macro", "micro", "weighted", "none")
 ) {
 
   # Match arguments
-  measure <- match.arg(measure)
-  average <- match.arg(average)
   level <- match.arg(level)
+
+  # Check if average was explicitly provided before match.arg() assigns default
+  average_was_supplied <- !missing(average)
+  average <- match.arg(average)
+
+  # Warn if average is specified for non-nominal data
+  if (level != "nominal" && average_was_supplied) {
+    cli::cli_warn(c(
+      "The {.arg average} parameter only applies to nominal (multiclass) data.",
+      "i" = "For {.val {level}} data, this parameter is ignored."
+    ))
+  }
 
   # Validate inputs
   if (!inherits(x, "qlm_coded")) {
@@ -205,8 +239,14 @@ qlm_validate <- function(
   )))
 
   # Convert both to factors with shared levels
-  merged$estimate <- factor(merged$estimate, levels = all_levels)
-  merged$truth <- factor(merged$truth, levels = all_levels)
+  # For ordinal data, use ordered factors for proper weighted kappa
+  if (level == "ordinal") {
+    merged$estimate <- factor(merged$estimate, levels = all_levels, ordered = TRUE)
+    merged$truth <- factor(merged$truth, levels = all_levels, ordered = TRUE)
+  } else {
+    merged$estimate <- factor(merged$estimate, levels = all_levels)
+    merged$truth <- factor(merged$truth, levels = all_levels)
+  }
 
   # Map average to yardstick estimator
   estimator <- switch(average,
@@ -216,12 +256,13 @@ qlm_validate <- function(
     "none" = "macro"  # Use macro for global metrics when average = "none"
   )
 
-  # Determine which metrics to compute
-  compute_all <- measure == "all"
-  metrics_to_compute <- if (compute_all) {
-    c("accuracy", "precision", "recall", "f1", "kappa")
-  } else {
-    measure
+  # Determine which metrics to compute based on level
+  if (level == "nominal") {
+    metrics_to_compute <- c("accuracy", "precision", "recall", "f1", "kappa")
+  } else if (level == "ordinal") {
+    metrics_to_compute <- c("rho", "tau", "mae")
+  } else if (level == "interval") {
+    metrics_to_compute <- c("icc", "r", "mae", "rmse")
   }
 
   # Initialize results list
@@ -262,16 +303,103 @@ qlm_validate <- function(
     results$f1 <- NULL
   }
 
-  # Compute kappa (no estimator parameter)
+  # Compute kappa (only for nominal data)
   if ("kappa" %in% metrics_to_compute) {
-    kap <- yardstick::kap(merged, truth = truth, estimate = estimate)
+    kap <- yardstick::kap(merged, truth = truth, estimate = estimate,
+                          weighting = "none")
     results$kappa <- kap$.estimate
   } else {
     results$kappa <- NULL
   }
 
-  # Compute confusion matrix (always included)
-  conf_mat <- yardstick::conf_mat(merged, truth = truth, estimate = estimate)
+  # Ordinal measures (require numeric conversion)
+  if (level == "ordinal") {
+    # Convert ordered factors to numeric for correlation and distance measures
+    estimate_num <- as.numeric(merged$estimate)
+    truth_num <- as.numeric(merged$truth)
+
+    # Spearman's rho (rank correlation)
+    if ("rho" %in% metrics_to_compute) {
+      results$rho <- stats::cor(truth_num, estimate_num, method = "spearman")
+    } else {
+      results$rho <- NULL
+    }
+
+    # Kendall's tau (rank correlation)
+    if ("tau" %in% metrics_to_compute) {
+      results$tau <- stats::cor(truth_num, estimate_num, method = "kendall")
+    } else {
+      results$tau <- NULL
+    }
+
+    # Mean Absolute Error
+    if ("mae" %in% metrics_to_compute) {
+      results$mae <- mean(abs(estimate_num - truth_num))
+    } else {
+      results$mae <- NULL
+    }
+  }
+
+  # Interval measures (require numeric conversion)
+  if (level == "interval") {
+    # For interval data, convert to numeric
+    estimate_num <- as.numeric(as.character(merged$estimate))
+    truth_num <- as.numeric(as.character(merged$truth))
+
+    # Create data frame for yardstick functions
+    numeric_data <- data.frame(
+      truth = truth_num,
+      estimate = estimate_num
+    )
+
+    # Pearson's r (linear correlation)
+    if ("r" %in% metrics_to_compute) {
+      results$r <- stats::cor(truth_num, estimate_num, method = "pearson")
+    } else {
+      results$r <- NULL
+    }
+
+    # Mean Absolute Error (using yardstick)
+    if ("mae" %in% metrics_to_compute) {
+      mae_result <- yardstick::mae(numeric_data, truth = truth, estimate = estimate)
+      results$mae <- mae_result$.estimate
+    } else {
+      results$mae <- NULL
+    }
+
+    # Root Mean Squared Error (using yardstick)
+    if ("rmse" %in% metrics_to_compute) {
+      rmse_result <- yardstick::rmse(numeric_data, truth = truth, estimate = estimate)
+      results$rmse <- rmse_result$.estimate
+    } else {
+      results$rmse <- NULL
+    }
+
+    # Intraclass Correlation Coefficient (using irr package)
+    if ("icc" %in% metrics_to_compute) {
+      if (requireNamespace("irr", quietly = TRUE)) {
+        # ICC for two-rater agreement (model = "twoway", type = "agreement")
+        icc_data <- data.frame(truth = truth_num, estimate = estimate_num)
+        icc_result <- irr::icc(icc_data, model = "twoway", type = "agreement", unit = "single")
+        results$icc <- icc_result$value
+      } else {
+        cli::cli_warn(c(
+          "Package {.pkg irr} is required for ICC computation but is not installed.",
+          "i" = "Install it with: {.code install.packages('irr')}"
+        ))
+        results$icc <- NA_real_
+      }
+    } else {
+      results$icc <- NULL
+    }
+  }
+
+  # Compute confusion matrix (only for nominal data)
+  if (level == "nominal") {
+    conf_mat <- yardstick::conf_mat(merged, truth = truth, estimate = estimate)
+  } else {
+    conf_mat <- NULL
+  }
 
   # Compute per-class metrics if average = "none"
   by_class <- NULL
@@ -354,11 +482,22 @@ qlm_validate <- function(
 
   # Build return object with run attribute
   result <- list(
+    # Nominal metrics
     accuracy = results$accuracy,
     precision = results$precision,
     recall = results$recall,
     f1 = results$f1,
     kappa = results$kappa,
+    # Ordinal metrics
+    rho = results$rho,
+    tau = results$tau,
+    # Interval metrics
+    r = results$r,
+    icc = results$icc,
+    # Shared metrics (ordinal/interval)
+    mae = results$mae,
+    rmse = results$rmse,
+    # Additional info
     by_class = by_class,
     confusion = conf_mat,
     n = nrow(merged),
@@ -402,18 +541,24 @@ qlm_validate <- function(
 print.qlm_validation <- function(x, ...) {
   cat("# quallmer validation\n")
   cat("# n: ", x$n, " | ", sep = "")
-  cat("classes: ", length(x$classes), " | ", sep = "")
-  cat("average: ", x$average, "\n\n", sep = "")
 
-  # Print metrics
-  if (x$average == "none") {
+  # Use "levels" for ordinal data, "classes" for nominal data
+  if (x$level == "ordinal") {
+    cat("levels: ", length(x$classes), "\n\n", sep = "")
+  } else {
+    cat("classes: ", length(x$classes), " | ", sep = "")
+    cat("average: ", x$average, "\n\n", sep = "")
+  }
+
+  # Print metrics based on level
+  if (x$level == "nominal" && x$average == "none") {
     # Global metrics
     cat("Global:\n")
     if (!is.null(x$accuracy)) {
-      cat("  accuracy: ", sprintf("%.4f", x$accuracy), "\n", sep = "")
+      cat("  accuracy:      ", sprintf("%.4f", x$accuracy), "\n", sep = "")
     }
     if (!is.null(x$kappa)) {
-      cat("  kappa:    ", sprintf("%.4f", x$kappa), "\n", sep = "")
+      cat("  Cohen's kappa: ", sprintf("%.4f", x$kappa), "\n", sep = "")
     }
     cat("\n")
 
@@ -423,21 +568,46 @@ print.qlm_validation <- function(x, ...) {
       print(x$by_class, n = Inf)
     }
   } else {
-    # Aggregated metrics only
+    # Aggregated metrics
+    # Nominal metrics
     if (!is.null(x$accuracy)) {
-      cat("accuracy:  ", sprintf("%.4f", x$accuracy), "\n", sep = "")
+      cat("accuracy:      ", sprintf("%.4f", x$accuracy), "\n", sep = "")
     }
     if (!is.null(x$precision)) {
-      cat("precision: ", sprintf("%.4f", x$precision), "\n", sep = "")
+      cat("precision:     ", sprintf("%.4f", x$precision), "\n", sep = "")
     }
     if (!is.null(x$recall)) {
-      cat("recall:    ", sprintf("%.4f", x$recall), "\n", sep = "")
+      cat("recall:        ", sprintf("%.4f", x$recall), "\n", sep = "")
     }
     if (!is.null(x$f1)) {
-      cat("f1:        ", sprintf("%.4f", x$f1), "\n", sep = "")
+      cat("f1:            ", sprintf("%.4f", x$f1), "\n", sep = "")
     }
     if (!is.null(x$kappa)) {
-      cat("kappa:     ", sprintf("%.4f", x$kappa), "\n", sep = "")
+      cat("Cohen's kappa: ", sprintf("%.4f", x$kappa), "\n", sep = "")
+    }
+
+    # Ordinal metrics
+    if (!is.null(x$rho)) {
+      cat("Spearman's rho:", sprintf("%.4f", x$rho), "\n", sep = "")
+    }
+    if (!is.null(x$tau)) {
+      cat("Kendall's tau: ", sprintf("%.4f", x$tau), "\n", sep = "")
+    }
+
+    # Interval metrics
+    if (!is.null(x$r)) {
+      cat("Pearson's r:   ", sprintf("%.4f", x$r), "\n", sep = "")
+    }
+    if (!is.null(x$icc)) {
+      cat("ICC:           ", sprintf("%.4f", x$icc), "\n", sep = "")
+    }
+
+    # Shared metrics (ordinal/interval)
+    if (!is.null(x$mae)) {
+      cat("MAE:           ", sprintf("%.4f", x$mae), "\n", sep = "")
+    }
+    if (!is.null(x$rmse)) {
+      cat("RMSE:          ", sprintf("%.4f", x$rmse), "\n", sep = "")
     }
   }
 
