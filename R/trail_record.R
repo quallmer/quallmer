@@ -133,8 +133,14 @@ trail_record <- function(
   rec
 }
 
-#' @export
+#' Print a trail_record object
+#'
+#' @param x A trail_record object.
+#' @param ... Additional arguments passed to print methods.
+#'
 #' @return Invisibly returns the input object \code{x}. Called for side effects (printing to console).
+#' @keywords internal
+#' @export
 print.trail_record <- function(x, ...) {
   cat("Trail record\n")
   cat("  Provider:    ", x$meta$provider, "\n", sep = "")

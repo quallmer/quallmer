@@ -98,6 +98,8 @@ qlm_compare(coded1, coded2, by = "rating", level = "ordinal")
 coded3 <- qlm_replicate(coded1, params = params(temperature = 0.5))
 qlm_compare(coded1, coded2, coded3, by = "polarity", measure = "kappa", level = "nominal")
 }
+
+}
 \seealso{
 \code{\link[=qlm_validate]{qlm_validate()}} for validation of coding against gold standards.
 }

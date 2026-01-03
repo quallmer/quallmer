@@ -297,8 +297,14 @@ trail_compare <- function(
 # Pretty print for trail_compare
 # --------------------------------
 
-#' @export
+#' Print a trail_compare object
+#'
+#' @param x A trail_compare object.
+#' @param ... Additional arguments passed to print methods.
+#'
 #' @return Invisibly returns the input object \code{x}. Called for side effects (printing to console).
+#' @keywords internal
+#' @export
 print.trail_compare <- function(x, ...) {
   cat("Trail compare\n")
   cat("  Settings: ", paste(x$meta$setting_ids, collapse = ", "), "\n", sep = "")

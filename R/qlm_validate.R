@@ -520,8 +520,9 @@ qlm_validate <- function(
         timestamp = Sys.time(),
         n_subjects = nrow(merged),
         n_classes = length(all_levels),
-        measure = paste(measure, collapse = ","),
+        measures = paste(metrics_to_compute, collapse = ","),
         average = average,
+        level = level,
         quallmer_version = tryCatch(as.character(utils::packageVersion("quallmer")), error = function(e) NA_character_),
         R_version = paste(R.version$major, R.version$minor, sep = ".")
       )

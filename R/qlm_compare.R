@@ -199,7 +199,7 @@ qlm_compare <- function(...,
         timestamp = Sys.time(),
         n_subjects = n_subjects,
         n_raters = n_raters,
-        measure = measure,
+        level = level,
         quallmer_version = tryCatch(as.character(utils::packageVersion("quallmer")), error = function(e) NA_character_),
         R_version = paste(R.version$major, R.version$minor, sep = ".")
       )

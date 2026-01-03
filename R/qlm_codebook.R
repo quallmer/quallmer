@@ -112,9 +112,14 @@ as_qlm_codebook.qlm_codebook <- function(x, ...) {
 }
 
 
-#' @export
-#' @keywords internal
+#' Print a qlm_codebook object
+#'
+#' @param x A qlm_codebook object.
+#' @param ... Additional arguments passed to print methods.
+#'
 #' @return Invisibly returns the input object \code{x}. Called for side effects (printing to console).
+#' @keywords internal
+#' @export
 print.qlm_codebook <- function(x, ...) {
   cat("quallmer codebook:", x$name, "\n")
   cat("  Input type:   ", x$input_type, "\n", sep = "")

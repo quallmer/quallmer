@@ -49,8 +49,14 @@ trail_settings <- function(
   )
 }
 
-#' @export
+#' Print a trail_setting object
+#'
+#' @param x A trail_setting object.
+#' @param ... Additional arguments passed to print methods.
+#'
 #' @return Invisibly returns the input object \code{x}. Called for side effects (printing to console).
+#' @keywords internal
+#' @export
 print.trail_setting <- function(x, ...) {
   cat("Trail setting\n")
   cat("  Provider:   ", x$provider, "\n", sep = "")

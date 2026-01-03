@@ -17,3 +17,4 @@ Invisibly returns the input object \code{x}. Called for side effects (printing t
 \description{
 Print a quallmer trail
 }
+\keyword{internal}

@@ -143,6 +143,7 @@ qlm_trail <- function(...) {
 #' @param ... Additional arguments (currently unused).
 #'
 #' @return Invisibly returns the input object \code{x}. Called for side effects (printing to console).
+#' @keywords internal
 #' @export
 print.qlm_trail <- function(x, ...) {
   n_runs <- length(x$runs)
@@ -812,6 +813,7 @@ qlm_trail_robustness <- function(..., reference, analysis_fn) {
 #' @param ... Additional arguments (currently unused).
 #'
 #' @return Invisibly returns the input object \code{x}. Called for side effects (printing to console).
+#' @keywords internal
 #' @export
 print.qlm_robustness <- function(x, ...) {
   if (nrow(x) == 0) {
@@ -964,6 +966,7 @@ qlm_trail_analyses <- function(...) {
 #' @param ... Additional arguments (currently unused).
 #'
 #' @return Invisibly returns the input object \code{x}. Called for side effects (printing to console).
+#' @keywords internal
 #' @export
 print.qlm_trail_analyses <- function(x, ...) {
   cat("# Trail Analyses Summary\n\n")
