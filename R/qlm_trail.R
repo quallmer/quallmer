@@ -80,6 +80,24 @@ qlm_trail <- function(...) {
       ))
     }
 
+    # Store comparison/validation data if this is a comparison or validation object
+    if (inherits(obj, "qlm_comparison")) {
+      run$comparison_data <- list(
+        measure = obj$measure,
+        value = obj$value,
+        subjects = obj$subjects,
+        raters = obj$raters
+      )
+    } else if (inherits(obj, "qlm_validation")) {
+      run$validation_data <- list(
+        accuracy = obj$accuracy,
+        precision = obj$precision,
+        recall = obj$recall,
+        f1 = obj$f1,
+        kappa = obj$kappa
+      )
+    }
+
     # Store run with its index for ordering
     run$object_index <- i
     runs[[run$name]] <- run
@@ -344,8 +362,10 @@ qlm_trail_export <- function(trail, file) {
 #'
 #' @param trail A `qlm_trail` object from [qlm_trail()].
 #' @param file Path to save the report file (`.qmd` or `.Rmd`).
-#' @param analyses Optional. A `qlm_trail_analyses` object from [qlm_trail_analyses()]
-#'   containing comparison and validation metrics to include in the report.
+#' @param include_comparisons Logical. If `TRUE`, include comparison metrics
+#'   in the report (if any comparisons are in the trail). Default is `FALSE`.
+#' @param include_validations Logical. If `TRUE`, include validation metrics
+#'   in the report (if any validations are in the trail). Default is `FALSE`.
 #' @param robustness Optional. A `qlm_robustness` object from [qlm_trail_robustness()]
 #'   containing downstream analysis robustness metrics to include in the report.
 #'
@@ -357,7 +377,7 @@ qlm_trail_export <- function(trail, file) {
 #' - Timeline of runs
 #' - Model parameters and settings for each run
 #' - Parent-child relationships
-#' - Assessment metrics (if provided):
+#' - Assessment metrics (if requested):
 #'   - Inter-rater reliability comparisons
 #'   - Validation results against gold standards
 #'   - Downstream analysis robustness
@@ -371,34 +391,30 @@ qlm_trail_export <- function(trail, file) {
 #' trail <- qlm_trail(coded1, coded2, coded3)
 #' qlm_trail_report(trail, "analysis_trail.qmd")
 #'
-#' # Include assessment metrics
-#' analyses <- qlm_trail_analyses(coded1, coded2, comparison)
+#' # Include comparison and validation metrics
+#' trail <- qlm_trail(coded1, coded2, comparison, validation)
+#' qlm_trail_report(trail, "full_report.qmd",
+#'                  include_comparisons = TRUE,
+#'                  include_validations = TRUE)
+#'
+#' # Include robustness assessment
 #' robustness <- qlm_trail_robustness(coded1, coded2, coded3,
 #'                                    reference = "run1",
 #'                                    analysis_fn = my_analysis)
-#' qlm_trail_report(trail, "full_report.qmd",
-#'                  analyses = analyses,
-#'                  robustness = robustness)
+#' qlm_trail_report(trail, "full_report.qmd", robustness = robustness)
 #'
 #' # Render to HTML
 #' quarto::quarto_render("full_report.qmd")
 #' }
 #'
-#' @seealso [qlm_trail()]
+#' @seealso [qlm_trail()], [qlm_trail_robustness()]
 #' @export
-qlm_trail_report <- function(trail, file, analyses = NULL, robustness = NULL) {
+qlm_trail_report <- function(trail, file, include_comparisons = FALSE,
+                              include_validations = FALSE, robustness = NULL) {
   if (!inherits(trail, "qlm_trail")) {
     cli::cli_abort(c(
       "{.arg trail} must be a {.cls qlm_trail} object.",
       "i" = "Create one with {.fn qlm_trail}."
-    ))
-  }
-
-  # Validate analyses if provided
-  if (!is.null(analyses) && !inherits(analyses, "qlm_trail_analyses")) {
-    cli::cli_abort(c(
-      "{.arg analyses} must be a {.cls qlm_trail_analyses} object.",
-      "i" = "Create one with {.fn qlm_trail_analyses}."
     ))
   }
 
@@ -485,56 +501,103 @@ qlm_trail_report <- function(trail, file, analyses = NULL, robustness = NULL) {
     lines <- c(lines, "")
   }
 
+  # Extract comparisons and validations from trail if requested
+  comparisons_list <- list()
+  validations_list <- list()
+
+  if (include_comparisons || include_validations) {
+    for (run_name in names(trail$runs)) {
+      run <- trail$runs[[run_name]]
+
+      # Check if this run is from a comparison object
+      if (include_comparisons && !is.null(run$comparison_data)) {
+        comp_data <- run$comparison_data
+        parents_str <- if (is.null(run$parent) || length(run$parent) == 0) {
+          ""
+        } else {
+          paste(run$parent, collapse = ", ")
+        }
+        comparisons_list[[length(comparisons_list) + 1]] <- list(
+          run = run$name,
+          parents = parents_str,
+          measure = comp_data$measure,
+          value = comp_data$value,
+          subjects = comp_data$subjects,
+          raters = comp_data$raters
+        )
+      }
+
+      # Check if this run is from a validation object
+      if (include_validations && !is.null(run$validation_data)) {
+        val_data <- run$validation_data
+        parents_str <- if (is.null(run$parent) || length(run$parent) == 0) {
+          ""
+        } else {
+          paste(run$parent, collapse = ", ")
+        }
+        validations_list[[length(validations_list) + 1]] <- list(
+          run = run$name,
+          parents = parents_str,
+          accuracy = val_data$accuracy %||% NA_real_,
+          precision = val_data$precision %||% NA_real_,
+          recall = val_data$recall %||% NA_real_,
+          f1 = val_data$f1 %||% NA_real_,
+          kappa = val_data$kappa %||% NA_real_
+        )
+      }
+    }
+  }
+
   # Assessment Metrics
-  if (!is.null(analyses) || !is.null(robustness)) {
+  has_metrics <- length(comparisons_list) > 0 || length(validations_list) > 0 || !is.null(robustness)
+
+  if (has_metrics) {
     lines <- c(lines, "## Assessment Metrics")
     lines <- c(lines, "")
 
     # Comparisons
-    if (!is.null(analyses) && !is.null(analyses$comparisons) && nrow(analyses$comparisons) > 0) {
+    if (length(comparisons_list) > 0) {
       lines <- c(lines, "### Inter-rater Reliability Comparisons")
       lines <- c(lines, "")
       lines <- c(lines, "The following comparisons were performed to assess agreement between runs:")
       lines <- c(lines, "")
 
       # Create markdown table
-      comp <- analyses$comparisons
       lines <- c(lines, "| Run | Compared Runs | Measure | Value | Subjects | Raters |")
       lines <- c(lines, "|-----|---------------|---------|-------|----------|--------|")
 
-      for (i in seq_len(nrow(comp))) {
+      for (comp in comparisons_list) {
         lines <- c(lines, sprintf("| %s | %s | %s | %.4f | %d | %d |",
-                                  comp$run[i],
-                                  comp$parents[i],
-                                  comp$measure[i],
-                                  comp$value[i],
-                                  comp$subjects[i],
-                                  comp$raters[i]))
+                                  comp$run,
+                                  comp$parents,
+                                  comp$measure,
+                                  comp$value,
+                                  comp$subjects,
+                                  comp$raters))
       }
       lines <- c(lines, "")
     }
 
     # Validations
-    if (!is.null(analyses) && !is.null(analyses$validations) && nrow(analyses$validations) > 0) {
+    if (length(validations_list) > 0) {
       lines <- c(lines, "### Validation Against Gold Standard")
       lines <- c(lines, "")
       lines <- c(lines, "The following runs were validated against gold standard annotations:")
       lines <- c(lines, "")
 
       # Create markdown table
-      val <- analyses$validations
       lines <- c(lines, "| Run | Compared Runs | Accuracy | Precision | Recall | F1 | Kappa |")
       lines <- c(lines, "|-----|---------------|----------|-----------|--------|-----|-------|")
 
-      for (i in seq_len(nrow(val))) {
+      for (val in validations_list) {
         lines <- c(lines, sprintf("| %s | %s | %.4f | %.4f | %.4f | %.4f | %.4f |",
-                                  val$run[i],
-                                  val$parents[i],
-                                  val$accuracy[i],
-                                  val$precision[i],
-                                  val$recall[i],
-                                  val$f1[i],
-                                  val$kappa[i]))
+                                  val$run,
+                                  val$parents,
+                                  val$accuracy,
+                                  val$precision,
+                                  val$recall,
+                                  val$f1,
+                                  val$kappa))
       }
       lines <- c(lines, "")
     }
@@ -837,157 +900,3 @@ print.qlm_robustness <- function(x, ...) {
 }
 
 
-#' Extract comparisons and validations from trail
-#'
-#' Retrieves all comparison and validation results from a set of quallmer objects,
-#' showing how different runs were compared or validated.
-#'
-#' @param ... One or more quallmer objects (`qlm_coded`, `qlm_comparison`,
-#'   `qlm_validation`). These are the objects that were part of your analysis
-#'   workflow.
-#'
-#' @return A list with two elements:
-#'   \describe{
-#'     \item{comparisons}{Data frame of comparison results with columns: run,
-#'       parents (comma-separated), measure, value, subjects, raters}
-#'     \item{validations}{Data frame of validation results with columns: run,
-#'       parents (comma-separated), accuracy, precision, recall, f1, kappa}
-#'   }
-#'
-#' @details
-#' This function helps you see all the reliability and validity assessments
-#' that were performed on your coded data. It extracts the key metrics from
-#' comparison and validation objects and presents them in a summary format.
-#'
-#' Use this to quickly review:
-#' - Inter-rater reliability metrics across different model combinations
-#' - Validation performance against gold standards
-#' - Which runs were compared or validated together
-#'
-#' @examples
-#' \dontrun{
-#' # Create coded versions
-#' coded1 <- qlm_code(texts, codebook, model = "openai/gpt-4o", name = "run1")
-#' coded2 <- qlm_replicate(coded1, model = "openai/gpt-4o-mini", name = "run2")
-#'
-#' # Compare them
-#' comparison <- qlm_compare(coded1, coded2, by = "sentiment")
-#'
-#' # Validate against gold standard
-#' validation <- qlm_validate(coded1, gold = my_gold, by = "sentiment")
-#'
-#' # Extract all comparisons and validations
-#' results <- qlm_trail_analyses(coded1, coded2, comparison, validation)
-#' print(results$comparisons)
-#' print(results$validations)
-#' }
-#'
-#' @seealso [qlm_trail()], [qlm_compare()], [qlm_validate()]
-#' @export
-qlm_trail_analyses <- function(...) {
-  objects <- list(...)
-
-  if (length(objects) == 0) {
-    cli::cli_abort("At least one object must be provided.")
-  }
-
-  # Extract comparisons and validations
-  comparisons <- list()
-  validations <- list()
-
-  for (obj in objects) {
-    if (inherits(obj, "qlm_comparison")) {
-      run <- attr(obj, "run")
-      comparisons[[length(comparisons) + 1]] <- data.frame(
-        run = run$name %||% "unknown",
-        parents = paste(run$parent %||% character(0), collapse = ", "),
-        measure = obj$measure,
-        value = obj$value,
-        subjects = obj$subjects,
-        raters = obj$raters,
-        stringsAsFactors = FALSE
-      )
-    } else if (inherits(obj, "qlm_validation")) {
-      run <- attr(obj, "run")
-      validations[[length(validations) + 1]] <- data.frame(
-        run = run$name %||% "unknown",
-        parents = paste(run$parent %||% character(0), collapse = ", "),
-        accuracy = obj$accuracy %||% NA_real_,
-        precision = obj$precision %||% NA_real_,
-        recall = obj$recall %||% NA_real_,
-        f1 = obj$f1 %||% NA_real_,
-        kappa = obj$kappa %||% NA_real_,
-        stringsAsFactors = FALSE
-      )
-    }
-  }
-
-  # Combine into data frames
-  comparisons_df <- if (length(comparisons) > 0) {
-    do.call(rbind, comparisons)
-  } else {
-    data.frame(
-      run = character(0),
-      parents = character(0),
-      measure = character(0),
-      value = numeric(0),
-      subjects = integer(0),
-      raters = integer(0)
-    )
-  }
-
-  validations_df <- if (length(validations) > 0) {
-    do.call(rbind, validations)
-  } else {
-    data.frame(
-      run = character(0),
-      parents = character(0),
-      accuracy = numeric(0),
-      precision = numeric(0),
-      recall = numeric(0),
-      f1 = numeric(0),
-      kappa = numeric(0)
-    )
-  }
-
-  structure(
-    list(
-      comparisons = comparisons_df,
-      validations = validations_df
-    ),
-    class = "qlm_trail_analyses"
-  )
-}
-
-
-#' Print trail analyses
-#'
-#' @param x A qlm_trail_analyses object.
-#' @param ... Additional arguments (currently unused).
-#'
-#' @return Invisibly returns the input object \code{x}. Called for side effects (printing to console).
-#' @keywords internal
-#' @export
-print.qlm_trail_analyses <- function(x, ...) {
-  cat("# Trail Analyses Summary\n\n")
-
-  # Print comparisons
-  if (nrow(x$comparisons) > 0) {
-    cat("## Comparisons (", nrow(x$comparisons), ")\n\n", sep = "")
-    print(x$comparisons, row.names = FALSE)
-    cat("\n")
-  } else {
-    cat("## Comparisons\nNo comparisons found\n\n")
-  }
-
-  # Print validations
-  if (nrow(x$validations) > 0) {
-    cat("## Validations (", nrow(x$validations), ")\n\n", sep = "")
-    print(x$validations, row.names = FALSE, digits = 3)
-    cat("\n")
-  } else {
-    cat("## Validations\nNo validations found\n\n")
-  }
-
-  invisible(x)
-}

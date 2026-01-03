@@ -418,7 +418,7 @@ test_that("qlm_trail_report() creates RMarkdown document", {
 })
 
 
-test_that("qlm_trail_report() validates analyses parameter", {
+test_that("qlm_trail_report() accepts boolean flags for comparisons/validations", {
   coded <- data.frame(.id = 1:3, polarity = c("pos", "neg", "pos"))
   class(coded) <- c("qlm_coded", "data.frame")
   attr(coded, "run") <- list(name = "run1", parent = NULL)
@@ -426,11 +426,11 @@ test_that("qlm_trail_report() validates analyses parameter", {
   trail <- qlm_trail(coded)
   temp_file <- tempfile(fileext = ".qmd")
 
-  # Should error with invalid analyses object
-  expect_error(
-    qlm_trail_report(trail, temp_file, analyses = list(foo = "bar")),
-    "qlm_trail_analyses"
+  # Should work with TRUE/FALSE flags
+  expect_no_error(
+    qlm_trail_report(trail, temp_file, include_comparisons = TRUE, include_validations = FALSE)
   )
+  expect_true(file.exists(temp_file))
 })
 
 
@@ -460,35 +460,25 @@ test_that("qlm_trail_report() includes comparison metrics", {
   class(coded2) <- c("qlm_coded", "data.frame")
   attr(coded2, "run") <- list(name = "run2", parent = NULL)
 
-  # Create comparison object
-  comparison <- data.frame(measure = "alpha", value = 0.85)
-  class(comparison) <- c("qlm_comparison", "data.frame")
+  # Create comparison object with data
+  comparison <- list(
+    measure = "alpha",
+    value = 0.85,
+    subjects = 3,
+    raters = 2
+  )
+  class(comparison) <- "qlm_comparison"
   attr(comparison, "run") <- list(
     name = "comparison1",
     parent = c("run1", "run2")
   )
-
-  # Create analyses object
-  analyses <- list(
-    comparisons = data.frame(
-      run = "comparison1",
-      parents = "run1, run2",
-      measure = "alpha",
-      value = 0.85,
-      subjects = 3,
-      raters = 2,
-      stringsAsFactors = FALSE
-    ),
-    validations = data.frame()
-  )
-  class(analyses) <- "qlm_trail_analyses"
 
   trail <- qlm_trail(coded1, coded2, comparison)
 
   temp_file <- tempfile(fileext = ".qmd")
   withr::defer(unlink(temp_file))
 
-  qlm_trail_report(trail, temp_file, analyses = analyses)
+  qlm_trail_report(trail, temp_file, include_comparisons = TRUE)
 
   content <- readLines(temp_file)
   content_str <- paste(content, collapse = " ")
@@ -506,42 +496,26 @@ test_that("qlm_trail_report() includes validation metrics", {
   class(coded) <- c("qlm_coded", "data.frame")
   attr(coded, "run") <- list(name = "run1", parent = NULL)
 
-  # Create validation object
-  validation <- data.frame(
+  # Create validation object with data
+  validation <- list(
     accuracy = 0.90,
     precision = 0.88,
     recall = 0.85,
     f1 = 0.86,
     kappa = 0.80
   )
-  class(validation) <- c("qlm_validation", "data.frame")
+  class(validation) <- "qlm_validation"
   attr(validation, "run") <- list(
     name = "validation1",
     parent = "run1"
   )
-
-  # Create analyses object
-  analyses <- list(
-    comparisons = data.frame(),
-    validations = data.frame(
-      run = "validation1",
-      parents = "run1",
-      accuracy = 0.90,
-      precision = 0.88,
-      recall = 0.85,
-      f1 = 0.86,
-      kappa = 0.80,
-      stringsAsFactors = FALSE
-    )
-  )
-  class(analyses) <- "qlm_trail_analyses"
 
   trail <- qlm_trail(coded, validation)
 
   temp_file <- tempfile(fileext = ".qmd")
   withr::defer(unlink(temp_file))
 
-  qlm_trail_report(trail, temp_file, analyses = analyses)
+  qlm_trail_report(trail, temp_file, include_validations = TRUE)
 
   content <- readLines(temp_file)
 
@@ -602,25 +576,15 @@ test_that("qlm_trail_report() includes all metrics together", {
   class(coded2) <- c("qlm_coded", "data.frame")
   attr(coded2, "run") <- list(name = "run2", parent = NULL)
 
-  # Create comparison
-  comparison <- data.frame(measure = "icc", value = 0.95)
-  class(comparison) <- c("qlm_comparison", "data.frame")
-  attr(comparison, "run") <- list(name = "comp1", parent = c("run1", "run2"))
-
-  # Create analyses
-  analyses <- list(
-    comparisons = data.frame(
-      run = "comp1",
-      parents = "run1, run2",
-      measure = "icc",
-      value = 0.95,
-      subjects = 3,
-      raters = 2,
-      stringsAsFactors = FALSE
-    ),
-    validations = data.frame()
+  # Create comparison with data
+  comparison <- list(
+    measure = "icc",
+    value = 0.95,
+    subjects = 3,
+    raters = 2
   )
-  class(analyses) <- "qlm_trail_analyses"
+  class(comparison) <- "qlm_comparison"
+  attr(comparison, "run") <- list(name = "comp1", parent = c("run1", "run2"))
 
   # Create robustness
   robustness <- data.frame(
@@ -640,7 +604,7 @@ test_that("qlm_trail_report() includes all metrics together", {
   temp_file <- tempfile(fileext = ".qmd")
   withr::defer(unlink(temp_file))
 
-  qlm_trail_report(trail, temp_file, analyses = analyses, robustness = robustness)
+  qlm_trail_report(trail, temp_file, include_comparisons = TRUE, robustness = robustness)
 
   content <- readLines(temp_file)
 

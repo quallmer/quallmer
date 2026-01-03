@@ -4,8 +4,9 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = TRUE)
 ```
+
 
 In this tutorial, we will explore the quallmer trail system, which automatically captures provenance metadata for full workflow traceability. The trail system helps you:
 
@@ -195,7 +196,7 @@ The acceptable threshold depends on your research context and the magnitude of e
 
 ## Integrating comparisons and validations
 
-The trail system automatically tracks comparisons and validations. Use `qlm_trail_analyses()` to extract all reliability and validity metrics from your workflow.
+The trail system automatically tracks comparisons and validations as part of your workflow.
 
 ### Complete workflow example
 
@@ -216,19 +217,14 @@ comparison <- qlm_compare(coded_gpt4o, coded_mini,
                           by = "score",
                           level = "nominal")
 
+# View the comparison results
+print(comparison)
+
 # 3. Validate against gold standard (if you have one)
 # gold <- data.frame(.id = coded_gpt4o$.id, score = c(2, 3, 1, ...))
 # validation <- qlm_validate(coded_gpt4o, gold = gold, by = "score")
-
-# 4. Extract all comparisons and validations
-analyses <- qlm_trail_analyses(coded_gpt4o, coded_mini, comparison)
-print(analyses)
+# print(validation)
 ```
-
-The output shows:
-
-- **Comparisons**: Which runs were compared, what metric was used, the value, and how many subjects/raters 
-- **Validations**: Which runs were validated, and all accuracy metrics
 
 ### Viewing complete workflow trail
 
@@ -243,137 +239,51 @@ print(full_trail)
 # - comparison_... (parents: gpt4o_run, mini_run)
 ```
 
-### Assessing robustness with comparisons
+## Exporting and documenting your workflow
 
-Combine robustness assessment with comparison metrics:
+You can export your trail for documentation and reproducibility:
 
-```{r workflow-robustness-compare}
-# Define your analysis
-my_analysis <- function(coded) {
-  list(
-    mean_score = mean(coded$score, na.rm = TRUE),
-    sd_score = sd(coded$score, na.rm = TRUE)
-  )
-}
-
-# Check robustness
-robustness <- qlm_trail_robustness(coded_gpt4o, coded_mini,
-                                   reference = "gpt4o_run",
-                                   analysis_fn = my_analysis)
-
-# View alongside comparison metrics
-print(comparison)  # Inter-rater reliability (how much codings agree)
-print(robustness)  # Downstream analysis (how much findings change)
-```
-
-This gives you a complete picture:
-
-- **Comparison** shows how much the raw codings agree 
-- **Robustness** shows how much your conclusions change 
-- **Trail** documents the full workflow for reproducibility
-
-## Exporting provenance trails
-
-The trail system provides three export formats for different purposes:
-
-### Saving to RDS (for archival)
-
-```{r trail-save}
-# Extract the trail
-trail <- qlm_trail(coded3, coded2, coded1)
-
-# Save to RDS for long-term storage
-#qlm_trail_save(trail, "sentiment_analysis_trail.rds")
-
-```
-
-### Exporting to JSON (for portability)
-
-```{r trail-json}
-# Export to JSON format for integration with other tools
-#qlm_trail_export(trail, "sentiment_analysis_trail.json")
-```
-
-### Generating human-readable reports
-
-```{r trail-report-basic}
-# Generate a basic Quarto report
-trail <- qlm_trail(coded1, coded2, coded3)
-#qlm_trail_report(trail, "sentiment_analysis_trail.qmd")
-```
-
-The basic report includes:
-
-- Trail summary (number of runs, completeness)
-- Timeline of all coding runs
-- Detailed information for each run (model, parameters, timestamps)
-- System information (R version, package versions)
-
-### Including assessment metrics in reports
-
-For a comprehensive report that includes quality metrics, provide the analyses and robustness results:
-
-```{r trail-report-comprehensive}
-# First, compute your assessment metrics
-analyses <- qlm_trail_analyses(coded_gpt4o, coded_mini, comparison)
-
-robustness <- qlm_trail_robustness(coded_gpt4o, coded_mini,
-                                   reference = "gpt4o_run",
-                                   analysis_fn = my_analysis)
-
-# Generate comprehensive report with all metrics
+```{r trail-export}
+# Extract the full trail
 trail <- qlm_trail(coded_gpt4o, coded_mini, comparison)
-#qlm_trail_report(trail, "comprehensive_report.qmd",
-#                 analyses = analyses,
-#                 robustness = robustness)
+
+# Save as RDS for archival
+# qlm_trail_save(trail, "my_workflow_trail.rds")
+
+# Export as JSON for portability
+# qlm_trail_export(trail, "my_workflow_trail.json")
+
+# Generate a human-readable report
+# qlm_trail_report(trail, "my_workflow_report.qmd")
+
+# Include comparison metrics in the report
+# qlm_trail_report(trail, "my_workflow_report.qmd", include_comparisons = TRUE)
+
+# Include both comparisons and validations
+# qlm_trail_report(trail, "my_workflow_report.qmd",
+#                  include_comparisons = TRUE,
+#                  include_validations = TRUE)
 ```
 
-The comprehensive report adds:
+The generated report includes:
 
-- **Inter-rater reliability comparisons**: Shows agreement metrics between runs 
-- **Validation results**: Displays accuracy metrics against gold standards (if validated) 
-- **Downstream analysis robustness**: Shows how substantive findings change across runs
-
-This comprehensive report is ideal for:
-
-- Methods sections in papers
-- Supplementary materials for peer review
-- Research documentation and notebooks
-- Replication packages
-- Transparency and reproducibility reports
-
-
-## Best practices for provenance tracking
-
-1. **Name your runs**: Always use the `name` parameter in `qlm_code()` and `qlm_replicate()` with descriptive names
-
-2. **Document major steps**: Create named runs for significant changes in your workflow (model changes, parameter adjustments, codebook revisions)
-
-3. **Preserve all objects**: Keep all intermediate `qlm_coded` objects if you want to reconstruct the full trail later
-
-4. **Assess robustness**: Use `qlm_trail_robustness()` to check how stable your results are across different settings. Report robustness scores in your research.
-
-5. **Export trails regularly**: Save trails at key milestones using `qlm_trail_save()`
-
-6. **Generate reports**: Create trail reports for:
-   - Paper submissions (methods documentation)
-   - Research notebooks
-   - Replication packages
-   - Peer review
+- Timeline of all coding runs
+- Model settings and parameters
+- Comparison and validation metrics (if `include_comparisons` or `include_validations` is `TRUE`)
+- System information for reproducibility
 
 ## Summary
 
-In this tutorial, you learned how to:
+The quallmer trail system automatically tracks your coding workflow:
 
-- Understand automatic provenance tracking in quallmer objects
-- Create coding workflows with parent-child relationships using `qlm_replicate()`
-- Use `qlm_trail()` to extract and display provenance chains
-- Assess robustness of downstream analysis using `qlm_trail_robustness()`
-- Extract comparison and validation metrics with `qlm_trail_analyses()`
-- Integrate `qlm_compare()` and `qlm_validate()` into your workflow
-- Export trails to RDS, JSON, and report formats
-- Generate comprehensive reports with assessment metrics using `qlm_trail_report()`
-- Document complex workflows with branching and replication
-- Access provenance information programmatically
+- **Provenance tracking**: All runs are timestamped with model and parameter information
+- **Parent-child links**: `qlm_replicate()` maintains relationships between runs
+- **Quality assessment**: Use `qlm_compare()` to check agreement and `qlm_trail_robustness()` to test if conclusions change
+- **Documentation**: Export trails for methods sections and replication packages
 
-The quallmer trail system ensures your qualitative coding research is fully traceable and well-documented for scientific rigor and transparency.
+**Best practices:**
+
+1. Name your runs with the `name` parameter
+2. Use `qlm_compare()` to assess inter-rater reliability
+3. Use `qlm_trail_robustness()` to check if your findings are stable across models
+4. Export trails for transparency and reproducibility
