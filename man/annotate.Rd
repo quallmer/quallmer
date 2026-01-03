@@ -7,9 +7,7 @@
 annotate(.data, task, model_name, ...)
 }
 \arguments{
-\item{task}{A task object created with \code{\link[=task]{task()}} or \code{\link[=qlm_codebook]{qlm_codebook()}}. Also
-accepts predefined task functions (\code{\link[=task_sentiment]{task_sentiment()}}, \code{\link[=task_stance]{task_stance()}},
-\code{\link[=task_ideology]{task_ideology()}}, \code{\link[=task_salience]{task_salience()}}, \code{\link[=task_fact]{task_fact()}}).}
+\item{task}{A task object created with \code{\link[=task]{task()}} or \code{\link[=qlm_codebook]{qlm_codebook()}}.}
 
 \item{...}{Additional arguments passed to \code{\link[ellmer:chat-any]{ellmer::chat()}},
 \code{\link[ellmer:parallel_chat]{ellmer::parallel_chat_structured()}}, or \code{\link[ellmer:batch_chat]{ellmer::batch_chat_structured()}},
@@ -22,9 +20,7 @@ Batch-specific arguments (\code{path}, \code{wait}, \code{ignore_hash}) are only
 A data frame with one row per input element, containing:
 \describe{
 \item{\code{id}}{Identifier for each input (from names or sequential integers).}
-\item{...}{Additional columns as defined by the task's \code{type_def}.
-For example, \code{\link[=task_sentiment]{task_sentiment()}} returns \code{score} and \code{explanation};
-\code{\link[=task_stance]{task_stance()}} returns \code{stance} and \code{explanation}.}
+\item{...}{Additional columns as defined by the task's schema.}
 }
 }
 \description{

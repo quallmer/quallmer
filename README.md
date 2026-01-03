@@ -15,48 +15,45 @@ coverage](https://codecov.io/gh/SeraphineM/quallmer/graph/badge.svg)](https://ap
 [![pkgdown](https://img.shields.io/badge/pkgdown-site-blue)](https://SeraphineM.github.io/quallmer/)
 <!-- badges: end -->
 
-The **quallmer** package is an **easy-to-use toolbox for qualitative
-researchers to quickly apply AI-assisted coding to texts, images, pdfs,
+The **quallmer** package is an **easy-to-use toolbox to quickly apply
+AI-assisted qualitative coding to large amounts of texts, images, pdfs,
 tabular data and other structured data.**
 
-Using `qlm_code()`, users can apply codebook-based coding powered by
-large language models (LLMs) to generate structured, interpretable
-outputs. The package includes built-in codebooks for common applications
-and allows researchers to create custom codebooks tailored to their
-specific research questions using `qlm_codebook()`. To ensure quality
-and reliability of AI-generated coding, **quallmer** provides
-`qlm_validate()` for assessing accuracy against gold standards and
-`qlm_compare()` for evaluating inter-rater reliability. With
+Using `qlm_code()`, users can apply codebook-based qualitative coding
+powered by large language models (LLMs) to generate structured,
+interpretable outputs. The package includes built-in codebooks for
+common applications and allows researchers to create custom codebooks
+tailored to their specific research questions using `qlm_codebook()`. To
+ensure quality and reliability of AI-generated coding, **quallmer**
+provides `qlm_compare()` for evaluating inter-rater reliability and
+`qlm_validate()` for assessing accuracy against gold standards. With
 `qlm_replicate()`, researchers can systematically compare results across
 different models and settings to assess sensitivity and reproducibility.
-The package also includes `validate_app()`, an interactive app for
-manual coding, reviewing AI-generated output, and computing agreement
-metrics.
+The quallmer trail system automatically captures provenance metadata for
+full workflow traceability using `qlm_trail()` and related functions.
 
 **The quallmer package makes AI-assisted qualitative coding accessible
 without requiring deep expertise in R, programming or machine
 learning.**
 
-## Core functions
-
-### Coding and validation workflow
+## Coding and validation workflow
 
 #### `qlm_codebook()`
 
 - Creates custom codebooks tailored to specific research questions and
   data types.
-- Uses `system_prompt` and type specifications from
+- Uses `instructions` and type specifications from
   [ellmer](https://ellmer.tidyverse.org/reference/type_boolean.html) to
   define coding instructions and output structure.
-- Built-in codebooks (e.g., `data_codebook_sentiment`) provide
-  ready-to-use examples for common applications.
+- **Example codebook objects** (e.g., `data_codebook_sentiment`,
+  `data_codebook_stance`, `data_codebook_ideology`) demonstrate complete
+  workflows for common qualitative coding tasks.
 - Extensible framework allows researchers to define domain-specific
   coding schemes.
 
 #### `qlm_code()`
 
-- Applies LLM-based coding to qualitative data using a codebook
-  specification.
+- Applies LLM-based coding to qualitative data using a `qlm_codebook`.
 - Works with any LLM supported by
   [ellmer](https://ellmer.tidyverse.org/index.html).
 - Returns a `qlm_coded` object containing the coded results and metadata
@@ -81,7 +78,7 @@ learning.**
 
 ## Replication
 
-### `qlm_replicate()`
+#### `qlm_replicate()`
 
 - Re-executes coding with optional overrides (different models,
   codebooks, or parameters).
@@ -90,47 +87,42 @@ learning.**
 - Enables systematic assessment of coding reliability and sensitivity to
   model choices.
 
-### The quallmer trail
+## The quallmer trail
 
-Apart from the core functions above, the **quallmer** package also
-provides a set of functions to ensure reproducibility and reliability of
-LLM-generated annotations through **systematic comparisons across
-multiple LLM runs with different settings.** This “trail” functionality
-adds a reproducibility layer on top of `annotate()` with the following
-workflow:
+All `qlm_coded`, `qlm_comparison`, and `qlm_validation` objects
+automatically capture provenance metadata including model parameters,
+timestamps, and parent-child relationships. This enables full workflow
+traceability. It also allows users to assess the impact of different
+models and settings on coding results as well as on downstream analyses.
 
-<img src="man/figures/paw.png" style="width:40.0%" />
+#### `qlm_trail()`
 
-1.  **Define trail settings** Describe the LLM trail, i.e., how LLMs
-    should be called (e.g., model, temperature).
+- Extracts and displays the complete provenance chain from coded
+  objects.
+- Shows the history of coding runs including model parameters,
+  timestamps, and parent relationships.
+- Reconstructs full lineage by following parent-child references across
+  multiple objects.
+- Automatically captures branching workflows when multiple coded objects
+  are compared or validated.
 
-    `trail_settings()` ↓
+#### `qlm_trail_save()`, `qlm_trail_export()`, `qlm_trail_report()`
 
-2.  **Record single LLM trails for reproducibility** Record all
-    information needed for reproducing LLM runs on a given task with a
-    specific setting.
-
-    `trail_record(data, text_col, task, setting, id_col)`
-
-    ↓
-
-3.  **Run multiple trails with different settings and assess
-    sensitivity** Run the *same* task and data across multiple settings
-    (e.g., different LLMs, different temperatures) and compute agreement
-    across trails to illustrate reliability and replication sensitivity
-    of LLM annotations.
-
-    `trail_compare(data, text_col, task, settings = list(...), id_col, lablel_col)`
+- **Save**: Archive provenance trails to RDS format for long-term
+  storage.
+- **Export**: Convert trails to JSON format for portability and
+  integration with other tools.
+- **Report**: Generate human-readable Quarto/RMarkdown documents
+  summarizing the complete workflow history, including an assessment of
+  the impact of different models and settings on coding results and
+  downstream analyses.
 
 ## Interactive validation
 
-The `validate_app()` function launches an interactive Shiny application
-for:  
-- **Manual coding**: Code qualitative data directly in the interface  
-- **Review AI-generated coding**: Examine LLM-produced codes alongside
-original data  
-- **Compute agreement metrics**: Evaluate inter-rater reliability or
-validate against gold standards
+For an interactive Shiny application to perform manual coding, review
+AI-generated annotations, and compute agreement metrics, see the
+companion package
+[quallmer.app](https://github.com/SeraphineM/quallmer.app).
 
 ## Supported LLMs
 
@@ -158,5 +150,13 @@ pak::pak("SeraphineM/quallmer")
 To learn more about how to use the package, please refer to our
 [step-by-step
 tutorials](https://seraphinem.github.io/quallmer/articles/getting-started.html)
-and the illustrations on [how to use the predefined
-tasks](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/overview.html).
+and the [example
+codebook](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/codebook_sentiment.html)
+illustrating a complete workflow.
+
+## Acknowledgments
+
+Development of this package was assisted by [Claude
+Code](https://claude.com/claude-code), an AI coding assistant by
+Anthropic, for code refactoring, documentation updates, and package
+restructuring.

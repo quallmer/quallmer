@@ -6,16 +6,12 @@
 #' returns a richer object that includes metadata and settings for reproducibility.
 #'
 #' @inheritParams qlm_code
-#' @param task A task object created with [task()] or [qlm_codebook()]. Also
-#'   accepts predefined task functions ([task_sentiment()], [task_stance()],
-#'   [task_ideology()], [task_salience()], [task_fact()]).
+#' @param task A task object created with [task()] or [qlm_codebook()].
 #'
 #' @return A data frame with one row per input element, containing:
 #'   \describe{
 #'     \item{`id`}{Identifier for each input (from names or sequential integers).}
-#'     \item{...}{Additional columns as defined by the task's `type_def`.
-#'       For example, [task_sentiment()] returns `score` and `explanation`;
-#'       [task_stance()] returns `stance` and `explanation`.}
+#'     \item{...}{Additional columns as defined by the task's schema.}
 #'   }
 #'
 #' @seealso

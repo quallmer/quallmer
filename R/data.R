@@ -106,31 +106,27 @@
 #' pro- or anti-immigration stance generally, despite making some statement
 #' about immigration."
 #'
-#' # define a sentiment task
-#' task_immigration <- task(
+#' # define a codebook
+#' codebook_immigration <- qlm_codebook(
 #'   name = "Immigration policy",
-#'   system_prompt = immigration_instructions,
-#'   type_def = type_object(
-#'     llm_immigration_label = type_enum(c("Immigration", "Not immmigration")),
-#'     llm_immigration_scale = type_integer(immigration_scale),
+#'   instructions = immigration_instructions,
+#'   schema = type_object(
+#'     immigration_label = type_enum(c("Immigration", "Not immmigration")),
+#'     immigration_scale = type_integer(immigration_scale)
 #'   )
 #' )
 #'
-#' result <- data_corpus_manifsentsUK2010sample %>%
-#'   annotate(task_immigration,
-#'            chat_fn = chat_google_gemini, model = "gemini-2.5-flash")
+#' result <- qlm_code(data_corpus_manifsentsUK2010sample,
+#'                    codebook_immigration,
+#'                    model = "openai/gpt-4o")
+#' gold <- data.frame(.id = docnames(data_corpus_manifsentsUK2010sample),
+#'                    immigration_label = data_corpus_manifsentsUK2010sample$crowd_immigration_label,
+#'                    immigration_scale = data_corpus_manifsentsUK2010sample$crowd_immigration_mean)
+#' qlm_validate(result, gold, by = "immigration_label")
+#' qlm_validate(result, gold, by = "immigration_scale", level = "interval")
 #'
-#' result_combined <- cbind(
-#'   result,
-#'   data.frame(crowd_immigration_label = data_corpus_manifsentsUK2010sample$crowd_immigration_label)
 #' )
 #'
-#' # compute agreement
-#' agreement(result_combined, unit_id_col = "id",
-#'           coder_cols = c("llm_immigration_label", "crowd_immigration_label"))
-#'
-#' # confusion matrix
-#' table(tmp$llm_immigration_label, tmp$crowd_immigration_label)
 #' }
 "data_corpus_manifsentsUK2010sample"
 
@@ -158,12 +154,12 @@
 #' \dontrun{
 #' library(quanteda)
 #'
-#' # define a sentiment task
-#' task_posneg <- task(
+#' # define a sentiment codebook
+#' codebook_posneg <- qlm_codebook(
 #'   name = "Sentiment analysis of movie reviews",
-#'   system_prompt = "You will rate the sentiment from movie reviews.",
-#'   type_def = type_object(
-#'     polarity_llm = type_enum(c("pos", "neg"),
+#'   instructions = "You will rate the sentiment from movie reviews.",
+#'   schema = type_object(
+#'     polarity = type_enum(c("pos", "neg"),
 #'     description = "Sentiment label (pos = positive, neg = negative")
 #'   )
 #' )
@@ -172,11 +168,13 @@
 #' test_corpus <- data_corpus_LMRDsample %>%
 #'   corpus_sample(size = 10, by = polarity)
 #'
-#' result <- test_corpus %>%
-#'   annotate(task_posneg, chat_fn = chat_openai, model = "gpt-4.1-mini") %>%
-#'   cbind(data.frame(polarity_human = test_corpus$polarity))
+#' result <- qlm_code(test_corpus, codebook_posneg, model = "openai/gpt-4o-mini")
 #'
-#' agreement(result, "id", coder_cols = c("polarity_llm", "polarity_human"))
+#' # Create gold standard from corpus metadata
+#' gold <- data.frame(.id = result$.id, polarity = test_corpus$polarity)
+#'
+#' # Validate against human annotations
+#' qlm_validate(result, gold, by = "polarity")
 #' }
 "data_corpus_LMRDsample"
 
@@ -218,10 +216,147 @@
 #'                    model = "openai/gpt-4o-mini")
 #' coded2 <- qlm_code(data_corpus_LMRDsample[1:20],
 #'                    data_codebook_sentiment,
-#'                    model = "anthropic/claude-sonnet-4-20250514")
+#'                    model = "openai/gpt-4o")
 #'
 #' # Compare inter-rater reliability
-#' comparison <- qlm_compare(coded1, coded2, by = "rating", measure = "alpha")
+#' comparison <- qlm_compare(coded1, coded2, by = "rating", level = "interval")
 #' print(comparison)
 #' }
 "data_codebook_sentiment"
+
+
+#' Stance detection codebook for climate change
+#'
+#' A `qlm_codebook` object defining instructions for detecting stance towards
+#' climate change in texts.
+#'
+#' @format A `qlm_codebook` object containing:
+#'   \describe{
+#'     \item{name}{Task name: "Stance detection"}
+#'     \item{instructions}{Coding instructions for classifying stance}
+#'     \item{schema}{Response schema with two fields:}
+#'       \itemize{
+#'         \item `stance`: String indicating "Pro", "Neutral", or "Contra"
+#'         \item `explanation`: Brief explanation of the classification
+#'       }
+#'     \item{role}{Expert annotator persona}
+#'     \item{input_type}{"text"}
+#'   }
+#'
+#' @seealso [qlm_codebook()], [qlm_code()]
+#' @keywords data
+#' @examples
+#' \dontrun{
+#' # View the codebook
+#' data_codebook_stance
+#'
+#' # Use with text data
+#' coded <- qlm_code(tail(quanteda::data_corpus_inaugural),
+#'                   data_codebook_stance,
+#'                   model = "openai/gpt-4o-mini")
+#'  coded
+#' }
+"data_codebook_stance"
+
+
+#' Ideological scaling codebook for left-right dimension
+#'
+#' A `qlm_codebook` object defining instructions for scaling texts on a
+#' left-right ideological dimension.
+#'
+#' @format A `qlm_codebook` object containing:
+#'   \describe{
+#'     \item{name}{Task name: "Ideological scaling"}
+#'     \item{instructions}{Coding instructions for ideological scaling}
+#'     \item{schema}{Response schema with two fields:}
+#'       \itemize{
+#'         \item `score`: Integer from 0 (left) to 10 (right)
+#'         \item `explanation`: Brief justification for the assigned score
+#'       }
+#'     \item{role}{Expert political scientist persona}
+#'     \item{input_type}{"text"}
+#'   }
+#'
+#' @seealso [qlm_codebook()], [qlm_code()]
+#' @keywords data
+#' @examples
+#' \dontrun{
+#' # View the codebook
+#' data_codebook_ideology
+#'
+#' # Use with political texts
+#' coded <- qlm_code(tail(quanteda::data_corpus_inaugural),
+#'                   data_codebook_ideology,
+#'                   model = "openai/gpt-4o-mini")
+#' coded
+#' }
+"data_codebook_ideology"
+
+
+#' Topic salience codebook
+#'
+#' A `qlm_codebook` object defining instructions for extracting and ranking
+#' topics discussed in texts by their salience.
+#'
+#' @format A `qlm_codebook` object containing:
+#'   \describe{
+#'     \item{name}{Task name: "Salience (ranked topics)"}
+#'     \item{instructions}{Coding instructions for topic salience ranking}
+#'     \item{schema}{Response schema with two fields:}
+#'       \itemize{
+#'         \item `topics`: Array of strings listing topics by salience (up to 5)
+#'         \item `explanation`: Brief explanation of topic selection and ordering
+#'       }
+#'     \item{role}{Expert content analyst persona}
+#'     \item{input_type}{"text"}
+#'   }
+#'
+#' @seealso [qlm_codebook()], [qlm_code()]
+#' @keywords data
+#' @examples
+#' \dontrun{
+#' # View the codebook
+#' data_codebook_salience
+#'
+#' # Use with documents
+#' coded <- qlm_code(tail(quanteda::data_corpus_inaugural),
+#'                   data_codebook_salience,
+#'                   model = "openai/gpt-4o-mini")
+#' coded
+#' }
+"data_codebook_salience"
+
+
+#' Fact-checking codebook
+#'
+#' A `qlm_codebook` object defining instructions for assessing the truthfulness
+#' and accuracy of texts.
+#'
+#' @format A `qlm_codebook` object containing:
+#'   \describe{
+#'     \item{name}{Task name: "Fact-checking"}
+#'     \item{instructions}{Coding instructions for truthfulness assessment}
+#'     \item{schema}{Response schema with three fields:}
+#'       \itemize{
+#'         \item `truth_score`: Integer from 0 (false/misleading) to 10 (accurate)
+#'         \item `misleading_topic`: Array of topics that reduce confidence (up to 5)
+#'         \item `explanation`: Brief explanation of the truthfulness score
+#'       }
+#'     \item{role}{Expert fact-checker persona}
+#'     \item{input_type}{"text"}
+#'   }
+#'
+#' @seealso [qlm_codebook()], [qlm_code()]
+#' @keywords data
+#' @examples
+#' \dontrun{
+#' # View the codebook
+#' data_codebook_fact
+#'
+#' # Use with claims or articles
+#' # NEEDS ACTUAL DATA
+#' coded <- qlm_code(claims,
+#'                   data_codebook_fact,
+#'                   model = "openai/gpt-4o-mini")
+#' }
+"data_codebook_fact"

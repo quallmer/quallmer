@@ -111,31 +111,27 @@ for handling immigration or asylum seekers; Statements that do not take a
 pro- or anti-immigration stance generally, despite making some statement
 about immigration."
 
-# define a sentiment task
-task_immigration <- task(
+# define a codebook
+codebook_immigration <- qlm_codebook(
   name = "Immigration policy",
-  system_prompt = immigration_instructions,
-  type_def = type_object(
-    llm_immigration_label = type_enum(c("Immigration", "Not immmigration")),
-    llm_immigration_scale = type_integer(immigration_scale),
+  instructions = immigration_instructions,
+  schema = type_object(
+    immigration_label = type_enum(c("Immigration", "Not immmigration")),
+    immigration_scale = type_integer(immigration_scale)
   )
 )
 
-result <- data_corpus_manifsentsUK2010sample \%>\%
-  annotate(task_immigration,
-           chat_fn = chat_google_gemini, model = "gemini-2.5-flash")
+result <- qlm_code(data_corpus_manifsentsUK2010sample,
+                   codebook_immigration,
+                   model = "openai/gpt-4o")
+gold <- data.frame(.id = docnames(data_corpus_manifsentsUK2010sample),
+                   immigration_label = data_corpus_manifsentsUK2010sample$crowd_immigration_label,
+                   immigration_scale = data_corpus_manifsentsUK2010sample$crowd_immigration_mean)
+qlm_validate(result, gold, by = "immigration_label")
+qlm_validate(result, gold, by = "immigration_scale", level = "interval")
 
-result_combined <- cbind(
-  result,
-  data.frame(crowd_immigration_label = data_corpus_manifsentsUK2010sample$crowd_immigration_label)
 )
 
-# compute agreement
-agreement(result_combined, unit_id_col = "id",
-          coder_cols = c("llm_immigration_label", "crowd_immigration_label"))
-
-# confusion matrix
-table(tmp$llm_immigration_label, tmp$crowd_immigration_label)
 }
 }
 \references{

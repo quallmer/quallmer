@@ -54,8 +54,14 @@ task <- function(name, system_prompt, type_def, input_type = c("text", "image"))
   )
 }
 
-#' @export
+#' Print a task object
+#'
+#' @param x A task object.
+#' @param ... Additional arguments passed to print methods.
+#'
 #' @return Invisibly returns the input object \code{x}. Called for side effects (printing to console).
+#' @keywords internal
+#' @export
 print.task <- function(x, ...) {
   cat("Quallmer task:", x$name, "\n")
   cat("  Input type: ", x$input_type, "\n", sep = "")

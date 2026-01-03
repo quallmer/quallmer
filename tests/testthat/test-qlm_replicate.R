@@ -9,6 +9,7 @@ test_that("qlm_replicate errors on non-qlm_coded input", {
 
 test_that("qlm_replicate works with no overrides", {
   skip_if_not_installed("ellmer")
+  skip_if_not_installed("mockery")
 
   # Create a mock qlm_coded object
   type_obj <- ellmer::type_object(category = ellmer::type_string("Category"))
@@ -41,6 +42,7 @@ test_that("qlm_replicate works with no overrides", {
 
 test_that("qlm_replicate applies model override", {
   skip_if_not_installed("ellmer")
+  skip_if_not_installed("mockery")
 
   # Create a mock qlm_coded object
   type_obj <- ellmer::type_object(category = ellmer::type_string("Category"))
@@ -85,6 +87,7 @@ test_that("qlm_replicate applies model override", {
 
 test_that("qlm_replicate applies codebook override", {
   skip_if_not_installed("ellmer")
+  skip_if_not_installed("mockery")
 
   # Create original mock
   type_obj <- ellmer::type_object(category = ellmer::type_string("Category"))
@@ -129,6 +132,7 @@ test_that("qlm_replicate applies codebook override", {
 
 test_that("qlm_replicate applies name override", {
   skip_if_not_installed("ellmer")
+  skip_if_not_installed("mockery")
 
   # Create mock
   type_obj <- ellmer::type_object(category = ellmer::type_string("Category"))
@@ -171,6 +175,7 @@ test_that("qlm_replicate applies name override", {
 
 test_that("qlm_replicate auto-generates name from model", {
   skip_if_not_installed("ellmer")
+  skip_if_not_installed("mockery")
 
   # Create mock
   type_obj <- ellmer::type_object(category = ellmer::type_string("Category"))
@@ -213,6 +218,7 @@ test_that("qlm_replicate auto-generates name from model", {
 
 test_that("qlm_replicate passes through additional arguments", {
   skip_if_not_installed("ellmer")
+  skip_if_not_installed("mockery")
 
   # Create mock
   type_obj <- ellmer::type_object(category = ellmer::type_string("Category"))
@@ -255,6 +261,7 @@ test_that("qlm_replicate passes through additional arguments", {
 
 test_that("qlm_replicate stores correct call", {
   skip_if_not_installed("ellmer")
+  skip_if_not_installed("mockery")
 
   # Create mock
   type_obj <- ellmer::type_object(category = ellmer::type_string("Category"))

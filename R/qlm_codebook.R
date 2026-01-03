@@ -21,9 +21,10 @@
 #'   containing the codebook definition. Use with [qlm_code()] to apply the
 #'   codebook to data.
 #'
-#' @seealso [qlm_code()] for applying codebooks to data, [task_sentiment()],
-#'   [task_stance()], [task_ideology()], [task_salience()], [task_fact()]
-#'   for predefined codebooks, [task()] for the deprecated function.
+#' @seealso [qlm_code()] for applying codebooks to data,
+#'   [data_codebook_sentiment], [data_codebook_stance], [data_codebook_ideology],
+#'   [data_codebook_salience], [data_codebook_fact] for predefined codebooks,
+#'   [task()] for the deprecated function.
 #'
 #' @examples
 #' \dontrun{
@@ -111,9 +112,14 @@ as_qlm_codebook.qlm_codebook <- function(x, ...) {
 }
 
 
-#' @export
-#' @keywords internal
+#' Print a qlm_codebook object
+#'
+#' @param x A qlm_codebook object.
+#' @param ... Additional arguments passed to print methods.
+#'
 #' @return Invisibly returns the input object \code{x}. Called for side effects (printing to console).
+#' @keywords internal
+#' @export
 print.qlm_codebook <- function(x, ...) {
   cat("quallmer codebook:", x$name, "\n")
   cat("  Input type:   ", x$input_type, "\n", sep = "")

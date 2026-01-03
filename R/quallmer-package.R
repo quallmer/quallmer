@@ -2,7 +2,6 @@
 #' @import ellmer
 #' @import dplyr
 #' @import tidyr
-#' @import shiny
 #' @importFrom irr kripp.alpha kappam.fleiss
 #'
 #' @references

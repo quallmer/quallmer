@@ -2,7 +2,7 @@
 % Please edit documentation in R/trail_record.R
 \name{trail_record}
 \alias{trail_record}
-\title{Trail record: reproducible quallmer annotation}
+\title{Trail record: reproducible quallmer annotation (deprecated)}
 \usage{
 trail_record(
   data,
@@ -37,7 +37,11 @@ For examples and tests, use \code{tempdir()} to comply with CRAN policies.}
 An object of class \code{"trail_record"}.
 }
 \description{
-Run a quallmer task on a data frame with a specified LLM setting,
-capturing metadata for reproducibility and optionally caching the
-full result on disk.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
 }
+\details{
+\code{trail_record()} is deprecated. Use \code{\link[=qlm_code]{qlm_code()}} instead, which automatically
+captures metadata for reproducibility. For systematic comparisons across
+different models or settings, see \code{\link[=qlm_replicate]{qlm_replicate()}}.
+}
+\keyword{internal}

@@ -11,9 +11,7 @@ qlm_code(x, codebook, model, ..., batch = FALSE, name = "original")
 file paths to images (for image codebooks). Named vectors will use names
 as identifiers in the output; unnamed vectors will use sequential integers.}
 
-\item{codebook}{A codebook object created with \code{\link[=qlm_codebook]{qlm_codebook()}} or one of
-the predefined codebook functions (\code{\link[=task_sentiment]{task_sentiment()}}, \code{\link[=task_stance]{task_stance()}},
-\code{\link[=task_ideology]{task_ideology()}}, \code{\link[=task_salience]{task_salience()}}, \code{\link[=task_fact]{task_fact()}}). Also accepts
+\item{codebook}{A codebook object created with \code{\link[=qlm_codebook]{qlm_codebook()}}. Also accepts
 deprecated \code{\link[=task]{task()}} objects for backward compatibility.}
 
 \item{model}{Provider (and optionally model) name in the form
@@ -86,7 +84,7 @@ coded <- qlm_code(texts, data_codebook_sentiment, model = "openai/gpt-4o-mini")
 # With execution control
 coded <- qlm_code(texts, data_codebook_sentiment,
                   model = "openai/gpt-4o-mini",
-                  max_active = 5)
+                  params = params(temperature = 0))
 
 # Include token usage and cost
 coded <- qlm_code(texts, data_codebook_sentiment,
@@ -107,7 +105,5 @@ coded_batch
 
 }
 \seealso{
-\code{\link[=qlm_codebook]{qlm_codebook()}} for creating codebooks,
-\code{\link[=task_sentiment]{task_sentiment()}}, \code{\link[=task_stance]{task_stance()}}, \code{\link[=task_ideology]{task_ideology()}}, \code{\link[=task_salience]{task_salience()}},
-\code{\link[=task_fact]{task_fact()}} for predefined codebooks, \code{\link[=annotate]{annotate()}} for the deprecated function.
+\code{\link[=qlm_codebook]{qlm_codebook()}} for creating codebooks, \code{\link[=annotate]{annotate()}} for the deprecated function.
 }

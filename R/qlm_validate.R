@@ -1,7 +1,7 @@
 # Declare global variables used in yardstick functions to avoid R CMD check NOTEs
 utils::globalVariables(c("truth", "estimate"))
 
-#' Validate coded results against gold standard
+#' Validate coded results against a gold standard
 #'
 #' Validates LLM-coded results from a `qlm_coded` object against a gold standard
 #' (typically human annotations) using appropriate metrics based on measurement
@@ -101,35 +101,33 @@ utils::globalVariables(c("truth", "estimate"))
 #' coded <- qlm_code(
 #'   reviews,
 #'   data_codebook_sentiment,
-#'   model = "google_gemini/gemini-2.5-flash"
+#'   model = "openai/gpt-4o"
 #' )
 #'
 #' # Create gold standard from corpus metadata
 #' gold <- data.frame(
 #'   .id = coded$.id,
-#'   polarity = quanteda::docvars(reviews, "polarity")
+#'   sentiment = quanteda::docvars(reviews, "polarity"),
+#'   rating = quanteda::docvars(reviews, "rating")
 #' )
 #'
 #' # Validate polarity (nominal data)
-#' validation <- qlm_validate(coded, gold, by = "polarity", level = "nominal")
+#' validation <- qlm_validate(coded, gold, by = "sentiment", level = "nominal")
 #' print(validation)
 #'
 #' # Validate ratings (ordinal data)
-#' gold_ratings <- data.frame(
-#'   .id = coded$.id,
-#'   rating = quanteda::docvars(reviews, "rating")
-#' )
 #' validation_ordinal <- qlm_validate(coded, gold_ratings, by = "rating", level = "ordinal")
 #' print(validation_ordinal)
 #'
 #' # Use micro-averaging (nominal level only)
-#' qlm_validate(coded, gold, by = "polarity", level = "nominal", average = "micro")
+#' qlm_validate(coded, gold, by = "sentiment", level = "nominal", average = "micro")
 #'
 #' # Get per-class breakdown (for nominal data only)
-#' validation_detailed <- qlm_validate(coded, gold, by = "polarity",
+#' validation_detailed <- qlm_validate(coded, gold, by = "sentiment",
 #'                                     level = "nominal", average = "none")
 #' print(validation_detailed)
-#' validation_detailed$by_class$precision
+#' validation_detailed$by_class
+#' validation_detailed$confusion
 #' }
 #'
 #' @export
@@ -462,7 +460,25 @@ qlm_validate <- function(
     by_class <- tibble::as_tibble(by_class_data)
   }
 
-  # Build return object
+  # Extract parent run name from coded object
+  parent_name <- NA_character_
+  if (inherits(x, "qlm_coded")) {
+    run <- attr(x, "run")
+    if (!is.null(run) && !is.null(run$name)) {
+      parent_name <- run$name
+    }
+  }
+
+  # Extract gold run name if it's a qlm_coded object
+  gold_name <- NA_character_
+  if (inherits(gold, "qlm_coded")) {
+    gold_run <- attr(gold, "run")
+    if (!is.null(gold_run) && !is.null(gold_run$name)) {
+      gold_name <- gold_run$name
+    }
+  }
+
+  # Build return object with run attribute
   result <- list(
     # Nominal metrics
     accuracy = results$accuracy,
@@ -490,8 +506,26 @@ qlm_validate <- function(
     call = match.call()
   )
 
-  # Set class
-  structure(result, class = "qlm_validation")
+  # Set class and add run attribute
+  structure(
+    result,
+    class = "qlm_validation",
+    run = list(
+      name = paste0("validation_", substr(digest::digest(list(parent_name, gold_name)), 1, 8)),
+      call = match.call(),
+      parent = c(parent_name, gold_name)[!is.na(c(parent_name, gold_name))],  # Parent(s)
+      metadata = list(
+        timestamp = Sys.time(),
+        n_subjects = nrow(merged),
+        n_classes = length(all_levels),
+        measures = paste(metrics_to_compute, collapse = ","),
+        average = average,
+        level = level,
+        quallmer_version = tryCatch(as.character(utils::packageVersion("quallmer")), error = function(e) NA_character_),
+        R_version = paste(R.version$major, R.version$minor, sep = ".")
+      )
+    )
+  )
 }
 
 
@@ -505,15 +539,18 @@ qlm_validate <- function(
 #' @export
 print.qlm_validation <- function(x, ...) {
   cat("# quallmer validation\n")
-  cat("# n: ", x$n, " | ", sep = "")
+  cat("# n: ", x$n, sep = "")
 
-  # Use "levels" for ordinal data, "classes" for nominal data
-  if (x$level == "ordinal") {
-    cat("levels: ", length(x$classes), "\n\n", sep = "")
-  } else {
-    cat("classes: ", length(x$classes), " | ", sep = "")
-    cat("average: ", x$average, "\n\n", sep = "")
+  # Print classes/levels/average based on measurement level
+  if (x$level == "nominal") {
+    cat(" | classes: ", length(x$classes), " | ", sep = "")
+    cat("average: ", x$average, sep = "")
+  } else if (x$level == "ordinal") {
+    cat(" | levels: ", length(x$classes), sep = "")
   }
+  # For interval/ratio: no classes or levels (continuous numeric data)
+
+  cat("\n\n")
 
   # Print metrics based on level
   if (x$level == "nominal" && x$average == "none") {

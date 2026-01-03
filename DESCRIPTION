@@ -1,7 +1,7 @@
 Package: quallmer
 Type: Package
 Title: Qualitative Analysis with Large Language Models
-Version: 0.2
+Version: 0.2.0
 Authors@R: c(
     person(
       "Seraphine F.", "Maerz",
@@ -20,8 +20,7 @@ Description: Tools for AI-assisted qualitative data coding using large language
     built-in codebooks for common applications and functions for creating custom
     codebooks tailored to specific research questions. Supports replication across
     models and settings, computing inter-coder reliability and gold-standard
-    validation metrics, and an interactive 'shiny' application for manual coding
-    and validation.
+    validation metrics.
 License: GPL-3
 URL: https://seraphinem.github.io/quallmer/
 Depends:
@@ -29,27 +28,27 @@ Depends:
     ellmer (>= 0.4.0)
 Imports:
     cli,
-    shiny,
     dplyr,
     tidyr,
     digest,
     irr,
+    jsonlite,
     lifecycle,
-    bslib,
     stats,
-    htmltools,
     yardstick
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Suggests:
+    janitor,
     knitr,
     rmarkdown,
     testthat (>= 3.0.0),
     kableExtra,
     mockery,
     quanteda,
+    quanteda.tidy,
     tibble,
     withr
 Config/testthat/edition: 3

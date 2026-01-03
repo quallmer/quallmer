@@ -2,7 +2,7 @@
 % Please edit documentation in R/trail_compare.R
 \name{trail_icr}
 \alias{trail_icr}
-\title{Compute intercoder reliability across Trail settings}
+\title{Compute inter-rater reliability across Trail settings (deprecated)}
 \usage{
 trail_icr(
   x,
@@ -26,7 +26,7 @@ record's annotations (defaults to "label").}
 \item{min_coders}{Integer. Minimum number of non-missing coders per
 unit required for inclusion.}
 
-\item{icr_fun}{Function used to compute intercoder reliability.
+\item{icr_fun}{Function used to compute inter-rater reliability.
 Defaults to \code{validate()}, which is expected to accept
 \code{data}, \code{id}, \code{coder_cols}, \code{min_coders},
 and \code{mode = "icr"}. It should also understand
@@ -37,12 +37,14 @@ and \code{mode = "icr"}. It should also understand
 \value{
 The result of calling \code{icr_fun()} on the wide data.
 With the default \code{validate()}, this is a named list of
-intercoder reliability statistics.
+inter-rater reliability statistics.
 }
 \description{
-Convenience helper to compute intercoder reliability across multiple
-Trail records or a \code{trail_compare} object by treating each setting as
-a coder and calling \code{validate()} in \code{mode = "icr"}.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+}
+\details{
+\code{trail_icr()} is deprecated. Use \code{\link[=qlm_compare]{qlm_compare()}} to compute inter-rater
+reliability across multiple coded objects.
 }
 \seealso{
 \itemize{
@@ -51,3 +53,4 @@ a coder and calling \code{validate()} in \code{mode = "icr"}.
 \item \code{validate()} – core validation / ICR engine
 }
 }
+\keyword{internal}

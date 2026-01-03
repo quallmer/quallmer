@@ -72,7 +72,8 @@ coded  # Print results as tibble
 
 }
 \seealso{
-\code{\link[=qlm_code]{qlm_code()}} for applying codebooks to data, \code{\link[=task_sentiment]{task_sentiment()}},
-\code{\link[=task_stance]{task_stance()}}, \code{\link[=task_ideology]{task_ideology()}}, \code{\link[=task_salience]{task_salience()}}, \code{\link[=task_fact]{task_fact()}}
-for predefined codebooks, \code{\link[=task]{task()}} for the deprecated function.
+\code{\link[=qlm_code]{qlm_code()}} for applying codebooks to data,
+\link{data_codebook_sentiment}, \link{data_codebook_stance}, \link{data_codebook_ideology},
+\link{data_codebook_salience}, \link{data_codebook_fact} for predefined codebooks,
+\code{\link[=task]{task()}} for the deprecated function.
 }

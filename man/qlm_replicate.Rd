@@ -43,17 +43,17 @@ reviews <- data_corpus_LMRDsample[sample(length(data_corpus_LMRDsample), size = 
 coded <- qlm_code(
   reviews,
   data_codebook_sentiment,
-  model = "google_gemini/gemini-2.5-flash"
+  model = "openai/gpt-4o"
 )
 
 # Replicate with different model
-coded2 <- qlm_replicate(coded, model = "anthropic/claude-sonnet-4-20250514")
+coded2 <- qlm_replicate(coded, model = "openai/gpt-4o-mini")
 
 # Replicate using batch processing for cost savings
 coded3 <- qlm_replicate(coded, batch = TRUE, path = "batch_results.json")
 
 # Compare results
-qlm_compare(coded, coded2, by = "polarity")
+qlm_compare(coded, coded2, coded3, by = "sentiment")
 }
 
 }

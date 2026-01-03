@@ -10,47 +10,36 @@ navbar:
     left:
     - home
     - quick-start
-    - reference
     - examples
+    - reference
+    - news
     right:
     - search
     - github
   components:
     quick-start:
-      text: Tutorials
+      text: Getting started
       menu:
       - text: Quick start guide
         href: articles/getting-started.html
+    examples:
+      text: Tutorials
+      menu:
       - text: Signing up for an OpenAI API key
         href: articles/pkgdown/tutorials/openai.html
       - text: Working with an open-source Ollama model
         href: articles/pkgdown/tutorials/ollama.html
-      - text: Using predefined tasks
-        href: articles/pkgdown/tutorials/predefined.html
-      - text: Defining custom tasks
-        href: articles/pkgdown/tutorials/customtask.html
-      - text: Using the Agreement App
-        href: articles/pkgdown/tutorials/validate.html
+      - text: Creating codebooks
+        href: articles/pkgdown/tutorials/custom-codebook.html
+      - text: Comparing and replicating coded results
+        href: articles/pkgdown/tutorials/compare.html
       - text: The quallmer trail
         href: articles/pkgdown/tutorials/trail.html
+      - text: Using the Validate App (quallmer.app)
+        href: articles/pkgdown/tutorials/validate.html
     reference:
       text: Reference
       href: reference/index.html
-    examples:
-      text: Predefined tasks
-      menu:
-      - text: Overview of predefined tasks
-        href: articles/pkgdown/examples/overview.html
-      - text: Sentiment analysis
-        href: articles/pkgdown/examples/example_sentiment.html
-      - text: Stance detection / position taking
-        href: articles/pkgdown/examples/task_stance.html
-      - text: Ideological scaling
-        href: articles/pkgdown/examples/task_ideology.html
-      - text: Salience of topics
-        href: articles/pkgdown/examples/task_salience.html
-      - text: Fact-checking
-        href: articles/pkgdown/examples/task_fact.html
     github:
       icon: fab fa-github
       href: https://github.com/SeraphineM/quallmer

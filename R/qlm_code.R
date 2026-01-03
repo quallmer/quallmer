@@ -11,9 +11,7 @@
 #' @param x Input data: a character vector of texts (for text codebooks) or
 #'   file paths to images (for image codebooks). Named vectors will use names
 #'   as identifiers in the output; unnamed vectors will use sequential integers.
-#' @param codebook A codebook object created with [qlm_codebook()] or one of
-#'   the predefined codebook functions ([task_sentiment()], [task_stance()],
-#'   [task_ideology()], [task_salience()], [task_fact()]). Also accepts
+#' @param codebook A codebook object created with [qlm_codebook()]. Also accepts
 #'   deprecated [task()] objects for backward compatibility.
 #' @param model Provider (and optionally model) name in the form
 #'   `"provider/model"` or `"provider"` (which will use the default model for
@@ -54,9 +52,7 @@
 #'   The `execution_args` contains all non-chat execution arguments (for either parallel or batch processing).
 #'
 #' @seealso
-#' [qlm_codebook()] for creating codebooks,
-#' [task_sentiment()], [task_stance()], [task_ideology()], [task_salience()],
-#' [task_fact()] for predefined codebooks, [annotate()] for the deprecated function.
+#' [qlm_codebook()] for creating codebooks, [annotate()] for the deprecated function.
 #'
 #' @examples
 #' \dontrun{
@@ -77,7 +73,7 @@
 #' # With execution control
 #' coded <- qlm_code(texts, data_codebook_sentiment,
 #'                   model = "openai/gpt-4o-mini",
-#'                   max_active = 5)
+#'                   params = params(temperature = 0))
 #'
 #' # Include token usage and cost
 #' coded <- qlm_code(texts, data_codebook_sentiment,
@@ -122,6 +118,11 @@ qlm_code <- function(x, codebook, model, ..., batch = FALSE, name = "original") 
   chat_arg_names <- names(formals(ellmer::chat))
   pcs_arg_names <- names(formals(ellmer::parallel_chat_structured))
   batch_arg_names <- names(formals(ellmer::batch_chat_structured))
+
+  # Common model parameters that should go in params
+  model_param_names <- c("temperature", "max_tokens", "top_p", "top_k",
+                         "frequency_penalty", "presence_penalty", "stop",
+                         "seed", "response_format")
 
   # Route ... arguments
   # All non-chat arguments go to execution_args (for either parallel or batch execution)

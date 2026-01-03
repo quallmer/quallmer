@@ -158,27 +158,17 @@ test_that("qlm_codebook role parameter works correctly", {
 })
 
 
-test_that("predefined tasks return qlm_codebook objects", {
+test_that("predefined codebooks are qlm_codebook objects", {
   skip_if_not_installed("ellmer")
 
-  # All predefined tasks should return qlm_codebook objects
-  sent <- task_sentiment()
-  expect_true(inherits(sent, "qlm_codebook"))
-  expect_true(inherits(sent, "task"))
+  # All predefined codebooks should be qlm_codebook objects
+  expect_true(inherits(data_codebook_sentiment, "qlm_codebook"))
 
-  stance <- task_stance("climate change")
-  expect_true(inherits(stance, "qlm_codebook"))
-  expect_true(inherits(stance, "task"))
+  expect_true(inherits(data_codebook_stance, "qlm_codebook"))
 
-  ideology <- task_ideology("left-right")
-  expect_true(inherits(ideology, "qlm_codebook"))
-  expect_true(inherits(ideology, "task"))
+  expect_true(inherits(data_codebook_ideology, "qlm_codebook"))
 
-  salience <- task_salience()
-  expect_true(inherits(salience, "qlm_codebook"))
-  expect_true(inherits(salience, "task"))
+  expect_true(inherits(data_codebook_salience, "qlm_codebook"))
 
-  fact <- task_fact()
-  expect_true(inherits(fact, "qlm_codebook"))
-  expect_true(inherits(fact, "task"))
+  expect_true(inherits(data_codebook_fact, "qlm_codebook"))
 })

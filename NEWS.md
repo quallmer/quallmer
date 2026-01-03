@@ -1,4 +1,11 @@
-# quallmer (development version)
+# quallmer 0.2.0
+
+## The quallmer trail
+
+* New `qlm_trail()` function extracts and displays provenance chains from coded objects, showing the complete history of coding runs including model parameters, timestamps, and parent-child relationships.
+* Export functions allow saving provenance trails: `qlm_trail_save()` for RDS archival, `qlm_trail_export()` for JSON format, and `qlm_trail_report()` for human-readable Quarto/RMarkdown documents.
+* All `qlm_comparison` and `qlm_validation` objects now include run attributes capturing parent provenance, enabling full workflow traceability across comparisons and validations.
+* Provenance trail automatically captures branching workflows when multiple coded objects are compared or validated.
 
 ## New API
 
@@ -18,14 +25,23 @@ The new API uses the `qlm_` prefix to avoid namespace conflicts (e.g., with `ggp
   - The `batch` flag indicates whether batch processing was used.
   - `execution_args` replaces `pcs_args` and stores all non-chat execution arguments for both parallel and batch processing. Old objects with `pcs_args` remain compatible.
 
+## Example codebooks
+
+* New example codebook data objects provide ready-to-use codebooks for common tasks: `data_codebook_sentiment`, `data_codebook_stance`, `data_codebook_ideology`, `data_codebook_salience`, and `data_codebook_fact`. 
+* All predefined `task_*()` functions are deprecated in favor of using the data objects or creating custom codebooks with `qlm_codebook()`.
+
 ## Deprecated and superseded functions
 
 * `task()` is deprecated in favor of `qlm_codebook()` (#27).
 * `annotate()` is deprecated in favor of `qlm_code()` (#27).
 * `validate()` is superseded by `qlm_compare()` (for inter-rater reliability) and `qlm_validate()` (for gold standard validation). The function remains available but is marked with a lifecycle badge.
-* All predefined `task_*()` functions now return `qlm_codebook` objects (which are also `task` objects for compatibility).
+* Trail functions (`trail_settings()`, `trail_record()`, `trail_compare()`, `trail_matrix()`, `trail_icr()`) are deprecated. Use `qlm_code()` with model and temperature parameters directly, or `qlm_replicate()` for systematic comparisons across models.
 
 **Backward compatibility**: Old code continues to work with deprecation warnings. New `qlm_codebook` objects work with old `annotate()`, and old `task` objects work with new `qlm_code()`. This is achieved through dual-class inheritance where `qlm_codebook` inherits from both `"qlm_codebook"` and `"task"`.
+
+## Package restructuring
+
+* `validate_app()` has been extracted into the companion package [quallmer.app](https://github.com/SeraphineM/quallmer.app). This reduces dependencies in the core quallmer package (removing shiny, bslib, and htmltools from Imports). Install quallmer.app separately for interactive validation functionality.
 
 ## Other changes
 
@@ -43,11 +59,6 @@ The new API uses the `qlm_` prefix to avoid namespace conflicts (e.g., with `ggp
 
   The `measure` argument has been removed entirely - all appropriate measures are now computed automatically and returned in the result object. The return structure changed from a single value to a list containing all computed measures for the specified level. Percent agreement is now computed for all levels; for ordinal/interval/ratio data, the `tolerance` parameter controls what counts as agreement (e.g., `tolerance = 1` means values within 1 unit are considered in agreement).
 - Improved error messages in `qlm_compare()` and `qlm_validate()` now show which objects are missing the requested variable and list available alternatives.
-- Add contributor guides (`AGENTS.md`, `CLAUDE.md`) with structure, style, and testing guidance.
 - Adopt tidyverse-style error messaging via `cli::cli_abort()` and `cli::cli_warn()` throughout the package, replacing all `stop()`, `stopifnot()`, and `warning()` calls with structured, informative error messages.
 - Documentation and CI notes refreshed.
-
-# quallmer 0.1.1
-
-- CRAN release.
 

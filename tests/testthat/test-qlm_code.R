@@ -145,21 +145,20 @@ test_that("qlm_code routes arguments correctly", {
 })
 
 
-test_that("qlm_code works with predefined tasks", {
+test_that("qlm_code works with predefined codebooks", {
   skip_if_not_installed("ellmer")
 
-  # All predefined tasks should be valid codebooks
-  tasks <- list(
-    task_sentiment(),
-    task_stance("climate change"),
-    task_ideology("left-right"),
-    task_salience(),
-    task_fact()
+  # All predefined codebooks should be valid
+  codebooks <- list(
+    data_codebook_sentiment,
+    data_codebook_stance,
+    data_codebook_ideology,
+    data_codebook_salience,
+    data_codebook_fact
   )
 
-  for (task in tasks) {
-    expect_true(inherits(task, "qlm_codebook"))
-    expect_true(inherits(task, "task"))
+  for (codebook in codebooks) {
+    expect_true(inherits(codebook, "qlm_codebook"))
     # All should be accepted by qlm_code (can't test execution)
   }
 })

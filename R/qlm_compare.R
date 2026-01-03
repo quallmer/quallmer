@@ -32,14 +32,26 @@
 #'         \item `alpha_ordinal`: Krippendorff's alpha (ordinal)
 #'         \item `kappa_weighted`: Weighted kappa (2 raters only)
 #'         \item `w`: Kendall's W coefficient of concordance
-#'         \item `rho`: Spearman's rho (average pairwise correlation)
+#'         \item `rho`: Spearman's rho
+#'         \item `percent_agreement`: Simple percent agreement
 #'       }
 #'     }
-#'     \item{**Interval/Ratio level:**}{
+#'     \item{**Interval level:**}{
 #'       \itemize{
-#'         \item `alpha_interval`: Krippendorff's alpha (interval/ratio)
+#'         \item `alpha_interval`: Krippendorff's alpha (interval)
 #'         \item `icc`: Intraclass correlation coefficient
-#'         \item `r`: Pearson's r (average pairwise correlation)
+#'         \item `r`: Pearson's r
+#'         \item `percent_agreement`: Simple percent agreement
+#'       }
+#'     }
+#'     \item{**Ratio level:**}{
+#'       Measures are the same as for interval level, but Krippendorff's alpha
+#'       is computed using the ratio-level formula.
+#'       \itemize{
+#'         \item `alpha_ratio`: Krippendorff's alpha (ratio)
+#'         \item `icc`: Intraclass correlation coefficient
+#'         \item `r`: Pearson's r
+#'         \item `percent_agreement`: Simple percent agreement
 #'       }
 #'     }
 #'     \item{`subjects`}{Number of units compared}
@@ -57,9 +69,17 @@
 #' - **Nominal**: For unordered categories. Computes Krippendorff's alpha,
 #'   Cohen's/Fleiss' kappa, and percent agreement.
 #' - **Ordinal**: For ordered categories. Computes Krippendorff's alpha (ordinal),
-#'   weighted kappa (2 raters only), Kendall's W, and Spearman's rho.
-#' - **Interval/Ratio**: For continuous data. Computes Krippendorff's alpha
-#'   (interval/ratio), ICC, and Pearson's r.
+#'   weighted kappa (2 raters only), Kendall's W, Spearman's rho, and percent
+#'   agreement.
+#' - **Interval**: For continuous data with meaningful intervals. Computes
+#'   Krippendorff's alpha (interval), ICC, Pearson's r, and percent agreement.
+#' - **Ratio**: For continuous data with a true zero point. Computes the same
+#'   measures as interval level, but Krippendorff's alpha uses the ratio-level
+#'   formula which accounts for proportional differences.
+#'
+#' Kendall's W, ICC, and percent agreement are computed using all raters
+#' simultaneously. For 3 or more raters, Spearman's rho and Pearson's r are
+#' computed as the mean of all pairwise correlations between raters.
 #'
 #' @seealso [qlm_validate()] for validation of coding against gold standards.
 #'
@@ -69,18 +89,17 @@
 #' set.seed(42)
 #' reviews <- data_corpus_LMRDsample[sample(length(data_corpus_LMRDsample), size = 20)]
 #' coded1 <- qlm_code(reviews, data_codebook_sentiment, model = "openai/gpt-4o-mini")
-#' coded2 <- qlm_code(reviews, data_codebook_sentiment,
-#'                    model = "anthropic/claude-sonnet-4-20250514")
+#' coded2 <- qlm_code(reviews, data_codebook_sentiment, model = "openai/gpt-4o")
 #'
 #' # Compare nominal data (polarity: neg/pos)
-#' qlm_compare(coded1, coded2, by = "polarity", level = "nominal")
+#' qlm_compare(coded1, coded2, by = "sentiment", level = "nominal")
 #'
 #' # Compare ordinal data (rating: 1-10)
 #' qlm_compare(coded1, coded2, by = "rating", level = "ordinal")
 #'
-#' # Compare three raters
-#' coded3 <- qlm_code(reviews, data_codebook_sentiment, model = "openai/gpt-4o")
-#' qlm_compare(coded1, coded2, coded3, by = "polarity", level = "nominal")
+#' # Compare three raters using Fleiss' kappa on polarity
+#' coded3 <- qlm_replicate(coded1, params = params(temperature = 0.5))
+#' qlm_compare(coded1, coded2, coded3, by = "sentiment", level = "nominal")
 #' }
 #'
 #' @export
@@ -170,7 +189,17 @@ qlm_compare <- function(...,
   # Compute all reliability measures appropriate for this level
   results <- compute_reliability_by_level(ratings, n_raters, level, tolerance)
 
-  # Build qlm_comparison object
+  # Extract parent run names from coded objects
+  parent_names <- vapply(coded_list, function(obj) {
+    run <- attr(obj, "run")
+    if (!is.null(run) && !is.null(run$name)) {
+      run$name
+    } else {
+      NA_character_
+    }
+  }, character(1))
+
+  # Build qlm_comparison object with run attribute
   structure(
     c(
       results,
@@ -181,7 +210,20 @@ qlm_compare <- function(...,
         call = match.call()
       )
     ),
-    class = "qlm_comparison"
+    class = "qlm_comparison",
+    run = list(
+      name = paste0("comparison_", substr(digest::digest(parent_names), 1, 8)),
+      call = match.call(),
+      parent = parent_names[!is.na(parent_names)],  # Multiple parents
+      metadata = list(
+        timestamp = Sys.time(),
+        n_subjects = n_subjects,
+        n_raters = n_raters,
+        level = level,
+        quallmer_version = tryCatch(as.character(utils::packageVersion("quallmer")), error = function(e) NA_character_),
+        R_version = paste(R.version$major, R.version$minor, sep = ".")
+      )
+    )
   )
 }
 
