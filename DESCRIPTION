@@ -47,6 +47,7 @@ Suggests:
     kableExtra,
     mockery,
     quanteda,
+    quanteda.tidy,
     tibble,
     withr
 Config/testthat/edition: 3
