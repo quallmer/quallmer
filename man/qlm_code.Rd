@@ -84,8 +84,7 @@ coded <- qlm_code(texts, data_codebook_sentiment, model = "openai/gpt-4o-mini")
 # With execution control
 coded <- qlm_code(texts, data_codebook_sentiment,
                   model = "openai/gpt-4o-mini",
-                  temperature = 0,
-                  max_tokens = 100)
+                  params = params(temperature = 0))
 
 # Include token usage and cost
 coded <- qlm_code(texts, data_codebook_sentiment,
