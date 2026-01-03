@@ -16,3 +16,4 @@ quallmer.Rcheck
 *.bak*
 *.backup*
 tests/testthat/_problems/
+batch_results.json

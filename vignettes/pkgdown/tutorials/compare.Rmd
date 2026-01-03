@@ -86,7 +86,7 @@ coded2 <- qlm_replicate(coded1,
 ```{r replicate-temp}
 # Replicate with higher temperature for more variability
 coded3 <- qlm_replicate(coded1,
-                        temperature = 0.7,
+                        params = params(temperature = 0.7),
                         name = "gpt4o_temp07")
 ```
 
@@ -100,7 +100,6 @@ Once you have multiple coded results, you can assess inter-rater reliability usi
 # Compare the first three runs to assess reliability
 comparison <- qlm_compare(coded1, coded2, coded3, 
                           by = "score",
-                          measure = "alpha",
                           level = "ordinal")
 
 # View the comparison results
@@ -109,20 +108,19 @@ comparison
 
 The output shows:
 
-- The reliability measure used (here Krippendorff's alpha for ordinal data, the package also supports nominal, interval, and ratio levels and other measures such as Cohen's kappa) 
-- The computed value  
-- Number of subjects (speeches) and raters (coding runs) 
-- An interpretation of the agreement level 
+- The reliability measures and their values, appropriate to ordinal data. 
+- The number of subjects (11 speeches) and raters (3 LLM coding runs).  
+- The level of measurement (interval).  
 
-### Computing simple percent agreement
+### Computing percent agreement with a tolerance
 
-```{r compare-agreement}
-# Simple percent agreement
-agreement <- qlm_compare(coded1, coded3,
-                         by = "score",
-                         measure = "agreement")
+If we treat the data as ordinal, but relax the "tolerance" on the agreement to +/-1 of the values to be compared, then we can get a different definition of agreement, thus changing the score.  "Percent agreement" then rises substantially.
 
-agreement
+```{r compare-agreement-tolerance1}
+qlm_compare(coded1, coded2, coded3, 
+            by = "score",
+            level = "ordinal",
+            tolerance = 1)
 ```
 
 
@@ -161,6 +159,14 @@ The output shows:
 - Recall: proportion of actual positives that were identified correctly 
 - F1-score: harmonic mean of precision and recall 
 - Cohen's kappa: agreement adjusted for chance 
+
+Of course, we can also perform validation treating this data as ordinal or even interval:
+```{r validation-numeric}
+qlm_validate(coded1, gold = gold_standard, by = "score", level = "ordinal")
+
+qlm_validate(coded1, gold = gold_standard, by = "score", level = "interval")
+```
+
 
 
 ## Best practices for reliability and validation
