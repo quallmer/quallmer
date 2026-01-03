@@ -32,14 +32,26 @@
 #'         \item `alpha_ordinal`: Krippendorff's alpha (ordinal)
 #'         \item `kappa_weighted`: Weighted kappa (2 raters only)
 #'         \item `w`: Kendall's W coefficient of concordance
-#'         \item `rho`: Spearman's rho (average pairwise correlation)
+#'         \item `rho`: Spearman's rho
+#'         \item `percent_agreement`: Simple percent agreement
 #'       }
 #'     }
-#'     \item{**Interval/Ratio level:**}{
+#'     \item{**Interval level:**}{
 #'       \itemize{
-#'         \item `alpha_interval`: Krippendorff's alpha (interval/ratio)
+#'         \item `alpha_interval`: Krippendorff's alpha (interval)
 #'         \item `icc`: Intraclass correlation coefficient
-#'         \item `r`: Pearson's r (average pairwise correlation)
+#'         \item `r`: Pearson's r
+#'         \item `percent_agreement`: Simple percent agreement
+#'       }
+#'     }
+#'     \item{**Ratio level:**}{
+#'       Measures are the same as for interval level, but Krippendorff's alpha
+#'       is computed using the ratio-level formula.
+#'       \itemize{
+#'         \item `alpha_ratio`: Krippendorff's alpha (ratio)
+#'         \item `icc`: Intraclass correlation coefficient
+#'         \item `r`: Pearson's r
+#'         \item `percent_agreement`: Simple percent agreement
 #'       }
 #'     }
 #'     \item{`subjects`}{Number of units compared}
@@ -57,9 +69,17 @@
 #' - **Nominal**: For unordered categories. Computes Krippendorff's alpha,
 #'   Cohen's/Fleiss' kappa, and percent agreement.
 #' - **Ordinal**: For ordered categories. Computes Krippendorff's alpha (ordinal),
-#'   weighted kappa (2 raters only), Kendall's W, and Spearman's rho.
-#' - **Interval/Ratio**: For continuous data. Computes Krippendorff's alpha
-#'   (interval/ratio), ICC, and Pearson's r.
+#'   weighted kappa (2 raters only), Kendall's W, Spearman's rho, and percent
+#'   agreement.
+#' - **Interval**: For continuous data with meaningful intervals. Computes
+#'   Krippendorff's alpha (interval), ICC, Pearson's r, and percent agreement.
+#' - **Ratio**: For continuous data with a true zero point. Computes the same
+#'   measures as interval level, but Krippendorff's alpha uses the ratio-level
+#'   formula which accounts for proportional differences.
+#'
+#' Kendall's W, ICC, and percent agreement are computed using all raters
+#' simultaneously. For 3 or more raters, Spearman's rho and Pearson's r are
+#' computed as the mean of all pairwise correlations between raters.
 #'
 #' @seealso [qlm_validate()] for validation of coding against gold standards.
 #'
@@ -72,14 +92,14 @@
 #' coded2 <- qlm_code(reviews, data_codebook_sentiment, model = "openai/gpt-4o")
 #'
 #' # Compare nominal data (polarity: neg/pos)
-#' qlm_compare(coded1, coded2, by = "polarity", level = "nominal")
+#' qlm_compare(coded1, coded2, by = "sentiment", level = "nominal")
 #'
 #' # Compare ordinal data (rating: 1-10)
 #' qlm_compare(coded1, coded2, by = "rating", level = "ordinal")
 #'
 #' # Compare three raters using Fleiss' kappa on polarity
 #' coded3 <- qlm_replicate(coded1, params = params(temperature = 0.5))
-#' qlm_compare(coded1, coded2, coded3, by = "polarity", measure = "kappa", level = "nominal")
+#' qlm_compare(coded1, coded2, coded3, by = "sentiment", level = "nominal")
 #' }
 #'
 #' @export
