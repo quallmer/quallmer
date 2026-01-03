@@ -57,7 +57,7 @@ Let's build a coding workflow that demonstrates the trail system. We'll use sent
 coded1 <- qlm_code(data_corpus_inaugural,
                    codebook = data_codebook_ideology,
                    model = "openai/gpt-4o",
-                   temperature = 0,
+                   params = params(temperature = 0),
                    name = "initial_gpt4o")
 
 # Each qlm_coded object has a 'run' attribute with metadata
@@ -80,7 +80,7 @@ attr(coded2, "run")$parent  # Shows "initial_gpt4o"
 
 # Replicate again with different temperature
 coded3 <- qlm_replicate(coded2,
-                        temperature = 0.7,
+                        params = params(temperature = 0.7),
                         name = "mini_temp07")
 
 # This creates a chain: initial_gpt4o -> replicate_mini -> mini_temp07
@@ -204,7 +204,7 @@ The trail system automatically tracks comparisons and validations. Use `qlm_trai
 coded_gpt4o <- qlm_code(data_corpus_inaugural,
                         codebook = data_codebook_ideology,
                         model = "openai/gpt-4o",
-                        temperature = 0,
+                        params = params(temperature = 0),
                         name = "gpt4o_run")
 
 coded_mini <- qlm_replicate(coded_gpt4o,
@@ -214,7 +214,7 @@ coded_mini <- qlm_replicate(coded_gpt4o,
 # 2. Compare inter-rater reliability
 comparison <- qlm_compare(coded_gpt4o, coded_mini,
                           by = "score",
-                          measure = "alpha")
+                          level = "nominal")
 
 # 3. Validate against gold standard (if you have one)
 # gold <- data.frame(.id = coded_gpt4o$.id, score = c(2, 3, 1, ...))
