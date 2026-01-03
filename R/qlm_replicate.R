@@ -42,7 +42,7 @@
 #' coded3 <- qlm_replicate(coded, batch = TRUE, path = "batch_results.json")
 #'
 #' # Compare results
-#' qlm_compare(coded, coded2, by = "polarity")
+#' qlm_compare(coded, coded2, coded3, by = "sentiment")
 #' }
 #'
 #' @importFrom utils modifyList

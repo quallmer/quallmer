@@ -107,29 +107,27 @@ utils::globalVariables(c("truth", "estimate"))
 #' # Create gold standard from corpus metadata
 #' gold <- data.frame(
 #'   .id = coded$.id,
-#'   polarity = quanteda::docvars(reviews, "polarity")
+#'   sentiment = quanteda::docvars(reviews, "polarity"),
+#'   rating = quanteda::docvars(reviews, "rating")
 #' )
 #'
 #' # Validate polarity (nominal data)
-#' validation <- qlm_validate(coded, gold, by = "polarity", level = "nominal")
+#' validation <- qlm_validate(coded, gold, by = "sentiment", level = "nominal")
 #' print(validation)
 #'
 #' # Validate ratings (ordinal data)
-#' gold_ratings <- data.frame(
-#'   .id = coded$.id,
-#'   rating = quanteda::docvars(reviews, "rating")
-#' )
 #' validation_ordinal <- qlm_validate(coded, gold_ratings, by = "rating", level = "ordinal")
 #' print(validation_ordinal)
 #'
 #' # Use micro-averaging (nominal level only)
-#' qlm_validate(coded, gold, by = "polarity", level = "nominal", average = "micro")
+#' qlm_validate(coded, gold, by = "sentiment", level = "nominal", average = "micro")
 #'
 #' # Get per-class breakdown (for nominal data only)
-#' validation_detailed <- qlm_validate(coded, gold, by = "polarity",
+#' validation_detailed <- qlm_validate(coded, gold, by = "sentiment",
 #'                                     level = "nominal", average = "none")
 #' print(validation_detailed)
-#' validation_detailed$by_class$precision
+#' validation_detailed$by_class
+#' validation_detailed$confusion
 #' }
 #'
 #' @export
