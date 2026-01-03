@@ -113,7 +113,7 @@ The `qlm_code()` function returns a `qlm_coded` object, which is a tibble contai
 coded <- qlm_code(data_corpus_inaugural,
                   codebook = ideology_codebook,
                   model = "openai/gpt-4o",
-                  temperature = 0)
+                  params = params(temperature = 0))
 
 # View the results
 coded

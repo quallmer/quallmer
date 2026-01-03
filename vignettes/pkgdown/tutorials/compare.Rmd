@@ -53,7 +53,7 @@ Let's code the speeches using our codebook with a specific model and settings:
 coded1 <- qlm_code(data_corpus_inaugural,
                    codebook = data_codebook_ideology,
                    model = "openai/gpt-4o",
-                   temperature = 0,
+                   params = params(temperature = 0),
                    name = "gpt4o_run")
 
 # View the results
