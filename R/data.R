@@ -111,26 +111,22 @@
 #'   name = "Immigration policy",
 #'   instructions = immigration_instructions,
 #'   schema = type_object(
-#'     llm_immigration_label = type_enum(c("Immigration", "Not immmigration")),
-#'     llm_immigration_scale = type_integer(immigration_scale)
+#'     immigration_label = type_enum(c("Immigration", "Not immmigration")),
+#'     immigration_scale = type_integer(immigration_scale)
 #'   )
 #' )
 #'
 #' result <- qlm_code(data_corpus_manifsentsUK2010sample,
 #'                    codebook_immigration,
 #'                    model = "openai/gpt-4o")
+#' gold <- data.frame(.id = docnames(data_corpus_manifsentsUK2010sample),
+#'                    immigration_label = data_corpus_manifsentsUK2010sample$crowd_immigration_label,
+#'                    immigration_scale = data_corpus_manifsentsUK2010sample$crowd_immigration_mean)
+#' qlm_validate(result, gold, by = "immigration_label")
+#' qlm_validate(result, gold, by = "immigration_scale", level = "interval")
 #'
-#' result_combined <- cbind(
-#'   result,
-#'   data.frame(crowd_immigration_label = data_corpus_manifsentsUK2010sample$crowd_immigration_label)
 #' )
 #'
-#' # compute agreement
-#' agreement(result_combined, unit_id_col = "id",
-#'           coder_cols = c("llm_immigration_label", "crowd_immigration_label"))
-#'
-#' # confusion matrix
-#' table(tmp$llm_immigration_label, tmp$crowd_immigration_label)
 #' }
 "data_corpus_manifsentsUK2010sample"
 
@@ -163,7 +159,7 @@
 #'   name = "Sentiment analysis of movie reviews",
 #'   instructions = "You will rate the sentiment from movie reviews.",
 #'   schema = type_object(
-#'     polarity_llm = type_enum(c("pos", "neg"),
+#'     polarity = type_enum(c("pos", "neg"),
 #'     description = "Sentiment label (pos = positive, neg = negative")
 #'   )
 #' )
@@ -175,10 +171,10 @@
 #' result <- qlm_code(test_corpus, codebook_posneg, model = "openai/gpt-4o-mini")
 #'
 #' # Create gold standard from corpus metadata
-#' gold <- data.frame(.id = result$.id, polarity_human = test_corpus$polarity)
+#' gold <- data.frame(.id = result$.id, polarity = test_corpus$polarity)
 #'
 #' # Validate against human annotations
-#' qlm_validate(result, gold, by = "polarity_llm")
+#' qlm_validate(result, gold, by = "polarity")
 #' }
 "data_corpus_LMRDsample"
 
@@ -223,7 +219,7 @@
 #'                    model = "openai/gpt-4o")
 #'
 #' # Compare inter-rater reliability
-#' comparison <- qlm_compare(coded1, coded2, by = "rating", measure = "alpha")
+#' comparison <- qlm_compare(coded1, coded2, by = "rating", level = "interval")
 #' print(comparison)
 #' }
 "data_codebook_sentiment"
@@ -255,7 +251,10 @@
 #' data_codebook_stance
 #'
 #' # Use with text data
-#' coded <- qlm_code(my_texts, data_codebook_stance, model = "openai/gpt-4o-mini")
+#' coded <- qlm_code(tail(quanteda::data_corpus_inaugural),
+#'                   data_codebook_stance,
+#'                   model = "openai/gpt-4o-mini")
+#'  coded
 #' }
 "data_codebook_stance"
 
@@ -286,7 +285,10 @@
 #' data_codebook_ideology
 #'
 #' # Use with political texts
-#' coded <- qlm_code(manifestos, data_codebook_ideology, model = "openai/gpt-4o-mini")
+#' coded <- qlm_code(tail(quanteda::data_corpus_inaugural),
+#'                   data_codebook_ideology,
+#'                   model = "openai/gpt-4o-mini")
+#' coded
 #' }
 "data_codebook_ideology"
 
@@ -317,7 +319,10 @@
 #' data_codebook_salience
 #'
 #' # Use with documents
-#' coded <- qlm_code(documents, data_codebook_salience, model = "openai/gpt-4o-mini")
+#' coded <- qlm_code(tail(quanteda::data_corpus_inaugural),
+#'                   data_codebook_salience,
+#'                   model = "openai/gpt-4o-mini")
+#' coded
 #' }
 "data_codebook_salience"
 
@@ -349,6 +354,9 @@
 #' data_codebook_fact
 #'
 #' # Use with claims or articles
-#' coded <- qlm_code(claims, data_codebook_fact, model = "openai/gpt-4o-mini")
+#' # NEEDS ACTUAL DATA
+#' coded <- qlm_code(claims,
+#'                   data_codebook_fact,
+#'                   model = "openai/gpt-4o-mini")
 #' }
 "data_codebook_fact"

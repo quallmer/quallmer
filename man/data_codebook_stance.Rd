@@ -31,7 +31,10 @@ climate change in texts.
 data_codebook_stance
 
 # Use with text data
-coded <- qlm_code(my_texts, data_codebook_stance, model = "openai/gpt-4o-mini")
+coded <- qlm_code(tail(quanteda::data_corpus_inaugural),
+                  data_codebook_stance,
+                  model = "openai/gpt-4o-mini")
+ coded
 }
 }
 \seealso{

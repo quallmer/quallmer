@@ -45,7 +45,7 @@ coded2 <- qlm_code(data_corpus_LMRDsample[1:20],
                    model = "openai/gpt-4o")
 
 # Compare inter-rater reliability
-comparison <- qlm_compare(coded1, coded2, by = "rating", measure = "alpha")
+comparison <- qlm_compare(coded1, coded2, by = "rating", level = "interval")
 print(comparison)
 }
 }

@@ -31,7 +31,10 @@ topics discussed in texts by their salience.
 data_codebook_salience
 
 # Use with documents
-coded <- qlm_code(documents, data_codebook_salience, model = "openai/gpt-4o-mini")
+coded <- qlm_code(tail(quanteda::data_corpus_inaugural),
+                  data_codebook_salience,
+                  model = "openai/gpt-4o-mini")
+coded
 }
 }
 \seealso{

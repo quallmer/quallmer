@@ -32,7 +32,10 @@ and accuracy of texts.
 data_codebook_fact
 
 # Use with claims or articles
-coded <- qlm_code(claims, data_codebook_fact, model = "openai/gpt-4o-mini")
+# NEEDS ACTUAL DATA
+coded <- qlm_code(claims,
+                  data_codebook_fact,
+                  model = "openai/gpt-4o-mini")
 }
 }
 \seealso{

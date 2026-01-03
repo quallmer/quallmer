@@ -31,7 +31,10 @@ left-right ideological dimension.
 data_codebook_ideology
 
 # Use with political texts
-coded <- qlm_code(manifestos, data_codebook_ideology, model = "openai/gpt-4o-mini")
+coded <- qlm_code(tail(quanteda::data_corpus_inaugural),
+                  data_codebook_ideology,
+                  model = "openai/gpt-4o-mini")
+coded
 }
 }
 \seealso{

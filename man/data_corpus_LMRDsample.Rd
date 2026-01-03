@@ -34,7 +34,7 @@ codebook_posneg <- qlm_codebook(
   name = "Sentiment analysis of movie reviews",
   instructions = "You will rate the sentiment from movie reviews.",
   schema = type_object(
-    polarity_llm = type_enum(c("pos", "neg"),
+    polarity = type_enum(c("pos", "neg"),
     description = "Sentiment label (pos = positive, neg = negative")
   )
 )
@@ -46,10 +46,10 @@ test_corpus <- data_corpus_LMRDsample \%>\%
 result <- qlm_code(test_corpus, codebook_posneg, model = "openai/gpt-4o-mini")
 
 # Create gold standard from corpus metadata
-gold <- data.frame(.id = result$.id, polarity_human = test_corpus$polarity)
+gold <- data.frame(.id = result$.id, polarity = test_corpus$polarity)
 
 # Validate against human annotations
-qlm_validate(result, gold, by = "polarity_llm")
+qlm_validate(result, gold, by = "polarity")
 }
 }
 \references{
