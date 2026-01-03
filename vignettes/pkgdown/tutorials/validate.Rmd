@@ -26,13 +26,13 @@ validate_app()
 
 Once the Validate App is launched, you can start by uploading your dataset. The app supports .csv or .rds file formats. After uploading your data, you can select the column containing the content (e.g., texts, images, etc.) you want to manually assess. While using the app, you can manually assign a score or comments to each text item based on your coding scheme. You can also save example sentences from each text item to help you remember your coding decisions later or as illustrative examples for your research. 
 
-![](pics/manual.png)
+![Screenshot of the Validate App manual coding interface showing text items with fields for scores, comments, and example sentences](pics/manual.png)
 
 ## Reviewing LLM-generated annotations
 
 If you have previously used the `quallmer` package to generate annotations using large language models (LLMs), you can upload those annotations into the Validate App for review. The app allows you to check the LLM-generated codes alongside justifications provided by the model. You can then decide whether to accept these annotations as `valid` or `invalid`, or modify them based on your assessment by adding comments and example sentences.
 
-![](pics/llm.png)
+![Screenshot of the Validate App LLM annotation review interface displaying model-generated codes with justifications and validation options](pics/llm.png)
 
 
 ## Saving your coding decisions
@@ -46,11 +46,11 @@ After completing the manual coding and reviewing the LLM-generated annotations, 
 
 ### Example of inter-rater reliability scores (no gold standard available)
 
-![](pics/reliab.png){width=70%}
+![Screenshot showing inter-rater reliability results with Krippendorff's alpha and kappa scores between multiple LLM coding runs](pics/reliab.png){width=70%}
 
 ### Example of accuracy assessment against a gold standard
 
-![](pics/accuracy.png){width=70%}
+![Screenshot displaying accuracy assessment metrics including precision, recall, F1-score, and Cohen's kappa when validating against a gold standard](pics/accuracy.png){width=70%}
 
 
 ## Calculating validation scores without the App
