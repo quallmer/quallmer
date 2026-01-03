@@ -163,7 +163,7 @@ We’ll use sentiment analysis as our example.</p>
 <pre><code><span><span class="co">## [1] "initial_gpt4o"</span></span></code></pre>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">coded1</span>, <span class="st">"run"</span><span class="op">)</span><span class="op">$</span><span class="va">metadata</span><span class="op">$</span><span class="va">timestamp</span></span></code></pre></div>
-<pre><code><span><span class="co">## [1] "2026-01-03 06:20:34 UTC"</span></span></code></pre>
+<pre><code><span><span class="co">## [1] "2026-01-03 06:41:41 UTC"</span></span></code></pre>
 </div>
 <div class="section level3">
 <h3 id="creating-a-replication-chain">Creating a replication chain<a class="anchor" aria-label="anchor" href="#creating-a-replication-chain"></a>
@@ -186,7 +186,7 @@ links to its parent:</p>
 <span><span class="va">coded3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../../reference/qlm_replicate.html">qlm_replicate</a></span><span class="op">(</span><span class="va">coded2</span>,</span>
 <span>                        params <span class="op">=</span> <span class="fu"><a href="https://ellmer.tidyverse.org/reference/params.html" class="external-link">params</a></span><span class="op">(</span>temperature <span class="op">=</span> <span class="fl">0.7</span><span class="op">)</span>,</span>
 <span>                        name <span class="op">=</span> <span class="st">"mini_temp07"</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## [working] (0 + 0) -&gt; 3 -&gt; 8 | <span style="color: #00BB00;">■■■■■■■■■■■■■■■■■■■■■■■         </span>  73%</span></span>
+<pre><code><span><span class="co">## [working] (0 + 0) -&gt; 10 -&gt; 1 | <span style="color: #00BB00;">■■■■                            </span>   9%</span></span>
 <span><span class="co">## [working] (0 + 0) -&gt; 0 -&gt; 11 | <span style="color: #00BB00;">■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ </span> 100%</span></span></code></pre>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># This creates a chain: initial_gpt4o -&gt; replicate_mini -&gt; mini_temp07</span></span>
@@ -210,7 +210,7 @@ complete provenance chain from your quallmer objects.</p>
 <span><span class="va">trail1</span></span></code></pre></div>
 <pre><code><span><span class="co">## # quallmer trail</span></span>
 <span><span class="co">## Run:     initial_gpt4o</span></span>
-<span><span class="co">## Created: 2026-01-03 06:20:34</span></span>
+<span><span class="co">## Created: 2026-01-03 06:41:41</span></span>
 <span><span class="co">## Model:   openai/gpt-4o</span></span></code></pre>
 <p>This displays: - Run name - Parent (if any) - Creation timestamp -
 Model used</p>
@@ -229,15 +229,15 @@ lineage:</p>
 <pre><code><span><span class="co">## # quallmer trail (3 runs)</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## 1. initial_gpt4o (original)</span></span>
-<span><span class="co">##    2026-01-03 06:20 | openai/gpt-4o</span></span>
+<span><span class="co">##    2026-01-03 06:41 | openai/gpt-4o</span></span>
 <span><span class="co">##    Codebook: Ideological scaling</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## 2. replicate_mini (parent: initial_gpt4o)</span></span>
-<span><span class="co">##    2026-01-03 06:20 | openai/gpt-4o-mini</span></span>
+<span><span class="co">##    2026-01-03 06:41 | openai/gpt-4o-mini</span></span>
 <span><span class="co">##    Codebook: Ideological scaling</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## 3. mini_temp07 (parent: replicate_mini)</span></span>
-<span><span class="co">##    2026-01-03 06:20 | openai/gpt-4o-mini</span></span>
+<span><span class="co">##    2026-01-03 06:41 | openai/gpt-4o-mini</span></span>
 <span><span class="co">##    Codebook: Ideological scaling</span></span></code></pre>
 <p>The output shows:</p>
 <ul>
@@ -290,15 +290,15 @@ should be a single number (e.g., mean, proportion, correlation)</p>
 <span><span class="co">## Reference run: initial_gpt4o</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">##             run  statistic  value reference_value abs_diff pct_diff</span></span>
-<span><span class="co">##   initial_gpt4o mean_score  5.545           5.545   0.0000    0.000</span></span>
-<span><span class="co">##   initial_gpt4o   sd_score  2.162           2.162   0.0000    0.000</span></span>
-<span><span class="co">##   initial_gpt4o    n_units 11.000          11.000   0.0000    0.000</span></span>
-<span><span class="co">##  replicate_mini mean_score  5.818           5.545   0.2727    4.918</span></span>
-<span><span class="co">##  replicate_mini   sd_score  1.834           2.162   0.3276  -15.156</span></span>
-<span><span class="co">##  replicate_mini    n_units 11.000          11.000   0.0000    0.000</span></span>
-<span><span class="co">##     mini_temp07 mean_score  5.727           5.545   0.1818    3.279</span></span>
-<span><span class="co">##     mini_temp07   sd_score  2.102           2.162   0.0597   -2.762</span></span>
-<span><span class="co">##     mini_temp07    n_units 11.000          11.000   0.0000    0.000</span></span>
+<span><span class="co">##   initial_gpt4o mean_score  5.636           5.636  0.00000    0.000</span></span>
+<span><span class="co">##   initial_gpt4o   sd_score  2.111           2.111  0.00000    0.000</span></span>
+<span><span class="co">##   initial_gpt4o    n_units 11.000          11.000  0.00000    0.000</span></span>
+<span><span class="co">##  replicate_mini mean_score  5.727           5.636  0.09091    1.613</span></span>
+<span><span class="co">##  replicate_mini   sd_score  1.794           2.111  0.31665  -15.003</span></span>
+<span><span class="co">##  replicate_mini    n_units 11.000          11.000  0.00000    0.000</span></span>
+<span><span class="co">##     mini_temp07 mean_score  5.636           5.636  0.00000    0.000</span></span>
+<span><span class="co">##     mini_temp07   sd_score  2.111           2.111  0.00000    0.000</span></span>
+<span><span class="co">##     mini_temp07    n_units 11.000          11.000  0.00000    0.000</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## abs_diff: Absolute difference from reference</span></span>
 <span><span class="co">## pct_diff: Percent change from reference (positive = increase)</span></span>
@@ -364,13 +364,13 @@ part of your workflow.</p>
 <span>                        model <span class="op">=</span> <span class="st">"openai/gpt-4o"</span>,</span>
 <span>                        params <span class="op">=</span> <span class="fu"><a href="https://ellmer.tidyverse.org/reference/params.html" class="external-link">params</a></span><span class="op">(</span>temperature <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>,</span>
 <span>                        name <span class="op">=</span> <span class="st">"gpt4o_run"</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## [working] (0 + 0) -&gt; 7 -&gt; 4 | <span style="color: #00BB00;">■■■■■■■■■■■■                    </span>  36%</span></span></code></pre>
+<pre><code><span><span class="co">## [working] (0 + 0) -&gt; 10 -&gt; 1 | <span style="color: #00BB00;">■■■■                            </span>   9%</span></span></code></pre>
 <pre><code><span><span class="co">## [working] (0 + 0) -&gt; 0 -&gt; 11 | <span style="color: #00BB00;">■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ </span> 100%</span></span></code></pre>
 <div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">coded_mini</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../../reference/qlm_replicate.html">qlm_replicate</a></span><span class="op">(</span><span class="va">coded_gpt4o</span>,</span>
 <span>                            model <span class="op">=</span> <span class="st">"openai/gpt-4o-mini"</span>,</span>
 <span>                            name <span class="op">=</span> <span class="st">"mini_run"</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## [working] (0 + 0) -&gt; 7 -&gt; 4 | <span style="color: #00BB00;">■■■■■■■■■■■■                    </span>  36%</span></span>
+<pre><code><span><span class="co">## [working] (0 + 0) -&gt; 10 -&gt; 1 | <span style="color: #00BB00;">■■■■                            </span>   9%</span></span>
 <span><span class="co">## [working] (0 + 0) -&gt; 0 -&gt; 11 | <span style="color: #00BB00;">■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ </span> 100%</span></span></code></pre>
 <div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># 2. Compare inter-rater reliability</span></span>
@@ -385,9 +385,9 @@ part of your workflow.</p>
 <span><span class="co">## # Raters:   2 </span></span>
 <span><span class="co">## # Level:    nominal </span></span>
 <span><span class="co">## </span></span>
-<span><span class="co">## Krippendorff's alpha: 0.2650</span></span>
-<span><span class="co">## Cohen's kappa:        0.2596</span></span>
-<span><span class="co">## Percent agreement:    0.3636</span></span></code></pre>
+<span><span class="co">## Krippendorff's alpha: 0.3538</span></span>
+<span><span class="co">## Cohen's kappa:        0.3529</span></span>
+<span><span class="co">## Percent agreement:    0.4545</span></span></code></pre>
 <div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># 3. Validate against gold standard (if you have one)</span></span>
 <span><span class="co"># gold &lt;- data.frame(.id = coded_gpt4o$.id, score = c(2, 3, 1, ...))</span></span>
@@ -404,15 +404,15 @@ part of your workflow.</p>
 <pre><code><span><span class="co">## # quallmer trail (3 runs)</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## 1. gpt4o_run (original)</span></span>
-<span><span class="co">##    2026-01-03 06:20 | openai/gpt-4o</span></span>
+<span><span class="co">##    2026-01-03 06:41 | openai/gpt-4o</span></span>
 <span><span class="co">##    Codebook: Ideological scaling</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## 2. mini_run (parent: gpt4o_run)</span></span>
-<span><span class="co">##    2026-01-03 06:20 | openai/gpt-4o-mini</span></span>
+<span><span class="co">##    2026-01-03 06:41 | openai/gpt-4o-mini</span></span>
 <span><span class="co">##    Codebook: Ideological scaling</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## 3. comparison_2b5e12c6 (parents: gpt4o_run, mini_run)</span></span>
-<span><span class="co">##    2026-01-03 06:20 | unknown</span></span></code></pre>
+<span><span class="co">##    2026-01-03 06:41 | unknown</span></span></code></pre>
 <div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># The trail shows parent-child relationships:</span></span>
 <span><span class="co"># - gpt4o_run (original)</span></span>
