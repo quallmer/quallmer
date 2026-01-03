@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="index.html">quallmer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -16,25 +16,20 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-getting-started" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Getting started</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-getting-started"><li><a class="dropdown-item" href="articles/getting-started.html">Quick start guide</a></li>
+  </ul></li>
+<li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-tutorials" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Tutorials</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-tutorials"><li><a class="dropdown-item" href="articles/getting-started.html">Quick start guide</a></li>
-    <li><a class="dropdown-item" href="articles/pkgdown/tutorials/openai.html">Signing up for an openai API key</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-tutorials"><li><a class="dropdown-item" href="articles/pkgdown/tutorials/openai.html">Signing up for an OpenAI API key</a></li>
     <li><a class="dropdown-item" href="articles/pkgdown/tutorials/ollama.html">Working with an open-source Ollama model</a></li>
-    <li><a class="dropdown-item" href="articles/pkgdown/tutorials/predefined.html">Using predefined tasks</a></li>
-    <li><a class="dropdown-item" href="articles/pkgdown/tutorials/customtask.html">Defining custom tasks</a></li>
-    <li><a class="dropdown-item" href="articles/pkgdown/tutorials/validate.html">Using the Agreement App</a></li>
+    <li><a class="dropdown-item" href="articles/pkgdown/tutorials/custom-codebook.html">Creating codebooks</a></li>
+    <li><a class="dropdown-item" href="articles/pkgdown/tutorials/compare.html">Comparing and replicating coded results</a></li>
     <li><a class="dropdown-item" href="articles/pkgdown/tutorials/trail.html">The quallmer trail</a></li>
+    <li><a class="dropdown-item" href="articles/pkgdown/tutorials/validate.html">Using the Validate App (quallmer.app)</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
-<li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-predefined-tasks" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Predefined tasks</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-predefined-tasks"><li><a class="dropdown-item" href="articles/pkgdown/examples/overview.html">Overview of predefined tasks</a></li>
-    <li><a class="dropdown-item" href="articles/pkgdown/examples/task_sentiment.html">Sentiment analysis</a></li>
-    <li><a class="dropdown-item" href="articles/pkgdown/examples/task_stance.html">Stance detection / position taking</a></li>
-    <li><a class="dropdown-item" href="articles/pkgdown/examples/task_ideology.html">Ideological scaling</a></li>
-    <li><a class="dropdown-item" href="articles/pkgdown/examples/task_salience.html">Salience of topics</a></li>
-    <li><a class="dropdown-item" href="articles/pkgdown/examples/task_fact.html">Fact-checking</a></li>
-  </ul></li>
+<li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="search.json"></form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/SeraphineM/quallmer" aria-label="View on GitHub"><span class="fa fab fa-github"></span></a></li>
@@ -53,7 +48,7 @@
 
 <div class="section level2">
 <h2 id="project-overview">Project Overview<a class="anchor" aria-label="anchor" href="#project-overview"></a></h2>
-<p>quallmer is an R package for qualitative data annotation and validation. It provides: - <code><a href="reference/annotate.html">annotate()</a></code>: Core function for LLM-powered text annotation - <code><a href="reference/validate_app.html">validate_app()</a></code>: Shiny application for validating annotations against gold standards - Integration with the ellmer framework for LLM interactions</p>
+<p>quallmer is an R package for qualitative data annotation and validation. It provides: - <code><a href="reference/annotate.html">annotate()</a></code>: Core function for LLM-powered text annotation - <code>validate_app()</code>: Shiny application for validating annotations against gold standards - Integration with the ellmer framework for LLM interactions</p>
 </div>
 <div class="section level2">
 <h2 id="key-development-commands">Key Development Commands<a class="anchor" aria-label="anchor" href="#key-development-commands"></a></h2>
@@ -100,7 +95,7 @@
 <div class="section level3">
 <h3 id="running-the-shiny-app">Running the Shiny App<a class="anchor" aria-label="anchor" href="#running-the-shiny-app"></a></h3>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">quallmer</span><span class="fu">::</span><span class="fu"><a href="reference/validate_app.html">validate_app</a></span><span class="op">(</span><span class="op">)</span>  <span class="co"># Launch validation interface</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">quallmer</span><span class="fu">::</span><span class="fu">validate_app</span><span class="op">(</span><span class="op">)</span>  <span class="co"># Launch validation interface</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -137,7 +132,7 @@
 <strong>Line length</strong>: Keep reasonable; avoid overly long lines</li>
 <li>
 <strong>Naming</strong>: snake_case for all functions, arguments, and objects
-<ul><li>Examples: <code><a href="reference/trail_settings.html">trail_settings()</a></code>, <code><a href="reference/task_sentiment.html">task_sentiment()</a></code>, <code>gold_standard</code>
+<ul><li>Examples: <code><a href="reference/trail_settings.html">trail_settings()</a></code>, <code>task_sentiment()</code>, <code>gold_standard</code>
 </li>
 </ul></li>
 <li>
@@ -147,6 +142,8 @@
 <li>
 <strong>Imports</strong>: Use namespace-qualified calls: <code><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">dplyr::mutate()</a></code>, <code><a href="https://cli.r-lib.org/reference/cli_abort.html" class="external-link">cli::cli_abort()</a></code>
 </li>
+<li>
+<strong>File endings</strong>: Ensure that source files end with a trailing newline</li>
 </ul></div>
 <div class="section level3">
 <h3 id="error-messages">Error Messages<a class="anchor" aria-label="anchor" href="#error-messages"></a></h3>
@@ -225,7 +222,7 @@ Co-Authored-By: Claude Sonnet 4.5 &lt;noreply@anthropic.com&gt;</code></pre>
 </ul></div>
 <div class="section level3">
 <h3 id="pull-requests">Pull Requests<a class="anchor" aria-label="anchor" href="#pull-requests"></a></h3>
-<p>Use <code>.github/pull_request_template.md</code> to structure PRs. Include: - <strong>Clear summary</strong>: What does this PR do? - <strong>Motivation</strong>: Why is this change needed? - <strong>Scope</strong>: What files/functions are affected? - <strong>Tests</strong>: Add tests for new behavior - <strong>Documentation</strong>: Update man pages, vignettes, or README as needed - <strong>NEWS</strong>: Add bullet to NEWS.md for user-facing changes - <strong>Screenshots</strong>: For UI changes to <code><a href="reference/validate_app.html">validate_app()</a></code>, include before/after screenshots</p>
+<p>Use <code>.github/pull_request_template.md</code> to structure PRs. Include: - <strong>Clear summary</strong>: What does this PR do? - <strong>Motivation</strong>: Why is this change needed? - <strong>Scope</strong>: What files/functions are affected? - <strong>Tests</strong>: Add tests for new behavior - <strong>Documentation</strong>: Update man pages, vignettes, or README as needed - <strong>NEWS</strong>: Add bullet to NEWS.md for user-facing changes - <strong>Screenshots</strong>: For UI changes to <code>validate_app()</code>, include before/after screenshots</p>
 </div>
 <div class="section level3">
 <h3 id="newsmd-entries">NEWS.md Entries<a class="anchor" aria-label="anchor" href="#newsmd-entries"></a></h3>
@@ -295,7 +292,7 @@ Co-Authored-By: Claude Sonnet 4.5 &lt;noreply@anthropic.com&gt;</code></pre>
 <h3 id="updating-the-shiny-app">Updating the Shiny App<a class="anchor" aria-label="anchor" href="#updating-the-shiny-app"></a></h3>
 <ol style="list-style-type: decimal"><li>Modify <code>R/validate_app.R</code>
 </li>
-<li>Test interactively with <code><a href="reference/validate_app.html">quallmer::validate_app()</a></code>
+<li>Test interactively with <code>quallmer::validate_app()</code>
 </li>
 <li>Add tests in <code>tests/testthat/test-validate_app.R</code>
 </li>
@@ -323,7 +320,12 @@ Co-Authored-By: Claude Sonnet 4.5 &lt;noreply@anthropic.com&gt;</code></pre>
 <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown documentation</a>: Website generation</li>
 <li>
 <a href="https://ellmer.tidyverse.org/" class="external-link">ellmer documentation</a>: LLM integration framework</li>
+<li><a href="https://seraphinem.github.io/quallmer/index.html">quallmer documentation</a></li>
 </ul></div>
+<div class="section level2">
+<h2 id="general-attitude">General attitude<a class="anchor" aria-label="anchor" href="#general-attitude"></a></h2>
+<p>If I suggest a change, think about it critically, don’t just tell me that it is a great or brilliant improvement and start trying to implement it. Not all of my suggestions will be great.</p>
+</div>
 </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

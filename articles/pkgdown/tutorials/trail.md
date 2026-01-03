@@ -1,23 +1,35 @@
 # The quallmer trail
 
-In this tutorial, we will walk through the `quallmer` trail
-functionality step-by-step. The trail functions allow users to
-systematically compare LLM-generated annotations across multiple runs
-with different settings, ensuring reproducibility and reliability of the
-results.
+In this tutorial, we will explore the quallmer trail system, which
+automatically captures provenance metadata for full workflow
+traceability. The trail system helps you:
 
-## Loading packages and data and defining a task
+- Track the complete history of your coding workflow
+- Document model parameters and settings used
+- Assess robustness of downstream analyses
+- Maintain parent-child relationships across coding runs
+- Export provenance information for reproducibility
+- Generate human-readable reports of your analysis pipeline
 
-We will start by loading the necessary packages and a sample dataset. We
-will then define a custom task that we want the LLMs to perform.
+## Understanding provenance tracking
 
-### Loading packages and data
+All `qlm_coded`, `qlm_comparison`, and `qlm_validation` objects in
+quallmer automatically capture provenance metadata, including:
+
+- **Run name**: A unique identifier for each coding run
+- **Timestamp**: When the coding was executed
+- **Model**: The LLM model and parameters used
+- **Codebook**: The coding instructions applied
+- **Parent runs**: Links to previous runs in a replication chain
+- **Metadata**: Package versions, number of units coded, etc.
+
+This metadata enables full workflow traceability.
+
+## Loading packages and data
 
 ``` r
-# We will use the quanteda package 
-# for loading a sample corpus of innaugural speeches
-# If you have not yet installed the quanteda package, you can do so by:
-# install.packages("quanteda")
+# We will use the quanteda package
+# for loading a sample corpus of inaugural speeches
 library(quanteda)
 ```
 
@@ -36,299 +48,377 @@ library(quallmer)
     ## Loading required package: ellmer
 
 ``` r
-# For educational purposes, 
+# For educational purposes,
 # we will use a subset of the inaugural speeches corpus
-# The three most recent speeches in the corpus
-data_corpus_inaugural <- quanteda::data_corpus_inaugural[57:60]
-# turn corpus into data frame
-data_corpus_inaugural <- quanteda::convert(data_corpus_inaugural, to = "data.frame")
+data_corpus_inaugural <- quanteda::data_corpus_inaugural[50:60]
 ```
 
-### Defining a custom prompt
+## Creating a workflow with provenance tracking
 
-This is very similar to defining a custom prompt for the
-[`annotate()`](https://seraphinem.github.io/quallmer/reference/annotate.md)
-function. Here, we define a prompt that instructs the LLM to score
-documents based on their alignment with the political left.
+Let’s build a coding workflow that demonstrates the trail system. We’ll
+use sentiment analysis as our example.
+
+### Initial coding run
 
 ``` r
-prompt <- "Score the following document on a scale of how much it aligns
-with the political left. The political left is defined as groups which
-advocate for social equality, government intervention in the economy,
-and progressive policies. Use the following metrics:
-SCORING METRIC:
-3 : extremely left
-2 : very left
-1 : slightly left
-0 : not at all left"
+# For this tutorial, we'll use the built-in sentiment codebook
+# For real research, you would create a custom codebook tailored to your
+# specific research question (see the "Creating codebooks" tutorial)
+
+# Code with GPT-4o (note the 'name' parameter for tracking)
+coded1 <- qlm_code(data_corpus_inaugural,
+                   codebook = data_codebook_ideology,
+                   model = "openai/gpt-4o",
+                   params = params(temperature = 0),
+                   name = "initial_gpt4o")
 ```
 
-### Defining the structure of the response with define_task()
+    ## [working] (0 + 0) -> 10 -> 1 | ■■■■                               9%
 
-The [`task()`](https://seraphinem.github.io/quallmer/reference/task.md)
-function allows us to specify the expected structure of the LLM’s
-response. It has the following important arguments which users need to
-specify:
-
-- `name`: A descriptive name for the task.
-- `system_prompt`: The prompt that guides the LLM on how to perform the
-  task.
-- `type_def`: Defines the expected structure of the response using
-  [ellmer’s type
-  specifications](https://ellmer.tidyverse.org/reference/type_boolean.html)
-  such as
-  [`type_object()`](https://ellmer.tidyverse.org/reference/type_boolean.html),
-  [`type_array()`](https://ellmer.tidyverse.org/reference/type_boolean.html),
-  etc.
-
-For more information on how to use ellmer’s type specifications, please
-refer to the [ellmer documentation on type
-specifications](https://ellmer.tidyverse.org/reference/type_boolean.html).
+    ## [working] (0 + 0) -> 0 -> 11 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100%
 
 ``` r
-# Define the custom task using task()
-ideology_scores <- task(
-  name = "Score Political Left Alignment",
-  system_prompt = prompt,
-  type_def = type_object(
-    score = type_number("Score"),
-    explanation = type_string("Explanation")
-  ),
-  input_type = "text"
-)
+# Each qlm_coded object has a 'run' attribute with metadata
+attr(coded1, "run")$name
 ```
 
-## Define different trail settings
-
-After having defined our task, we can now set up different trail
-settings to compare how different LLM configurations affect the results.
-For this, we can use the
-[`trail_settings()`](https://seraphinem.github.io/quallmer/reference/trail_settings.md)
-function. In this example, we will create four settings with different
-models and different temperature values to see how they affect the LLM’s
-responses.
+    ## [1] "initial_gpt4o"
 
 ``` r
-setting_gptmini0 <- trail_settings(
-provider = "openai",
-model = "gpt-4o-mini",
-)
-
-setting_gptmini7 <- trail_settings(
-provider = "openai",
-model = "gpt-4o-mini",
-temperature = 0.7
-)
-
-setting_gpt400 <- trail_settings(
-provider = "openai",
-model = "gpt-4o",
-temperature = 0
-)
-
-setting_gpt407 <- trail_settings(
-provider = "openai",
-model = "gpt-4o",
-temperature = 0.7
-)
+attr(coded1, "run")$metadata$timestamp
 ```
 
-## Record a single trail with a specific setting
+    ## [1] "2026-01-03 06:20:34 UTC"
 
-We can use the
-[`trail_record()`](https://seraphinem.github.io/quallmer/reference/trail_record.md)
-function to record a single trail with a specific setting. This is
-useful for ensuring reproducibility of results with a given
-configuration. The example below shows how to record metadata for a
-trail using the `setting_T0` defined earlier. The result of this
-function is a data frame containing the LLM-generated annotations for
-each document in the dataset as well as the associated metadata such as
-the setting used, the task, the data, timestamp, etc. You can save this
-output for future reference to ensure that you can reproduce the results
-later. You can also share this output with others to allow them to
-verify your findings.
+### Creating a replication chain
+
+When you use
+[`qlm_replicate()`](https://seraphinem.github.io/quallmer/reference/qlm_replicate.md),
+the new run automatically links to its parent:
 
 ``` r
-rec_T0 <- trail_record(
-data = data_corpus_inaugural,
-text_col = "text",
-task = ideology_scores,
-setting = setting_gptmini0,
-id_col = "doc_id"
-)
+# Replicate with GPT-4o-mini
+coded2 <- qlm_replicate(coded1,
+                        model = "openai/gpt-4o-mini",
+                        name = "replicate_mini")
 ```
 
-    ## [working] (0 + 0) -> 3 -> 1 | ■■■■■■■■■                         25%
+    ## [working] (0 + 0) -> 10 -> 1 | ■■■■                               9%
 
-    ## [working] (0 + 0) -> 0 -> 4 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100%
+    ## [working] (0 + 0) -> 0 -> 11 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100%
 
 ``` r
-# Display the recorded trail's settings
-library(dplyr)
+# Check the parent relationship
+attr(coded2, "run")$parent  # Shows "initial_gpt4o"
 ```
 
-    ## 
-    ## Attaching package: 'dplyr'
-
-    ## The following objects are masked from 'package:stats':
-    ## 
-    ##     filter, lag
-
-    ## The following objects are masked from 'package:base':
-    ## 
-    ##     intersect, setdiff, setequal, union
+    ## [1] "initial_gpt4o"
 
 ``` r
-library(kableExtra)
+# Replicate again with different temperature
+coded3 <- qlm_replicate(coded2,
+                        params = params(temperature = 0.7),
+                        name = "mini_temp07")
 ```
 
-    ## 
-    ## Attaching package: 'kableExtra'
-
-    ## The following object is masked from 'package:dplyr':
-    ## 
-    ##     group_rows
+    ## [working] (0 + 0) -> 3 -> 8 | ■■■■■■■■■■■■■■■■■■■■■■■           73%
+    ## [working] (0 + 0) -> 0 -> 11 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100%
 
 ``` r
-meta_df <- tibble(
-  field = names(rec_T0$meta),
-  value = vapply(rec_T0$meta, function(x) {
-    if (is.list(x)) {
-      # pretty-print lists
-      paste(capture.output(str(x, max.level = 1)), collapse = "<br>")
-    } else if (length(x) > 1) {
-      paste(x, collapse = ", ")
-    } else {
-      as.character(x)
-    }
-  }, FUN.VALUE = character(1))
-)
-
-meta_df %>%
-  kable("html", escape = FALSE, col.names = c("Field", "Value")) %>%
-  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE) %>%
-  column_spec(1, bold = TRUE)
+# This creates a chain: initial_gpt4o -> replicate_mini -> mini_temp07
+attr(coded3, "run")$parent  # Shows "replicate_mini"
 ```
 
-| Field        | Value                      |
-|:-------------|:---------------------------|
-| timestamp    | 2025-12-31 03:15:49.600708 |
-| n_rows       | 4                          |
-| provider     | openai                     |
-| model        | gpt-4o-mini                |
-| temperature  | 0                          |
-| api_extra    | list()                     |
-| cache_dir    | NA                         |
-| cache_path   | NA                         |
-| id_col       | doc_id                     |
-| text_col     | text                       |
-| task_class   | task                       |
-| quallmer_ver | 0.1.1                      |
-| ellmer_ver   | 0.4.0                      |
-| R_ver        | 4.5.2                      |
+    ## [1] "replicate_mini"
 
-## Run multiple trails with different settings
+## Extracting and displaying provenance trails
 
-This step involves running the same task and data across multiple
-settings using the
-[`trail_compare()`](https://seraphinem.github.io/quallmer/reference/trail_compare.md)
-function. This allows us to see how different configurations impact the
-LLM’s outputs.
+The
+[`qlm_trail()`](https://seraphinem.github.io/quallmer/reference/qlm_trail.md)
+function extracts and displays the complete provenance chain from your
+quallmer objects.
+
+### Viewing a single run
 
 ``` r
-left_trails <- trail_compare(
-data = data_corpus_inaugural,
-text_col = "text",
-task = ideology_scores,
-settings = list(
-  T0 = setting_gptmini0,
-  T07 = setting_gptmini7,
-  T40 = setting_gpt400,
-  T407 = setting_gpt407
-),
-id_col = "doc_id",
-label_col = "score"
-)
+# Extract trail from a single object
+trail1 <- qlm_trail(coded1)
+
+# Print the trail
+trail1
 ```
 
-    ## [working] (0 + 0) -> 3 -> 1 | ■■■■■■■■■                         25%
+    ## # quallmer trail
+    ## Run:     initial_gpt4o
+    ## Created: 2026-01-03 06:20:34
+    ## Model:   openai/gpt-4o
 
-    ## [working] (0 + 0) -> 0 -> 4 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100%
+This displays: - Run name - Parent (if any) - Creation timestamp - Model
+used
 
-    ## [working] (0 + 0) -> 3 -> 1 | ■■■■■■■■■                         25%
+### Reconstructing a complete chain
 
-    ## [working] (0 + 0) -> 0 -> 4 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100%
-
-    ## [working] (0 + 0) -> 1 -> 3 | ■■■■■■■■■■■■■■■■■■■■■■■           75%
-
-    ## [working] (0 + 0) -> 0 -> 4 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100%
-
-    ## [working] (0 + 0) -> 2 -> 2 | ■■■■■■■■■■■■■■■■                  50%
-
-    ## [working] (0 + 0) -> 0 -> 4 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100%
+To see the full provenance chain, provide all objects in the lineage:
 
 ``` r
-# Display the annotation matrix
-left_trails$matrix
+# Provide all objects to reconstruct the complete chain
+full_trail <- qlm_trail(coded3, coded2, coded1)
+
+# Print shows the complete history
+full_trail
 ```
 
-    ## # A tibble: 4 × 5
-    ##   doc_id        T0   T07   T40  T407
-    ##   <chr>      <dbl> <dbl> <dbl> <dbl>
-    ## 1 2013-Obama     2     2     2     3
-    ## 2 2017-Trump     0     0     0     0
-    ## 3 2021-Biden     2     2     2     2
-    ## 4 2025-Trump     0     0     0     0
+    ## # quallmer trail (3 runs)
+    ## 
+    ## 1. initial_gpt4o (original)
+    ##    2026-01-03 06:20 | openai/gpt-4o
+    ##    Codebook: Ideological scaling
+    ## 
+    ## 2. replicate_mini (parent: initial_gpt4o)
+    ##    2026-01-03 06:20 | openai/gpt-4o-mini
+    ##    Codebook: Ideological scaling
+    ## 
+    ## 3. mini_temp07 (parent: replicate_mini)
+    ##    2026-01-03 06:20 | openai/gpt-4o-mini
+    ##    Codebook: Ideological scaling
+
+The output shows:
+
+- All runs in chronological order
+- Parent-child relationships
+- Model and parameter changes across runs
+- Timestamps for each step
+- Codebook used
+
+## Assessing robustness of downstream analysis
+
+The
+[`qlm_trail_robustness()`](https://seraphinem.github.io/quallmer/reference/qlm_trail_robustness.md)
+function helps you assess whether your **substantive findings** change
+across different models or settings. Instead of just comparing raw coded
+values (as qlm_compare() already does), it compares the results of your
+downstream analysis (means, proportions, correlations, etc.).
+
+### Defining your downstream analysis
+
+First, define a function that performs your analysis on coded data:
 
 ``` r
-# Display the intercoder reliability results
-left_trails$icr
+# Define what analysis you want to compare
+my_analysis <- function(coded) {
+  list(
+    mean_score = mean(coded$score, na.rm = TRUE),
+    sd_score = sd(coded$score, na.rm = TRUE),
+    n_units = sum(!is.na(coded$score))
+  )
+}
 ```
 
-    ## $units_included
-    ## [1] 4
-    ## 
-    ## $coders
-    ## [1] 4
-    ## 
-    ## $categories
-    ## [1] 3
-    ## 
-    ## $percent_unanimous_units
-    ## [1] 0.75
-    ## 
-    ## $mean_pairwise_percent_agreement
-    ## [1] 0.875
-    ## 
-    ## $mean_pairwise_cohens_kappa
-    ## [1] 0.8
-    ## 
-    ## $kripp_alpha_nominal
-    ## [1] 0.7793
-    ## 
-    ## $fleiss_kappa
-    ## [1] 0.7746
+The analysis function should: - Take a `qlm_coded` object as input -
+Return a named list of numeric statistics - Each statistic should be a
+single number (e.g., mean, proportion, correlation)
 
-The output above shows the annotation matrix where each row corresponds
-to a document and each column corresponds to a different trail setting.
-The values in the matrix represent the scores assigned by the LLM under
-each configuration. This allows us to see how consistent the LLM’s
-annotations are across different settings.
+### Computing robustness
 
-The intercoder reliability results provide a quantitative measure of
-agreement between the different trail settings. Higher values indicate
-greater consistency in the LLM’s annotations across configurations.
+``` r
+# Compute how much your analysis results differ across models
+robustness <- qlm_trail_robustness(coded1, coded2, coded3,
+                                   reference = "initial_gpt4o",
+                                   analysis_fn = my_analysis)
 
-Overall, the trail functionality in the `quallmer` package provides a
-systematic way to assess the reproducibility and reliability of
-LLM-generated annotations by **recording metadata for single LLM runs
-and and comparing results across multiple runs with different
-configurations.** This is particularly useful for researchers who want
-to ensure that their findings are robust and not overly dependent on
-specific LLM settings. It also helps with the decision of which model
-and settings to use for a given annotation task.
+# View the robustness scale
+robustness
+```
 
-Still to come: We plan to add a function that generates sensitivity
-ranges — effectively mapping how much key settings can vary while still
-producing stable downstream results, and identifying when those results
-begin to shift. **Stay tuned for updates!**
+    ## # Downstream Analysis Robustness
+    ## Reference run: initial_gpt4o
+    ## 
+    ##             run  statistic  value reference_value abs_diff pct_diff
+    ##   initial_gpt4o mean_score  5.545           5.545   0.0000    0.000
+    ##   initial_gpt4o   sd_score  2.162           2.162   0.0000    0.000
+    ##   initial_gpt4o    n_units 11.000          11.000   0.0000    0.000
+    ##  replicate_mini mean_score  5.818           5.545   0.2727    4.918
+    ##  replicate_mini   sd_score  1.834           2.162   0.3276  -15.156
+    ##  replicate_mini    n_units 11.000          11.000   0.0000    0.000
+    ##     mini_temp07 mean_score  5.727           5.545   0.1818    3.279
+    ##     mini_temp07   sd_score  2.102           2.162   0.0597   -2.762
+    ##     mini_temp07    n_units 11.000          11.000   0.0000    0.000
+    ## 
+    ## abs_diff: Absolute difference from reference
+    ## pct_diff: Percent change from reference (positive = increase)
+    ## 
+    ## Smaller differences indicate more robust findings.
+
+The output shows:
+
+- **run**: Name of each run
+- **statistic**: Which analysis statistic (e.g., mean_score)
+- **value**: Value from this run
+- **reference_value**: Value from the reference run
+- **abs_diff**: Absolute difference from reference
+- **pct_diff**: Percent change from reference
+
+### Interpreting robustness
+
+``` r
+# Check which statistics have large differences (>5% change)
+concerning <- robustness[abs(robustness$pct_diff) > 5 & !is.na(robustness$pct_diff), ]
+
+# Check which are highly stable (<1% change)
+stable <- robustness[abs(robustness$pct_diff) < 1 & !is.na(robustness$pct_diff), ]
+```
+
+**Interpretation guidelines:**
+
+- **\<1% difference**: Highly robust, findings are very stable
+- **1-5% difference**: Good robustness, minor variations
+- **5-10% difference**: Moderate robustness, some sensitivity
+- **\>10% difference**: Low robustness, conclusions may change
+
+The acceptable threshold depends on your research context and the
+magnitude of effects you’re studying.
+
+## Integrating comparisons and validations
+
+The trail system automatically tracks comparisons and validations as
+part of your workflow.
+
+### Complete workflow example
+
+``` r
+# 1. Code with two different models
+coded_gpt4o <- qlm_code(data_corpus_inaugural,
+                        codebook = data_codebook_ideology,
+                        model = "openai/gpt-4o",
+                        params = params(temperature = 0),
+                        name = "gpt4o_run")
+```
+
+    ## [working] (0 + 0) -> 7 -> 4 | ■■■■■■■■■■■■                      36%
+
+    ## [working] (0 + 0) -> 0 -> 11 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100%
+
+``` r
+coded_mini <- qlm_replicate(coded_gpt4o,
+                            model = "openai/gpt-4o-mini",
+                            name = "mini_run")
+```
+
+    ## [working] (0 + 0) -> 7 -> 4 | ■■■■■■■■■■■■                      36%
+    ## [working] (0 + 0) -> 0 -> 11 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100%
+
+``` r
+# 2. Compare inter-rater reliability
+comparison <- qlm_compare(coded_gpt4o, coded_mini,
+                          by = "score",
+                          level = "nominal")
+
+# View the comparison results
+print(comparison)
+```
+
+    ## # Inter-rater reliability
+    ## # Subjects: 11 
+    ## # Raters:   2 
+    ## # Level:    nominal 
+    ## 
+    ## Krippendorff's alpha: 0.2650
+    ## Cohen's kappa:        0.2596
+    ## Percent agreement:    0.3636
+
+``` r
+# 3. Validate against gold standard (if you have one)
+# gold <- data.frame(.id = coded_gpt4o$.id, score = c(2, 3, 1, ...))
+# validation <- qlm_validate(coded_gpt4o, gold = gold, by = "score")
+# print(validation)
+```
+
+### Viewing complete workflow trail
+
+``` r
+# Get full provenance trail including comparisons
+full_trail <- qlm_trail(coded_gpt4o, coded_mini, comparison)
+print(full_trail)
+```
+
+    ## # quallmer trail (3 runs)
+    ## 
+    ## 1. gpt4o_run (original)
+    ##    2026-01-03 06:20 | openai/gpt-4o
+    ##    Codebook: Ideological scaling
+    ## 
+    ## 2. mini_run (parent: gpt4o_run)
+    ##    2026-01-03 06:20 | openai/gpt-4o-mini
+    ##    Codebook: Ideological scaling
+    ## 
+    ## 3. comparison_2b5e12c6 (parents: gpt4o_run, mini_run)
+    ##    2026-01-03 06:20 | unknown
+
+``` r
+# The trail shows parent-child relationships:
+# - gpt4o_run (original)
+# - mini_run (parent: gpt4o_run)
+# - comparison_... (parents: gpt4o_run, mini_run)
+```
+
+## Exporting and documenting your workflow
+
+You can export your trail for documentation and reproducibility:
+
+``` r
+# Extract the full trail
+trail <- qlm_trail(coded_gpt4o, coded_mini, comparison)
+
+# Save as RDS for archival
+# qlm_trail_save(trail, "my_workflow_trail.rds")
+
+# Export as JSON for portability
+# qlm_trail_export(trail, "my_workflow_trail.json")
+
+# Generate a human-readable report
+# qlm_trail_report(trail, "my_workflow_report.qmd")
+
+# Include comparison metrics in the report
+# qlm_trail_report(trail, "my_workflow_report.qmd", include_comparisons = TRUE)
+
+# Include both comparisons and validations
+# qlm_trail_report(trail, "my_workflow_report.qmd",
+#                  include_comparisons = TRUE,
+#                  include_validations = TRUE)
+```
+
+The generated report includes:
+
+- Timeline of all coding runs
+- Model settings and parameters
+- Comparison and validation metrics (if `include_comparisons` or
+  `include_validations` is `TRUE`)
+- System information for reproducibility
+
+## Summary
+
+The quallmer trail system automatically tracks your coding workflow:
+
+- **Provenance tracking**: All runs are timestamped with model and
+  parameter information
+- **Parent-child links**:
+  [`qlm_replicate()`](https://seraphinem.github.io/quallmer/reference/qlm_replicate.md)
+  maintains relationships between runs
+- **Quality assessment**: Use
+  [`qlm_compare()`](https://seraphinem.github.io/quallmer/reference/qlm_compare.md)
+  to check agreement and
+  [`qlm_trail_robustness()`](https://seraphinem.github.io/quallmer/reference/qlm_trail_robustness.md)
+  to test if conclusions change
+- **Documentation**: Export trails for methods sections and replication
+  packages
+
+**Best practices:**
+
+1.  Name your runs with the `name` parameter
+2.  Use
+    [`qlm_compare()`](https://seraphinem.github.io/quallmer/reference/qlm_compare.md)
+    to assess inter-rater reliability
+3.  Use
+    [`qlm_trail_robustness()`](https://seraphinem.github.io/quallmer/reference/qlm_trail_robustness.md)
+    to check if your findings are stable across models
+4.  Export trails for transparency and reproducibility

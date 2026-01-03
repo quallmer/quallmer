@@ -1,8 +1,6 @@
-# Convert Trail records to coder-style wide data
+# Convert Trail records to coder-style wide data (deprecated)
 
-Treat each setting/record in a `trail_compare` object as a separate
-coder and convert the annotations into a wide data frame suitable for
-intercoder reliability analysis or other comparisons.
+**\[deprecated\]**
 
 ## Usage
 
@@ -32,3 +30,9 @@ trail_matrix(x, id_col = "id", label_col = "label")
 
 A data frame with one row per unit and one column per setting/record.
 The unit ID column is retained under the name `id_col`.
+
+## Details
+
+`trail_matrix()` is deprecated. Use
+[`qlm_compare()`](https://seraphinem.github.io/quallmer/reference/qlm_compare.md)
+to compare multiple coded objects directly.

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">quallmer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -16,25 +16,20 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-getting-started" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Getting started</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-getting-started"><li><a class="dropdown-item" href="../articles/getting-started.html">Quick start guide</a></li>
+  </ul></li>
+<li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-tutorials" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Tutorials</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-tutorials"><li><a class="dropdown-item" href="../articles/getting-started.html">Quick start guide</a></li>
-    <li><a class="dropdown-item" href="../articles/pkgdown/tutorials/openai.html">Signing up for an openai API key</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-tutorials"><li><a class="dropdown-item" href="../articles/pkgdown/tutorials/openai.html">Signing up for an OpenAI API key</a></li>
     <li><a class="dropdown-item" href="../articles/pkgdown/tutorials/ollama.html">Working with an open-source Ollama model</a></li>
-    <li><a class="dropdown-item" href="../articles/pkgdown/tutorials/predefined.html">Using predefined tasks</a></li>
-    <li><a class="dropdown-item" href="../articles/pkgdown/tutorials/customtask.html">Defining custom tasks</a></li>
-    <li><a class="dropdown-item" href="../articles/pkgdown/tutorials/validate.html">Using the Agreement App</a></li>
+    <li><a class="dropdown-item" href="../articles/pkgdown/tutorials/custom-codebook.html">Creating codebooks</a></li>
+    <li><a class="dropdown-item" href="../articles/pkgdown/tutorials/compare.html">Comparing and replicating coded results</a></li>
     <li><a class="dropdown-item" href="../articles/pkgdown/tutorials/trail.html">The quallmer trail</a></li>
+    <li><a class="dropdown-item" href="../articles/pkgdown/tutorials/validate.html">Using the Validate App (quallmer.app)</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-predefined-tasks" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Predefined tasks</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-predefined-tasks"><li><a class="dropdown-item" href="../articles/pkgdown/examples/overview.html">Overview of predefined tasks</a></li>
-    <li><a class="dropdown-item" href="../articles/pkgdown/examples/task_sentiment.html">Sentiment analysis</a></li>
-    <li><a class="dropdown-item" href="../articles/pkgdown/examples/task_stance.html">Stance detection / position taking</a></li>
-    <li><a class="dropdown-item" href="../articles/pkgdown/examples/task_ideology.html">Ideological scaling</a></li>
-    <li><a class="dropdown-item" href="../articles/pkgdown/examples/task_salience.html">Salience of topics</a></li>
-    <li><a class="dropdown-item" href="../articles/pkgdown/examples/task_fact.html">Fact-checking</a></li>
-  </ul></li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/SeraphineM/quallmer" aria-label="View on GitHub"><span class="fa fab fa-github"></span></a></li>
@@ -60,10 +55,38 @@
 
       <dl><dt>
 
-          <code><a href="annotate.html">annotate()</a></code>
+          <code><a href="data_codebook_fact.html">data_codebook_fact</a></code>
 
         </dt>
-        <dd>Apply an annotation task to input data</dd>
+        <dd>Fact-checking codebook</dd>
+
+        <dt>
+
+          <code><a href="data_codebook_ideology.html">data_codebook_ideology</a></code>
+
+        </dt>
+        <dd>Ideological scaling codebook for left-right dimension</dd>
+
+        <dt>
+
+          <code><a href="data_codebook_salience.html">data_codebook_salience</a></code>
+
+        </dt>
+        <dd>Topic salience codebook</dd>
+
+        <dt>
+
+          <code><a href="data_codebook_sentiment.html">data_codebook_sentiment</a></code>
+
+        </dt>
+        <dd>Sentiment analysis codebook for movie reviews</dd>
+
+        <dt>
+
+          <code><a href="data_codebook_stance.html">data_codebook_stance</a></code>
+
+        </dt>
+        <dd>Stance detection codebook for climate change</dd>
 
         <dt>
 
@@ -81,94 +104,73 @@
 
         <dt>
 
-          <code><a href="task.html">task()</a></code>
+          <code><a href="qlm_code.html">qlm_code()</a></code>
 
         </dt>
-        <dd>Define an annotation task</dd>
+        <dd>Code qualitative data with an LLM</dd>
 
         <dt>
 
-          <code><a href="task_fact.html">task_fact()</a></code>
+          <code><a href="qlm_codebook.html">qlm_codebook()</a></code>
 
         </dt>
-        <dd>Predefined task for overall truthfulness assessment</dd>
+        <dd>Define a qualitative codebook</dd>
 
         <dt>
 
-          <code><a href="task_ideology.html">task_ideology()</a></code>
+          <code><a href="qlm_compare.html">qlm_compare()</a></code>
 
         </dt>
-        <dd>Predefined task for ideological scaling on a specified dimension</dd>
+        <dd>Compare coded results for inter-rater reliability</dd>
 
         <dt>
 
-          <code><a href="task_salience.html">task_salience()</a></code>
+          <code><a href="qlm_replicate.html">qlm_replicate()</a></code>
 
         </dt>
-        <dd>Predefined task for salience of topics discussed (ranked topics)</dd>
+        <dd>Replicate a coding task</dd>
 
         <dt>
 
-          <code><a href="task_sentiment.html">task_sentiment()</a></code>
+          <code><a href="qlm_trail.html">qlm_trail()</a></code>
 
         </dt>
-        <dd>Predefined task for sentiment analysis</dd>
+        <dd>Extract provenance trail from quallmer objects</dd>
 
         <dt>
 
-          <code><a href="task_stance.html">task_stance()</a></code>
+          <code><a href="qlm_trail_export.html">qlm_trail_export()</a></code>
 
         </dt>
-        <dd>Predefined task for stance detection (position taking)</dd>
+        <dd>Export trail to JSON</dd>
 
         <dt>
 
-          <code><a href="trail_compare.html">trail_compare()</a></code>
+          <code><a href="qlm_trail_report.html">qlm_trail_report()</a></code>
 
         </dt>
-        <dd>trail_compare: run a task across multiple settings and compute reliability</dd>
+        <dd>Generate trail report</dd>
 
         <dt>
 
-          <code><a href="trail_icr.html">trail_icr()</a></code>
+          <code><a href="qlm_trail_robustness.html">qlm_trail_robustness()</a></code>
 
         </dt>
-        <dd>Compute intercoder reliability across Trail settings</dd>
+        <dd>Compute robustness scale showing downstream analysis changes</dd>
 
         <dt>
 
-          <code><a href="trail_matrix.html">trail_matrix()</a></code>
+          <code><a href="qlm_trail_save.html">qlm_trail_save()</a></code>
 
         </dt>
-        <dd>Convert Trail records to coder-style wide data</dd>
+        <dd>Save trail to RDS file</dd>
 
         <dt>
 
-          <code><a href="trail_record.html">trail_record()</a></code>
+          <code><a href="qlm_validate.html">qlm_validate()</a></code>
 
         </dt>
-        <dd>Trail record: reproducible quallmer annotation</dd>
-
-        <dt>
-
-          <code><a href="trail_settings.html">trail_settings()</a></code>
-
-        </dt>
-        <dd>Trail settings specification</dd>
-
-        <dt>
-
-          <code><a href="validate.html">validate()</a></code>
-
-        </dt>
-        <dd>Validate coding: intercoder reliability or gold-standard comparison</dd>
-
-        <dt>
-
-          <code><a href="validate_app.html">validate_app()</a></code>
-
-        </dt>
-        <dd>Launch the Validate App</dd>
+        <dd>Validate coded results against a gold standard</dd>
       </dl></div>
   </main></div>
 

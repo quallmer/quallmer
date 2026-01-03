@@ -46,12 +46,12 @@ Analysis](http://ai.stanford.edu/~amaas/papers/wvSent_acl2011.pdf)". The
 if (FALSE) { # \dontrun{
 library(quanteda)
 
-# define a sentiment task
-task_posneg <- task(
+# define a sentiment codebook
+codebook_posneg <- qlm_codebook(
   name = "Sentiment analysis of movie reviews",
-  system_prompt = "You will rate the sentiment from movie reviews.",
-  type_def = type_object(
-    polarity_llm = type_enum(c("pos", "neg"),
+  instructions = "You will rate the sentiment from movie reviews.",
+  schema = type_object(
+    polarity = type_enum(c("pos", "neg"),
     description = "Sentiment label (pos = positive, neg = negative")
   )
 )
@@ -60,10 +60,12 @@ set.seed(10001)
 test_corpus <- data_corpus_LMRDsample %>%
   corpus_sample(size = 10, by = polarity)
 
-result <- test_corpus %>%
-  annotate(task_posneg, chat_fn = chat_openai, model = "gpt-4.1-mini") %>%
-  cbind(data.frame(polarity_human = test_corpus$polarity))
+result <- qlm_code(test_corpus, codebook_posneg, model = "openai/gpt-4o-mini")
 
-agreement(result, "id", coder_cols = c("polarity_llm", "polarity_human"))
+# Create gold standard from corpus metadata
+gold <- data.frame(.id = result$.id, polarity = test_corpus$polarity)
+
+# Validate against human annotations
+qlm_validate(result, gold, by = "polarity")
 } # }
 ```

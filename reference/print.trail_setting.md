@@ -1,6 +1,6 @@
-# Print method for trail_setting
+# Print a trail_setting object
 
-Print method for trail_setting
+Print a trail_setting object
 
 ## Usage
 
@@ -13,8 +13,13 @@ print(x, ...)
 
 - x:
 
-  A `trail_setting` object.
+  A trail_setting object.
 
 - ...:
 
-  Ignored.
+  Additional arguments passed to print methods.
+
+## Value
+
+Invisibly returns the input object `x`. Called for side effects
+(printing to console).

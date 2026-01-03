@@ -1,10 +1,10 @@
 # Getting started with quallmer
 
-The `quallmer` package is developed to help qualitative researchers
-leverage the power of large language models for tasks such as coding,
-annotation, and thematic analysis. It is user-friendly and does not
-require extensive programming knowledge, making it accessible to
-researchers from various backgrounds.
+The `quallmer` package helps qualitative researchers leverage the power
+of large language models for tasks such as coding, annotation, and
+thematic analysis. It is user-friendly and does not require extensive
+programming knowledge, making it accessible to researchers from various
+backgrounds.
 
 Our tutorials provide a brief introduction to the `quallmer` package,
 which is designed to facilitate the use of large language models (LLMs)
@@ -43,24 +43,36 @@ library(quallmer)
 ## Overview of tutorials
 
 Before using large language models, most users will need to sign up for
-an API key from an LLM provider, such as openai, or download an
+an API key from an LLM provider, such as OpenAI, or download an
 open-source model like those from Ollama. The `quallmer` package
 supports multiple LLM providers through the `ellmer` package, allowing
 users to choose the one that best fits their needs.
 
 Using
-[`annotate()`](https://seraphinem.github.io/quallmer/reference/annotate.md),
+[`qlm_code()`](https://seraphinem.github.io/quallmer/reference/qlm_code.md),
 users can generate structured, interpretable outputs powered by large
-language models (LLMs). The package includes a library of [predefined
-tasks for common qualitative coding
-needs](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/overview.html),
-such as sentiment analysis, thematic coding, and stance detection. It
-also allows users to [create their own custom annotation tasks tailored
-to their specific research questions and data
-types](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/customtask.html)
+language models (LLMs). The package allows users to [create their own
+custom codebooks tailored to their specific research questions and data
+types](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/custom-codebook.html)
 using
-[`task()`](https://seraphinem.github.io/quallmer/reference/task.md). Our
-tutorials will guide you through the following topics:
+[`qlm_codebook()`](https://seraphinem.github.io/quallmer/reference/qlm_codebook.md).
+The package also includes a library of [example codebooks illustrating
+common qualitative coding
+workflows](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/overview.html),
+such as sentiment analysis, thematic coding, and stance detection.
+
+The package provides functions for validating and comparing coded
+results:
+
+- [`qlm_compare()`](https://seraphinem.github.io/quallmer/reference/qlm_compare.md)
+  compares multiple coded results to assess inter-rater reliability
+- [`qlm_validate()`](https://seraphinem.github.io/quallmer/reference/qlm_validate.md)
+  validates coded results against a gold standard (human-coded reference
+  data)
+- [`qlm_replicate()`](https://seraphinem.github.io/quallmer/reference/qlm_replicate.md)
+  re-executes coding with different settings to test reliability
+
+Our tutorials will guide you through the following topics:
 
 1.  [**Signing up for an OpenAI API
     key**](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/openai.html):
@@ -73,25 +85,41 @@ tutorials will guide you through the following topics:
     This tutorial will demonstrate how to use the `quallmer` package
     with an open-source Ollama model for qualitative coding tasks.
 
-3.  [**Using predefined
-    tasks**](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/overview.html):
-    These illustrations will show you how to utilize the library of
-    predefined annotation tasks available in the `quallmer` package to
-    perform common qualitative coding tasks efficiently.
-
-4.  [**Creating custom
-    tasks**](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/customtask.html):
+3.  [**Creating
+    codebooks**](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/custom-codebook.html):
     This tutorial will walk you through the process of defining your own
-    custom annotation tasks using the
-    [`task()`](https://seraphinem.github.io/quallmer/reference/task.md)
+    custom codebooks using the
+    [`qlm_codebook()`](https://seraphinem.github.io/quallmer/reference/qlm_codebook.md)
     function, allowing you to tailor the LLM’s output to your specific
     research needs.
 
-5.  [**Using the Validate
-    App**](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/agreement.html):
-    This tutorial will introduce you to the Agreement App to manually
-    code data, check LLM annotations, and calculate interrater
-    reliability in a user-friendly and intuitive interface.
+4.  [**Comparing and replicating coded
+    results**](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/compare.html):
+    This tutorial will guide you through the process of using the
+    [`qlm_compare()`](https://seraphinem.github.io/quallmer/reference/qlm_compare.md)
+    function to assess inter-rater reliability between multiple coded
+    results generated by different models or coding runs or assess
+    accuracy and precision against a human-coded gold standard using
+    [`qlm_validate()`](https://seraphinem.github.io/quallmer/reference/qlm_validate.md).
+    It will also cover how to use the
+    [`qlm_replicate()`](https://seraphinem.github.io/quallmer/reference/qlm_replicate.md)
+    function to re-execute coding with different settings for
+    reliability testing.
+
+5.  [**The quallmer trail for
+    traceability**](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/trail.html):
+    This tutorial will introduce you to the quallmer trail system, which
+    automatically captures provenance metadata for full workflow
+    traceability using
+    [`qlm_trail()`](https://seraphinem.github.io/quallmer/reference/qlm_trail.md)
+    and related functions.
+
+6.  [**Using the Validate
+    App**](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/validate.html):
+    This tutorial will introduce you to the Validate App (provided by
+    the `quallmer.app` package), which allows you to manually code data,
+    check LLM annotations, and calculate inter-rater reliability in a
+    user-friendly and intuitive interface.
 
 We hope these tutorials will help you get started with the `quallmer`
 package and empower you to leverage large language models for your

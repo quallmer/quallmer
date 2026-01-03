@@ -1,8 +1,6 @@
-# trail_compare: run a task across multiple settings and compute reliability
+# trail_compare: run a task across multiple settings and compute reliability (deprecated)
 
-Apply a quallmer task to the same text data under multiple settings,
-producing one `trail_record` per setting, and directly compute a
-coder-style wide matrix plus intercoder reliability scores.
+**\[deprecated\]**
 
 ## Usage
 
@@ -77,7 +75,7 @@ trail_compare(
 - min_coders:
 
   Minimum number of non-missing coders per unit required for inclusion
-  in the intercoder reliability calculation.
+  in the inter-rater reliability calculation.
 
 ## Value
 
@@ -93,7 +91,7 @@ A `trail_compare` object with components:
 
 - icr:
 
-  Named list of intercoder reliability statistics
+  Named list of inter-rater reliability statistics
 
 - meta:
 
@@ -101,9 +99,15 @@ A `trail_compare` object with components:
 
 ## Details
 
+`trail_compare()` is deprecated. Use
+[`qlm_replicate()`](https://seraphinem.github.io/quallmer/reference/qlm_replicate.md)
+to re-run coding with different models or settings, then use
+[`qlm_compare()`](https://seraphinem.github.io/quallmer/reference/qlm_compare.md)
+to assess inter-rater reliability.
+
 All settings are applied to the same text units. Because the ID column
 is shared across settings, their annotation outputs can be directly
-compared via the `matrix` component, and summarized using intercoder
+compared via the `matrix` component, and summarized using inter-rater
 reliability statistics in `icr`.
 
 ## See also
@@ -115,4 +119,4 @@ reliability statistics in `icr`.
   – align records into coder-style wide format
 
 - [`trail_icr()`](https://seraphinem.github.io/quallmer/reference/trail_icr.md)
-  – compute intercoder reliability across settings
+  – compute inter-rater reliability across settings

@@ -1,18 +1,6 @@
-# Validate coding: intercoder reliability or gold-standard comparison
+# Validate coding: inter-rater reliability or gold-standard comparison
 
-This function validates nominal coding data with multiple coders in two
-ways: Krippendorf's alpha (Krippendorf 2019) and Fleiss's kappa (Fleiss
-1971) for inter-coder reliability statistics, and gold-standard
-classification metrics following Sokolova and Lapalme (2009).
-
-- `mode = "icr"`: compute intercoder reliability statistics
-  (Krippendorff's alpha (nominal), Fleiss' kappa, mean pairwise Cohen's
-  kappa, mean pairwise percent agreement, share of unanimous units, and
-  basic counts).
-
-- `mode = "gold"`: treat one coder column as a gold standard (typically
-  a human coder) and, for each other coder, compute accuracy,
-  macro-averaged precision, recall, and F1.
+**\[superseded\]**
 
 ## Usage
 
@@ -51,7 +39,7 @@ validate(
 
 - mode:
 
-  Character scalar: either `"icr"` for intercoder reliability
+  Character scalar: either `"icr"` for inter-rater reliability
   statistics, or `"gold"` to compare coders against a gold-standard
   coder.
 
@@ -104,6 +92,28 @@ columns:
 
   Macro-averaged F1 score across categories
 
+## Details
+
+This function has been superseded by
+[`qlm_compare()`](https://seraphinem.github.io/quallmer/reference/qlm_compare.md)
+for inter-rater reliability and
+[`qlm_validate()`](https://seraphinem.github.io/quallmer/reference/qlm_validate.md)
+for gold-standard validation.
+
+This function validates nominal coding data with multiple coders in two
+ways: Krippendorf's alpha (Krippendorf 2019) and Fleiss's kappa (Fleiss
+1971) for inter-rater reliability statistics, and gold-standard
+classification metrics following Sokolova and Lapalme (2009).
+
+- `mode = "icr"`: compute inter-rater reliability statistics
+  (Krippendorff's alpha (nominal), Fleiss' kappa, mean pairwise Cohen's
+  kappa, mean pairwise percent agreement, share of unanimous units, and
+  basic counts).
+
+- `mode = "gold"`: treat one coder column as a gold standard (typically
+  a human coder) and, for each other coder, compute accuracy,
+  macro-averaged precision, recall, and F1.
+
 ## References
 
 - Krippendorff, K. (2019). Content Analysis: An Introduction to Its
@@ -127,7 +137,7 @@ columns:
 
 ``` r
 if (FALSE) { # \dontrun{
-# Intercoder reliability (list output)
+# Inter-rater reliability (list output)
 res_icr <- validate(
   data = my_df,
   id   = "doc_id",
@@ -136,7 +146,7 @@ res_icr <- validate(
 )
 res_icr$fleiss_kappa
 
-# Intercoder reliability (data.frame output)
+# Inter-rater reliability (data.frame output)
 res_icr_df <- validate(
   data = my_df,
   id   = "doc_id",

@@ -1,25 +1,38 @@
 # Using the Validate App
 
-Our `quallmer` package includes the Validate App, a user-friendly
-interface that allows researchers to manually code data, review
-LLM-generated annotations, and calculate intercoder reliability scores
-such as Krippendorff’s alpha and Fleiss’ kappa or compare
-LLM-annotations against a gold standard for accuracy scores. This
-tutorial will guide you through the steps of using the Validate App
-effectively. If you prefer to work programmatically, we also provide
-instructions on how to calculate agreement scores by simply using the
-[`validate()`](https://seraphinem.github.io/quallmer/reference/validate.md)
-function at the end of this tutorial.
+The Validate App is a user-friendly interface that allows researchers to
+manually code data, review LLM-generated annotations, and calculate
+inter-rater reliability scores such as Krippendorff’s alpha and Fleiss’
+kappa or compare LLM-annotations against a gold standard for accuracy
+scores. This tutorial will guide you through the steps of using the
+Validate App effectively. If you prefer to work programmatically, we
+also provide instructions on how to calculate agreement scores by simply
+using the
+[`qlm_validate()`](https://seraphinem.github.io/quallmer/reference/qlm_validate.md)
+or
+[`qlm_compare()`](https://seraphinem.github.io/quallmer/reference/qlm_compare.md)
+functions at the end of this tutorial.
+
+## Installation
+
+The Validate App is available in the companion package `quallmer.app`.
+To install it:
+
+``` r
+# install.packages("pak")
+pak::pak("SeraphineM/quallmer.app")
+```
 
 ## Launching the Validate App
 
-To launch the Validate App, you can use the
-[`validate_app()`](https://seraphinem.github.io/quallmer/reference/validate_app.md)
-function from the `quallmer` package. Make sure you have the package
-loaded in your R environment. Then, simply call the
-[`validate_app()`](https://seraphinem.github.io/quallmer/reference/validate_app.md)
-function. This will open the Validate App in a new window or tab in your
-web browser.
+To launch the Validate App, load the `quallmer.app` package and call the
+`validate_app()` function. This will open the Validate App in a new
+window or tab in your web browser.
+
+``` r
+library(quallmer.app)
+validate_app()
+```
 
 ## Using the Validate App for manual coding
 
@@ -32,7 +45,12 @@ your coding scheme. You can also save example sentences from each text
 item to help you remember your coding decisions later or as illustrative
 examples for your research.
 
-![](pics/manual.png)
+![Screenshot of the Validate App manual coding interface showing text
+items with fields for scores, comments, and example
+sentences](pics/manual.png)
+
+Screenshot of the Validate App manual coding interface showing text
+items with fields for scores, comments, and example sentences
 
 ## Reviewing LLM-generated annotations
 
@@ -44,7 +62,13 @@ model. You can then decide whether to accept these annotations as
 `valid` or `invalid`, or modify them based on your assessment by adding
 comments and example sentences.
 
-![](pics/llm.png)
+![Screenshot of the Validate App LLM annotation review interface
+displaying model-generated codes with justifications and validation
+options](pics/llm.png)
+
+Screenshot of the Validate App LLM annotation review interface
+displaying model-generated codes with justifications and validation
+options
 
 ## Saving your coding decisions
 
@@ -57,7 +81,7 @@ in your working directory.**
 
 After completing the manual coding and reviewing the LLM-generated
 annotations, the Validate App provides functionality to calculate
-intercoder reliability scores or compare LLM annotations against a gold
+inter-rater reliability scores or compare LLM annotations against a gold
 standard. You can choose from various metrics, such as Krippendorff’s
 alpha, Cohen’s or Fleiss’ kappa, to assess the agreement between
 different coders or between your manual codes and the LLM annotations
@@ -66,53 +90,62 @@ some interpretation guidelines to help you understand the results. If
 you have a gold standard available, the app will calculate accuracy
 metrics such as precision, recall, and F1-score.
 
-### Example of intercoder reliability scores (no gold standard available)
+### Example of inter-rater reliability scores (no gold standard available)
 
-![](pics/reliab.png)
+![Screenshot showing inter-rater reliability results with Krippendorff’s
+alpha and kappa scores between multiple LLM coding
+runs](pics/reliab.png)
+
+Screenshot showing inter-rater reliability results with Krippendorff’s
+alpha and kappa scores between multiple LLM coding runs
 
 ### Example of accuracy assessment against a gold standard
 
-![](pics/accuracy.png)
+![Screenshot displaying accuracy assessment metrics including precision,
+recall, F1-score, and Cohen’s kappa when validating against a gold
+standard](pics/accuracy.png)
+
+Screenshot displaying accuracy assessment metrics including precision,
+recall, F1-score, and Cohen’s kappa when validating against a gold
+standard
 
 ## Calculating validation scores without the App
 
-In addition to using the Agreement App, you can also calculate agreement
-scores programmatically using the
-[`validate()`](https://seraphinem.github.io/quallmer/reference/validate.md)
-function from the `quallmer` package. This function allows you to
-specify your dataset, the column containing unit IDs, and the columns
-containing coder annotations.
+In addition to using the Validate App, you can also calculate agreement
+and validation scores programmatically using functions from the
+`quallmer` package.
 
-Here’s an example of how to use the
-[`validate()`](https://seraphinem.github.io/quallmer/reference/validate.md)
-function if you **do not have a gold standard available** and want to
-assess inter-coder reliability between multiple coders or LLM runs:
+### Comparing multiple coders (inter-coder reliability)
+
+If you **do not have a gold standard available** and want to assess
+inter-coder reliability between multiple `qlm_coded` objects (from
+different coders, models, or coding runs), use
+[`qlm_compare()`](https://seraphinem.github.io/quallmer/reference/qlm_compare.md):
 
 ``` .r
-results <- validate(
-  data        = your_data,
-  unit_id_col = "doc_id",
-  coder_cols  = c("coder1", "coder2", "llm_run1", "llm_run2"),
-  mode        = "icr"
-)
-results
+# Compare two or more qlm_coded objects
+comparison <- qlm_compare(coded_run1, coded_run2, coded_run3)
+comparison
 ```
 
-This will return the calculated validation scores based on the specified
-coders or LLM runs.
+This will compute agreement metrics including Krippendorff’s alpha,
+Cohen’s kappa, and Fleiss’ kappa.
+
+### Validating against a gold standard
 
 If you **have a gold standard available** and want to assess accuracy of
-LLM-generated annotations against the gold standard, you can use the
-[`validate()`](https://seraphinem.github.io/quallmer/reference/validate.md)
-function as follows:
+LLM-generated annotations against the gold standard, use
+[`qlm_validate()`](https://seraphinem.github.io/quallmer/reference/qlm_validate.md):
 
 ``` .r
-results <- validate(
-  data        = your_data,
-  unit_id_col = "doc_id",
-  coder_cols  = c("llm_run1", "manual_gold"),
-  mode        = "gold",
-  gold_col    = "manual_gold"
+# Validate LLM coding against gold standard
+validation <- qlm_validate(
+  coded_object = llm_coded_result,
+  gold_standard = gold_standard_data,
+  gold_column = "manual_code"
 )
-results
+validation
 ```
+
+This will compute classification metrics including accuracy, precision,
+recall, F1-score, and Cohen’s kappa.

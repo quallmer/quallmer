@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">quallmer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -16,25 +16,20 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-getting-started" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Getting started</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-getting-started"><li><a class="dropdown-item" href="../articles/getting-started.html">Quick start guide</a></li>
+  </ul></li>
+<li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-tutorials" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Tutorials</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-tutorials"><li><a class="dropdown-item" href="../articles/getting-started.html">Quick start guide</a></li>
-    <li><a class="dropdown-item" href="../articles/pkgdown/tutorials/openai.html">Signing up for an openai API key</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-tutorials"><li><a class="dropdown-item" href="../articles/pkgdown/tutorials/openai.html">Signing up for an OpenAI API key</a></li>
     <li><a class="dropdown-item" href="../articles/pkgdown/tutorials/ollama.html">Working with an open-source Ollama model</a></li>
-    <li><a class="dropdown-item" href="../articles/pkgdown/tutorials/predefined.html">Using predefined tasks</a></li>
-    <li><a class="dropdown-item" href="../articles/pkgdown/tutorials/customtask.html">Defining custom tasks</a></li>
-    <li><a class="dropdown-item" href="../articles/pkgdown/tutorials/validate.html">Using the Agreement App</a></li>
+    <li><a class="dropdown-item" href="../articles/pkgdown/tutorials/custom-codebook.html">Creating codebooks</a></li>
+    <li><a class="dropdown-item" href="../articles/pkgdown/tutorials/compare.html">Comparing and replicating coded results</a></li>
     <li><a class="dropdown-item" href="../articles/pkgdown/tutorials/trail.html">The quallmer trail</a></li>
+    <li><a class="dropdown-item" href="../articles/pkgdown/tutorials/validate.html">Using the Validate App (quallmer.app)</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-predefined-tasks" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Predefined tasks</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-predefined-tasks"><li><a class="dropdown-item" href="../articles/pkgdown/examples/overview.html">Overview of predefined tasks</a></li>
-    <li><a class="dropdown-item" href="../articles/pkgdown/examples/task_sentiment.html">Sentiment analysis</a></li>
-    <li><a class="dropdown-item" href="../articles/pkgdown/examples/task_stance.html">Stance detection / position taking</a></li>
-    <li><a class="dropdown-item" href="../articles/pkgdown/examples/task_ideology.html">Ideological scaling</a></li>
-    <li><a class="dropdown-item" href="../articles/pkgdown/examples/task_salience.html">Salience of topics</a></li>
-    <li><a class="dropdown-item" href="../articles/pkgdown/examples/task_fact.html">Fact-checking</a></li>
-  </ul></li>
+<li class="active nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/SeraphineM/quallmer" aria-label="View on GitHub"><span class="fa fab fa-github"></span></a></li>
@@ -50,15 +45,86 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="development version" id="quallmer-development-version">quallmer (development version)<a class="anchor" aria-label="anchor" href="#quallmer-development-version"></a></h2>
-<ul><li>Add contributor guides (<code>AGENTS.md</code>, <code>CLAUDE.md</code>) with structure, style, and testing guidance.</li>
-<li>Adopt tidyverse-style error messaging via <code><a href="https://cli.r-lib.org/reference/cli_abort.html" class="external-link">cli::cli_abort()</a></code> and <code><a href="https://cli.r-lib.org/reference/cli_abort.html" class="external-link">cli::cli_warn()</a></code> throughout the package, replacing all <code><a href="https://rdrr.io/r/base/stop.html" class="external-link">stop()</a></code>, <code><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot()</a></code>, and <code><a href="https://rdrr.io/r/base/warning.html" class="external-link">warning()</a></code> calls with structured, informative error messages.</li>
-<li>Documentation and CI notes refreshed; no API changes.</li>
+<h2 class="pkg-version" data-toc-text="0.2.0" id="quallmer-020">quallmer 0.2.0<a class="anchor" aria-label="anchor" href="#quallmer-020"></a></h2>
+<div class="section level3">
+<h3 id="the-quallmer-trail-0-2-0">The quallmer trail<a class="anchor" aria-label="anchor" href="#the-quallmer-trail-0-2-0"></a></h3>
+<ul><li>New <code><a href="../reference/qlm_trail.html">qlm_trail()</a></code> function extracts and displays provenance chains from coded objects, showing the complete history of coding runs including model parameters, timestamps, and parent-child relationships.</li>
+<li>Export functions allow saving provenance trails: <code><a href="../reference/qlm_trail_save.html">qlm_trail_save()</a></code> for RDS archival, <code><a href="../reference/qlm_trail_export.html">qlm_trail_export()</a></code> for JSON format, and <code><a href="../reference/qlm_trail_report.html">qlm_trail_report()</a></code> for human-readable Quarto/RMarkdown documents.</li>
+<li>All <code>qlm_comparison</code> and <code>qlm_validation</code> objects now include run attributes capturing parent provenance, enabling full workflow traceability across comparisons and validations.</li>
+<li>Provenance trail automatically captures branching workflows when multiple coded objects are compared or validated.</li>
 </ul></div>
-    <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.1.1" id="quallmer-011">quallmer 0.1.1<a class="anchor" aria-label="anchor" href="#quallmer-011"></a></h2>
-<ul><li>CRAN release.</li>
+<div class="section level3">
+<h3 id="new-api-0-2-0">New API<a class="anchor" aria-label="anchor" href="#new-api-0-2-0"></a></h3>
+<p>The package introduces a new <code>qlm_*()</code> API with richer return objects and clearer terminology for qualitative researchers:</p>
+<ul><li>
+<code><a href="../reference/qlm_codebook.html">qlm_codebook()</a></code> defines coding instructions, replacing <code><a href="../reference/task.html">task()</a></code> (#27).</li>
+<li>
+<code><a href="../reference/qlm_code.html">qlm_code()</a></code> executes coding tasks and returns a tibble with coded results and metadata as attributes, replacing <code><a href="../reference/annotate.html">annotate()</a></code> (#27). The returned <code>qlm_coded</code> object prints as a tibble and can be used directly in data manipulation workflows. Now includes <code>name</code> parameter for tracking runs and hierarchical attribute structure with provenance support.</li>
+<li>
+<code><a href="../reference/qlm_compare.html">qlm_compare()</a></code> compares multiple <code>qlm_coded</code> objects to assess inter-rater reliability. Automatically computes all statistically appropriate measures from the irr package based on the specified measurement level (nominal, ordinal, or interval).</li>
+<li>
+<code><a href="../reference/qlm_validate.html">qlm_validate()</a></code> validates a <code>qlm_coded</code> object against a gold standard (human-coded reference data). Automatically computes all statistically appropriate metrics based on the specified measurement level, using measures from the yardstick, irr, and stats packages. For nominal data, supports multiple averaging methods (macro, micro, weighted, or per-class breakdown).</li>
+<li>
+<code><a href="../reference/qlm_replicate.html">qlm_replicate()</a></code> re-executes coding with optional overrides (model, codebook, parameters) while tracking provenance chain. Enables systematic assessment of coding reliability and sensitivity to model choices.</li>
+</ul><p>The new API uses the <code>qlm_</code> prefix to avoid namespace conflicts (e.g., with <code>ggplot2::annotate()</code>) and follows the convention of verbs for workflow actions, nouns for accessor functions.</p>
+<div class="section level4">
+<h4 id="restructured-qlm_coded-objects-0-2-0">Restructured qlm_coded objects<a class="anchor" aria-label="anchor" href="#restructured-qlm_coded-objects-0-2-0"></a></h4>
+<ul><li>
+<code>qlm_coded</code> objects now use a hierarchical attribute structure with a <code>run</code> list containing <code>name</code>, <code>batch</code>, <code>call</code>, <code>codebook</code>, <code>chat_args</code>, <code>execution_args</code>, <code>metadata</code>, and <code>parent</code> fields. This structure supports provenance tracking across replication chains and provides clearer organization of coding metadata (#26).
+<ul><li>The <code>batch</code> flag indicates whether batch processing was used.</li>
+<li>
+<code>execution_args</code> replaces <code>pcs_args</code> and stores all non-chat execution arguments for both parallel and batch processing. Old objects with <code>pcs_args</code> remain compatible.</li>
+</ul></li>
 </ul></div>
+</div>
+<div class="section level3">
+<h3 id="example-codebooks-0-2-0">Example codebooks<a class="anchor" aria-label="anchor" href="#example-codebooks-0-2-0"></a></h3>
+<ul><li>New example codebook data objects provide ready-to-use codebooks for common tasks: <code>data_codebook_sentiment</code>, <code>data_codebook_stance</code>, <code>data_codebook_ideology</code>, <code>data_codebook_salience</code>, and <code>data_codebook_fact</code>.</li>
+<li>All predefined <code>task_*()</code> functions are deprecated in favor of using the data objects or creating custom codebooks with <code><a href="../reference/qlm_codebook.html">qlm_codebook()</a></code>.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="deprecated-and-superseded-functions-0-2-0">Deprecated and superseded functions<a class="anchor" aria-label="anchor" href="#deprecated-and-superseded-functions-0-2-0"></a></h3>
+<ul><li>
+<code><a href="../reference/task.html">task()</a></code> is deprecated in favor of <code><a href="../reference/qlm_codebook.html">qlm_codebook()</a></code> (#27).</li>
+<li>
+<code><a href="../reference/annotate.html">annotate()</a></code> is deprecated in favor of <code><a href="../reference/qlm_code.html">qlm_code()</a></code> (#27).</li>
+<li>
+<code><a href="../reference/validate.html">validate()</a></code> is superseded by <code><a href="../reference/qlm_compare.html">qlm_compare()</a></code> (for inter-rater reliability) and <code><a href="../reference/qlm_validate.html">qlm_validate()</a></code> (for gold standard validation). The function remains available but is marked with a lifecycle badge.</li>
+<li>Trail functions (<code><a href="../reference/trail_settings.html">trail_settings()</a></code>, <code><a href="../reference/trail_record.html">trail_record()</a></code>, <code><a href="../reference/trail_compare.html">trail_compare()</a></code>, <code><a href="../reference/trail_matrix.html">trail_matrix()</a></code>, <code><a href="../reference/trail_icr.html">trail_icr()</a></code>) are deprecated. Use <code><a href="../reference/qlm_code.html">qlm_code()</a></code> with model and temperature parameters directly, or <code><a href="../reference/qlm_replicate.html">qlm_replicate()</a></code> for systematic comparisons across models.</li>
+</ul><p><strong>Backward compatibility</strong>: Old code continues to work with deprecation warnings. New <code>qlm_codebook</code> objects work with old <code><a href="../reference/annotate.html">annotate()</a></code>, and old <code>task</code> objects work with new <code><a href="../reference/qlm_code.html">qlm_code()</a></code>. This is achieved through dual-class inheritance where <code>qlm_codebook</code> inherits from both <code>"qlm_codebook"</code> and <code>"task"</code>.</p>
+</div>
+<div class="section level3">
+<h3 id="package-restructuring-0-2-0">Package restructuring<a class="anchor" aria-label="anchor" href="#package-restructuring-0-2-0"></a></h3>
+<ul><li>
+<code>validate_app()</code> has been extracted into the companion package <a href="https://github.com/SeraphineM/quallmer.app" class="external-link">quallmer.app</a>. This reduces dependencies in the core quallmer package (removing shiny, bslib, and htmltools from Imports). Install quallmer.app separately for interactive validation functionality.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="other-changes-0-2-0">Other changes<a class="anchor" aria-label="anchor" href="#other-changes-0-2-0"></a></h3>
+<ul><li>
+<p><strong>BREAKING</strong>: <code><a href="../reference/qlm_validate.html">qlm_validate()</a></code> now uses distinct, statistically appropriate metrics for each measurement level:</p>
+<ul><li>
+<strong>Nominal</strong> (<code>level = "nominal"</code>): accuracy, precision, recall, F1-score, Cohen’s kappa (unweighted)</li>
+<li>
+<strong>Ordinal</strong> (<code>level = "ordinal"</code>): Spearman’s rho, Kendall’s tau, MAE (mean absolute error)</li>
+<li>
+<strong>Interval/Ratio</strong> (<code>level = "interval"</code>): ICC (intraclass correlation), Pearson’s r, MAE, RMSE (root mean squared error)</li>
+</ul><p>The <code>measure</code> argument has been removed entirely - all appropriate measures are now computed automatically based on the <code>level</code> parameter. Function signature changed: <code>level</code> now comes before <code>average</code>, and <code>average</code> only applies to nominal (multiclass) data. Return values renamed for consistency: <code>spearman</code> → <code>rho</code>, <code>kendall</code> → <code>tau</code>, <code>pearson</code> → <code>r</code>. Print output uses “levels” terminology for ordinal data and “classes” for nominal data. This change provides more statistically sound validation that respects the mathematical properties of each measurement scale.</p>
+</li>
+<li>
+<p><strong>BREAKING</strong>: <code><a href="../reference/qlm_compare.html">qlm_compare()</a></code> now computes all statistically appropriate measures for each measurement level:</p>
+<ul><li>
+<strong>Nominal</strong> (<code>level = "nominal"</code>): Krippendorff’s alpha (nominal), Cohen’s/Fleiss’ kappa, percent agreement</li>
+<li>
+<strong>Ordinal</strong> (<code>level = "ordinal"</code>): Krippendorff’s alpha (ordinal), weighted kappa (2 raters only), Kendall’s W, Spearman’s rho, percent agreement</li>
+<li>
+<strong>Interval/Ratio</strong> (<code>level = "interval"</code>): Krippendorff’s alpha (interval), ICC (intraclass correlation), Pearson’s r, percent agreement</li>
+</ul><p>The <code>measure</code> argument has been removed entirely - all appropriate measures are now computed automatically and returned in the result object. The return structure changed from a single value to a list containing all computed measures for the specified level. Percent agreement is now computed for all levels; for ordinal/interval/ratio data, the <code>tolerance</code> parameter controls what counts as agreement (e.g., <code>tolerance = 1</code> means values within 1 unit are considered in agreement).</p>
+</li>
+<li><p>Improved error messages in <code><a href="../reference/qlm_compare.html">qlm_compare()</a></code> and <code><a href="../reference/qlm_validate.html">qlm_validate()</a></code> now show which objects are missing the requested variable and list available alternatives.</p></li>
+<li><p>Adopt tidyverse-style error messaging via <code><a href="https://cli.r-lib.org/reference/cli_abort.html" class="external-link">cli::cli_abort()</a></code> and <code><a href="https://cli.r-lib.org/reference/cli_abort.html" class="external-link">cli::cli_warn()</a></code> throughout the package, replacing all <code><a href="https://rdrr.io/r/base/stop.html" class="external-link">stop()</a></code>, <code><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot()</a></code>, and <code><a href="https://rdrr.io/r/base/warning.html" class="external-link">warning()</a></code> calls with structured, informative error messages.</p></li>
+<li><p>Documentation and CI notes refreshed.</p></li>
+</ul></div>
+</div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

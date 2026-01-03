@@ -1,0 +1,54 @@
+# Ideological scaling codebook for left-right dimension
+
+A `qlm_codebook` object defining instructions for scaling texts on a
+left-right ideological dimension.
+
+## Usage
+
+``` r
+data_codebook_ideology
+```
+
+## Format
+
+A `qlm_codebook` object containing:
+
+name
+
+:   Task name: "Ideological scaling"
+
+instructions
+
+:   Coding instructions for ideological scaling
+
+schema
+
+:   Response schema with two fields:
+
+role
+
+:   Expert political scientist persona
+
+input_type
+
+:   "text"
+
+## See also
+
+[`qlm_codebook()`](https://seraphinem.github.io/quallmer/reference/qlm_codebook.md),
+[`qlm_code()`](https://seraphinem.github.io/quallmer/reference/qlm_code.md)
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+# View the codebook
+data_codebook_ideology
+
+# Use with political texts
+coded <- qlm_code(tail(quanteda::data_corpus_inaugural),
+                  data_codebook_ideology,
+                  model = "openai/gpt-4o-mini")
+coded
+} # }
+```

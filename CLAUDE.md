@@ -5,9 +5,8 @@
 quallmer is an R package for qualitative data annotation and validation.
 It provides: -
 [`annotate()`](https://seraphinem.github.io/quallmer/reference/annotate.md):
-Core function for LLM-powered text annotation -
-[`validate_app()`](https://seraphinem.github.io/quallmer/reference/validate_app.md):
-Shiny application for validating annotations against gold standards -
+Core function for LLM-powered text annotation - `validate_app()`: Shiny
+application for validating annotations against gold standards -
 Integration with the ellmer framework for LLM interactions
 
 ## Key Development Commands
@@ -88,8 +87,7 @@ quallmer::validate_app()  # Launch validation interface
 - **Naming**: snake_case for all functions, arguments, and objects
   - Examples:
     [`trail_settings()`](https://seraphinem.github.io/quallmer/reference/trail_settings.md),
-    [`task_sentiment()`](https://seraphinem.github.io/quallmer/reference/task_sentiment.md),
-    `gold_standard`
+    `task_sentiment()`, `gold_standard`
 - **Organization**: Newspaper-style - high-level functions first,
   helpers below
 - **Nested functions**: Avoid nested function definitions (except
@@ -97,6 +95,7 @@ quallmer::validate_app()  # Launch validation interface
 - **Imports**: Use namespace-qualified calls:
   [`dplyr::mutate()`](https://dplyr.tidyverse.org/reference/mutate.html),
   [`cli::cli_abort()`](https://cli.r-lib.org/reference/cli_abort.html)
+- **File endings**: Ensure that source files end with a trailing newline
 
 ### Error Messages
 
@@ -187,8 +186,7 @@ change needed? - **Scope**: What files/functions are affected? -
 **Tests**: Add tests for new behavior - **Documentation**: Update man
 pages, vignettes, or README as needed - **NEWS**: Add bullet to NEWS.md
 for user-facing changes - **Screenshots**: For UI changes to
-[`validate_app()`](https://seraphinem.github.io/quallmer/reference/validate_app.md),
-include before/after screenshots
+`validate_app()`, include before/after screenshots
 
 ### NEWS.md Entries
 
@@ -247,8 +245,7 @@ contributors: `(#123, @username)` - Examples: -
 ### Updating the Shiny App
 
 1.  Modify `R/validate_app.R`
-2.  Test interactively with
-    [`quallmer::validate_app()`](https://seraphinem.github.io/quallmer/reference/validate_app.md)
+2.  Test interactively with `quallmer::validate_app()`
 3.  Add tests in `tests/testthat/test-validate_app.R`
 4.  Take before/after screenshots for PR
 5.  Document UI changes in NEWS.md
@@ -273,3 +270,11 @@ contributors: `(#123, @username)` - Examples: -
   generation
 - [ellmer documentation](https://ellmer.tidyverse.org/): LLM integration
   framework
+- [quallmer
+  documentation](https://seraphinem.github.io/quallmer/index.html)
+
+## General attitude
+
+If I suggest a change, think about it critically, don’t just tell me
+that it is a great or brilliant improvement and start trying to
+implement it. Not all of my suggestions will be great.

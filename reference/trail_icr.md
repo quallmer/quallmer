@@ -1,10 +1,6 @@
-# Compute intercoder reliability across Trail settings
+# Compute inter-rater reliability across Trail settings (deprecated)
 
-Convenience helper to compute intercoder reliability across multiple
-Trail records or a `trail_compare` object by treating each setting as a
-coder and calling
-[`validate()`](https://seraphinem.github.io/quallmer/reference/validate.md)
-in `mode = "icr"`.
+**\[deprecated\]**
 
 ## Usage
 
@@ -42,7 +38,7 @@ trail_icr(
 
 - icr_fun:
 
-  Function used to compute intercoder reliability. Defaults to
+  Function used to compute inter-rater reliability. Defaults to
   [`validate()`](https://seraphinem.github.io/quallmer/reference/validate.md),
   which is expected to accept `data`, `id`, `coder_cols`, `min_coders`,
   and `mode = "icr"`. It should also understand `output = "list"` to
@@ -56,7 +52,13 @@ trail_icr(
 
 The result of calling `icr_fun()` on the wide data. With the default
 [`validate()`](https://seraphinem.github.io/quallmer/reference/validate.md),
-this is a named list of intercoder reliability statistics.
+this is a named list of inter-rater reliability statistics.
+
+## Details
+
+`trail_icr()` is deprecated. Use
+[`qlm_compare()`](https://seraphinem.github.io/quallmer/reference/qlm_compare.md)
+to compute inter-rater reliability across multiple coded objects.
 
 ## See also
 

@@ -1,6 +1,6 @@
-# Print method for trail_compare
+# Print a trail_compare object
 
-Print method for trail_compare
+Print a trail_compare object
 
 ## Usage
 
@@ -13,8 +13,13 @@ print(x, ...)
 
 - x:
 
-  A `trail_compare` object.
+  A trail_compare object.
 
 - ...:
 
-  Ignored.
+  Additional arguments passed to print methods.
+
+## Value
+
+Invisibly returns the input object `x`. Called for side effects
+(printing to console).

@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">quallmer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,29 +35,24 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="active nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-getting-started" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Getting started</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-getting-started">
+<li><a class="dropdown-item" href="../articles/getting-started.html">Quick start guide</a></li>
+  </ul>
+</li>
+<li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-tutorials" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Tutorials</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-tutorials">
-<li><a class="dropdown-item" href="../articles/getting-started.html">Quick start guide</a></li>
-    <li><a class="dropdown-item" href="../articles/pkgdown/tutorials/openai.html">Signing up for an openai API key</a></li>
+<li><a class="dropdown-item" href="../articles/pkgdown/tutorials/openai.html">Signing up for an OpenAI API key</a></li>
     <li><a class="dropdown-item" href="../articles/pkgdown/tutorials/ollama.html">Working with an open-source Ollama model</a></li>
-    <li><a class="dropdown-item" href="../articles/pkgdown/tutorials/predefined.html">Using predefined tasks</a></li>
-    <li><a class="dropdown-item" href="../articles/pkgdown/tutorials/customtask.html">Defining custom tasks</a></li>
-    <li><a class="dropdown-item" href="../articles/pkgdown/tutorials/validate.html">Using the Agreement App</a></li>
+    <li><a class="dropdown-item" href="../articles/pkgdown/tutorials/custom-codebook.html">Creating codebooks</a></li>
+    <li><a class="dropdown-item" href="../articles/pkgdown/tutorials/compare.html">Comparing and replicating coded results</a></li>
     <li><a class="dropdown-item" href="../articles/pkgdown/tutorials/trail.html">The quallmer trail</a></li>
+    <li><a class="dropdown-item" href="../articles/pkgdown/tutorials/validate.html">Using the Validate App (quallmer.app)</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-predefined-tasks" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Predefined tasks</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-predefined-tasks">
-<li><a class="dropdown-item" href="../articles/pkgdown/examples/overview.html">Overview of predefined tasks</a></li>
-    <li><a class="dropdown-item" href="../articles/pkgdown/examples/task_sentiment.html">Sentiment analysis</a></li>
-    <li><a class="dropdown-item" href="../articles/pkgdown/examples/task_stance.html">Stance detection / position taking</a></li>
-    <li><a class="dropdown-item" href="../articles/pkgdown/examples/task_ideology.html">Ideological scaling</a></li>
-    <li><a class="dropdown-item" href="../articles/pkgdown/examples/task_salience.html">Salience of topics</a></li>
-    <li><a class="dropdown-item" href="../articles/pkgdown/examples/task_fact.html">Fact-checking</a></li>
-  </ul>
-</li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -85,11 +80,11 @@
 
     
     
-<p>The <code>quallmer</code> package is developed to help qualitative
-researchers leverage the power of large language models for tasks such
-as coding, annotation, and thematic analysis. It is user-friendly and
-does not require extensive programming knowledge, making it accessible
-to researchers from various backgrounds.</p>
+<p>The <code>quallmer</code> package helps qualitative researchers
+leverage the power of large language models for tasks such as coding,
+annotation, and thematic analysis. It is user-friendly and does not
+require extensive programming knowledge, making it accessible to
+researchers from various backgrounds.</p>
 <p>Our tutorials provide a brief introduction to the
 <code>quallmer</code> package, which is designed to facilitate the use
 of large language models (LLMs) for qualitative research tasks. The
@@ -122,20 +117,33 @@ the package from GitHub.</p>
 <h2 id="overview-of-tutorials">Overview of tutorials<a class="anchor" aria-label="anchor" href="#overview-of-tutorials"></a>
 </h2>
 <p>Before using large language models, most users will need to sign up
-for an API key from an LLM provider, such as openai, or download an
+for an API key from an LLM provider, such as OpenAI, or download an
 open-source model like those from Ollama. The <code>quallmer</code>
 package supports multiple LLM providers through the <code>ellmer</code>
 package, allowing users to choose the one that best fits their
 needs.</p>
-<p>Using <code><a href="../reference/annotate.html">annotate()</a></code>, users can generate structured,
+<p>Using <code><a href="../reference/qlm_code.html">qlm_code()</a></code>, users can generate structured,
 interpretable outputs powered by large language models (LLMs). The
-package includes a library of <a href="https://seraphinem.github.io/quallmer/articles/pkgdown/examples/overview.html">predefined
-tasks for common qualitative coding needs</a>, such as sentiment
-analysis, thematic coding, and stance detection. It also allows users to
-<a href="https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/customtask.html">create
-their own custom annotation tasks tailored to their specific research
-questions and data types</a> using <code><a href="../reference/task.html">task()</a></code>. Our tutorials
-will guide you through the following topics:</p>
+package allows users to <a href="https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/custom-codebook.html">create
+their own custom codebooks tailored to their specific research questions
+and data types</a> using <code><a href="../reference/qlm_codebook.html">qlm_codebook()</a></code>. The package also
+includes a library of <a href="https://seraphinem.github.io/quallmer/articles/pkgdown/examples/overview.html">example
+codebooks illustrating common qualitative coding workflows</a>, such as
+sentiment analysis, thematic coding, and stance detection.</p>
+<p>The package provides functions for validating and comparing coded
+results:</p>
+<ul>
+<li>
+<code><a href="../reference/qlm_compare.html">qlm_compare()</a></code> compares multiple coded results to assess
+inter-rater reliability</li>
+<li>
+<code><a href="../reference/qlm_validate.html">qlm_validate()</a></code> validates coded results against a gold
+standard (human-coded reference data)</li>
+<li>
+<code><a href="../reference/qlm_replicate.html">qlm_replicate()</a></code> re-executes coding with different
+settings to test reliability</li>
+</ul>
+<p>Our tutorials will guide you through the following topics:</p>
 <ol style="list-style-type: decimal">
 <li><p><a href="https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/openai.html"><strong>Signing
 up for an OpenAI API key</strong></a>: This tutorial will guide you
@@ -146,20 +154,30 @@ package.</p></li>
 with an open-source Ollama model</strong></a>: This tutorial will
 demonstrate how to use the <code>quallmer</code> package with an
 open-source Ollama model for qualitative coding tasks.</p></li>
-<li><p><a href="https://seraphinem.github.io/quallmer/articles/pkgdown/examples/overview.html"><strong>Using
-predefined tasks</strong></a>: These illustrations will show you how to
-utilize the library of predefined annotation tasks available in the
-<code>quallmer</code> package to perform common qualitative coding tasks
-efficiently.</p></li>
-<li><p><a href="https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/customtask.html"><strong>Creating
-custom tasks</strong></a>: This tutorial will walk you through the
-process of defining your own custom annotation tasks using the
-<code><a href="../reference/task.html">task()</a></code> function, allowing you to tailor the LLM’s output to
-your specific research needs.</p></li>
-<li><p><a href="https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/agreement.html"><strong>Using
+<li><p><a href="https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/custom-codebook.html"><strong>Creating
+codebooks</strong></a>: This tutorial will walk you through the process
+of defining your own custom codebooks using the
+<code><a href="../reference/qlm_codebook.html">qlm_codebook()</a></code> function, allowing you to tailor the LLM’s
+output to your specific research needs.</p></li>
+<li><p><a href="https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/compare.html"><strong>Comparing
+and replicating coded results</strong></a>: This tutorial will guide you
+through the process of using the <code><a href="../reference/qlm_compare.html">qlm_compare()</a></code> function to
+assess inter-rater reliability between multiple coded results generated
+by different models or coding runs or assess accuracy and precision
+against a human-coded gold standard using <code><a href="../reference/qlm_validate.html">qlm_validate()</a></code>.
+It will also cover how to use the <code><a href="../reference/qlm_replicate.html">qlm_replicate()</a></code> function
+to re-execute coding with different settings for reliability
+testing.</p></li>
+<li><p><a href="https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/trail.html"><strong>The
+quallmer trail for traceability</strong></a>: This tutorial will
+introduce you to the quallmer trail system, which automatically captures
+provenance metadata for full workflow traceability using
+<code><a href="../reference/qlm_trail.html">qlm_trail()</a></code> and related functions.</p></li>
+<li><p><a href="https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/validate.html"><strong>Using
 the Validate App</strong></a>: This tutorial will introduce you to the
-Agreement App to manually code data, check LLM annotations, and
-calculate interrater reliability in a user-friendly and intuitive
+Validate App (provided by the <code>quallmer.app</code> package), which
+allows you to manually code data, check LLM annotations, and calculate
+inter-rater reliability in a user-friendly and intuitive
 interface.</p></li>
 </ol>
 <p>We hope these tutorials will help you get started with the

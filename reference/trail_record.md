@@ -1,8 +1,6 @@
-# Trail record: reproducible quallmer annotation
+# Trail record: reproducible quallmer annotation (deprecated)
 
-Run a quallmer task on a data frame with a specified LLM setting,
-capturing metadata for reproducibility and optionally caching the full
-result on disk.
+**\[deprecated\]**
 
 ## Usage
 
@@ -60,3 +58,11 @@ trail_record(
 ## Value
 
 An object of class `"trail_record"`.
+
+## Details
+
+`trail_record()` is deprecated. Use
+[`qlm_code()`](https://seraphinem.github.io/quallmer/reference/qlm_code.md)
+instead, which automatically captures metadata for reproducibility. For
+systematic comparisons across different models or settings, see
+[`qlm_replicate()`](https://seraphinem.github.io/quallmer/reference/qlm_replicate.md).

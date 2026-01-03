@@ -43,7 +43,7 @@ query("What is the capital of Australia.", model = "llama3.2:1b")
 
 Now that we have set up the Ollama model, we can use it with the
 `quallmer` package for qualitative coding tasks. To use an Ollama model,
-simply specify the `model_name` parameter in the
-[`annotate()`](https://seraphinem.github.io/quallmer/reference/annotate.md)
+simply specify the `model` parameter in the
+[`qlm_code()`](https://seraphinem.github.io/quallmer/reference/qlm_code.md)
 function using the format `"ollama/model"`. For example, to use the
-`llama3.2:1b` model, you would set `model_name = "ollama/llama3.2:1b"`.
+`llama3.2:1b` model, you would set `model = "ollama/llama3.2:1b"`.

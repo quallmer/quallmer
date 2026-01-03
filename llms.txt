@@ -1,128 +1,130 @@
 # quallmer
 
-The **quallmer** package is an **easy-to-use toolbox for qualitative
-researchers to quickly apply AI-assisted annotation to texts, images,
-pdfs, tabular data and other structured data.**
+The **quallmer** package is an **easy-to-use toolbox to quickly apply
+AI-assisted qualitative coding to large amounts of texts, images, pdfs,
+tabular data and other structured data.**
 
 Using
-[`annotate()`](https://seraphinem.github.io/quallmer/reference/annotate.md),
-users can generate structured, interpretable outputs powered by large
-language models (LLMs). The package includes a library of [predefined
-tasks for common qualitative coding
-needs](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/overview.html),
-such as sentiment analysis, thematic coding, and stance detection. It
-also allows users to [create their own custom annotation tasks tailored
-to their specific research questions and data
-types](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/customtask.html)
-using
-[`task()`](https://seraphinem.github.io/quallmer/reference/task.md). To
-ensure quality and reliability of AI-generated annotations, **quallmer**
-offers tools for comparing LLM outputs with human-coded data and
-assessing inter-coder reliability. With `validation_app()`, users can
-launch an interactive app to manually code data, review AI annotations,
-and evaluate agreement between human and AI codings. The package also
-includes a `trail_` functionality that enables systematic comparisons
-across multiple LLM runs (“trails”) with different settings to ensure
-reproducibility and reliability of AI-assisted coding.
+[`qlm_code()`](https://seraphinem.github.io/quallmer/reference/qlm_code.md),
+users can apply codebook-based qualitative coding powered by large
+language models (LLMs) to generate structured, interpretable outputs.
+The package includes built-in codebooks for common applications and
+allows researchers to create custom codebooks tailored to their specific
+research questions using
+[`qlm_codebook()`](https://seraphinem.github.io/quallmer/reference/qlm_codebook.md).
+To ensure quality and reliability of AI-generated coding, **quallmer**
+provides
+[`qlm_compare()`](https://seraphinem.github.io/quallmer/reference/qlm_compare.md)
+for evaluating inter-rater reliability and
+[`qlm_validate()`](https://seraphinem.github.io/quallmer/reference/qlm_validate.md)
+for assessing accuracy against gold standards. With
+[`qlm_replicate()`](https://seraphinem.github.io/quallmer/reference/qlm_replicate.md),
+researchers can systematically compare results across different models
+and settings to assess sensitivity and reproducibility. The quallmer
+trail system automatically captures provenance metadata for full
+workflow traceability using
+[`qlm_trail()`](https://seraphinem.github.io/quallmer/reference/qlm_trail.md)
+and related functions.
 
 **The quallmer package makes AI-assisted qualitative coding accessible
 without requiring deep expertise in R, programming or machine
 learning.**
 
-# Core functions
+## Coding and validation workflow
 
-The package provides the following core functions:
+#### `qlm_codebook()`
 
-### `annotate()`
+- Creates custom codebooks tailored to specific research questions and
+  data types.
+- Uses `instructions` and type specifications from
+  [ellmer](https://ellmer.tidyverse.org/reference/type_boolean.html) to
+  define coding instructions and output structure.
+- **Example codebook objects** (e.g., `data_codebook_sentiment`,
+  `data_codebook_stance`, `data_codebook_ideology`) demonstrate complete
+  workflows for common qualitative coding tasks.
+- Extensible framework allows researchers to define domain-specific
+  coding schemes.
 
-- A generic function that works with any LLM supported by
-  [ellmer](https://ellmer.tidyverse.org/index.html).  
-- Generates structured responses based on
-  [predefined](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/overview.html)
-  or [user-defined
-  tasks](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/customtask.html).
+#### `qlm_code()`
 
-### `task()`
+- Applies LLM-based coding to qualitative data using a `qlm_codebook`.
+- Works with any LLM supported by
+  [ellmer](https://ellmer.tidyverse.org/index.html).
+- Returns a `qlm_coded` object containing the coded results and metadata
+  for reproducibility.
 
-- Creates custom annotation tasks tailored to specific research
-  questions and data types.
-- Uses `system_prompt` and various type specifications from the
-  [ellmer](https://ellmer.tidyverse.org/reference/type_boolean.html)
-  package to define how the LLM should interpret inputs and format
-  outputs.  
-- Tasks created with
-  [`task()`](https://seraphinem.github.io/quallmer/reference/task.md)
-  can be passed directly to
-  [`annotate()`](https://seraphinem.github.io/quallmer/reference/annotate.md).  
-- This allows users to tailor the annotation process to their specific
-  data types and makes our package extensible for future use cases.
+#### `qlm_compare()`
 
-### `validate_app()`
+- Compares multiple `qlm_coded` objects to assess inter-rater
+  reliability.
+- Computes agreement metrics including Krippendorff’s alpha, Cohen’s
+  kappa, and Fleiss’ kappa.
+- Useful for evaluating consistency across different coders, models, or
+  coding runs.
 
-- Launches an interactive app to
-  - Manually code data
-  - Review and validate LLM-generated annotations
-  - Compare human-coded data with LLM-generated annotations to evaluate
-    inter-coder reliability (e.g., Krippendorff’s alpha, Cohen’s or
-    Fleiss’ kappa) or, if a gold standard is available, accuracy (e.g.,
-    accuracy, precision, recall, F1-score).
+#### `qlm_validate()`
 
-### `validate()`
+- Validates LLM-coded output against gold standard human coding.
+- Computes classification metrics: accuracy, precision, recall,
+  F1-score, and Cohen’s kappa.
+- Supports multiple averaging methods (macro, micro, weighted) and
+  per-class breakdowns.
 
-- Works similar to our validation app but can be used programmatically
-  without launching the app if data has been already manually coded by
-  humans.
-- Has two modes:
-  1.  **No gold standard available**: Compare LLM-generated annotations
-      with multiple human coders to assess inter-coder reliability
-      (e.g., Krippendorff’s alpha, Cohen’s or Fleiss’ kappa).
-  2.  **Gold standard available**: Compare LLM-generated annotations
-      against a human-coded gold standard to assess accuracy (e.g.,
-      accuracy, precision, recall, F1-score).
+## Replication
 
-# The quallmer trail
+#### `qlm_replicate()`
 
-Apart from the core functions above, the **quallmer** package also
-provides a set of functions to ensure reproducibility and reliability of
-LLM-generated annotations through **systematic comparisons across
-multiple LLM runs with different settings.** This “trail” functionality
-adds a reproducibility layer on top of
-[`annotate()`](https://seraphinem.github.io/quallmer/reference/annotate.md)
-with the following workflow:
+- Re-executes coding with optional overrides (different models,
+  codebooks, or parameters).
+- Tracks provenance chain for comparing results across different
+  configurations.
+- Enables systematic assessment of coding reliability and sensitivity to
+  model choices.
 
-![](reference/figures/paw.png)
+## The quallmer trail
 
-1.  **Define trail settings**  
-    Describe the LLM trail, i.e., how LLMs should be called (e.g.,
-    model, temperature).
+All `qlm_coded`, `qlm_comparison`, and `qlm_validation` objects
+automatically capture provenance metadata including model parameters,
+timestamps, and parent-child relationships. This enables full workflow
+traceability. It also allows users to assess the impact of different
+models and settings on coding results as well as on downstream analyses.
 
-    [`trail_settings()`](https://seraphinem.github.io/quallmer/reference/trail_settings.md)  
-    ↓
+#### `qlm_trail()`
 
-2.  **Record single LLM trails for reproducibility**  
-    Record all information needed for reproducing LLM runs on a given
-    task with a specific setting.
+- Extracts and displays the complete provenance chain from coded
+  objects.
+- Shows the history of coding runs including model parameters,
+  timestamps, and parent relationships.
+- Reconstructs full lineage by following parent-child references across
+  multiple objects.
+- Automatically captures branching workflows when multiple coded objects
+  are compared or validated.
 
-    `trail_record(data, text_col, task, setting, id_col)`
+#### `qlm_trail_save()`, `qlm_trail_export()`, `qlm_trail_report()`
 
-    ↓
+- **Save**: Archive provenance trails to RDS format for long-term
+  storage.
+- **Export**: Convert trails to JSON format for portability and
+  integration with other tools.
+- **Report**: Generate human-readable Quarto/RMarkdown documents
+  summarizing the complete workflow history, including an assessment of
+  the impact of different models and settings on coding results and
+  downstream analyses.
 
-3.  **Run multiple trails with different settings and assess
-    sensitivity**  
-    Run the *same* task and data across multiple settings (e.g.,
-    different LLMs, different temperatures) and compute agreement across
-    trails to illustrate reliability and replication sensitivity of LLM
-    annotations.
+## Interactive validation
 
-    `trail_compare(data, text_col, task, settings = list(...), id_col, lablel_col)`
+For an interactive Shiny application to perform manual coding, review
+AI-generated annotations, and compute agreement metrics, see the
+companion package
+[quallmer.app](https://github.com/SeraphineM/quallmer.app).
 
-# Supported LLMs
+## Supported LLMs
 
 The package supports all LLMs currently available with the `ellmer`
 package. For authentication and usage of each of these LLMs, please
 refer to the respective
 [ellmer](https://ellmer.tidyverse.org/reference/index.html)
-documentation and see our [tutorial for setting up an openai API
+documentation and see our [tutorial for setting up an OpenAI API
 key](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/openai.html)
 or [getting started with an open-source Ollama
 model](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/ollama.html).
@@ -142,74 +144,73 @@ pak::pak("SeraphineM/quallmer")
 To learn more about how to use the package, please refer to our
 [step-by-step
 tutorials](https://seraphinem.github.io/quallmer/articles/getting-started.html)
-and the illustrations on [how to use the predefined
-tasks](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/overview.html).
+and the [example
+codebook](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/codebook_sentiment.html)
+illustrating a complete workflow.
+
+## Acknowledgments
+
+Development of this package was assisted by [Claude
+Code](https://claude.com/claude-code), an AI coding assistant by
+Anthropic, for code refactoring, documentation updates, and package
+restructuring.
 
 # Package index
 
 ## All functions
 
-- [`annotate()`](https://seraphinem.github.io/quallmer/reference/annotate.md)
-  : Apply an annotation task to input data
+- [`data_codebook_fact`](https://seraphinem.github.io/quallmer/reference/data_codebook_fact.md)
+  : Fact-checking codebook
+- [`data_codebook_ideology`](https://seraphinem.github.io/quallmer/reference/data_codebook_ideology.md)
+  : Ideological scaling codebook for left-right dimension
+- [`data_codebook_salience`](https://seraphinem.github.io/quallmer/reference/data_codebook_salience.md)
+  : Topic salience codebook
+- [`data_codebook_sentiment`](https://seraphinem.github.io/quallmer/reference/data_codebook_sentiment.md)
+  : Sentiment analysis codebook for movie reviews
+- [`data_codebook_stance`](https://seraphinem.github.io/quallmer/reference/data_codebook_stance.md)
+  : Stance detection codebook for climate change
 - [`data_corpus_LMRDsample`](https://seraphinem.github.io/quallmer/reference/data_corpus_LMRDsample.md)
   : Sample from Large Movie Review Dataset (Maas et al. 2011)
 - [`data_corpus_manifsentsUK2010sample`](https://seraphinem.github.io/quallmer/reference/data_corpus_manifsentsUK2010sample.md)
   : Sample of UK manifesto sentences 2010 crowd-annotated for
   immigration
-- [`task()`](https://seraphinem.github.io/quallmer/reference/task.md) :
-  Define an annotation task
-- [`task_fact()`](https://seraphinem.github.io/quallmer/reference/task_fact.md)
-  : Predefined task for overall truthfulness assessment
-- [`task_ideology()`](https://seraphinem.github.io/quallmer/reference/task_ideology.md)
-  : Predefined task for ideological scaling on a specified dimension
-- [`task_salience()`](https://seraphinem.github.io/quallmer/reference/task_salience.md)
-  : Predefined task for salience of topics discussed (ranked topics)
-- [`task_sentiment()`](https://seraphinem.github.io/quallmer/reference/task_sentiment.md)
-  : Predefined task for sentiment analysis
-- [`task_stance()`](https://seraphinem.github.io/quallmer/reference/task_stance.md)
-  : Predefined task for stance detection (position taking)
-- [`trail_compare()`](https://seraphinem.github.io/quallmer/reference/trail_compare.md)
-  : trail_compare: run a task across multiple settings and compute
-  reliability
-- [`trail_icr()`](https://seraphinem.github.io/quallmer/reference/trail_icr.md)
-  : Compute intercoder reliability across Trail settings
-- [`trail_matrix()`](https://seraphinem.github.io/quallmer/reference/trail_matrix.md)
-  : Convert Trail records to coder-style wide data
-- [`trail_record()`](https://seraphinem.github.io/quallmer/reference/trail_record.md)
-  : Trail record: reproducible quallmer annotation
-- [`trail_settings()`](https://seraphinem.github.io/quallmer/reference/trail_settings.md)
-  : Trail settings specification
-- [`validate()`](https://seraphinem.github.io/quallmer/reference/validate.md)
-  : Validate coding: intercoder reliability or gold-standard comparison
-- [`validate_app()`](https://seraphinem.github.io/quallmer/reference/validate_app.md)
-  : Launch the Validate App
+- [`qlm_code()`](https://seraphinem.github.io/quallmer/reference/qlm_code.md)
+  : Code qualitative data with an LLM
+- [`qlm_codebook()`](https://seraphinem.github.io/quallmer/reference/qlm_codebook.md)
+  : Define a qualitative codebook
+- [`qlm_compare()`](https://seraphinem.github.io/quallmer/reference/qlm_compare.md)
+  : Compare coded results for inter-rater reliability
+- [`qlm_replicate()`](https://seraphinem.github.io/quallmer/reference/qlm_replicate.md)
+  : Replicate a coding task
+- [`qlm_trail()`](https://seraphinem.github.io/quallmer/reference/qlm_trail.md)
+  : Extract provenance trail from quallmer objects
+- [`qlm_trail_export()`](https://seraphinem.github.io/quallmer/reference/qlm_trail_export.md)
+  : Export trail to JSON
+- [`qlm_trail_report()`](https://seraphinem.github.io/quallmer/reference/qlm_trail_report.md)
+  : Generate trail report
+- [`qlm_trail_robustness()`](https://seraphinem.github.io/quallmer/reference/qlm_trail_robustness.md)
+  : Compute robustness scale showing downstream analysis changes
+- [`qlm_trail_save()`](https://seraphinem.github.io/quallmer/reference/qlm_trail_save.md)
+  : Save trail to RDS file
+- [`qlm_validate()`](https://seraphinem.github.io/quallmer/reference/qlm_validate.md)
+  : Validate coded results against a gold standard
 
 # Articles
 
 ### All vignettes
 
-- [Defining custom
-  tasks](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/customtask.md):
+- [Comparing and replicating coded
+  results](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/compare.md):
+- [Creating
+  codebooks](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/custom-codebook.md):
+- [Example: Sentiment
+  analysis](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/example_sentiment.md):
 - [Getting started with
   quallmer](https://seraphinem.github.io/quallmer/articles/getting-started.md):
 - [Working with an open-source Ollama
   model](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/ollama.md):
 - [Signing up for an openai API
   key](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/openai.md):
-- [Overview of predefined
-  tasks](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/overview.md):
-- [Using predefined
-  tasks](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/predefined.md):
-- [Example: Fact checking of
-  claims](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/task_fact.md):
-- [Example: Ideology
-  detection](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/task_ideology.md):
-- [Example: Salience of
-  topics](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/task_salience.md):
-- [Example: Sentiment
-  analysis](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/task_sentiment.md):
-- [Example: Stance
-  detection](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/task_stance.md):
 - [The quallmer
   trail](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/trail.md):
 - [Using the Validate

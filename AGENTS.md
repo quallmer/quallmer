@@ -4,7 +4,7 @@
 
 - R: Package code and Shiny app (e.g.,
   [`annotate()`](https://seraphinem.github.io/quallmer/reference/annotate.md),
-  [`validate_app()`](https://seraphinem.github.io/quallmer/reference/validate_app.md)).
+  `validate_app()`).
 - tests/testthat: Unit tests (testthat 3e) and test runner
   `tests/testthat.R`.
 - man: Generated Rd docs (roxygen2); do not edit by hand.
@@ -23,9 +23,7 @@
 - Site:
   [`pkgdown::build_site()`](https://pkgdown.r-lib.org/reference/build_site.html)
   updates `docs/`.
-- App:
-  [`quallmer::validate_app()`](https://seraphinem.github.io/quallmer/reference/validate_app.md)
-  launches the validator UI.
+- App: `quallmer::validate_app()` launches the validator UI.
 
 ## Coding Style & Naming
 
@@ -70,8 +68,7 @@
 - Reference issues/PRs when applicable (e.g., `Fixes #21`).
 - PRs: Include a clear summary, motivation, and scope; link issues; add
   tests for new behavior; update docs/vignettes as needed; include
-  screenshots/GIFs for UI changes to
-  [`validate_app()`](https://seraphinem.github.io/quallmer/reference/validate_app.md).
+  screenshots/GIFs for UI changes to `validate_app()`.
 - NEWS: Add a succinct bullet to `NEWS.md` for any user-facing change.
 - Template: Use `.github/pull_request_template.md` to structure
   submissions.
@@ -83,9 +80,8 @@
 - Examples:
   - [`annotate()`](https://seraphinem.github.io/quallmer/reference/annotate.md)
     now accepts named vectors as IDs in output (#123, @login).
-  - Fixed crash in
-    [`validate_app()`](https://seraphinem.github.io/quallmer/reference/validate_app.md)
-    when `gold` column is missing (#145).
+  - Fixed crash in `validate_app()` when `gold` column is missing
+    (#145).
   - Documentation: Added “Agreement metrics” vignette; clarified
     [`task()`](https://seraphinem.github.io/quallmer/reference/task.md)
     examples (#150).
