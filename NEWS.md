@@ -58,6 +58,7 @@ The new API uses the `qlm_` prefix to avoid namespace conflicts (e.g., with `ggp
   - **Interval/Ratio** (`level = "interval"`): Krippendorff's alpha (interval), ICC (intraclass correlation), Pearson's r, percent agreement
 
   The `measure` argument has been removed entirely - all appropriate measures are now computed automatically and returned in the result object. The return structure changed from a single value to a list containing all computed measures for the specified level. Percent agreement is now computed for all levels; for ordinal/interval/ratio data, the `tolerance` parameter controls what counts as agreement (e.g., `tolerance = 1` means values within 1 unit are considered in agreement).
+- `qlm_validate()` and `qlm_compare()` now support non-standard evaluation (NSE) for the `by` argument, allowing both `by = sentiment` (unquoted) and `by = "sentiment"` (quoted) syntax. This provides a more natural, tidyverse-style interface while maintaining backward compatibility.
 - Improved error messages in `qlm_compare()` and `qlm_validate()` now show which objects are missing the requested variable and list available alternatives.
 - Adopt tidyverse-style error messaging via `cli::cli_abort()` and `cli::cli_warn()` throughout the package, replacing all `stop()`, `stopifnot()`, and `warning()` calls with structured, informative error messages.
 - Documentation and CI notes refreshed.

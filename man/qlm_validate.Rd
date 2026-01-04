@@ -19,8 +19,9 @@ qlm_validate(
 a \code{.id} column for joining with \code{x} and the variable specified in \code{by}.
 (Can also be a qlm_coded object.)}
 
-\item{by}{Character scalar. Name of the variable to validate. Must be present
-in both \code{x} and \code{gold}.}
+\item{by}{Name of the variable to validate (supports both quoted and unquoted).
+Must be present in both \code{x} and \code{gold}. Can be specified as \code{by = sentiment}
+or \code{by = "sentiment"}.}
 
 \item{level}{Character scalar. Measurement level of the variable: \code{"nominal"},
 \code{"ordinal"}, or \code{"interval"}. Default is \code{"nominal"}. Determines which
@@ -126,19 +127,22 @@ gold <- data.frame(
   rating = quanteda::docvars(reviews, "rating")
 )
 
-# Validate polarity (nominal data)
-validation <- qlm_validate(coded, gold, by = "sentiment", level = "nominal")
+# Validate polarity (nominal data) - supports unquoted variable names
+validation <- qlm_validate(coded, gold, by = sentiment, level = "nominal")
 print(validation)
 
+# Can also use quoted names
+validation <- qlm_validate(coded, gold, by = "sentiment", level = "nominal")
+
 # Validate ratings (ordinal data)
-validation_ordinal <- qlm_validate(coded, gold_ratings, by = "rating", level = "ordinal")
+validation_ordinal <- qlm_validate(coded, gold_ratings, by = rating, level = "ordinal")
 print(validation_ordinal)
 
 # Use micro-averaging (nominal level only)
-qlm_validate(coded, gold, by = "sentiment", level = "nominal", average = "micro")
+qlm_validate(coded, gold, by = sentiment, level = "nominal", average = "micro")
 
 # Get per-class breakdown (for nominal data only)
-validation_detailed <- qlm_validate(coded, gold, by = "sentiment",
+validation_detailed <- qlm_validate(coded, gold, by = sentiment,
                                     level = "nominal", average = "none")
 print(validation_detailed)
 validation_detailed$by_class

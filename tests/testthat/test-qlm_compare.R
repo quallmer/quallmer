@@ -381,3 +381,55 @@ test_that("print.qlm_comparison displays correctly", {
   expect_true(any(grepl("Pearson's r", output)))
   expect_true(any(grepl("Percent agreement", output)))
 })
+
+test_that("qlm_compare supports non-standard evaluation for by argument", {
+  skip_if_not_installed("ellmer")
+  skip_if_not_installed("irr")
+
+  type_obj <- ellmer::type_object(category = ellmer::type_string("Category"))
+  codebook <- qlm_codebook("Test", "Test prompt", type_obj)
+
+  # Create two coded objects
+  mock_results1 <- data.frame(id = 1:10, category = rep(c("A", "B"), 5))
+  mock_coded1 <- new_qlm_coded(
+    results = mock_results1,
+    codebook = codebook,
+    data = paste0("text", 1:10),
+    input_type = "text",
+    chat_args = list(name = "test/model"),
+    execution_args = list(),
+    metadata = list(timestamp = Sys.time(), n_units = 10),
+    name = "original",
+    call = quote(qlm_code(...)),
+    parent = NULL
+  )
+
+  mock_results2 <- data.frame(id = 1:10, category = rep(c("A", "B"), 5))
+  mock_coded2 <- new_qlm_coded(
+    results = mock_results2,
+    codebook = codebook,
+    data = paste0("text", 1:10),
+    input_type = "text",
+    chat_args = list(name = "test/model"),
+    execution_args = list(),
+    metadata = list(timestamp = Sys.time(), n_units = 10),
+    name = "original",
+    call = quote(qlm_code(...)),
+    parent = NULL
+  )
+
+  # Test with unquoted variable name (NSE)
+  comparison_nse <- qlm_compare(mock_coded1, mock_coded2, by = category, level = "nominal")
+
+  # Test with quoted variable name (traditional)
+  comparison_quoted <- qlm_compare(mock_coded1, mock_coded2, by = "category", level = "nominal")
+
+  # Both should work and produce identical results
+  expect_true(inherits(comparison_nse, "qlm_comparison"))
+  expect_true(inherits(comparison_quoted, "qlm_comparison"))
+  expect_equal(comparison_nse$alpha_nominal, comparison_quoted$alpha_nominal)
+  expect_equal(comparison_nse$kappa, comparison_quoted$kappa)
+  expect_equal(comparison_nse$percent_agreement, comparison_quoted$percent_agreement)
+  expect_equal(comparison_nse$subjects, comparison_quoted$subjects)
+  expect_equal(comparison_nse$raters, comparison_quoted$raters)
+})
