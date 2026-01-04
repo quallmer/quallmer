@@ -8,8 +8,9 @@
 #'   different "raters" (e.g., different LLM runs, different models, or
 #'   human vs. LLM coding). Objects should have the same units (matching `.id`
 #'   values).
-#' @param by Character scalar. Name of the variable to compare across raters.
-#'   Must be present in all `qlm_coded` objects.
+#' @param by Name of the variable to compare across raters (supports both quoted
+#'   and unquoted). Must be present in all `qlm_coded` objects. Can be specified
+#'   as `by = sentiment` or `by = "sentiment"`.
 #' @param level Character scalar. Measurement level of the variable:
 #'   `"nominal"`, `"ordinal"`, `"interval"`, or `"ratio"`. Default is `"nominal"`.
 #'   Different sets of agreement statistics are computed for each level.
@@ -91,15 +92,18 @@
 #' coded1 <- qlm_code(reviews, data_codebook_sentiment, model = "openai/gpt-4o-mini")
 #' coded2 <- qlm_code(reviews, data_codebook_sentiment, model = "openai/gpt-4o")
 #'
-#' # Compare nominal data (polarity: neg/pos)
+#' # Compare nominal data (polarity: neg/pos) - supports unquoted variable names
+#' qlm_compare(coded1, coded2, by = sentiment, level = "nominal")
+#'
+#' # Can also use quoted names
 #' qlm_compare(coded1, coded2, by = "sentiment", level = "nominal")
 #'
 #' # Compare ordinal data (rating: 1-10)
-#' qlm_compare(coded1, coded2, by = "rating", level = "ordinal")
+#' qlm_compare(coded1, coded2, by = rating, level = "ordinal")
 #'
 #' # Compare three raters using Fleiss' kappa on polarity
 #' coded3 <- qlm_replicate(coded1, params = params(temperature = 0.5))
-#' qlm_compare(coded1, coded2, coded3, by = "sentiment", level = "nominal")
+#' qlm_compare(coded1, coded2, coded3, by = sentiment, level = "nominal")
 #' }
 #'
 #' @export
@@ -107,6 +111,9 @@ qlm_compare <- function(...,
                         by,
                         level = c("nominal", "ordinal", "interval", "ratio"),
                         tolerance = 0) {
+
+  # Convert 'by' to string (supports both by = sentiment and by = "sentiment")
+  by <- rlang::as_string(rlang::ensym(by))
 
   level <- match.arg(level)
 
