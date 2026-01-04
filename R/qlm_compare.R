@@ -1,15 +1,17 @@
 #' Compare coded results for inter-rater reliability
 #'
-#' Compares two or more `qlm_coded` objects to assess inter-rater reliability
-#' or agreement. This function extracts a specified variable from each coded
-#' result and computes reliability statistics using the irr package.
+#' Compares two or more data frames or `qlm_coded` objects to assess inter-rater
+#' reliability or agreement. This function extracts a specified variable from
+#' each object and computes reliability statistics using the irr package.
 #'
-#' @param ... Two or more `qlm_coded` objects to compare. These represent
-#'   different "raters" (e.g., different LLM runs, different models, or
-#'   human vs. LLM coding). Objects should have the same units (matching `.id`
-#'   values).
-#' @param by Character scalar. Name of the variable to compare across raters.
-#'   Must be present in all `qlm_coded` objects.
+#' @param ... Two or more data frames or `qlm_coded` objects to compare. These
+#'   represent different "raters" (e.g., different LLM runs, different models,
+#'   human coders, or human vs. LLM coding). Each object must have a `.id` column
+#'   and the variable specified in `by`. Objects should have the same units
+#'   (matching `.id` values).
+#' @param by Name of the variable to compare across raters (supports both quoted
+#'   and unquoted). Must be present in all objects. Can be specified as
+#'   `by = sentiment` or `by = "sentiment"`.
 #' @param level Character scalar. Measurement level of the variable:
 #'   `"nominal"`, `"ordinal"`, `"interval"`, or `"ratio"`. Default is `"nominal"`.
 #'   Different sets of agreement statistics are computed for each level.
@@ -108,6 +110,9 @@ qlm_compare <- function(...,
                         level = c("nominal", "ordinal", "interval", "ratio"),
                         tolerance = 0) {
 
+  # Convert 'by' to string (supports both by = sentiment and by = "sentiment")
+  by <- rlang::as_string(rlang::ensym(by))
+
   level <- match.arg(level)
 
   # Capture coded objects
@@ -115,16 +120,32 @@ qlm_compare <- function(...,
 
   # Validate inputs
   if (length(coded_list) < 2) {
-    cli::cli_abort("At least two {.cls qlm_coded} objects are required for comparison.")
+    cli::cli_abort("At least two data frames or {.cls qlm_coded} objects are required for comparison.")
   }
 
-  # Check all objects are qlm_coded
+  # Check all objects are data frames
+  not_df <- !vapply(coded_list, is.data.frame, logical(1))
+  if (any(not_df)) {
+    cli::cli_abort(c(
+      "All arguments in {.arg ...} must be data frames or {.cls qlm_coded} objects.",
+      "x" = "Argument{?s} {which(not_df)} {?is/are} not data frame{?s}.",
+      "i" = "Provide data frames with a {.var .id} column and the variable to compare."
+    ))
+  }
+
+  # Auto-convert plain data.frames to qlm_humancoded with informational message
   not_coded <- !vapply(coded_list, inherits, logical(1), "qlm_coded")
   if (any(not_coded)) {
-    cli::cli_abort(c(
-      "All arguments in {.arg ...} must be {.cls qlm_coded} objects.",
-      "x" = "Argument{?s} {which(not_coded)} {?is/are} not {.cls qlm_coded} object{?s}."
+    cli::cli_inform(c(
+      "i" = "Converting {sum(not_coded)} plain data frame{?s} to {.cls qlm_humancoded} object{?s}.",
+      "i" = "Use {.fn qlm_humancoded} directly to provide coder names and metadata."
     ))
+    for (i in which(not_coded)) {
+      coded_list[[i]] <- qlm_humancoded(
+        coded_list[[i]],
+        name = paste0("auto_converted_", i)
+      )
+    }
   }
 
   # Check 'by' variable exists in all objects

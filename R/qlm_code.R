@@ -302,8 +302,18 @@ print.qlm_coded <- function(x, ...) {
   # Print header
   cat("# quallmer coded object\n")
   cat("# Run:      ", run$name, "\n", sep = "")
-  cat("# Codebook: ", run$codebook$name, "\n", sep = "")
-  cat("# Model:    ", run$chat_args$name %||% "unknown", "\n", sep = "")
+
+  # Distinguish human vs LLM coding
+  if (!is.null(run$metadata$source) && run$metadata$source == "human") {
+    cat("# Source:   Human coder\n")
+    if (!is.null(run$codebook$name) && run$codebook$name != "Human-coded data") {
+      cat("# Codebook: ", run$codebook$name, "\n", sep = "")
+    }
+  } else {
+    cat("# Codebook: ", run$codebook$name, "\n", sep = "")
+    cat("# Model:    ", run$chat_args$name %||% "unknown", "\n", sep = "")
+  }
+
   cat("# Units:    ", run$metadata$n_units, "\n", sep = "")
 
   if (!is.null(run$parent)) {

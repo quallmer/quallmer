@@ -13,7 +13,8 @@ qlm_validate(
 )
 }
 \arguments{
-\item{x}{A \code{qlm_coded} object containing LLM predictions to validate.}
+\item{x}{A data frame or \code{qlm_coded} object containing predictions to validate.
+Must include a \code{.id} column and the variable specified in \code{by}.}
 
 \item{gold}{A data frame containing gold standard annotations. Must include
 a \code{.id} column for joining with \code{x} and the variable specified in \code{by}.

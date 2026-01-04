@@ -34,6 +34,7 @@ Imports:
     irr,
     jsonlite,
     lifecycle,
+    rlang,
     stats,
     yardstick
 Encoding: UTF-8

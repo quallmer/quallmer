@@ -9,7 +9,8 @@ utils::globalVariables(c("truth", "estimate"))
 #' Cohen's kappa. For ordinal data, computes accuracy and weighted kappa (linear
 #' weighting), which accounts for the ordering and distance between categories.
 #'
-#' @param x A `qlm_coded` object containing LLM predictions to validate.
+#' @param x A data frame or `qlm_coded` object containing predictions to validate.
+#'   Must include a `.id` column and the variable specified in `by`.
 #' @param gold A data frame containing gold standard annotations. Must include
 #'   a `.id` column for joining with `x` and the variable specified in `by`.
 #'   (Can also be a qlm_coded object.)
@@ -139,6 +140,9 @@ qlm_validate <- function(
     average = c("macro", "micro", "weighted", "none")
 ) {
 
+  # Convert 'by' to string (supports both by = sentiment and by = "sentiment")
+  by <- rlang::as_string(rlang::ensym(by))
+
   # Match arguments
   level <- match.arg(level)
 
@@ -155,15 +159,35 @@ qlm_validate <- function(
   }
 
   # Validate inputs
-  if (!inherits(x, "qlm_coded")) {
+  if (!is.data.frame(x)) {
     cli::cli_abort(c(
-      "{.arg x} must be a {.cls qlm_coded} object.",
-      "i" = "Use {.fn qlm_code} to create coded results."
+      "{.arg x} must be a data frame or {.cls qlm_coded} object.",
+      "i" = "Provide a data frame with a {.var .id} column and the variable to validate."
     ))
   }
 
   if (!is.data.frame(gold)) {
-    cli::cli_abort("{.arg gold} must be a data frame or {.cls qlm_coded} object.")
+    cli::cli_abort(c(
+      "{.arg gold} must be a data frame or {.cls qlm_coded} object.",
+      "i" = "Provide a data frame with a {.var .id} column and the variable to validate."
+    ))
+  }
+
+  # Auto-convert plain data.frames to qlm_humancoded with informational message
+  if (!inherits(x, "qlm_coded")) {
+    cli::cli_inform(c(
+      "i" = "Converting {.arg x} to {.cls qlm_humancoded} object.",
+      "i" = "Use {.fn qlm_humancoded} directly to provide coder names and metadata."
+    ))
+    x <- qlm_humancoded(x, name = "auto_converted_x")
+  }
+
+  if (!inherits(gold, "qlm_coded")) {
+    cli::cli_inform(c(
+      "i" = "Converting {.arg gold} to {.cls qlm_humancoded} object.",
+      "i" = "Use {.fn qlm_humancoded} directly to provide coder names and metadata."
+    ))
+    gold <- qlm_humancoded(gold, name = "auto_converted_gold")
   }
 
   if (!".id" %in% names(x)) {
