@@ -109,7 +109,8 @@ models and settings on coding results as well as on downstream analyses.
 #### `qlm_trail_save()`, `qlm_trail_export()`, `qlm_trail_report()`
 
 - **Save**: Archive provenance trails to RDS format for long-term
-  storage.
+  storage. Use `include_data = TRUE` in `qlm_trail()` to save the
+  actual coded data alongside metadata for complete archival.
 - **Export**: Convert trails to JSON format for portability and
   integration with other tools.
 - **Report**: Generate human-readable Quarto/RMarkdown documents

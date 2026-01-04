@@ -460,12 +460,15 @@ test_that("qlm_trail_report() includes comparison metrics", {
   class(coded2) <- c("qlm_coded", "data.frame")
   attr(coded2, "run") <- list(name = "run2", parent = NULL)
 
-  # Create comparison object with data
+  # Create comparison object with data (nominal level)
   comparison <- list(
-    measure = "alpha",
-    value = 0.85,
+    level = "nominal",
     subjects = 3,
-    raters = 2
+    raters = 2,
+    alpha_nominal = 0.85,
+    kappa = 0.82,
+    kappa_type = "Cohen's",
+    percent_agreement = 0.90
   )
   class(comparison) <- "qlm_comparison"
   attr(comparison, "run") <- list(
@@ -485,8 +488,8 @@ test_that("qlm_trail_report() includes comparison metrics", {
 
   # Check for comparison section
   expect_true(any(grepl("Inter-rater Reliability Comparisons", content)))
-  expect_true(any(grepl("alpha", content)))
-  expect_true(any(grepl("0\\.85", content)))
+  expect_true(any(grepl("Krippendorff", content)))  # "Krippendorff's alpha"
+  expect_true(any(grepl("0\\.85", content)))  # alpha_nominal value
 })
 
 
@@ -496,13 +499,23 @@ test_that("qlm_trail_report() includes validation metrics", {
   class(coded) <- c("qlm_coded", "data.frame")
   attr(coded, "run") <- list(name = "run1", parent = NULL)
 
-  # Create validation object with data
+  # Create validation object with data (nominal level)
   validation <- list(
+    level = "nominal",
+    n = 3,
+    classes = c("pos", "neg"),
+    average = "macro",
     accuracy = 0.90,
     precision = 0.88,
     recall = 0.85,
     f1 = 0.86,
-    kappa = 0.80
+    kappa = 0.80,
+    rho = NULL,
+    tau = NULL,
+    r = NULL,
+    icc = NULL,
+    mae = NULL,
+    rmse = NULL
   )
   class(validation) <- "qlm_validation"
   attr(validation, "run") <- list(
@@ -576,12 +589,15 @@ test_that("qlm_trail_report() includes all metrics together", {
   class(coded2) <- c("qlm_coded", "data.frame")
   attr(coded2, "run") <- list(name = "run2", parent = NULL)
 
-  # Create comparison with data
+  # Create comparison with data (interval level)
   comparison <- list(
-    measure = "icc",
-    value = 0.95,
+    level = "interval",
     subjects = 3,
-    raters = 2
+    raters = 2,
+    alpha_interval = 0.93,
+    icc = 0.95,
+    r = 0.96,
+    percent_agreement = 0.85
   )
   class(comparison) <- "qlm_comparison"
   attr(comparison, "run") <- list(name = "comp1", parent = c("run1", "run2"))
@@ -612,7 +628,7 @@ test_that("qlm_trail_report() includes all metrics together", {
   expect_true(any(grepl("Assessment Metrics", content)))
   expect_true(any(grepl("Inter-rater Reliability Comparisons", content)))
   expect_true(any(grepl("Downstream Analysis Robustness", content)))
-  expect_true(any(grepl("icc", content)))
+  expect_true(any(grepl("ICC", content, ignore.case = TRUE)))  # ICC in comparison
   expect_true(any(grepl("mean_score", content)))
 })
 

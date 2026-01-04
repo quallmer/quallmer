@@ -51,10 +51,11 @@ data_codebook_sentiment$instructions
 ```
 
 This shows us:
-- The input type is text
-- The role defines the model as a political communication analyst
-- The instructions guide the model to analyze sentiment on a 1-10 scale and classify polarity
-- The schema specifies the expected output structure with fields for polarity and rating
+
+- The input type is text 
+- The role defines the model as a political communication analyst 
+- The instructions guide the model to analyze sentiment on a 1-10 scale and classify polarity 
+- The schema specifies the expected output structure with fields for polarity and rating 
 
 Now let's create a custom codebook for our specific research question.
 
