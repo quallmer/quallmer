@@ -173,6 +173,12 @@ polarity_validation <- qlm_validate(
   by = "polarity",
   level = "nominal"
 )
+```
+
+    ## ℹ Converting `gold` to <qlm_humancoded> object.
+    ## ℹ Use `qlm_humancoded()` directly to provide coder names and metadata.
+
+``` r
 print(polarity_validation)
 ```
 
@@ -194,6 +200,12 @@ rating_validation <- qlm_validate(
   by = "rating",
   level = "ordinal"
 )
+```
+
+    ## ℹ Converting `gold` to <qlm_humancoded> object.
+    ## ℹ Use `qlm_humancoded()` directly to provide coder names and metadata.
+
+``` r
 print(rating_validation)
 ```
 
@@ -216,6 +228,9 @@ qlm_validate(
   level = "interval"
 )
 ```
+
+    ## ℹ Converting `gold` to <qlm_humancoded> object.
+    ## ℹ Use `qlm_humancoded()` directly to provide coder names and metadata.
 
     ## # quallmer validation
     ## # n: 200
@@ -329,6 +344,9 @@ qlm_validate(
 )
 ```
 
+    ## ℹ Converting `gold` to <qlm_humancoded> object.
+    ## ℹ Use `qlm_humancoded()` directly to provide coder names and metadata.
+
     ## # quallmer validation
     ## # n: 200 | classes: 2 | average: macro
     ## 
@@ -340,6 +358,9 @@ qlm_validate(
     ## Pearson's r:   0.9550
 
 Compare this to the previous values from Gemini 2.5 Flash:
+
+    ## ℹ Converting `gold` to <qlm_humancoded> object.
+    ## ℹ Use `qlm_humancoded()` directly to provide coder names and metadata.
 
     ## # quallmer validation
     ## # n: 200 | classes: 2 | average: macro
@@ -364,6 +385,9 @@ qlm_validate(
 )
 ```
 
+    ## ℹ Converting `gold` to <qlm_humancoded> object.
+    ## ℹ Use `qlm_humancoded()` directly to provide coder names and metadata.
+
     ## # quallmer validation
     ## # n: 200
     ## 
@@ -373,6 +397,9 @@ qlm_validate(
     ## RMSE:          1.2329
 
 Compared to Gemini 2.5 Flash:
+
+    ## ℹ Converting `gold` to <qlm_humancoded> object.
+    ## ℹ Use `qlm_humancoded()` directly to provide coder names and metadata.
 
     ## # quallmer validation
     ## # n: 200

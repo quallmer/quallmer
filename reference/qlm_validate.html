@@ -77,13 +77,17 @@ weighting), which accounts for the ordering and distance between categories.</p>
 
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
-<dd><p>A <code>qlm_coded</code> object containing LLM predictions to validate.</p></dd>
+<dd><p>A data frame, <code>qlm_coded</code>, or <code>qlm_humancoded</code> object containing
+predictions to validate. Must include a <code>.id</code> column and the variable
+specified in <code>by</code>. Plain data frames are automatically converted to
+<code>qlm_humancoded</code> objects.</p></dd>
 
 
 <dt id="arg-gold">gold<a class="anchor" aria-label="anchor" href="#arg-gold"></a></dt>
-<dd><p>A data frame containing gold standard annotations. Must include
-a <code>.id</code> column for joining with <code>x</code> and the variable specified in <code>by</code>.
-(Can also be a qlm_coded object.)</p></dd>
+<dd><p>A data frame, <code>qlm_coded</code>, or <code>qlm_humancoded</code> object containing
+gold standard annotations. Must include a <code>.id</code> column for joining with
+<code>x</code> and the variable specified in <code>by</code>. Plain data frames are automatically
+converted to <code>qlm_humancoded</code> objects.</p></dd>
 
 
 <dt id="arg-by">by<a class="anchor" aria-label="anchor" href="#arg-by"></a></dt>
@@ -211,7 +215,7 @@ nominal data. For ordinal data, these metrics are not computed.</p>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="qlm_compare.html">qlm_compare()</a></code> for inter-rater reliability between coded objects,
-<code><a href="qlm_code.html">qlm_code()</a></code> for creating coded objects,
+<code><a href="qlm_code.html">qlm_code()</a></code> for LLM coding, <code><a href="qlm_humancoded.html">qlm_humancoded()</a></code> for human coding,
 <code><a href="https://yardstick.tidymodels.org/reference/accuracy.html" class="external-link">yardstick::accuracy()</a></code>, <code><a href="https://yardstick.tidymodels.org/reference/precision.html" class="external-link">yardstick::precision()</a></code>, <code><a href="https://yardstick.tidymodels.org/reference/recall.html" class="external-link">yardstick::recall()</a></code>,
 <code><a href="https://yardstick.tidymodels.org/reference/f_meas.html" class="external-link">yardstick::f_meas()</a></code>, <code><a href="https://yardstick.tidymodels.org/reference/kap.html" class="external-link">yardstick::kap()</a></code>, <code><a href="https://yardstick.tidymodels.org/reference/conf_mat.html" class="external-link">yardstick::conf_mat()</a></code></p></div>
     </div>

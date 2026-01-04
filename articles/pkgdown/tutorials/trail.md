@@ -88,7 +88,7 @@ attr(coded1, "run")$name
 attr(coded1, "run")$metadata$timestamp
 ```
 
-    ## [1] "2026-01-04 04:58:55 UTC"
+    ## [1] "2026-01-04 05:28:31 UTC"
 
 ### Creating a replication chain
 
@@ -150,7 +150,7 @@ trail1
 
     ## # quallmer trail
     ## Run:     initial_gpt4o
-    ## Created: 2026-01-04 04:58:55
+    ## Created: 2026-01-04 05:28:31
     ## Model:   openai/gpt-4o
 
 This displays: - Run name - Parent (if any) - Creation timestamp - Model
@@ -171,15 +171,15 @@ full_trail
     ## # quallmer trail (3 runs)
     ## 
     ## 1. initial_gpt4o (original)
-    ##    2026-01-04 04:58 | openai/gpt-4o
+    ##    2026-01-04 05:28 | openai/gpt-4o
     ##    Codebook: Ideological scaling
     ## 
     ## 2. replicate_mini (parent: initial_gpt4o)
-    ##    2026-01-04 04:58 | openai/gpt-4o-mini
+    ##    2026-01-04 05:28 | openai/gpt-4o-mini
     ##    Codebook: Ideological scaling
     ## 
     ## 3. mini_temp07 (parent: replicate_mini)
-    ##    2026-01-04 04:59 | openai/gpt-4o-mini
+    ##    2026-01-04 05:28 | openai/gpt-4o-mini
     ##    Codebook: Ideological scaling
 
 The output shows:
@@ -234,15 +234,15 @@ robustness
     ## Reference run: initial_gpt4o
     ## 
     ##             run  statistic  value reference_value abs_diff pct_diff
-    ##   initial_gpt4o mean_score  5.545           5.545  0.00000    0.000
-    ##   initial_gpt4o   sd_score  2.162           2.162  0.00000    0.000
-    ##   initial_gpt4o    n_units 11.000          11.000  0.00000    0.000
-    ##  replicate_mini mean_score  5.545           5.545  0.00000    0.000
-    ##  replicate_mini   sd_score  1.864           2.162  0.29812  -13.791
-    ##  replicate_mini    n_units 11.000          11.000  0.00000    0.000
-    ##     mini_temp07 mean_score  5.636           5.545  0.09091    1.639
-    ##     mini_temp07   sd_score  1.804           2.162  0.35761  -16.544
-    ##     mini_temp07    n_units 11.000          11.000  0.00000    0.000
+    ##   initial_gpt4o mean_score  5.636           5.636   0.0000    0.000
+    ##   initial_gpt4o   sd_score  2.111           2.111   0.0000    0.000
+    ##   initial_gpt4o    n_units 11.000          11.000   0.0000    0.000
+    ##  replicate_mini mean_score  5.818           5.636   0.1818    3.226
+    ##  replicate_mini   sd_score  1.888           2.111   0.2228  -10.557
+    ##  replicate_mini    n_units 11.000          11.000   0.0000    0.000
+    ##     mini_temp07 mean_score  5.364           5.636   0.2727   -4.839
+    ##     mini_temp07   sd_score  1.748           2.111   0.3629  -17.192
+    ##     mini_temp07    n_units 11.000          11.000   0.0000    0.000
     ## 
     ## abs_diff: Absolute difference from reference
     ## pct_diff: Percent change from reference (positive = increase)
@@ -304,7 +304,7 @@ coded_mini <- qlm_replicate(coded_gpt4o,
                             name = "mini_run")
 ```
 
-    ## [working] (0 + 0) -> 9 -> 2 | ■■■■■■                            18%
+    ## [working] (0 + 0) -> 10 -> 1 | ■■■■                               9%
     ## [working] (0 + 0) -> 0 -> 11 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100%
 
 ``` r
@@ -322,9 +322,9 @@ print(comparison)
     ## # Raters:   2 
     ## # Level:    nominal 
     ## 
-    ## Krippendorff's alpha: 0.3538
-    ## Cohen's kappa:        0.3333
-    ## Percent agreement:    0.4545
+    ## Krippendorff's alpha: 0.2723
+    ## Cohen's kappa:        0.2736
+    ## Percent agreement:    0.3636
 
 ``` r
 # 3. Validate against gold standard (if you have one)
@@ -344,15 +344,15 @@ print(full_trail)
     ## # quallmer trail (3 runs)
     ## 
     ## 1. gpt4o_run (original)
-    ##    2026-01-04 04:59 | openai/gpt-4o
+    ##    2026-01-04 05:28 | openai/gpt-4o
     ##    Codebook: Ideological scaling
     ## 
     ## 2. mini_run (parent: gpt4o_run)
-    ##    2026-01-04 04:59 | openai/gpt-4o-mini
+    ##    2026-01-04 05:28 | openai/gpt-4o-mini
     ##    Codebook: Ideological scaling
     ## 
     ## 3. comparison_2b5e12c6 (parents: gpt4o_run, mini_run)
-    ##    2026-01-04 04:59 | unknown
+    ##    2026-01-04 05:28 | unknown
 
 ``` r
 # The trail shows parent-child relationships:

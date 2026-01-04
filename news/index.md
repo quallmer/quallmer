@@ -174,13 +174,34 @@ inherits from both `"qlm_codebook"` and `"task"`.
   (e.g., `tolerance = 1` means values within 1 unit are considered in
   agreement).
 
+- New
+  [`qlm_humancoded()`](https://seraphinem.github.io/quallmer/reference/qlm_humancoded.md)
+  function converts human-coded data frames into `qlm_humancoded`
+  objects (dual inheritance: `qlm_humancoded` + `qlm_coded`), enabling
+  full provenance tracking for human coding alongside LLM results.
+  Supports custom metadata for coder information, training details, and
+  coding instructions (#43).
+
+- [`qlm_validate()`](https://seraphinem.github.io/quallmer/reference/qlm_validate.md)
+  and
+  [`qlm_compare()`](https://seraphinem.github.io/quallmer/reference/qlm_compare.md)
+  now accept plain data frames and automatically convert them to
+  `qlm_humancoded` objects with an informational message. Users can call
+  [`qlm_humancoded()`](https://seraphinem.github.io/quallmer/reference/qlm_humancoded.md)
+  directly to provide richer metadata (coder names, instructions, etc.)
+  or use plain data frames for quick comparisons (#43).
+
 - [`qlm_validate()`](https://seraphinem.github.io/quallmer/reference/qlm_validate.md)
   and
   [`qlm_compare()`](https://seraphinem.github.io/quallmer/reference/qlm_compare.md)
   now support non-standard evaluation (NSE) for the `by` argument,
   allowing both `by = sentiment` (unquoted) and `by = "sentiment"`
   (quoted) syntax. This provides a more natural, tidyverse-style
-  interface while maintaining backward compatibility.
+  interface while maintaining backward compatibility (#43).
+
+- Print method for `qlm_coded` objects now distinguishes human from LLM
+  coding, displaying “Source: Human coder” for `qlm_humancoded` objects
+  instead of model information.
 
 - Improved error messages in
   [`qlm_compare()`](https://seraphinem.github.io/quallmer/reference/qlm_compare.md)

@@ -23,6 +23,8 @@
   : Define a qualitative codebook
 - [`qlm_compare()`](https://seraphinem.github.io/quallmer/reference/qlm_compare.md)
   : Compare coded results for inter-rater reliability
+- [`qlm_humancoded()`](https://seraphinem.github.io/quallmer/reference/qlm_humancoded.md)
+  : Convert human-coded data to qlm_coded format
 - [`qlm_replicate()`](https://seraphinem.github.io/quallmer/reference/qlm_replicate.md)
   : Replicate a coding task
 - [`qlm_trail()`](https://seraphinem.github.io/quallmer/reference/qlm_trail.md)

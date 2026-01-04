@@ -23,13 +23,17 @@ qlm_validate(
 
 - x:
 
-  A `qlm_coded` object containing LLM predictions to validate.
+  A data frame, `qlm_coded`, or `qlm_humancoded` object containing
+  predictions to validate. Must include a `.id` column and the variable
+  specified in `by`. Plain data frames are automatically converted to
+  `qlm_humancoded` objects.
 
 - gold:
 
-  A data frame containing gold standard annotations. Must include a
-  `.id` column for joining with `x` and the variable specified in `by`.
-  (Can also be a qlm_coded object.)
+  A data frame, `qlm_coded`, or `qlm_humancoded` object containing gold
+  standard annotations. Must include a `.id` column for joining with `x`
+  and the variable specified in `by`. Plain data frames are
+  automatically converted to `qlm_humancoded` objects.
 
 - by:
 
@@ -193,7 +197,9 @@ nominal data. For ordinal data, these metrics are not computed.
 [`qlm_compare()`](https://seraphinem.github.io/quallmer/reference/qlm_compare.md)
 for inter-rater reliability between coded objects,
 [`qlm_code()`](https://seraphinem.github.io/quallmer/reference/qlm_code.md)
-for creating coded objects,
+for LLM coding,
+[`qlm_humancoded()`](https://seraphinem.github.io/quallmer/reference/qlm_humancoded.md)
+for human coding,
 [`yardstick::accuracy()`](https://yardstick.tidymodels.org/reference/accuracy.html),
 [`yardstick::precision()`](https://yardstick.tidymodels.org/reference/precision.html),
 [`yardstick::recall()`](https://yardstick.tidymodels.org/reference/recall.html),
