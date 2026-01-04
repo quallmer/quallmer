@@ -724,3 +724,44 @@ test_that("qlm_validate works with plain data.frames and imperfect agreement", {
   expect_true(is.numeric(validation$f1))
   expect_true(is.numeric(validation$kappa))
 })
+
+test_that("qlm_validate supports non-standard evaluation for by argument", {
+  skip_if_not_installed("ellmer")
+  skip_if_not_installed("yardstick")
+
+  type_obj <- ellmer::type_object(category = ellmer::type_string("Category"))
+  codebook <- qlm_codebook("Test", "Test prompt", type_obj)
+
+  mock_results <- data.frame(id = 1:10, category = rep(c("A", "B"), 5))
+  mock_coded <- new_qlm_coded(
+    results = mock_results,
+    codebook = codebook,
+    data = paste0("text", 1:10),
+    input_type = "text",
+    chat_args = list(name = "test/model"),
+    execution_args = list(),
+    metadata = list(timestamp = Sys.time(), n_units = 10),
+    name = "original",
+    call = quote(qlm_code(...)),
+    parent = NULL
+  )
+
+  gold <- data.frame(.id = 1:10, category = rep(c("A", "B"), 5))
+
+  # Test with unquoted variable name (NSE)
+  validation_nse <- qlm_validate(mock_coded, gold, by = category)
+
+  # Test with quoted variable name (traditional)
+  validation_quoted <- qlm_validate(mock_coded, gold, by = "category")
+
+  # Both should work and produce identical results
+  expect_true(inherits(validation_nse, "qlm_validation"))
+  expect_true(inherits(validation_quoted, "qlm_validation"))
+  expect_equal(validation_nse$accuracy, validation_quoted$accuracy)
+  expect_equal(validation_nse$precision, validation_quoted$precision)
+  expect_equal(validation_nse$recall, validation_quoted$recall)
+  expect_equal(validation_nse$f1, validation_quoted$f1)
+  expect_equal(validation_nse$kappa, validation_quoted$kappa)
+  expect_equal(validation_nse$n, validation_quoted$n)
+  expect_equal(validation_nse$variable, validation_quoted$variable)
+})
