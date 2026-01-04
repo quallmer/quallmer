@@ -77,8 +77,9 @@ values).</p></dd>
 
 
 <dt id="arg-by">by<a class="anchor" aria-label="anchor" href="#arg-by"></a></dt>
-<dd><p>Character scalar. Name of the variable to compare across raters.
-Must be present in all <code>qlm_coded</code> objects.</p></dd>
+<dd><p>Name of the variable to compare across raters (supports both quoted
+and unquoted). Must be present in all <code>qlm_coded</code> objects. Can be specified
+as <code>by = sentiment</code> or <code>by = "sentiment"</code>.</p></dd>
 
 
 <dt id="arg-level">level<a class="anchor" aria-label="anchor" href="#arg-level"></a></dt>
@@ -175,15 +176,18 @@ computed as the mean of all pairwise correlations between raters.</p>
 <span class="r-in"><span><span class="va">coded1</span> <span class="op">&lt;-</span> <span class="fu"><a href="qlm_code.html">qlm_code</a></span><span class="op">(</span><span class="va">reviews</span>, <span class="va">data_codebook_sentiment</span>, model <span class="op">=</span> <span class="st">"openai/gpt-4o-mini"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">coded2</span> <span class="op">&lt;-</span> <span class="fu"><a href="qlm_code.html">qlm_code</a></span><span class="op">(</span><span class="va">reviews</span>, <span class="va">data_codebook_sentiment</span>, model <span class="op">=</span> <span class="st">"openai/gpt-4o"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Compare nominal data (polarity: neg/pos)</span></span></span>
+<span class="r-in"><span><span class="co"># Compare nominal data (polarity: neg/pos) - supports unquoted variable names</span></span></span>
+<span class="r-in"><span><span class="fu">qlm_compare</span><span class="op">(</span><span class="va">coded1</span>, <span class="va">coded2</span>, by <span class="op">=</span> <span class="va">sentiment</span>, level <span class="op">=</span> <span class="st">"nominal"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Can also use quoted names</span></span></span>
 <span class="r-in"><span><span class="fu">qlm_compare</span><span class="op">(</span><span class="va">coded1</span>, <span class="va">coded2</span>, by <span class="op">=</span> <span class="st">"sentiment"</span>, level <span class="op">=</span> <span class="st">"nominal"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Compare ordinal data (rating: 1-10)</span></span></span>
-<span class="r-in"><span><span class="fu">qlm_compare</span><span class="op">(</span><span class="va">coded1</span>, <span class="va">coded2</span>, by <span class="op">=</span> <span class="st">"rating"</span>, level <span class="op">=</span> <span class="st">"ordinal"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">qlm_compare</span><span class="op">(</span><span class="va">coded1</span>, <span class="va">coded2</span>, by <span class="op">=</span> <span class="va">rating</span>, level <span class="op">=</span> <span class="st">"ordinal"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Compare three raters using Fleiss' kappa on polarity</span></span></span>
 <span class="r-in"><span><span class="va">coded3</span> <span class="op">&lt;-</span> <span class="fu"><a href="qlm_replicate.html">qlm_replicate</a></span><span class="op">(</span><span class="va">coded1</span>, params <span class="op">=</span> <span class="fu">params</span><span class="op">(</span>temperature <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">qlm_compare</span><span class="op">(</span><span class="va">coded1</span>, <span class="va">coded2</span>, <span class="va">coded3</span>, by <span class="op">=</span> <span class="st">"sentiment"</span>, level <span class="op">=</span> <span class="st">"nominal"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">qlm_compare</span><span class="op">(</span><span class="va">coded1</span>, <span class="va">coded2</span>, <span class="va">coded3</span>, by <span class="op">=</span> <span class="va">sentiment</span>, level <span class="op">=</span> <span class="st">"nominal"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

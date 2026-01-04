@@ -87,8 +87,9 @@ a <code>.id</code> column for joining with <code>x</code> and the variable speci
 
 
 <dt id="arg-by">by<a class="anchor" aria-label="anchor" href="#arg-by"></a></dt>
-<dd><p>Character scalar. Name of the variable to validate. Must be present
-in both <code>x</code> and <code>gold</code>.</p></dd>
+<dd><p>Name of the variable to validate (supports both quoted and unquoted).
+Must be present in both <code>x</code> and <code>gold</code>. Can be specified as <code>by = sentiment</code>
+or <code>by = "sentiment"</code>.</p></dd>
 
 
 <dt id="arg-level">level<a class="anchor" aria-label="anchor" href="#arg-level"></a></dt>
@@ -237,19 +238,22 @@ nominal data. For ordinal data, these metrics are not computed.</p>
 <span class="r-in"><span>  rating <span class="op">=</span> <span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/docvars.html" class="external-link">docvars</a></span><span class="op">(</span><span class="va">reviews</span>, <span class="st">"rating"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Validate polarity (nominal data)</span></span></span>
-<span class="r-in"><span><span class="va">validation</span> <span class="op">&lt;-</span> <span class="fu">qlm_validate</span><span class="op">(</span><span class="va">coded</span>, <span class="va">gold</span>, by <span class="op">=</span> <span class="st">"sentiment"</span>, level <span class="op">=</span> <span class="st">"nominal"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Validate polarity (nominal data) - supports unquoted variable names</span></span></span>
+<span class="r-in"><span><span class="va">validation</span> <span class="op">&lt;-</span> <span class="fu">qlm_validate</span><span class="op">(</span><span class="va">coded</span>, <span class="va">gold</span>, by <span class="op">=</span> <span class="va">sentiment</span>, level <span class="op">=</span> <span class="st">"nominal"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">validation</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Can also use quoted names</span></span></span>
+<span class="r-in"><span><span class="va">validation</span> <span class="op">&lt;-</span> <span class="fu">qlm_validate</span><span class="op">(</span><span class="va">coded</span>, <span class="va">gold</span>, by <span class="op">=</span> <span class="st">"sentiment"</span>, level <span class="op">=</span> <span class="st">"nominal"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Validate ratings (ordinal data)</span></span></span>
-<span class="r-in"><span><span class="va">validation_ordinal</span> <span class="op">&lt;-</span> <span class="fu">qlm_validate</span><span class="op">(</span><span class="va">coded</span>, <span class="va">gold_ratings</span>, by <span class="op">=</span> <span class="st">"rating"</span>, level <span class="op">=</span> <span class="st">"ordinal"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">validation_ordinal</span> <span class="op">&lt;-</span> <span class="fu">qlm_validate</span><span class="op">(</span><span class="va">coded</span>, <span class="va">gold_ratings</span>, by <span class="op">=</span> <span class="va">rating</span>, level <span class="op">=</span> <span class="st">"ordinal"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">validation_ordinal</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Use micro-averaging (nominal level only)</span></span></span>
-<span class="r-in"><span><span class="fu">qlm_validate</span><span class="op">(</span><span class="va">coded</span>, <span class="va">gold</span>, by <span class="op">=</span> <span class="st">"sentiment"</span>, level <span class="op">=</span> <span class="st">"nominal"</span>, average <span class="op">=</span> <span class="st">"micro"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">qlm_validate</span><span class="op">(</span><span class="va">coded</span>, <span class="va">gold</span>, by <span class="op">=</span> <span class="va">sentiment</span>, level <span class="op">=</span> <span class="st">"nominal"</span>, average <span class="op">=</span> <span class="st">"micro"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Get per-class breakdown (for nominal data only)</span></span></span>
-<span class="r-in"><span><span class="va">validation_detailed</span> <span class="op">&lt;-</span> <span class="fu">qlm_validate</span><span class="op">(</span><span class="va">coded</span>, <span class="va">gold</span>, by <span class="op">=</span> <span class="st">"sentiment"</span>,</span></span>
+<span class="r-in"><span><span class="va">validation_detailed</span> <span class="op">&lt;-</span> <span class="fu">qlm_validate</span><span class="op">(</span><span class="va">coded</span>, <span class="va">gold</span>, by <span class="op">=</span> <span class="va">sentiment</span>,</span></span>
 <span class="r-in"><span>                                    level <span class="op">=</span> <span class="st">"nominal"</span>, average <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">validation_detailed</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">validation_detailed</span><span class="op">$</span><span class="va">by_class</span></span></span>

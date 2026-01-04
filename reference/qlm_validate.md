@@ -33,8 +33,9 @@ qlm_validate(
 
 - by:
 
-  Character scalar. Name of the variable to validate. Must be present in
-  both `x` and `gold`.
+  Name of the variable to validate (supports both quoted and unquoted).
+  Must be present in both `x` and `gold`. Can be specified as
+  `by = sentiment` or `by = "sentiment"`.
 
 - level:
 
@@ -223,19 +224,22 @@ gold <- data.frame(
   rating = quanteda::docvars(reviews, "rating")
 )
 
-# Validate polarity (nominal data)
-validation <- qlm_validate(coded, gold, by = "sentiment", level = "nominal")
+# Validate polarity (nominal data) - supports unquoted variable names
+validation <- qlm_validate(coded, gold, by = sentiment, level = "nominal")
 print(validation)
 
+# Can also use quoted names
+validation <- qlm_validate(coded, gold, by = "sentiment", level = "nominal")
+
 # Validate ratings (ordinal data)
-validation_ordinal <- qlm_validate(coded, gold_ratings, by = "rating", level = "ordinal")
+validation_ordinal <- qlm_validate(coded, gold_ratings, by = rating, level = "ordinal")
 print(validation_ordinal)
 
 # Use micro-averaging (nominal level only)
-qlm_validate(coded, gold, by = "sentiment", level = "nominal", average = "micro")
+qlm_validate(coded, gold, by = sentiment, level = "nominal", average = "micro")
 
 # Get per-class breakdown (for nominal data only)
-validation_detailed <- qlm_validate(coded, gold, by = "sentiment",
+validation_detailed <- qlm_validate(coded, gold, by = sentiment,
                                     level = "nominal", average = "none")
 print(validation_detailed)
 validation_detailed$by_class

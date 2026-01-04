@@ -83,6 +83,8 @@ coded1 <- qlm_code(data_corpus_inaugural,
 
     ## [working] (0 + 0) -> 10 -> 1 | ■■■■                               9%
 
+    ## [working] (0 + 0) -> 1 -> 10 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■      91%
+
     ## [working] (0 + 0) -> 0 -> 11 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100%
 
 ``` r
@@ -99,17 +101,17 @@ coded1
     ## # A tibble: 11 × 3
     ##    .id          score explanation                                               
     ##  * <chr>        <int> <chr>                                                     
-    ##  1 1985-Reagan      8 The text reflects a strong right-leaning ideology, emphas…
+    ##  1 1985-Reagan      8 The text emphasizes reducing government size, cutting tax…
     ##  2 1989-Bush        7 The text emphasizes free markets, limited government inte…
     ##  3 1993-Clinton     4 The text emphasizes themes of renewal, change, and respon…
-    ##  4 1997-Clinton     4 The text emphasizes a balance between individual responsi…
-    ##  5 2001-Bush        6 The text reflects a centrist to moderately right-leaning …
+    ##  4 1997-Clinton     4 The text emphasizes themes of equality, community, and op…
+    ##  5 2001-Bush        6 The text emphasizes traditional American values such as f…
     ##  6 2005-Bush        7 The text emphasizes a strong commitment to spreading demo…
-    ##  7 2009-Obama       3 The text emphasizes unity, collective responsibility, and…
+    ##  7 2009-Obama       3 The text emphasizes themes of unity, collective responsib…
     ##  8 2013-Obama       3 The text emphasizes equality, collective action, and soci…
     ##  9 2017-Trump       8 The text emphasizes nationalism, protectionism, and a foc…
-    ## 10 2021-Biden       3 The text emphasizes unity, democracy, and addressing syst…
-    ## 11 2025-Trump       8 The text emphasizes strong nationalist and protectionist …
+    ## 10 2021-Biden       3 The text emphasizes unity, democracy, and addressing soci…
+    ## 11 2025-Trump       8 The text emphasizes nationalism, strong border control, m…
 
 ## Replicating with different settings
 
@@ -142,6 +144,10 @@ coded3 <- qlm_replicate(coded1,
                         name = "gpt4o_temp07")
 ```
 
+    ## [working] (0 + 0) -> 2 -> 9 | ■■■■■■■■■■■■■■■■■■■■■■■■■■        82%
+
+    ## [working] (0 + 0) -> 0 -> 11 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100%
+
 ## Comparing multiple coded results
 
 Once you have multiple coded results, you can assess inter-rater
@@ -167,10 +173,10 @@ comparison
     ## # Raters:   3 
     ## # Level:    ordinal 
     ## 
-    ## Krippendorff's alpha: 0.8150
-    ## Kendall's W:          0.8167
-    ## Spearman's rho:       0.7930
-    ## Percent agreement:    0.2727
+    ## Krippendorff's alpha: 0.9213
+    ## Kendall's W:          0.9283
+    ## Spearman's rho:       0.9519
+    ## Percent agreement:    0.4545
 
 The output shows:
 
@@ -198,10 +204,10 @@ qlm_compare(coded1, coded2, coded3,
     ## # Raters:   3 
     ## # Level:    ordinal 
     ## 
-    ## Krippendorff's alpha: 0.8150
-    ## Kendall's W:          0.8167
-    ## Spearman's rho:       0.7930
-    ## Percent agreement:    0.7273
+    ## Krippendorff's alpha: 0.9213
+    ## Kendall's W:          0.9283
+    ## Spearman's rho:       0.9519
+    ## Percent agreement:    0.9091
 
 ## Validating against a gold standard
 

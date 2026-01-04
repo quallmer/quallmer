@@ -174,6 +174,14 @@ inherits from both `"qlm_codebook"` and `"task"`.
   (e.g., `tolerance = 1` means values within 1 unit are considered in
   agreement).
 
+- [`qlm_validate()`](https://seraphinem.github.io/quallmer/reference/qlm_validate.md)
+  and
+  [`qlm_compare()`](https://seraphinem.github.io/quallmer/reference/qlm_compare.md)
+  now support non-standard evaluation (NSE) for the `by` argument,
+  allowing both `by = sentiment` (unquoted) and `by = "sentiment"`
+  (quoted) syntax. This provides a more natural, tidyverse-style
+  interface while maintaining backward compatibility.
+
 - Improved error messages in
   [`qlm_compare()`](https://seraphinem.github.io/quallmer/reference/qlm_compare.md)
   and
