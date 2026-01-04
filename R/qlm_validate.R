@@ -9,11 +9,14 @@ utils::globalVariables(c("truth", "estimate"))
 #' Cohen's kappa. For ordinal data, computes accuracy and weighted kappa (linear
 #' weighting), which accounts for the ordering and distance between categories.
 #'
-#' @param x A data frame or `qlm_coded` object containing predictions to validate.
-#'   Must include a `.id` column and the variable specified in `by`.
-#' @param gold A data frame containing gold standard annotations. Must include
-#'   a `.id` column for joining with `x` and the variable specified in `by`.
-#'   (Can also be a qlm_coded object.)
+#' @param x A data frame, `qlm_coded`, or `qlm_humancoded` object containing
+#'   predictions to validate. Must include a `.id` column and the variable
+#'   specified in `by`. Plain data frames are automatically converted to
+#'   `qlm_humancoded` objects.
+#' @param gold A data frame, `qlm_coded`, or `qlm_humancoded` object containing
+#'   gold standard annotations. Must include a `.id` column for joining with
+#'   `x` and the variable specified in `by`. Plain data frames are automatically
+#'   converted to `qlm_humancoded` objects.
 #' @param by Character scalar. Name of the variable to validate. Must be present
 #'   in both `x` and `gold`.
 #' @param level Character scalar. Measurement level of the variable: `"nominal"`,
@@ -87,7 +90,7 @@ utils::globalVariables(c("truth", "estimate"))
 #'
 #' @seealso
 #' [qlm_compare()] for inter-rater reliability between coded objects,
-#' [qlm_code()] for creating coded objects,
+#' [qlm_code()] for LLM coding, [qlm_humancoded()] for human coding,
 #' [yardstick::accuracy()], [yardstick::precision()], [yardstick::recall()],
 #' [yardstick::f_meas()], [yardstick::kap()], [yardstick::conf_mat()]
 #'

@@ -4,11 +4,12 @@
 #' reliability or agreement. This function extracts a specified variable from
 #' each object and computes reliability statistics using the irr package.
 #'
-#' @param ... Two or more data frames or `qlm_coded` objects to compare. These
-#'   represent different "raters" (e.g., different LLM runs, different models,
-#'   human coders, or human vs. LLM coding). Each object must have a `.id` column
-#'   and the variable specified in `by`. Objects should have the same units
-#'   (matching `.id` values).
+#' @param ... Two or more data frames, `qlm_coded`, or `qlm_humancoded` objects
+#'   to compare. These represent different "raters" (e.g., different LLM runs,
+#'   different models, human coders, or human vs. LLM coding). Each object must
+#'   have a `.id` column and the variable specified in `by`. Objects should have
+#'   the same units (matching `.id` values). Plain data frames are automatically
+#'   converted to `qlm_humancoded` objects.
 #' @param by Name of the variable to compare across raters (supports both quoted
 #'   and unquoted). Must be present in all objects. Can be specified as
 #'   `by = sentiment` or `by = "sentiment"`.
@@ -83,7 +84,8 @@
 #' simultaneously. For 3 or more raters, Spearman's rho and Pearson's r are
 #' computed as the mean of all pairwise correlations between raters.
 #'
-#' @seealso [qlm_validate()] for validation of coding against gold standards.
+#' @seealso [qlm_validate()] for validation of coding against gold standards,
+#' [qlm_code()] for LLM coding, [qlm_humancoded()] for human coding.
 #'
 #' @examples
 #' \dontrun{

@@ -13,12 +13,15 @@ qlm_validate(
 )
 }
 \arguments{
-\item{x}{A data frame or \code{qlm_coded} object containing predictions to validate.
-Must include a \code{.id} column and the variable specified in \code{by}.}
+\item{x}{A data frame, \code{qlm_coded}, or \code{qlm_humancoded} object containing
+predictions to validate. Must include a \code{.id} column and the variable
+specified in \code{by}. Plain data frames are automatically converted to
+\code{qlm_humancoded} objects.}
 
-\item{gold}{A data frame containing gold standard annotations. Must include
-a \code{.id} column for joining with \code{x} and the variable specified in \code{by}.
-(Can also be a qlm_coded object.)}
+\item{gold}{A data frame, \code{qlm_coded}, or \code{qlm_humancoded} object containing
+gold standard annotations. Must include a \code{.id} column for joining with
+\code{x} and the variable specified in \code{by}. Plain data frames are automatically
+converted to \code{qlm_humancoded} objects.}
 
 \item{by}{Character scalar. Name of the variable to validate. Must be present
 in both \code{x} and \code{gold}.}
@@ -149,7 +152,7 @@ validation_detailed$confusion
 }
 \seealso{
 \code{\link[=qlm_compare]{qlm_compare()}} for inter-rater reliability between coded objects,
-\code{\link[=qlm_code]{qlm_code()}} for creating coded objects,
+\code{\link[=qlm_code]{qlm_code()}} for LLM coding, \code{\link[=qlm_humancoded]{qlm_humancoded()}} for human coding,
 \code{\link[yardstick:accuracy]{yardstick::accuracy()}}, \code{\link[yardstick:precision]{yardstick::precision()}}, \code{\link[yardstick:recall]{yardstick::recall()}},
 \code{\link[yardstick:f_meas]{yardstick::f_meas()}}, \code{\link[yardstick:kap]{yardstick::kap()}}, \code{\link[yardstick:conf_mat]{yardstick::conf_mat()}}
 }

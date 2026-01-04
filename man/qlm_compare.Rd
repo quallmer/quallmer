@@ -12,11 +12,12 @@ qlm_compare(
 )
 }
 \arguments{
-\item{...}{Two or more data frames or \code{qlm_coded} objects to compare. These
-represent different "raters" (e.g., different LLM runs, different models,
-human coders, or human vs. LLM coding). Each object must have a \code{.id} column
-and the variable specified in \code{by}. Objects should have the same units
-(matching \code{.id} values).}
+\item{...}{Two or more data frames, \code{qlm_coded}, or \code{qlm_humancoded} objects
+to compare. These represent different "raters" (e.g., different LLM runs,
+different models, human coders, or human vs. LLM coding). Each object must
+have a \code{.id} column and the variable specified in \code{by}. Objects should have
+the same units (matching \code{.id} values). Plain data frames are automatically
+converted to \code{qlm_humancoded} objects.}
 
 \item{by}{Name of the variable to compare across raters (supports both quoted
 and unquoted). Must be present in all objects. Can be specified as
@@ -123,5 +124,6 @@ qlm_compare(coded1, coded2, coded3, by = "sentiment", level = "nominal")
 
 }
 \seealso{
-\code{\link[=qlm_validate]{qlm_validate()}} for validation of coding against gold standards.
+\code{\link[=qlm_validate]{qlm_validate()}} for validation of coding against gold standards,
+\code{\link[=qlm_code]{qlm_code()}} for LLM coding, \code{\link[=qlm_humancoded]{qlm_humancoded()}} for human coding.
 }
