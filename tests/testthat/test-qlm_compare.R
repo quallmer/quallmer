@@ -382,6 +382,55 @@ test_that("print.qlm_comparison displays correctly", {
   expect_true(any(grepl("Percent agreement", output)))
 })
 
+test_that("qlm_compare accepts plain data.frames for all arguments", {
+  skip_if_not_installed("ellmer")
+  skip_if_not_installed("irr")
+
+  # Create two plain data.frames (simulating human coders)
+  coder1 <- data.frame(.id = 1:10, category = rep(c("A", "B"), 5))
+  coder2 <- data.frame(.id = 1:10, category = rep(c("A", "B"), 5))
+
+  # Should work with plain data.frames
+  comparison <- qlm_compare(coder1, coder2, by = category, level = "nominal")
+
+  expect_true(inherits(comparison, "qlm_comparison"))
+  expect_equal(comparison$percent_agreement, 1.0)  # Perfect agreement
+  expect_equal(comparison$subjects, 10)
+  expect_equal(comparison$raters, 2)
+})
+
+test_that("qlm_compare works with plain data.frames and imperfect agreement", {
+  skip_if_not_installed("ellmer")
+  skip_if_not_installed("irr")
+
+  # Create two plain data.frames with different values
+  coder1 <- data.frame(.id = 1:10, category = c(rep("A", 7), rep("B", 3)))
+  coder2 <- data.frame(.id = 1:10, category = rep(c("A", "B"), 5))
+
+  comparison <- qlm_compare(coder1, coder2, by = category, level = "nominal")
+
+  expect_true(inherits(comparison, "qlm_comparison"))
+  expect_true(comparison$percent_agreement < 1.0)
+  expect_true(is.numeric(comparison$alpha_nominal))
+  expect_true(is.numeric(comparison$kappa))
+})
+
+test_that("qlm_compare works with three plain data.frames", {
+  skip_if_not_installed("ellmer")
+  skip_if_not_installed("irr")
+
+  # Create three plain data.frames
+  coder1 <- data.frame(.id = 1:10, category = rep(c("A", "B"), 5))
+  coder2 <- data.frame(.id = 1:10, category = rep(c("A", "B"), 5))
+  coder3 <- data.frame(.id = 1:10, category = rep(c("A", "B"), 5))
+
+  comparison <- qlm_compare(coder1, coder2, coder3, by = category, level = "nominal")
+
+  expect_true(inherits(comparison, "qlm_comparison"))
+  expect_equal(comparison$raters, 3)
+  expect_equal(comparison$kappa_type, "Fleiss'")  # Fleiss' for 3+ raters
+})
+
 test_that("qlm_compare supports non-standard evaluation for by argument", {
   skip_if_not_installed("ellmer")
   skip_if_not_installed("irr")

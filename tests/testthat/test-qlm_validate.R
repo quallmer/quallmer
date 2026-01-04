@@ -689,6 +689,42 @@ test_that("qlm_validate prints appropriate terminology for ordinal vs nominal", 
   expect_false(any(grepl("levels:", output_nominal)))
 })
 
+
+test_that("qlm_validate accepts plain data.frames for both arguments", {
+  skip_if_not_installed("ellmer")
+  skip_if_not_installed("yardstick")
+
+  # Create two plain data.frames (simulating human coders)
+  coder1 <- data.frame(.id = 1:10, category = rep(c("A", "B"), 5))
+  coder2 <- data.frame(.id = 1:10, category = rep(c("A", "B"), 5))
+
+  # Should work with plain data.frames
+  validation <- qlm_validate(coder1, coder2, by = category)
+
+  expect_true(inherits(validation, "qlm_validation"))
+  expect_equal(validation$accuracy, 1.0)  # Perfect agreement
+  expect_equal(validation$n, 10)
+})
+
+test_that("qlm_validate works with plain data.frames and imperfect agreement", {
+  skip_if_not_installed("ellmer")
+  skip_if_not_installed("yardstick")
+
+  # Create two plain data.frames with different values
+  coder1 <- data.frame(.id = 1:10, category = c(rep("A", 7), rep("B", 3)))
+  coder2 <- data.frame(.id = 1:10, category = rep(c("A", "B"), 5))
+
+  validation <- qlm_validate(coder1, coder2, by = category)
+
+  expect_true(inherits(validation, "qlm_validation"))
+  expect_true(validation$accuracy < 1.0)
+  expect_true(validation$accuracy >= 0.5)
+  expect_true(is.numeric(validation$precision))
+  expect_true(is.numeric(validation$recall))
+  expect_true(is.numeric(validation$f1))
+  expect_true(is.numeric(validation$kappa))
+})
+
 test_that("qlm_validate supports non-standard evaluation for by argument", {
   skip_if_not_installed("ellmer")
   skip_if_not_installed("yardstick")
@@ -729,4 +765,3 @@ test_that("qlm_validate supports non-standard evaluation for by argument", {
   expect_equal(validation_nse$n, validation_quoted$n)
   expect_equal(validation_nse$variable, validation_quoted$variable)
 })
-

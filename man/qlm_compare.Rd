@@ -12,14 +12,16 @@ qlm_compare(
 )
 }
 \arguments{
-\item{...}{Two or more \code{qlm_coded} objects to compare. These represent
-different "raters" (e.g., different LLM runs, different models, or
-human vs. LLM coding). Objects should have the same units (matching \code{.id}
-values).}
+\item{...}{Two or more data frames, \code{qlm_coded}, or \code{qlm_humancoded} objects
+to compare. These represent different "raters" (e.g., different LLM runs,
+different models, human coders, or human vs. LLM coding). Each object must
+have a \code{.id} column and the variable specified in \code{by}. Objects should have
+the same units (matching \code{.id} values). Plain data frames are automatically
+converted to \code{qlm_humancoded} objects.}
 
 \item{by}{Name of the variable to compare across raters (supports both quoted
-and unquoted). Must be present in all \code{qlm_coded} objects. Can be specified
-as \code{by = sentiment} or \code{by = "sentiment"}.}
+and unquoted). Must be present in all objects. Can be specified as
+\code{by = sentiment} or \code{by = "sentiment"}.}
 
 \item{level}{Character scalar. Measurement level of the variable:
 \code{"nominal"}, \code{"ordinal"}, \code{"interval"}, or \code{"ratio"}. Default is \code{"nominal"}.
@@ -74,9 +76,9 @@ is computed using the ratio-level formula.
 }
 }
 \description{
-Compares two or more \code{qlm_coded} objects to assess inter-rater reliability
-or agreement. This function extracts a specified variable from each coded
-result and computes reliability statistics using the irr package.
+Compares two or more data frames or \code{qlm_coded} objects to assess inter-rater
+reliability or agreement. This function extracts a specified variable from
+each object and computes reliability statistics using the irr package.
 }
 \details{
 The function merges the coded objects by their \code{.id} column and only includes
@@ -125,5 +127,6 @@ qlm_compare(coded1, coded2, coded3, by = sentiment, level = "nominal")
 
 }
 \seealso{
-\code{\link[=qlm_validate]{qlm_validate()}} for validation of coding against gold standards.
+\code{\link[=qlm_validate]{qlm_validate()}} for validation of coding against gold standards,
+\code{\link[=qlm_code]{qlm_code()}} for LLM coding, \code{\link[=qlm_humancoded]{qlm_humancoded()}} for human coding.
 }
