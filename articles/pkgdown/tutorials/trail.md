@@ -88,7 +88,7 @@ attr(coded1, "run")$name
 attr(coded1, "run")$metadata$timestamp
 ```
 
-    ## [1] "2026-01-05 07:59:58 UTC"
+    ## [1] "2026-01-05 12:10:24 UTC"
 
 ### Creating a replication chain
 
@@ -104,6 +104,8 @@ coded2 <- qlm_replicate(coded1,
 ```
 
     ## [working] (0 + 0) -> 10 -> 1 | ■■■■                               9%
+
+    ## [working] (0 + 0) -> 1 -> 10 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■      91%
 
     ## [working] (0 + 0) -> 0 -> 11 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100%
 
@@ -150,7 +152,7 @@ trail1
 
     ## # quallmer trail
     ## Run:     initial_gpt4o
-    ## Created: 2026-01-05 07:59:58
+    ## Created: 2026-01-05 12:10:24
     ## Model:   openai/gpt-4o
 
 The trail displays:
@@ -174,15 +176,15 @@ full_trail
     ## # quallmer trail (3 runs)
     ## 
     ## 1. initial_gpt4o (original)
-    ##    2026-01-05 07:59 | openai/gpt-4o
+    ##    2026-01-05 12:10 | openai/gpt-4o
     ##    Codebook: Ideological scaling
     ## 
     ## 2. replicate_mini (parent: initial_gpt4o)
-    ##    2026-01-05 08:00 | openai/gpt-4o-mini
+    ##    2026-01-05 12:10 | openai/gpt-4o-mini
     ##    Codebook: Ideological scaling
     ## 
     ## 3. mini_temp07 (parent: replicate_mini)
-    ##    2026-01-05 08:00 | openai/gpt-4o-mini
+    ##    2026-01-05 12:11 | openai/gpt-4o-mini
     ##    Codebook: Ideological scaling
 
 The output shows:
@@ -243,11 +245,11 @@ robustness
     ##   initial_gpt4o mean_score  5.545           5.545  0.00000    0.000
     ##   initial_gpt4o   sd_score  2.162           2.162  0.00000    0.000
     ##   initial_gpt4o    n_units 11.000          11.000  0.00000    0.000
-    ##  replicate_mini mean_score  5.545           5.545  0.00000    0.000
-    ##  replicate_mini   sd_score  2.115           2.162  0.04677   -2.163
+    ##  replicate_mini mean_score  5.455           5.545  0.09091   -1.639
+    ##  replicate_mini   sd_score  2.067           2.162  0.09459   -4.376
     ##  replicate_mini    n_units 11.000          11.000  0.00000    0.000
-    ##     mini_temp07 mean_score  5.818           5.545  0.27273    4.918
-    ##     mini_temp07   sd_score  1.662           2.162  0.49923  -23.095
+    ##     mini_temp07 mean_score  5.364           5.545  0.18182   -3.279
+    ##     mini_temp07   sd_score  2.203           2.162  0.04165    1.927
     ##     mini_temp07    n_units 11.000          11.000  0.00000    0.000
     ## 
     ## abs_diff: Absolute difference from reference
@@ -302,8 +304,6 @@ coded_gpt4o <- qlm_code(data_corpus_inaugural,
 
     ## [working] (0 + 0) -> 10 -> 1 | ■■■■                               9%
 
-    ## [working] (0 + 0) -> 2 -> 9 | ■■■■■■■■■■■■■■■■■■■■■■■■■■        82%
-
     ## [working] (0 + 0) -> 0 -> 11 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100%
 
 ``` r
@@ -312,7 +312,10 @@ coded_mini <- qlm_replicate(coded_gpt4o,
                             name = "mini_run")
 ```
 
-    ## [working] (0 + 0) -> 3 -> 8 | ■■■■■■■■■■■■■■■■■■■■■■■           73%
+    ## [working] (0 + 0) -> 10 -> 1 | ■■■■                               9%
+
+    ## [working] (0 + 0) -> 4 -> 7 | ■■■■■■■■■■■■■■■■■■■■              64%
+
     ## [working] (0 + 0) -> 0 -> 11 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100%
 
 ``` r
@@ -331,11 +334,11 @@ print(comparison)
     ## # Raters:   2 
     ## # Level:    ordinal 
     ## 
-    ## Krippendorff's alpha: 0.7075
-    ## Weighted kappa:       0.7483
-    ## Kendall's W:          0.8057
-    ## Spearman's rho:       0.7511
-    ## Percent agreement:    0.1818
+    ## Krippendorff's alpha: 0.9366
+    ## Weighted kappa:       0.9521
+    ## Kendall's W:          0.9364
+    ## Spearman's rho:       0.9526
+    ## Percent agreement:    0.6364
 
 ``` r
 # 3. Validate against gold standard (if you have one)
@@ -355,15 +358,15 @@ print(full_trail)
     ## # quallmer trail (3 runs)
     ## 
     ## 1. gpt4o_run (original)
-    ##    2026-01-05 08:00 | openai/gpt-4o
+    ##    2026-01-05 12:11 | openai/gpt-4o
     ##    Codebook: Ideological scaling
     ## 
     ## 2. mini_run (parent: gpt4o_run)
-    ##    2026-01-05 08:00 | openai/gpt-4o-mini
+    ##    2026-01-05 12:11 | openai/gpt-4o-mini
     ##    Codebook: Ideological scaling
     ## 
     ## 3. comparison_2b5e12c6 (parents: gpt4o_run, mini_run)
-    ##    2026-01-05 08:00 | unknown
+    ##    2026-01-05 12:11 | unknown
     ##    Comparison: ordinal level | 11 subjects | 2 raters
 
 The trail shows:
