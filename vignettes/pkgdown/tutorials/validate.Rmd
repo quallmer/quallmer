@@ -28,7 +28,7 @@ Once the quallmer app is launched, you can start by uploading your dataset. The 
 
 ![Screenshot of the quallmer app manual coding interface showing text items with fields for scores, comments, and example sentences](pics/manual.png)
 
-## Reviewing LLM-generated annotations
+## Using the quallmer app for eviewing LLM-generated annotations
 
 If you have previously used the `quallmer` package to generate annotations using large language models (LLMs), you can upload those annotations into the quallmer app for review. The app allows you to check the LLM-generated codes alongside justifications provided by the model. You can then decide whether to accept these annotations as `valid` or `invalid`, or modify them based on your assessment by adding comments and example sentences.
 
@@ -40,7 +40,7 @@ If you have previously used the `quallmer` package to generate annotations using
 The app provides an intuitive interface for navigating through the data and making coding decisions. **All your coding decisions will be saved automatically, you find it in a newly created folder named "agreement" in your working directory.**
 
 
-## Calculating validation scores
+## Using the quallmer app to calculate inter-rater reliability or accuracy scores
 
 After completing the manual coding and reviewing the LLM-generated annotations, the quallmer app provides functionality to calculate inter-rater reliability scores or compare LLM annotations against a gold standard. You can choose from various metrics, such as Krippendorff's alpha, Cohen's or Fleiss' kappa, to assess the agreement between different coders or between your manual codes and the LLM annotations or, as shown below, between multiple LLM runs. The app also provides some interpretation guidelines to help you understand the results. If you have a gold standard available, the app will calculate accuracy metrics such as precision, recall, and F1-score.
 

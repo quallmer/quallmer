@@ -35,7 +35,7 @@ navbar:
         href: articles/pkgdown/tutorials/compare.html
       - text: The quallmer trail
         href: articles/pkgdown/tutorials/trail.html
-      - text: Using the Validate App (quallmer.app)
+      - text: Using the quallmer.app
         href: articles/pkgdown/tutorials/validate.html
     reference:
       text: Reference
