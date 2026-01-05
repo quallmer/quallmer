@@ -39,9 +39,9 @@ learning.**
 - Uses `instructions` and type specifications from
   [ellmer](https://ellmer.tidyverse.org/reference/type_boolean.html) to
   define coding instructions and output structure.
-- **Example codebook objects** (e.g., `data_codebook_sentiment`,
-  `data_codebook_stance`, `data_codebook_ideology`) demonstrate complete
-  workflows for common qualitative coding tasks.
+- Example codebook objects (e.g., `data_codebook_sentiment`,
+  `data_codebook_stance`, `data_codebook_ideology`) demonstrate how to
+  use built-in codebooks for common qualitative coding tasks.
 - Extensible framework allows researchers to define domain-specific
   coding schemes.
 
@@ -103,10 +103,7 @@ models and settings on coding results as well as on downstream analyses.
 #### `qlm_trail_save()`, `qlm_trail_export()`, `qlm_trail_report()`
 
 - **Save**: Archive provenance trails to RDS format for long-term
-  storage. Use `include_data = TRUE` in
-  [`qlm_trail()`](https://seraphinem.github.io/quallmer/reference/qlm_trail.md)
-  to save the actual coded data alongside metadata for complete
-  archival.
+  storage.
 - **Export**: Convert trails to JSON format for portability and
   integration with other tools.
 - **Report**: Generate human-readable Quarto/RMarkdown documents
@@ -146,10 +143,7 @@ pak::pak("SeraphineM/quallmer")
 
 To learn more about how to use the package, please refer to our
 [step-by-step
-tutorials](https://seraphinem.github.io/quallmer/articles/getting-started.html)
-and the [example
-codebook](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/codebook_sentiment.html)
-illustrating a complete workflow.
+tutorials](https://seraphinem.github.io/quallmer/articles/getting-started.html).
 
 ## Acknowledgments
 
