@@ -214,7 +214,7 @@ coded_mini <- qlm_replicate(coded_gpt4o,
                             name = "mini_run")
 
 # 2. Compare inter-rater reliability
-# Score is ordinal (1-5 scale), so use level = "ordinal"
+# Score is ordinal (0-10 scale), so use level = "ordinal"
 comparison <- qlm_compare(coded_gpt4o, coded_mini,
                           by = score,
                           level = "ordinal")
