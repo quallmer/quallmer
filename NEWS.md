@@ -3,7 +3,10 @@
 ## The quallmer trail
 
 * New `qlm_trail()` function extracts and displays provenance chains from coded objects, showing the complete history of coding runs including model parameters, timestamps, and parent-child relationships.
+* `qlm_trail()` now supports `include_data = TRUE` to save actual coded data alongside metadata, enabling complete archival of analysis results with `qlm_trail_save()`.
 * Export functions allow saving provenance trails: `qlm_trail_save()` for RDS archival, `qlm_trail_export()` for JSON format, and `qlm_trail_report()` for human-readable Quarto/RMarkdown documents.
+* `qlm_trail_report()` now correctly displays all comparison and validation metrics when `include_comparisons = TRUE` or `include_validations = TRUE`. Previously, comparison metrics were not properly extracted from `qlm_comparison` objects.
+* Trail print output now shows summaries of comparisons and validations (level, subjects, raters, etc.) for better visibility into workflow assessment steps.
 * All `qlm_comparison` and `qlm_validation` objects now include run attributes capturing parent provenance, enabling full workflow traceability across comparisons and validations.
 * Provenance trail automatically captures branching workflows when multiple coded objects are compared or validated.
 
@@ -45,14 +48,14 @@ The new API uses the `qlm_` prefix to avoid namespace conflicts (e.g., with `ggp
 
 ## Other changes
 
-- **BREAKING**: `qlm_validate()` now uses distinct, statistically appropriate metrics for each measurement level:
+- `qlm_validate()` now uses distinct, statistically appropriate metrics for each measurement level:
   - **Nominal** (`level = "nominal"`): accuracy, precision, recall, F1-score, Cohen's kappa (unweighted)
   - **Ordinal** (`level = "ordinal"`): Spearman's rho, Kendall's tau, MAE (mean absolute error)
   - **Interval/Ratio** (`level = "interval"`): ICC (intraclass correlation), Pearson's r, MAE, RMSE (root mean squared error)
 
   The `measure` argument has been removed entirely - all appropriate measures are now computed automatically based on the `level` parameter. Function signature changed: `level` now comes before `average`, and `average` only applies to nominal (multiclass) data. Return values renamed for consistency: `spearman` → `rho`, `kendall` → `tau`, `pearson` → `r`. Print output uses "levels" terminology for ordinal data and "classes" for nominal data. This change provides more statistically sound validation that respects the mathematical properties of each measurement scale.
 
-- **BREAKING**: `qlm_compare()` now computes all statistically appropriate measures for each measurement level:
+- `qlm_compare()` now computes all statistically appropriate measures for each measurement level:
   - **Nominal** (`level = "nominal"`): Krippendorff's alpha (nominal), Cohen's/Fleiss' kappa, percent agreement
   - **Ordinal** (`level = "ordinal"`): Krippendorff's alpha (ordinal), weighted kappa (2 raters only), Kendall's W, Spearman's rho, percent agreement
   - **Interval/Ratio** (`level = "interval"`): Krippendorff's alpha (interval), ICC (intraclass correlation), Pearson's r, percent agreement

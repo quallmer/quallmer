@@ -40,7 +40,7 @@ library(quallmer)
 
 Before using large language models, most users will need to sign up for an API key from an LLM provider, such as OpenAI, or download an open-source model like those from Ollama. The `quallmer` package supports multiple LLM providers through the `ellmer` package, allowing users to choose the one that best fits their needs.
 
-Using `qlm_code()`, users can generate structured, interpretable outputs powered by large language models (LLMs). The package allows users to [create their own custom codebooks tailored to their specific research questions and data types](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/custom-codebook.html) using `qlm_codebook()`. The package also includes a library of [example codebooks illustrating common qualitative coding workflows](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/overview.html), such as sentiment analysis, thematic coding, and stance detection. 
+Using `qlm_code()`, users can generate structured, interpretable outputs powered by large language models (LLMs). The package allows users to [create their own custom codebooks tailored to their specific research questions and data types](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/custom-codebook.html) using `qlm_codebook()`. 
 
 The package provides functions for validating and comparing coded results:
 

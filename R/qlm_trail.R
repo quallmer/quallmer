@@ -8,6 +8,9 @@
 #' @param ... One or more quallmer objects (`qlm_coded`, `qlm_comparison`, or
 #'   `qlm_validation`). When multiple objects are provided, they will be used
 #'   to reconstruct the complete provenance chain.
+#' @param include_data Logical. If `TRUE`, stores the actual coded data alongside
+#'   the metadata. This allows you to archive complete results with
+#'   `qlm_trail_save()`. Default is `FALSE` to keep trail objects lightweight.
 #'
 #' @return A `qlm_trail` object containing:
 #'   \describe{
@@ -42,16 +45,17 @@
 #' trail <- qlm_trail(coded3, coded2, coded1)
 #' print(trail)
 #'
-#' # Save for archival
-#' qlm_trail_save(trail, "analysis_trail.rds")
+#' # Include actual coded data for complete archival
+#' trail_with_data <- qlm_trail(coded3, coded2, coded1, include_data = TRUE)
+#' qlm_trail_save(trail_with_data, "analysis_trail_complete.rds")
 #'
-#' # Export to JSON
+#' # Export metadata only as JSON
 #' qlm_trail_export(trail, "analysis_trail.json")
 #' }
 #'
 #' @seealso [qlm_replicate()], [qlm_code()], [qlm_compare()], [qlm_validate()]
 #' @export
-qlm_trail <- function(...) {
+qlm_trail <- function(..., include_data = FALSE) {
   objects <- list(...)
 
   if (length(objects) == 0) {
@@ -82,20 +86,61 @@ qlm_trail <- function(...) {
 
     # Store comparison/validation data if this is a comparison or validation object
     if (inherits(obj, "qlm_comparison")) {
+      # Extract all measures from the comparison object
+      # Different measures exist depending on the level (nominal/ordinal/interval/ratio)
       run$comparison_data <- list(
-        measure = obj$measure,
-        value = obj$value,
+        level = obj$level,
         subjects = obj$subjects,
-        raters = obj$raters
+        raters = obj$raters,
+        # Nominal measures
+        alpha_nominal = obj$alpha_nominal,
+        kappa = obj$kappa,
+        kappa_type = obj$kappa_type,
+        # Ordinal measures
+        alpha_ordinal = obj$alpha_ordinal,
+        kappa_weighted = obj$kappa_weighted,
+        w = obj$w,
+        rho = obj$rho,
+        # Interval/ratio measures
+        alpha_interval = obj$alpha_interval,
+        icc = obj$icc,
+        r = obj$r,
+        # Shared across all levels
+        percent_agreement = obj$percent_agreement
       )
     } else if (inherits(obj, "qlm_validation")) {
+      # Extract all validation metrics across all measurement levels
       run$validation_data <- list(
+        level = obj$level,
+        n = obj$n,
+        classes = obj$classes,
+        average = obj$average,
+        # Nominal metrics
         accuracy = obj$accuracy,
         precision = obj$precision,
         recall = obj$recall,
         f1 = obj$f1,
-        kappa = obj$kappa
+        kappa = obj$kappa,
+        # Ordinal metrics
+        rho = obj$rho,
+        tau = obj$tau,
+        # Interval metrics
+        r = obj$r,
+        icc = obj$icc,
+        # Shared metrics (ordinal/interval)
+        mae = obj$mae,
+        rmse = obj$rmse
       )
+    }
+
+    # Store data if requested
+    if (include_data) {
+      # For qlm_coded objects, store the data frame
+      if (inherits(obj, "qlm_coded")) {
+        run$data <- as.data.frame(obj)
+      }
+      # For comparisons and validations, we already stored the relevant summary data
+      # The actual underlying coded data would be in their parent runs
     }
 
     # Store run with its index for ordering
@@ -148,7 +193,8 @@ qlm_trail <- function(...) {
   structure(
     list(
       runs = chain,
-      complete = complete
+      complete = complete,
+      include_data = include_data
     ),
     class = "qlm_trail"
   )
@@ -173,7 +219,11 @@ print.qlm_trail <- function(x, ...) {
 
   # Header
   if (n_runs == 1) {
-    cat("# quallmer trail\n")
+    cat("# quallmer trail")
+    if (x$include_data) {
+      cat(" [with data]")
+    }
+    cat("\n")
     run <- x$runs[[1]]
     cat("Run:     ", run$name, "\n", sep = "")
     if (!is.null(run$parent)) {
@@ -190,6 +240,24 @@ print.qlm_trail <- function(x, ...) {
       cat("Model:   ", run$chat_args$name, "\n", sep = "")
     }
 
+    # Show comparison info if available
+    if (!is.null(run$comparison_data)) {
+      comp <- run$comparison_data
+      cat("\nComparison (", comp$level %||% "unknown", " level):\n", sep = "")
+      cat("  Subjects: ", comp$subjects %||% "?", "\n", sep = "")
+      cat("  Raters:   ", comp$raters %||% "?", "\n", sep = "")
+    }
+
+    # Show validation info if available
+    if (!is.null(run$validation_data)) {
+      val <- run$validation_data
+      cat("\nValidation (", val$level %||% "unknown", " level):\n", sep = "")
+      cat("  N:        ", val$n %||% "?", "\n", sep = "")
+      if (!is.null(val$average)) {
+        cat("  Average:  ", val$average, "\n", sep = "")
+      }
+    }
+
     cat("\n")
     if (!x$complete) {
       cat("To see full chain, provide ancestor objects.\n")
@@ -197,7 +265,11 @@ print.qlm_trail <- function(x, ...) {
   } else {
     # Plural handling
     runs_text <- if (n_runs == 1) "run" else "runs"
-    cat("# quallmer trail (", n_runs, " ", runs_text, ")\n\n", sep = "")
+    cat("# quallmer trail (", n_runs, " ", runs_text, ")", sep = "")
+    if (x$include_data) {
+      cat(" [with data]")
+    }
+    cat("\n\n")
 
     for (i in seq_along(x$runs)) {
       run <- x$runs[[i]]
@@ -235,6 +307,25 @@ print.qlm_trail <- function(x, ...) {
         cat("   Codebook: ", run$codebook$name, "\n", sep = "")
       }
 
+      # Show comparison summary if available
+      if (!is.null(run$comparison_data)) {
+        comp <- run$comparison_data
+        cat("   Comparison: ", comp$level %||% "unknown", " level | ",
+            comp$subjects %||% "?", " subjects | ",
+            comp$raters %||% "?", " raters\n", sep = "")
+      }
+
+      # Show validation summary if available
+      if (!is.null(run$validation_data)) {
+        val <- run$validation_data
+        cat("   Validation: ", val$level %||% "unknown", " level | ",
+            "n=", val$n %||% "?", sep = "")
+        if (!is.null(val$average)) {
+          cat(" | ", val$average, " avg", sep = "")
+        }
+        cat("\n")
+      }
+
       if (i < length(x$runs)) {
         cat("\n")
       }
@@ -252,7 +343,9 @@ print.qlm_trail <- function(x, ...) {
 
 #' Save trail to RDS file
 #'
-#' Saves a provenance trail to an RDS file for archival purposes.
+#' Saves a provenance trail to an RDS file for archival purposes. If the trail
+#' was created with `include_data = TRUE`, the actual coded data will also be
+#' saved, creating a complete archive of your analysis.
 #'
 #' @param trail A `qlm_trail` object from [qlm_trail()].
 #' @param file Path to save the RDS file.
@@ -261,8 +354,13 @@ print.qlm_trail <- function(x, ...) {
 #'
 #' @examples
 #' \dontrun{
+#' # Save metadata only (lightweight)
 #' trail <- qlm_trail(coded1, coded2, coded3)
 #' qlm_trail_save(trail, "analysis_trail.rds")
+#'
+#' # Save complete archive with coded data
+#' trail_complete <- qlm_trail(coded1, coded2, coded3, include_data = TRUE)
+#' qlm_trail_save(trail_complete, "analysis_trail_complete.rds")
 #' }
 #'
 #' @seealso [qlm_trail()]
@@ -517,13 +615,34 @@ qlm_trail_report <- function(trail, file, include_comparisons = FALSE,
         } else {
           paste(run$parent, collapse = ", ")
         }
+
+        # Collect relevant measures based on level
+        measures <- list()
+        if (!is.null(comp_data$level)) {
+          if (comp_data$level == "nominal") {
+            measures$alpha_nominal <- comp_data$alpha_nominal
+            measures$kappa <- comp_data$kappa
+            measures$kappa_type <- comp_data$kappa_type
+          } else if (comp_data$level == "ordinal") {
+            measures$alpha_ordinal <- comp_data$alpha_ordinal
+            measures$kappa_weighted <- comp_data$kappa_weighted
+            measures$w <- comp_data$w
+            measures$rho <- comp_data$rho
+          } else if (comp_data$level %in% c("interval", "ratio")) {
+            measures$alpha_interval <- comp_data$alpha_interval
+            measures$icc <- comp_data$icc
+            measures$r <- comp_data$r
+          }
+          measures$percent_agreement <- comp_data$percent_agreement
+        }
+
         comparisons_list[[length(comparisons_list) + 1]] <- list(
           run = run$name,
           parents = parents_str,
-          measure = comp_data$measure,
-          value = comp_data$value,
-          subjects = comp_data$subjects,
-          raters = comp_data$raters
+          level = comp_data$level %||% "unknown",
+          subjects = comp_data$subjects %||% NA_integer_,
+          raters = comp_data$raters %||% NA_integer_,
+          measures = measures
         )
       }
 
@@ -535,14 +654,35 @@ qlm_trail_report <- function(trail, file, include_comparisons = FALSE,
         } else {
           paste(run$parent, collapse = ", ")
         }
+
+        # Collect relevant metrics based on level
+        metrics <- list()
+        if (!is.null(val_data$level)) {
+          if (val_data$level == "nominal") {
+            metrics$accuracy <- val_data$accuracy
+            metrics$precision <- val_data$precision
+            metrics$recall <- val_data$recall
+            metrics$f1 <- val_data$f1
+            metrics$kappa <- val_data$kappa
+          } else if (val_data$level == "ordinal") {
+            metrics$rho <- val_data$rho
+            metrics$tau <- val_data$tau
+            metrics$mae <- val_data$mae
+          } else if (val_data$level == "interval") {
+            metrics$r <- val_data$r
+            metrics$icc <- val_data$icc
+            metrics$mae <- val_data$mae
+            metrics$rmse <- val_data$rmse
+          }
+        }
+
         validations_list[[length(validations_list) + 1]] <- list(
           run = run$name,
           parents = parents_str,
-          accuracy = val_data$accuracy %||% NA_real_,
-          precision = val_data$precision %||% NA_real_,
-          recall = val_data$recall %||% NA_real_,
-          f1 = val_data$f1 %||% NA_real_,
-          kappa = val_data$kappa %||% NA_real_
+          level = val_data$level %||% "unknown",
+          n = val_data$n %||% NA_integer_,
+          average = val_data$average,
+          metrics = metrics
         )
       }
     }
@@ -562,20 +702,49 @@ qlm_trail_report <- function(trail, file, include_comparisons = FALSE,
       lines <- c(lines, "The following comparisons were performed to assess agreement between runs:")
       lines <- c(lines, "")
 
-      # Create markdown table
-      lines <- c(lines, "| Run | Compared Runs | Measure | Value | Subjects | Raters |")
-      lines <- c(lines, "|-----|---------------|---------|-------|----------|--------|")
-
       for (comp in comparisons_list) {
-        lines <- c(lines, sprintf("| %s | %s | %s | %.4f | %d | %d |",
-                                  comp$run,
-                                  comp$parents,
-                                  comp$measure,
-                                  comp$value,
-                                  comp$subjects,
-                                  comp$raters))
+        lines <- c(lines, sprintf("#### %s", comp$run))
+        lines <- c(lines, "")
+        lines <- c(lines, paste("- **Compared runs:**", comp$parents))
+        lines <- c(lines, paste("- **Level:**", comp$level))
+        lines <- c(lines, paste("- **Subjects:**", comp$subjects))
+        lines <- c(lines, paste("- **Raters:**", comp$raters))
+        lines <- c(lines, "")
+
+        # Display measures
+        if (length(comp$measures) > 0) {
+          lines <- c(lines, "**Measures:**")
+          lines <- c(lines, "")
+          for (measure_name in names(comp$measures)) {
+            measure_value <- comp$measures[[measure_name]]
+            if (!is.null(measure_value) && !is.na(measure_value)) {
+              # Format measure name nicely
+              display_name <- switch(measure_name,
+                "alpha_nominal" = "Krippendorff's alpha (nominal)",
+                "alpha_ordinal" = "Krippendorff's alpha (ordinal)",
+                "alpha_interval" = "Krippendorff's alpha (interval)",
+                "kappa" = paste0(comp$measures$kappa_type %||% "Cohen's", " kappa"),
+                "kappa_weighted" = "Weighted kappa",
+                "kappa_type" = NULL,  # Skip this, shown with kappa
+                "w" = "Kendall's W",
+                "rho" = "Spearman's rho",
+                "icc" = "ICC",
+                "r" = "Pearson's r",
+                "percent_agreement" = "Percent agreement",
+                measure_name
+              )
+              if (!is.null(display_name)) {
+                if (is.numeric(measure_value)) {
+                  lines <- c(lines, sprintf("- %s: %.4f", display_name, measure_value))
+                } else {
+                  lines <- c(lines, sprintf("- %s: %s", display_name, measure_value))
+                }
+              }
+            }
+          }
+          lines <- c(lines, "")
+        }
       }
-      lines <- c(lines, "")
     }
 
     # Validations
@@ -585,21 +754,45 @@ qlm_trail_report <- function(trail, file, include_comparisons = FALSE,
       lines <- c(lines, "The following runs were validated against gold standard annotations:")
       lines <- c(lines, "")
 
-      # Create markdown table
-      lines <- c(lines, "| Run | Compared Runs | Accuracy | Precision | Recall | F1 | Kappa |")
-      lines <- c(lines, "|-----|---------------|----------|-----------|--------|-----|-------|")
-
       for (val in validations_list) {
-        lines <- c(lines, sprintf("| %s | %s | %.4f | %.4f | %.4f | %.4f | %.4f |",
-                                  val$run,
-                                  val$parents,
-                                  val$accuracy,
-                                  val$precision,
-                                  val$recall,
-                                  val$f1,
-                                  val$kappa))
+        lines <- c(lines, sprintf("#### %s", val$run))
+        lines <- c(lines, "")
+        lines <- c(lines, paste("- **Compared runs:**", val$parents))
+        lines <- c(lines, paste("- **Level:**", val$level))
+        lines <- c(lines, paste("- **N:**", val$n))
+        if (!is.null(val$average)) {
+          lines <- c(lines, paste("- **Average:**", val$average))
+        }
+        lines <- c(lines, "")
+
+        # Display metrics
+        if (length(val$metrics) > 0) {
+          lines <- c(lines, "**Metrics:**")
+          lines <- c(lines, "")
+          for (metric_name in names(val$metrics)) {
+            metric_value <- val$metrics[[metric_name]]
+            if (!is.null(metric_value) && !is.na(metric_value)) {
+              # Format metric name nicely
+              display_name <- switch(metric_name,
+                "accuracy" = "Accuracy",
+                "precision" = "Precision",
+                "recall" = "Recall",
+                "f1" = "F1-score",
+                "kappa" = "Cohen's kappa",
+                "rho" = "Spearman's rho",
+                "tau" = "Kendall's tau",
+                "r" = "Pearson's r",
+                "icc" = "ICC",
+                "mae" = "MAE",
+                "rmse" = "RMSE",
+                metric_name
+              )
+              lines <- c(lines, sprintf("- %s: %.4f", display_name, metric_value))
+            }
+          }
+          lines <- c(lines, "")
+        }
       }
-      lines <- c(lines, "")
     }
 
     # Robustness

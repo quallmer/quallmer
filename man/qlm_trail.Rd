@@ -4,12 +4,16 @@
 \alias{qlm_trail}
 \title{Extract provenance trail from quallmer objects}
 \usage{
-qlm_trail(...)
+qlm_trail(..., include_data = FALSE)
 }
 \arguments{
 \item{...}{One or more quallmer objects (\code{qlm_coded}, \code{qlm_comparison}, or
 \code{qlm_validation}). When multiple objects are provided, they will be used
 to reconstruct the complete provenance chain.}
+
+\item{include_data}{Logical. If \code{TRUE}, stores the actual coded data alongside
+the metadata. This allows you to archive complete results with
+\code{qlm_trail_save()}. Default is \code{FALSE} to keep trail objects lightweight.}
 }
 \value{
 A \code{qlm_trail} object containing:
@@ -53,10 +57,11 @@ coded3 <- qlm_replicate(coded2, temperature = 0.7)
 trail <- qlm_trail(coded3, coded2, coded1)
 print(trail)
 
-# Save for archival
-qlm_trail_save(trail, "analysis_trail.rds")
+# Include actual coded data for complete archival
+trail_with_data <- qlm_trail(coded3, coded2, coded1, include_data = TRUE)
+qlm_trail_save(trail_with_data, "analysis_trail_complete.rds")
 
-# Export to JSON
+# Export metadata only as JSON
 qlm_trail_export(trail, "analysis_trail.json")
 }
 
