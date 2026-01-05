@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Using the Validate App • quallmer</title>
+<title>Using the quallmer app • quallmer</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../../../favicon-96x96.png">
 <link rel="icon" type="”image/svg+xml”" href="../../../favicon.svg">
 <link rel="apple-touch-icon" sizes="180x180" href="../../../apple-touch-icon.png">
@@ -15,7 +15,7 @@
 <link href="../../../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../../../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../../../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../../../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../../../deps/headroom-0.11.0/headroom.min.js"></script><script src="../../../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../../../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../../../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../../../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../../../deps/search-1.0.0/fuse.min.js"></script><script src="../../../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../../../pkgdown.js"></script><meta property="og:title" content="Using the Validate App">
+<script src="../../../deps/headroom-0.11.0/headroom.min.js"></script><script src="../../../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../../../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../../../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../../../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../../../deps/search-1.0.0/fuse.min.js"></script><script src="../../../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../../../pkgdown.js"></script><meta property="og:title" content="Using the quallmer app">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -48,7 +48,7 @@
     <li><a class="dropdown-item" href="../../../articles/pkgdown/tutorials/custom-codebook.html">Creating codebooks</a></li>
     <li><a class="dropdown-item" href="../../../articles/pkgdown/tutorials/compare.html">Comparing and replicating coded results</a></li>
     <li><a class="dropdown-item" href="../../../articles/pkgdown/tutorials/trail.html">The quallmer trail</a></li>
-    <li><a class="dropdown-item" href="../../../articles/pkgdown/tutorials/validate.html">Using the Validate App (quallmer.app)</a></li>
+    <li><a class="dropdown-item" href="../../../articles/pkgdown/tutorials/validate.html">Using the quallmer.app</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../../../reference/index.html">Reference</a></li>
@@ -71,7 +71,7 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../../../logo.png" class="logo" alt=""><h1>Using the Validate App</h1>
+      <img src="../../../logo.png" class="logo" alt=""><h1>Using the quallmer app</h1>
             
       
 
@@ -80,38 +80,38 @@
 
     
     
-<p>The Validate App is a user-friendly interface that allows researchers
+<p>The quallmer app is a user-friendly interface that allows researchers
 to manually code data, review LLM-generated annotations, and calculate
 inter-rater reliability scores such as Krippendorff’s alpha and Fleiss’
 kappa or compare LLM-annotations against a gold standard for accuracy
 scores. This tutorial will guide you through the steps of using the
-Validate App effectively. If you prefer to work programmatically, we
-also provide instructions on how to calculate agreement scores by simply
-using the <code><a href="../../../reference/qlm_validate.html">qlm_validate()</a></code> or <code><a href="../../../reference/qlm_compare.html">qlm_compare()</a></code>
-functions at the end of this tutorial.</p>
+quallmer app effectively. If you prefer to work programmatically, the
+quallmer package also provides functions to perform these tasks without
+the app, which are described in <a href="https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/compare.html">other
+tutorials</a>.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>The Validate App is available in the companion package
+<p>The quallmer app is available in the companion package
 <code>quallmer.app</code>. To install it:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("pak")</span></span>
 <span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"SeraphineM/quallmer.app"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="launching-the-validate-app">Launching the Validate App<a class="anchor" aria-label="anchor" href="#launching-the-validate-app"></a>
+<h2 id="launching-the-quallmer-app">Launching the quallmer app<a class="anchor" aria-label="anchor" href="#launching-the-quallmer-app"></a>
 </h2>
-<p>To launch the Validate App, load the <code>quallmer.app</code>
-package and call the <code>validate_app()</code> function. This will
-open the Validate App in a new window or tab in your web browser.</p>
+<p>To launch the quallmer app, load the <code>quallmer.app</code>
+package and call the <code>qlm_app()</code> function. This will open the
+quallmer app in a new window or tab in your web browser.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">quallmer.app</span><span class="op">)</span></span>
-<span><span class="fu">validate_app</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">qlm_app</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="using-the-validate-app-for-manual-coding">Using the Validate App for manual coding<a class="anchor" aria-label="anchor" href="#using-the-validate-app-for-manual-coding"></a>
+<h2 id="using-the-quallmer-app-for-manual-coding">Using the quallmer app for manual coding<a class="anchor" aria-label="anchor" href="#using-the-quallmer-app-for-manual-coding"></a>
 </h2>
-<p>Once the Validate App is launched, you can start by uploading your
+<p>Once the quallmer app is launched, you can start by uploading your
 dataset. The app supports .csv or .rds file formats. After uploading
 your data, you can select the column containing the content (e.g.,
 texts, images, etc.) you want to manually assess. While using the app,
@@ -120,23 +120,23 @@ your coding scheme. You can also save example sentences from each text
 item to help you remember your coding decisions later or as illustrative
 examples for your research.</p>
 <div class="float">
-<img src="pics/manual.png" alt="Screenshot of the Validate App manual coding interface showing text items with fields for scores, comments, and example sentences"><div class="figcaption">Screenshot of the Validate App manual coding
+<img src="pics/manual.png" alt="Screenshot of the quallmer app manual coding interface showing text items with fields for scores, comments, and example sentences"><div class="figcaption">Screenshot of the quallmer app manual coding
 interface showing text items with fields for scores, comments, and
 example sentences</div>
 </div>
 </div>
 <div class="section level2">
-<h2 id="reviewing-llm-generated-annotations">Reviewing LLM-generated annotations<a class="anchor" aria-label="anchor" href="#reviewing-llm-generated-annotations"></a>
+<h2 id="using-the-quallmer-app-for-eviewing-llm-generated-annotations">Using the quallmer app for eviewing LLM-generated annotations<a class="anchor" aria-label="anchor" href="#using-the-quallmer-app-for-eviewing-llm-generated-annotations"></a>
 </h2>
 <p>If you have previously used the <code>quallmer</code> package to
 generate annotations using large language models (LLMs), you can upload
-those annotations into the Validate App for review. The app allows you
+those annotations into the quallmer app for review. The app allows you
 to check the LLM-generated codes alongside justifications provided by
 the model. You can then decide whether to accept these annotations as
 <code>valid</code> or <code>invalid</code>, or modify them based on your
 assessment by adding comments and example sentences.</p>
 <div class="float">
-<img src="pics/llm.png" alt="Screenshot of the Validate App LLM annotation review interface displaying model-generated codes with justifications and validation options"><div class="figcaption">Screenshot of the Validate App LLM annotation
+<img src="pics/llm.png" alt="Screenshot of the quallmer app LLM annotation review interface displaying model-generated codes with justifications and validation options"><div class="figcaption">Screenshot of the quallmer app LLM annotation
 review interface displaying model-generated codes with justifications
 and validation options</div>
 </div>
@@ -150,10 +150,11 @@ be saved automatically, you find it in a newly created folder named
 “agreement” in your working directory.</strong></p>
 </div>
 <div class="section level2">
-<h2 id="calculating-validation-scores">Calculating validation scores<a class="anchor" aria-label="anchor" href="#calculating-validation-scores"></a>
+<h2 id="using-the-quallmer-app-to-calculate-inter-rater-reliability-or-accuracy-scores">Using the quallmer app to calculate inter-rater reliability or
+accuracy scores<a class="anchor" aria-label="anchor" href="#using-the-quallmer-app-to-calculate-inter-rater-reliability-or-accuracy-scores"></a>
 </h2>
 <p>After completing the manual coding and reviewing the LLM-generated
-annotations, the Validate App provides functionality to calculate
+annotations, the quallmer app provides functionality to calculate
 inter-rater reliability scores or compare LLM annotations against a gold
 standard. You can choose from various metrics, such as Krippendorff’s
 alpha, Cohen’s or Fleiss’ kappa, to assess the agreement between
@@ -180,42 +181,11 @@ coding runs</div>
 metrics including precision, recall, F1-score, and Cohen’s kappa when
 validating against a gold standard</div>
 </div>
-</div>
-</div>
-<div class="section level2">
-<h2 id="calculating-validation-scores-without-the-app">Calculating validation scores without the App<a class="anchor" aria-label="anchor" href="#calculating-validation-scores-without-the-app"></a>
-</h2>
-<p>In addition to using the Validate App, you can also calculate
-agreement and validation scores programmatically using functions from
-the <code>quallmer</code> package.</p>
-<div class="section level3">
-<h3 id="comparing-multiple-coders-inter-coder-reliability">Comparing multiple coders (inter-coder reliability)<a class="anchor" aria-label="anchor" href="#comparing-multiple-coders-inter-coder-reliability"></a>
-</h3>
-<p>If you <strong>do not have a gold standard available</strong> and
-want to assess inter-coder reliability between multiple
-<code>qlm_coded</code> objects (from different coders, models, or coding
-runs), use <code><a href="../../../reference/qlm_compare.html">qlm_compare()</a></code>:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode .r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># Compare two or more qlm_coded objects</span></span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>comparison <span class="ot">&lt;-</span> <span class="fu">qlm_compare</span>(coded_run1, coded_run2, coded_run3)</span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>comparison</span></code></pre></div>
-<p>This will compute agreement metrics including Krippendorff’s alpha,
-Cohen’s kappa, and Fleiss’ kappa.</p>
-</div>
-<div class="section level3">
-<h3 id="validating-against-a-gold-standard">Validating against a gold standard<a class="anchor" aria-label="anchor" href="#validating-against-a-gold-standard"></a>
-</h3>
-<p>If you <strong>have a gold standard available</strong> and want to
-assess accuracy of LLM-generated annotations against the gold standard,
-use <code><a href="../../../reference/qlm_validate.html">qlm_validate()</a></code>:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode .r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># Validate LLM coding against gold standard</span></span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>validation <span class="ot">&lt;-</span> <span class="fu">qlm_validate</span>(</span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  <span class="at">coded_object =</span> llm_coded_result,</span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>  <span class="at">gold_standard =</span> gold_standard_data,</span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>  <span class="at">gold_column =</span> <span class="st">"manual_code"</span></span>
-<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>)</span>
-<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>validation</span></code></pre></div>
-<p>This will compute classification metrics including accuracy,
-precision, recall, F1-score, and Cohen’s kappa.</p>
+<p>In summary, the quallmer app provides a convenient and user-friendly
+way to manually code data, review LLM-generated annotations, and
+calculate inter-rater reliability or accuracy scores. By following the
+steps outlined in this tutorial, you can effectively utilize the
+quallmer app for your qualitative research projects.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

@@ -16,5 +16,5 @@
   key](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/openai.md):
 - [The quallmer
   trail](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/trail.md):
-- [Using the Validate
-  App](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/validate.md):
+- [Using the quallmer
+  app](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/validate.md):

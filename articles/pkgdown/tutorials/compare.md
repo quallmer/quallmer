@@ -99,7 +99,7 @@ coded1
     ## # A tibble: 11 × 3
     ##    .id          score explanation                                               
     ##  * <chr>        <int> <chr>                                                     
-    ##  1 1985-Reagan      8 The text emphasizes reducing government intervention in t…
+    ##  1 1985-Reagan      8 The text emphasizes limited government, reduced taxes, an…
     ##  2 1989-Bush        7 The text emphasizes free markets, limited government inte…
     ##  3 1993-Clinton     4 The text emphasizes themes of renewal, change, and respon…
     ##  4 1997-Clinton     5 The text presents a centrist ideological position. It emp…
@@ -108,8 +108,8 @@ coded1
     ##  7 2009-Obama       3 The text emphasizes themes of unity, responsibility, and …
     ##  8 2013-Obama       3 The text emphasizes equality, collective action, and soci…
     ##  9 2017-Trump       8 The text emphasizes nationalism, protectionism, and a foc…
-    ## 10 2021-Biden       3 The text emphasizes unity, democracy, and addressing soci…
-    ## 11 2025-Trump       8 The text emphasizes strong nationalist and protectionist …
+    ## 10 2021-Biden       3 The text emphasizes unity, democracy, and addressing syst…
+    ## 11 2025-Trump       8 The text emphasizes nationalism, strong border control, m…
 
 ## Replicating with different settings
 
@@ -131,8 +131,6 @@ coded2 <- qlm_replicate(coded1,
 
     ## [working] (0 + 0) -> 10 -> 1 | ■■■■                               9%
 
-    ## [working] (0 + 0) -> 2 -> 9 | ■■■■■■■■■■■■■■■■■■■■■■■■■■        82%
-
     ## [working] (0 + 0) -> 0 -> 11 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100%
 
 ### Replicating with different temperature
@@ -144,7 +142,7 @@ coded3 <- qlm_replicate(coded1,
                         name = "gpt4o_temp07")
 ```
 
-    ## [working] (0 + 0) -> 8 -> 3 | ■■■■■■■■■                         27%
+    ## [working] (0 + 0) -> 9 -> 2 | ■■■■■■                            18%
 
     ## [working] (0 + 0) -> 0 -> 11 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100%
 
@@ -173,10 +171,10 @@ comparison
     ## # Raters:   3 
     ## # Level:    ordinal 
     ## 
-    ## Krippendorff's alpha: 0.8523
-    ## Kendall's W:          0.8616
-    ## Spearman's rho:       0.8749
-    ## Percent agreement:    0.3636
+    ## Krippendorff's alpha: 0.8288
+    ## Kendall's W:          0.8732
+    ## Spearman's rho:       0.8659
+    ## Percent agreement:    0.0909
 
 The output shows:
 
@@ -204,9 +202,9 @@ qlm_compare(coded1, coded2, coded3,
     ## # Raters:   3 
     ## # Level:    ordinal 
     ## 
-    ## Krippendorff's alpha: 0.8523
-    ## Kendall's W:          0.8616
-    ## Spearman's rho:       0.8749
+    ## Krippendorff's alpha: 0.8288
+    ## Kendall's W:          0.8732
+    ## Spearman's rho:       0.8659
     ## Percent agreement:    0.7273
 
 ## Validating against a gold standard
