@@ -8,7 +8,7 @@ parent-child relationships.
 ## Usage
 
 ``` r
-qlm_trail(...)
+qlm_trail(..., include_data = FALSE)
 ```
 
 ## Arguments
@@ -18,6 +18,13 @@ qlm_trail(...)
   One or more quallmer objects (`qlm_coded`, `qlm_comparison`, or
   `qlm_validation`). When multiple objects are provided, they will be
   used to reconstruct the complete provenance chain.
+
+- include_data:
+
+  Logical. If `TRUE`, stores the actual coded data alongside the
+  metadata. This allows you to archive complete results with
+  [`qlm_trail_save()`](https://seraphinem.github.io/quallmer/reference/qlm_trail_save.md).
+  Default is `FALSE` to keep trail objects lightweight.
 
 ## Value
 
@@ -74,10 +81,11 @@ coded3 <- qlm_replicate(coded2, temperature = 0.7)
 trail <- qlm_trail(coded3, coded2, coded1)
 print(trail)
 
-# Save for archival
-qlm_trail_save(trail, "analysis_trail.rds")
+# Include actual coded data for complete archival
+trail_with_data <- qlm_trail(coded3, coded2, coded1, include_data = TRUE)
+qlm_trail_save(trail_with_data, "analysis_trail_complete.rds")
 
-# Export to JSON
+# Export metadata only as JSON
 qlm_trail_export(trail, "analysis_trail.json")
 } # }
 ```

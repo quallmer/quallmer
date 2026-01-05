@@ -163,7 +163,7 @@ We’ll use sentiment analysis as our example.</p>
 <pre><code><span><span class="co">## [1] "initial_gpt4o"</span></span></code></pre>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">coded1</span>, <span class="st">"run"</span><span class="op">)</span><span class="op">$</span><span class="va">metadata</span><span class="op">$</span><span class="va">timestamp</span></span></code></pre></div>
-<pre><code><span><span class="co">## [1] "2026-01-04 05:28:31 UTC"</span></span></code></pre>
+<pre><code><span><span class="co">## [1] "2026-01-05 02:28:07 UTC"</span></span></code></pre>
 </div>
 <div class="section level3">
 <h3 id="creating-a-replication-chain">Creating a replication chain<a class="anchor" aria-label="anchor" href="#creating-a-replication-chain"></a>
@@ -210,10 +210,14 @@ complete provenance chain from your quallmer objects.</p>
 <span><span class="va">trail1</span></span></code></pre></div>
 <pre><code><span><span class="co">## # quallmer trail</span></span>
 <span><span class="co">## Run:     initial_gpt4o</span></span>
-<span><span class="co">## Created: 2026-01-04 05:28:31</span></span>
+<span><span class="co">## Created: 2026-01-05 02:28:07</span></span>
 <span><span class="co">## Model:   openai/gpt-4o</span></span></code></pre>
-<p>This displays: - Run name - Parent (if any) - Creation timestamp -
-Model used</p>
+<p>The trail displays:</p>
+<ul>
+<li>Run name and parent relationship</li>
+<li>Creation timestamp</li>
+<li>Model and parameters used</li>
+</ul>
 </div>
 <div class="section level3">
 <h3 id="reconstructing-a-complete-chain">Reconstructing a complete chain<a class="anchor" aria-label="anchor" href="#reconstructing-a-complete-chain"></a>
@@ -229,15 +233,15 @@ lineage:</p>
 <pre><code><span><span class="co">## # quallmer trail (3 runs)</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## 1. initial_gpt4o (original)</span></span>
-<span><span class="co">##    2026-01-04 05:28 | openai/gpt-4o</span></span>
+<span><span class="co">##    2026-01-05 02:28 | openai/gpt-4o</span></span>
 <span><span class="co">##    Codebook: Ideological scaling</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## 2. replicate_mini (parent: initial_gpt4o)</span></span>
-<span><span class="co">##    2026-01-04 05:28 | openai/gpt-4o-mini</span></span>
+<span><span class="co">##    2026-01-05 02:28 | openai/gpt-4o-mini</span></span>
 <span><span class="co">##    Codebook: Ideological scaling</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## 3. mini_temp07 (parent: replicate_mini)</span></span>
-<span><span class="co">##    2026-01-04 05:28 | openai/gpt-4o-mini</span></span>
+<span><span class="co">##    2026-01-05 02:28 | openai/gpt-4o-mini</span></span>
 <span><span class="co">##    Codebook: Ideological scaling</span></span></code></pre>
 <p>The output shows:</p>
 <ul>
@@ -271,9 +275,13 @@ data:</p>
 <span>    n_units <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">coded</span><span class="op">$</span><span class="va">score</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>The analysis function should: - Take a <code>qlm_coded</code> object
-as input - Return a named list of numeric statistics - Each statistic
-should be a single number (e.g., mean, proportion, correlation)</p>
+<p>The analysis function should:</p>
+<ul>
+<li>Take a <code>qlm_coded</code> object as input</li>
+<li>Return a named list of numeric statistics</li>
+<li>Each statistic should be a single number (e.g., mean, proportion,
+correlation)</li>
+</ul>
 </div>
 <div class="section level3">
 <h3 id="computing-robustness">Computing robustness<a class="anchor" aria-label="anchor" href="#computing-robustness"></a>
@@ -290,15 +298,15 @@ should be a single number (e.g., mean, proportion, correlation)</p>
 <span><span class="co">## Reference run: initial_gpt4o</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">##             run  statistic  value reference_value abs_diff pct_diff</span></span>
-<span><span class="co">##   initial_gpt4o mean_score  5.636           5.636   0.0000    0.000</span></span>
-<span><span class="co">##   initial_gpt4o   sd_score  2.111           2.111   0.0000    0.000</span></span>
-<span><span class="co">##   initial_gpt4o    n_units 11.000          11.000   0.0000    0.000</span></span>
-<span><span class="co">##  replicate_mini mean_score  5.818           5.636   0.1818    3.226</span></span>
-<span><span class="co">##  replicate_mini   sd_score  1.888           2.111   0.2228  -10.557</span></span>
-<span><span class="co">##  replicate_mini    n_units 11.000          11.000   0.0000    0.000</span></span>
-<span><span class="co">##     mini_temp07 mean_score  5.364           5.636   0.2727   -4.839</span></span>
-<span><span class="co">##     mini_temp07   sd_score  1.748           2.111   0.3629  -17.192</span></span>
-<span><span class="co">##     mini_temp07    n_units 11.000          11.000   0.0000    0.000</span></span>
+<span><span class="co">##   initial_gpt4o mean_score  5.545           5.545  0.00000    0.000</span></span>
+<span><span class="co">##   initial_gpt4o   sd_score  2.162           2.162  0.00000    0.000</span></span>
+<span><span class="co">##   initial_gpt4o    n_units 11.000          11.000  0.00000    0.000</span></span>
+<span><span class="co">##  replicate_mini mean_score  5.364           5.545  0.18182   -3.279</span></span>
+<span><span class="co">##  replicate_mini   sd_score  1.629           2.162  0.53237  -24.628</span></span>
+<span><span class="co">##  replicate_mini    n_units 11.000          11.000  0.00000    0.000</span></span>
+<span><span class="co">##     mini_temp07 mean_score  5.636           5.545  0.09091    1.639</span></span>
+<span><span class="co">##     mini_temp07   sd_score  1.859           2.162  0.30301  -14.017</span></span>
+<span><span class="co">##     mini_temp07    n_units 11.000          11.000  0.00000    0.000</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## abs_diff: Absolute difference from reference</span></span>
 <span><span class="co">## pct_diff: Percent change from reference (positive = increase)</span></span>
@@ -374,24 +382,27 @@ part of your workflow.</p>
 <span><span class="co">## [working] (0 + 0) -&gt; 0 -&gt; 11 | <span style="color: #00BB00;">■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ </span> 100%</span></span></code></pre>
 <div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># 2. Compare inter-rater reliability</span></span>
+<span><span class="co"># Score is ordinal (0-10 scale), so use level = "ordinal"</span></span>
 <span><span class="va">comparison</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../../reference/qlm_compare.html">qlm_compare</a></span><span class="op">(</span><span class="va">coded_gpt4o</span>, <span class="va">coded_mini</span>,</span>
-<span>                          by <span class="op">=</span> <span class="st">"score"</span>,</span>
-<span>                          level <span class="op">=</span> <span class="st">"nominal"</span><span class="op">)</span></span>
+<span>                          by <span class="op">=</span> <span class="va">score</span>,</span>
+<span>                          level <span class="op">=</span> <span class="st">"ordinal"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># View the comparison results</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">comparison</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## # Inter-rater reliability</span></span>
 <span><span class="co">## # Subjects: 11 </span></span>
 <span><span class="co">## # Raters:   2 </span></span>
-<span><span class="co">## # Level:    nominal </span></span>
+<span><span class="co">## # Level:    ordinal </span></span>
 <span><span class="co">## </span></span>
-<span><span class="co">## Krippendorff's alpha: 0.2723</span></span>
-<span><span class="co">## Cohen's kappa:        0.2736</span></span>
-<span><span class="co">## Percent agreement:    0.3636</span></span></code></pre>
+<span><span class="co">## Krippendorff's alpha: 0.6218</span></span>
+<span><span class="co">## Weighted kappa:       0.6768</span></span>
+<span><span class="co">## Kendall's W:          0.7761</span></span>
+<span><span class="co">## Spearman's rho:       0.6458</span></span>
+<span><span class="co">## Percent agreement:    0.1818</span></span></code></pre>
 <div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># 3. Validate against gold standard (if you have one)</span></span>
 <span><span class="co"># gold &lt;- data.frame(.id = coded_gpt4o$.id, score = c(2, 3, 1, ...))</span></span>
-<span><span class="co"># validation &lt;- qlm_validate(coded_gpt4o, gold = gold, by = "score")</span></span>
+<span><span class="co"># validation &lt;- qlm_validate(coded_gpt4o, gold = gold, by = score, level = "ordinal")</span></span>
 <span><span class="co"># print(validation)</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -404,54 +415,77 @@ part of your workflow.</p>
 <pre><code><span><span class="co">## # quallmer trail (3 runs)</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## 1. gpt4o_run (original)</span></span>
-<span><span class="co">##    2026-01-04 05:28 | openai/gpt-4o</span></span>
+<span><span class="co">##    2026-01-05 02:28 | openai/gpt-4o</span></span>
 <span><span class="co">##    Codebook: Ideological scaling</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## 2. mini_run (parent: gpt4o_run)</span></span>
-<span><span class="co">##    2026-01-04 05:28 | openai/gpt-4o-mini</span></span>
+<span><span class="co">##    2026-01-05 02:28 | openai/gpt-4o-mini</span></span>
 <span><span class="co">##    Codebook: Ideological scaling</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## 3. comparison_2b5e12c6 (parents: gpt4o_run, mini_run)</span></span>
-<span><span class="co">##    2026-01-04 05:28 | unknown</span></span></code></pre>
-<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># The trail shows parent-child relationships:</span></span>
-<span><span class="co"># - gpt4o_run (original)</span></span>
-<span><span class="co"># - mini_run (parent: gpt4o_run)</span></span>
-<span><span class="co"># - comparison_... (parents: gpt4o_run, mini_run)</span></span></code></pre></div>
+<span><span class="co">##    2026-01-05 02:28 | unknown</span></span>
+<span><span class="co">##    Comparison: ordinal level | 11 subjects | 2 raters</span></span></code></pre>
+<p>The trail shows:</p>
+<ul>
+<li>Parent-child relationships between runs</li>
+<li>Comparison/validation summaries (level, subjects, raters, etc.)</li>
+<li>Complete lineage: gpt4o_run → mini_run → comparison</li>
+</ul>
 </div>
 </div>
 <div class="section level2">
 <h2 id="exporting-and-documenting-your-workflow">Exporting and documenting your workflow<a class="anchor" aria-label="anchor" href="#exporting-and-documenting-your-workflow"></a>
 </h2>
 <p>You can export your trail for documentation and reproducibility:</p>
-<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Extract the full trail</span></span>
+<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Extract the full trail (metadata only - lightweight)</span></span>
 <span><span class="va">trail</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../../reference/qlm_trail.html">qlm_trail</a></span><span class="op">(</span><span class="va">coded_gpt4o</span>, <span class="va">coded_mini</span>, <span class="va">comparison</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Save as RDS for archival</span></span>
 <span><span class="co"># qlm_trail_save(trail, "my_workflow_trail.rds")</span></span>
 <span></span>
+<span><span class="co"># For complete archival with the actual coded data:</span></span>
+<span><span class="co"># trail_complete &lt;- qlm_trail(coded_gpt4o, coded_mini, comparison, include_data = TRUE)</span></span>
+<span><span class="co"># qlm_trail_save(trail_complete, "my_workflow_complete.rds")</span></span>
+<span></span>
 <span><span class="co"># Export as JSON for portability</span></span>
 <span><span class="co"># qlm_trail_export(trail, "my_workflow_trail.json")</span></span>
 <span></span>
-<span><span class="co"># Generate a human-readable report</span></span>
-<span><span class="co"># qlm_trail_report(trail, "my_workflow_report.qmd")</span></span>
-<span></span>
-<span><span class="co"># Include comparison metrics in the report</span></span>
-<span><span class="co"># qlm_trail_report(trail, "my_workflow_report.qmd", include_comparisons = TRUE)</span></span>
-<span></span>
-<span><span class="co"># Include both comparisons and validations</span></span>
+<span><span class="co"># Generate a comprehensive report</span></span>
 <span><span class="co"># qlm_trail_report(trail, "my_workflow_report.qmd",</span></span>
 <span><span class="co">#                  include_comparisons = TRUE,</span></span>
 <span><span class="co">#                  include_validations = TRUE)</span></span></code></pre></div>
+<p><strong>When to include data:</strong></p>
+<ul>
+<li>Use <code>include_data = FALSE</code> (default) for lightweight
+documentation and lineage tracking</li>
+<li>Use <code>include_data = TRUE</code> to create a complete archive
+with all coded results for long-term storage or sharing</li>
+</ul>
 <p>The generated report includes:</p>
 <ul>
-<li>Timeline of all coding runs</li>
-<li>Model settings and parameters</li>
-<li>Comparison and validation metrics (if
-<code>include_comparisons</code> or <code>include_validations</code> is
-<code>TRUE</code>)</li>
-<li>System information for reproducibility</li>
+<li>
+<strong>Timeline</strong>: All coding runs with timestamps and model
+settings</li>
+<li>
+<strong>Comparisons</strong>: Inter-rater reliability measures (when
+<code>include_comparisons = TRUE</code>)
+<ul>
+<li>All relevant measures for the measurement level (alpha, kappa, ICC,
+etc.)</li>
+</ul>
+</li>
+<li>
+<strong>Validations</strong>: Accuracy metrics against gold
+standards (when <code>include_validations = TRUE</code>)
+<ul>
+<li>Level-appropriate metrics (accuracy, precision, recall, kappa, rho,
+ICC, etc.)</li>
+</ul>
+</li>
+<li>
+<strong>System info</strong>: Package versions and R version for
+reproducibility</li>
 </ul>
 </div>
 <div class="section level2">

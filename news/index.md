@@ -9,6 +9,10 @@
   function extracts and displays provenance chains from coded objects,
   showing the complete history of coding runs including model
   parameters, timestamps, and parent-child relationships.
+- [`qlm_trail()`](https://seraphinem.github.io/quallmer/reference/qlm_trail.md)
+  now supports `include_data = TRUE` to save actual coded data alongside
+  metadata, enabling complete archival of analysis results with
+  [`qlm_trail_save()`](https://seraphinem.github.io/quallmer/reference/qlm_trail_save.md).
 - Export functions allow saving provenance trails:
   [`qlm_trail_save()`](https://seraphinem.github.io/quallmer/reference/qlm_trail_save.md)
   for RDS archival,
@@ -16,6 +20,14 @@
   for JSON format, and
   [`qlm_trail_report()`](https://seraphinem.github.io/quallmer/reference/qlm_trail_report.md)
   for human-readable Quarto/RMarkdown documents.
+- [`qlm_trail_report()`](https://seraphinem.github.io/quallmer/reference/qlm_trail_report.md)
+  now correctly displays all comparison and validation metrics when
+  `include_comparisons = TRUE` or `include_validations = TRUE`.
+  Previously, comparison metrics were not properly extracted from
+  `qlm_comparison` objects.
+- Trail print output now shows summaries of comparisons and validations
+  (level, subjects, raters, etc.) for better visibility into workflow
+  assessment steps.
 - All `qlm_comparison` and `qlm_validation` objects now include run
   attributes capturing parent provenance, enabling full workflow
   traceability across comparisons and validations.
@@ -129,8 +141,7 @@ inherits from both `"qlm_codebook"` and `"task"`.
 
 ### Other changes
 
-- **BREAKING**:
-  [`qlm_validate()`](https://seraphinem.github.io/quallmer/reference/qlm_validate.md)
+- [`qlm_validate()`](https://seraphinem.github.io/quallmer/reference/qlm_validate.md)
   now uses distinct, statistically appropriate metrics for each
   measurement level:
 
@@ -151,8 +162,7 @@ inherits from both `"qlm_codebook"` and `"task"`.
   statistically sound validation that respects the mathematical
   properties of each measurement scale.
 
-- **BREAKING**:
-  [`qlm_compare()`](https://seraphinem.github.io/quallmer/reference/qlm_compare.md)
+- [`qlm_compare()`](https://seraphinem.github.io/quallmer/reference/qlm_compare.md)
   now computes all statistically appropriate measures for each
   measurement level:
 

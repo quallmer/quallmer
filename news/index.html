@@ -49,7 +49,12 @@
 <div class="section level3">
 <h3 id="the-quallmer-trail-0-2-0">The quallmer trail<a class="anchor" aria-label="anchor" href="#the-quallmer-trail-0-2-0"></a></h3>
 <ul><li>New <code><a href="../reference/qlm_trail.html">qlm_trail()</a></code> function extracts and displays provenance chains from coded objects, showing the complete history of coding runs including model parameters, timestamps, and parent-child relationships.</li>
+<li>
+<code><a href="../reference/qlm_trail.html">qlm_trail()</a></code> now supports <code>include_data = TRUE</code> to save actual coded data alongside metadata, enabling complete archival of analysis results with <code><a href="../reference/qlm_trail_save.html">qlm_trail_save()</a></code>.</li>
 <li>Export functions allow saving provenance trails: <code><a href="../reference/qlm_trail_save.html">qlm_trail_save()</a></code> for RDS archival, <code><a href="../reference/qlm_trail_export.html">qlm_trail_export()</a></code> for JSON format, and <code><a href="../reference/qlm_trail_report.html">qlm_trail_report()</a></code> for human-readable Quarto/RMarkdown documents.</li>
+<li>
+<code><a href="../reference/qlm_trail_report.html">qlm_trail_report()</a></code> now correctly displays all comparison and validation metrics when <code>include_comparisons = TRUE</code> or <code>include_validations = TRUE</code>. Previously, comparison metrics were not properly extracted from <code>qlm_comparison</code> objects.</li>
+<li>Trail print output now shows summaries of comparisons and validations (level, subjects, raters, etc.) for better visibility into workflow assessment steps.</li>
 <li>All <code>qlm_comparison</code> and <code>qlm_validation</code> objects now include run attributes capturing parent provenance, enabling full workflow traceability across comparisons and validations.</li>
 <li>Provenance trail automatically captures branching workflows when multiple coded objects are compared or validated.</li>
 </ul></div>
@@ -101,7 +106,7 @@
 <div class="section level3">
 <h3 id="other-changes-0-2-0">Other changes<a class="anchor" aria-label="anchor" href="#other-changes-0-2-0"></a></h3>
 <ul><li>
-<p><strong>BREAKING</strong>: <code><a href="../reference/qlm_validate.html">qlm_validate()</a></code> now uses distinct, statistically appropriate metrics for each measurement level:</p>
+<p><code><a href="../reference/qlm_validate.html">qlm_validate()</a></code> now uses distinct, statistically appropriate metrics for each measurement level:</p>
 <ul><li>
 <strong>Nominal</strong> (<code>level = "nominal"</code>): accuracy, precision, recall, F1-score, Cohen’s kappa (unweighted)</li>
 <li>
@@ -111,7 +116,7 @@
 </ul><p>The <code>measure</code> argument has been removed entirely - all appropriate measures are now computed automatically based on the <code>level</code> parameter. Function signature changed: <code>level</code> now comes before <code>average</code>, and <code>average</code> only applies to nominal (multiclass) data. Return values renamed for consistency: <code>spearman</code> → <code>rho</code>, <code>kendall</code> → <code>tau</code>, <code>pearson</code> → <code>r</code>. Print output uses “levels” terminology for ordinal data and “classes” for nominal data. This change provides more statistically sound validation that respects the mathematical properties of each measurement scale.</p>
 </li>
 <li>
-<p><strong>BREAKING</strong>: <code><a href="../reference/qlm_compare.html">qlm_compare()</a></code> now computes all statistically appropriate measures for each measurement level:</p>
+<p><code><a href="../reference/qlm_compare.html">qlm_compare()</a></code> now computes all statistically appropriate measures for each measurement level:</p>
 <ul><li>
 <strong>Nominal</strong> (<code>level = "nominal"</code>): Krippendorff’s alpha (nominal), Cohen’s/Fleiss’ kappa, percent agreement</li>
 <li>

@@ -60,7 +60,7 @@ relationships.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">qlm_trail</span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">qlm_trail</span><span class="op">(</span><span class="va">...</span>, include_data <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -71,6 +71,12 @@ relationships.</p>
 <dd><p>One or more quallmer objects (<code>qlm_coded</code>, <code>qlm_comparison</code>, or
 <code>qlm_validation</code>). When multiple objects are provided, they will be used
 to reconstruct the complete provenance chain.</p></dd>
+
+
+<dt id="arg-include-data">include_data<a class="anchor" aria-label="anchor" href="#arg-include-data"></a></dt>
+<dd><p>Logical. If <code>TRUE</code>, stores the actual coded data alongside
+the metadata. This allows you to archive complete results with
+<code><a href="qlm_trail_save.html">qlm_trail_save()</a></code>. Default is <code>FALSE</code> to keep trail objects lightweight.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -114,10 +120,11 @@ the trail captures all input runs as parents of the comparison.</p>
 <span class="r-in"><span><span class="va">trail</span> <span class="op">&lt;-</span> <span class="fu">qlm_trail</span><span class="op">(</span><span class="va">coded3</span>, <span class="va">coded2</span>, <span class="va">coded1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">trail</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Save for archival</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="qlm_trail_save.html">qlm_trail_save</a></span><span class="op">(</span><span class="va">trail</span>, <span class="st">"analysis_trail.rds"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Include actual coded data for complete archival</span></span></span>
+<span class="r-in"><span><span class="va">trail_with_data</span> <span class="op">&lt;-</span> <span class="fu">qlm_trail</span><span class="op">(</span><span class="va">coded3</span>, <span class="va">coded2</span>, <span class="va">coded1</span>, include_data <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="qlm_trail_save.html">qlm_trail_save</a></span><span class="op">(</span><span class="va">trail_with_data</span>, <span class="st">"analysis_trail_complete.rds"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Export to JSON</span></span></span>
+<span class="r-in"><span><span class="co"># Export metadata only as JSON</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="qlm_trail_export.html">qlm_trail_export</a></span><span class="op">(</span><span class="va">trail</span>, <span class="st">"analysis_trail.json"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>

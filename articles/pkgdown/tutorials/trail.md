@@ -88,7 +88,7 @@ attr(coded1, "run")$name
 attr(coded1, "run")$metadata$timestamp
 ```
 
-    ## [1] "2026-01-04 05:28:31 UTC"
+    ## [1] "2026-01-05 02:28:07 UTC"
 
 ### Creating a replication chain
 
@@ -150,11 +150,14 @@ trail1
 
     ## # quallmer trail
     ## Run:     initial_gpt4o
-    ## Created: 2026-01-04 05:28:31
+    ## Created: 2026-01-05 02:28:07
     ## Model:   openai/gpt-4o
 
-This displays: - Run name - Parent (if any) - Creation timestamp - Model
-used
+The trail displays:
+
+- Run name and parent relationship
+- Creation timestamp
+- Model and parameters used
 
 ### Reconstructing a complete chain
 
@@ -171,15 +174,15 @@ full_trail
     ## # quallmer trail (3 runs)
     ## 
     ## 1. initial_gpt4o (original)
-    ##    2026-01-04 05:28 | openai/gpt-4o
+    ##    2026-01-05 02:28 | openai/gpt-4o
     ##    Codebook: Ideological scaling
     ## 
     ## 2. replicate_mini (parent: initial_gpt4o)
-    ##    2026-01-04 05:28 | openai/gpt-4o-mini
+    ##    2026-01-05 02:28 | openai/gpt-4o-mini
     ##    Codebook: Ideological scaling
     ## 
     ## 3. mini_temp07 (parent: replicate_mini)
-    ##    2026-01-04 05:28 | openai/gpt-4o-mini
+    ##    2026-01-05 02:28 | openai/gpt-4o-mini
     ##    Codebook: Ideological scaling
 
 The output shows:
@@ -214,9 +217,12 @@ my_analysis <- function(coded) {
 }
 ```
 
-The analysis function should: - Take a `qlm_coded` object as input -
-Return a named list of numeric statistics - Each statistic should be a
-single number (e.g., mean, proportion, correlation)
+The analysis function should:
+
+- Take a `qlm_coded` object as input
+- Return a named list of numeric statistics
+- Each statistic should be a single number (e.g., mean, proportion,
+  correlation)
 
 ### Computing robustness
 
@@ -234,15 +240,15 @@ robustness
     ## Reference run: initial_gpt4o
     ## 
     ##             run  statistic  value reference_value abs_diff pct_diff
-    ##   initial_gpt4o mean_score  5.636           5.636   0.0000    0.000
-    ##   initial_gpt4o   sd_score  2.111           2.111   0.0000    0.000
-    ##   initial_gpt4o    n_units 11.000          11.000   0.0000    0.000
-    ##  replicate_mini mean_score  5.818           5.636   0.1818    3.226
-    ##  replicate_mini   sd_score  1.888           2.111   0.2228  -10.557
-    ##  replicate_mini    n_units 11.000          11.000   0.0000    0.000
-    ##     mini_temp07 mean_score  5.364           5.636   0.2727   -4.839
-    ##     mini_temp07   sd_score  1.748           2.111   0.3629  -17.192
-    ##     mini_temp07    n_units 11.000          11.000   0.0000    0.000
+    ##   initial_gpt4o mean_score  5.545           5.545  0.00000    0.000
+    ##   initial_gpt4o   sd_score  2.162           2.162  0.00000    0.000
+    ##   initial_gpt4o    n_units 11.000          11.000  0.00000    0.000
+    ##  replicate_mini mean_score  5.364           5.545  0.18182   -3.279
+    ##  replicate_mini   sd_score  1.629           2.162  0.53237  -24.628
+    ##  replicate_mini    n_units 11.000          11.000  0.00000    0.000
+    ##     mini_temp07 mean_score  5.636           5.545  0.09091    1.639
+    ##     mini_temp07   sd_score  1.859           2.162  0.30301  -14.017
+    ##     mini_temp07    n_units 11.000          11.000  0.00000    0.000
     ## 
     ## abs_diff: Absolute difference from reference
     ## pct_diff: Percent change from reference (positive = increase)
@@ -309,9 +315,10 @@ coded_mini <- qlm_replicate(coded_gpt4o,
 
 ``` r
 # 2. Compare inter-rater reliability
+# Score is ordinal (0-10 scale), so use level = "ordinal"
 comparison <- qlm_compare(coded_gpt4o, coded_mini,
-                          by = "score",
-                          level = "nominal")
+                          by = score,
+                          level = "ordinal")
 
 # View the comparison results
 print(comparison)
@@ -320,16 +327,18 @@ print(comparison)
     ## # Inter-rater reliability
     ## # Subjects: 11 
     ## # Raters:   2 
-    ## # Level:    nominal 
+    ## # Level:    ordinal 
     ## 
-    ## Krippendorff's alpha: 0.2723
-    ## Cohen's kappa:        0.2736
-    ## Percent agreement:    0.3636
+    ## Krippendorff's alpha: 0.6218
+    ## Weighted kappa:       0.6768
+    ## Kendall's W:          0.7761
+    ## Spearman's rho:       0.6458
+    ## Percent agreement:    0.1818
 
 ``` r
 # 3. Validate against gold standard (if you have one)
 # gold <- data.frame(.id = coded_gpt4o$.id, score = c(2, 3, 1, ...))
-# validation <- qlm_validate(coded_gpt4o, gold = gold, by = "score")
+# validation <- qlm_validate(coded_gpt4o, gold = gold, by = score, level = "ordinal")
 # print(validation)
 ```
 
@@ -344,56 +353,66 @@ print(full_trail)
     ## # quallmer trail (3 runs)
     ## 
     ## 1. gpt4o_run (original)
-    ##    2026-01-04 05:28 | openai/gpt-4o
+    ##    2026-01-05 02:28 | openai/gpt-4o
     ##    Codebook: Ideological scaling
     ## 
     ## 2. mini_run (parent: gpt4o_run)
-    ##    2026-01-04 05:28 | openai/gpt-4o-mini
+    ##    2026-01-05 02:28 | openai/gpt-4o-mini
     ##    Codebook: Ideological scaling
     ## 
     ## 3. comparison_2b5e12c6 (parents: gpt4o_run, mini_run)
-    ##    2026-01-04 05:28 | unknown
+    ##    2026-01-05 02:28 | unknown
+    ##    Comparison: ordinal level | 11 subjects | 2 raters
 
-``` r
-# The trail shows parent-child relationships:
-# - gpt4o_run (original)
-# - mini_run (parent: gpt4o_run)
-# - comparison_... (parents: gpt4o_run, mini_run)
-```
+The trail shows:
+
+- Parent-child relationships between runs
+- Comparison/validation summaries (level, subjects, raters, etc.)
+- Complete lineage: gpt4o_run → mini_run → comparison
 
 ## Exporting and documenting your workflow
 
 You can export your trail for documentation and reproducibility:
 
 ``` r
-# Extract the full trail
+# Extract the full trail (metadata only - lightweight)
 trail <- qlm_trail(coded_gpt4o, coded_mini, comparison)
 
 # Save as RDS for archival
 # qlm_trail_save(trail, "my_workflow_trail.rds")
 
+# For complete archival with the actual coded data:
+# trail_complete <- qlm_trail(coded_gpt4o, coded_mini, comparison, include_data = TRUE)
+# qlm_trail_save(trail_complete, "my_workflow_complete.rds")
+
 # Export as JSON for portability
 # qlm_trail_export(trail, "my_workflow_trail.json")
 
-# Generate a human-readable report
-# qlm_trail_report(trail, "my_workflow_report.qmd")
-
-# Include comparison metrics in the report
-# qlm_trail_report(trail, "my_workflow_report.qmd", include_comparisons = TRUE)
-
-# Include both comparisons and validations
+# Generate a comprehensive report
 # qlm_trail_report(trail, "my_workflow_report.qmd",
 #                  include_comparisons = TRUE,
 #                  include_validations = TRUE)
 ```
 
+**When to include data:**
+
+- Use `include_data = FALSE` (default) for lightweight documentation and
+  lineage tracking
+- Use `include_data = TRUE` to create a complete archive with all coded
+  results for long-term storage or sharing
+
 The generated report includes:
 
-- Timeline of all coding runs
-- Model settings and parameters
-- Comparison and validation metrics (if `include_comparisons` or
-  `include_validations` is `TRUE`)
-- System information for reproducibility
+- **Timeline**: All coding runs with timestamps and model settings
+- **Comparisons**: Inter-rater reliability measures (when
+  `include_comparisons = TRUE`)
+  - All relevant measures for the measurement level (alpha, kappa, ICC,
+    etc.)
+- **Validations**: Accuracy metrics against gold standards (when
+  `include_validations = TRUE`)
+  - Level-appropriate metrics (accuracy, precision, recall, kappa, rho,
+    ICC, etc.)
+- **System info**: Package versions and R version for reproducibility
 
 ## Summary
 

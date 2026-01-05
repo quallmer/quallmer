@@ -56,10 +56,6 @@ custom codebooks tailored to their specific research questions and data
 types](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/custom-codebook.html)
 using
 [`qlm_codebook()`](https://seraphinem.github.io/quallmer/reference/qlm_codebook.md).
-The package also includes a library of [example codebooks illustrating
-common qualitative coding
-workflows](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/overview.html),
-such as sentiment analysis, thematic coding, and stance detection.
 
 The package provides functions for validating and comparing coded
 results:

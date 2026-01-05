@@ -99,17 +99,17 @@ coded1
     ## # A tibble: 11 × 3
     ##    .id          score explanation                                               
     ##  * <chr>        <int> <chr>                                                     
-    ##  1 1985-Reagan      8 The text emphasizes limited government, reduced taxes, an…
-    ##  2 1989-Bush        7 The text reflects a center-right ideological position. It…
+    ##  1 1985-Reagan      8 The text emphasizes reducing government intervention, low…
+    ##  2 1989-Bush        7 The text emphasizes free markets, limited government inte…
     ##  3 1993-Clinton     4 The text emphasizes themes of renewal, change, and respon…
-    ##  4 1997-Clinton     5 The text presents a centrist ideological position. It emp…
+    ##  4 1997-Clinton     4 The text emphasizes themes of equality, community, and op…
     ##  5 2001-Bush        6 The text reflects a centrist to moderately right-leaning …
     ##  6 2005-Bush        7 The text emphasizes a strong commitment to spreading demo…
-    ##  7 2009-Obama       3 The text emphasizes unity, social responsibility, and gov…
+    ##  7 2009-Obama       3 The text emphasizes themes of unity, responsibility, and …
     ##  8 2013-Obama       3 The text emphasizes equality, collective action, and soci…
     ##  9 2017-Trump       8 The text emphasizes nationalism, protectionism, and a foc…
-    ## 10 2021-Biden       3 The text emphasizes themes of unity, democracy, and socia…
-    ## 11 2025-Trump       8 The text emphasizes nationalism, strong border control, m…
+    ## 10 2021-Biden       3 The text emphasizes unity, democracy, and addressing soci…
+    ## 11 2025-Trump       8 The text emphasizes strong nationalist and protectionist …
 
 ## Replicating with different settings
 
@@ -131,8 +131,6 @@ coded2 <- qlm_replicate(coded1,
 
     ## [working] (0 + 0) -> 10 -> 1 | ■■■■                               9%
 
-    ## [working] (0 + 0) -> 2 -> 9 | ■■■■■■■■■■■■■■■■■■■■■■■■■■        82%
-
     ## [working] (0 + 0) -> 0 -> 11 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100%
 
 ### Replicating with different temperature
@@ -143,10 +141,6 @@ coded3 <- qlm_replicate(coded1,
                         params = params(temperature = 0.7),
                         name = "gpt4o_temp07")
 ```
-
-    ## [working] (0 + 0) -> 10 -> 1 | ■■■■                               9%
-
-    ## [working] (0 + 0) -> 0 -> 11 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100%
 
 ## Comparing multiple coded results
 
@@ -173,10 +167,10 @@ comparison
     ## # Raters:   3 
     ## # Level:    ordinal 
     ## 
-    ## Krippendorff's alpha: 0.8179
-    ## Kendall's W:          0.8384
-    ## Spearman's rho:       0.8153
-    ## Percent agreement:    0.3636
+    ## Krippendorff's alpha: 0.8964
+    ## Kendall's W:          0.9056
+    ## Spearman's rho:       0.9579
+    ## Percent agreement:    0.2727
 
 The output shows:
 
@@ -204,10 +198,10 @@ qlm_compare(coded1, coded2, coded3,
     ## # Raters:   3 
     ## # Level:    ordinal 
     ## 
-    ## Krippendorff's alpha: 0.8179
-    ## Kendall's W:          0.8384
-    ## Spearman's rho:       0.8153
-    ## Percent agreement:    0.9091
+    ## Krippendorff's alpha: 0.8964
+    ## Kendall's W:          0.9056
+    ## Spearman's rho:       0.9579
+    ## Percent agreement:    1.0000
 
 ## Validating against a gold standard
 
@@ -241,6 +235,21 @@ validation <- qlm_validate(coded1,
     ## ℹ Converting `gold` to <qlm_humancoded> object.
     ## ℹ Use `qlm_humancoded()` directly to provide coder names and metadata.
 
+    ## Warning: While computing multiclass `precision()`, some levels had no predicted events
+    ## (i.e. `true_positive + false_positive = 0`).
+    ## Precision is undefined in this case, and those levels will be removed from the
+    ## averaged result.
+    ## Note that the following number of true events actually occurred for each
+    ## problematic event level:
+    ## '5': 1
+    ## While computing multiclass `precision()`, some levels had no predicted events
+    ## (i.e. `true_positive + false_positive = 0`).
+    ## Precision is undefined in this case, and those levels will be removed from the
+    ## averaged result.
+    ## Note that the following number of true events actually occurred for each
+    ## problematic event level:
+    ## '5': 1
+
 ``` r
 # View validation results
 validation
@@ -250,9 +259,9 @@ validation
     ## # n: 11 | classes: 6 | average: macro
     ## 
     ## accuracy:      0.7273
-    ## precision:     0.7222
+    ## precision:     0.7667
     ## recall:        0.6944
-    ## f1:            0.6611
+    ## f1:            0.7267
     ## Cohen's kappa: 0.6667
     ## Pearson's r:   0.6944
 
@@ -278,10 +287,10 @@ qlm_validate(coded1, gold = gold_standard, by = "score", level = "ordinal")
     ## # quallmer validation
     ## # n: 11 | levels: 6
     ## 
-    ## Spearman's rho:0.9100
-    ## Kendall's tau: 0.8125
-    ## Pearson's r:   0.9100
-    ## MAE:           0.6364
+    ## Spearman's rho:0.8884
+    ## Kendall's tau: 0.8000
+    ## Pearson's r:   0.8884
+    ## MAE:           0.7273
 
 ``` r
 qlm_validate(coded1, gold = gold_standard, by = "score", level = "interval")
@@ -293,10 +302,10 @@ qlm_validate(coded1, gold = gold_standard, by = "score", level = "interval")
     ## # quallmer validation
     ## # n: 11
     ## 
-    ## Pearson's r:   0.8493
-    ## ICC:           0.7957
-    ## MAE:           0.6364
-    ## RMSE:          1.2432
+    ## Pearson's r:   0.8092
+    ## ICC:           0.7460
+    ## MAE:           0.7273
+    ## RMSE:          1.4142
 
 ## Best practices for reliability and validation
 
