@@ -15,11 +15,11 @@ pak::pak("SeraphineM/quallmer.app")
 ```
 
 ## Launching the quallmer app
-To launch the quallmer app, load the `quallmer.app` package and call the `validate_app()` function. This will open the quallmer app in a new window or tab in your web browser.
+To launch the quallmer app, load the `quallmer.app` package and call the `qlm_app()` function. This will open the quallmer app in a new window or tab in your web browser.
 
 ```r
 library(quallmer.app)
-validate_app()
+qlm_app()
 ```
 
 ## Using the quallmer app for manual coding
