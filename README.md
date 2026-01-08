@@ -29,8 +29,8 @@ provides `qlm_compare()` for evaluating inter-rater reliability and
 `qlm_validate()` for assessing accuracy against gold standards. With
 `qlm_replicate()`, researchers can systematically compare results across
 different models and settings to assess sensitivity and reproducibility.
-The quallmer trail system automatically captures provenance metadata for
-full workflow traceability using `qlm_trail()` and related functions.
+The quallmer trace system automatically captures provenance metadata for
+full workflow traceability using `qlm_trace()` Ok, .
 
 **The quallmer package makes AI-assisted qualitative coding accessible
 without requiring deep expertise in R, programming or machine
@@ -87,37 +87,24 @@ learning.**
 - Enables systematic assessment of coding reliability and sensitivity to
   model choices.
 
-## The quallmer trail
+## Traceability
 
-All `qlm_coded`, `qlm_comparison`, and `qlm_validation` objects
-automatically capture provenance metadata including model parameters,
-timestamps, and parent-child relationships. This enables full workflow
-traceability. It also allows users to assess the impact of different
-models and settings on coding results as well as on downstream analyses.
+#### `qlm_trace()`
 
-#### `qlm_trail()`
-
-- Extracts and displays the complete provenance chain from coded
-  objects.
+- Extracts and displays the complete trace of the entire coding
+  workflow.
 - Shows the history of coding runs including model parameters,
   timestamps, and parent relationships.
-- Reconstructs full lineage by following parent-child references across
-  multiple objects.
+- Reports on the impact of different models and settings on coding
+  results and downstream analyses.
 - Automatically captures branching workflows when multiple coded objects
   are compared or validated.
+- Supports exporting trace information for documentation and
+  reproducibility.
+- Supports compiling trace reports into comprehensive summaries of the
+  entire coding process.
 
-#### `qlm_trail_save()`, `qlm_trail_export()`, `qlm_trail_report()`
-
-- **Save**: Archive provenance trails to RDS format for long-term
-  storage.
-- **Export**: Convert trails to JSON format for portability and
-  integration with other tools.
-- **Report**: Generate human-readable Quarto/RMarkdown documents
-  summarizing the complete workflow history, including an assessment of
-  the impact of different models and settings on coding results and
-  downstream analyses.
-
-## Interactive validation
+## Interactive quallmer app
 
 For an interactive Shiny application to perform manual coding, review
 AI-generated annotations, and compute agreement metrics, see the

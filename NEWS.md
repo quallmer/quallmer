@@ -1,14 +1,22 @@
+# quallmer (development version)
+
+## The quallmer trace
+
+* **BREAKING CHANGE**: `qlm_trail()` and related functions renamed to `qlm_trace()` to better reflect the workflow traceability concept. This includes `qlm_trace_save()`, `qlm_trace_export()`, `qlm_trace_report()`, and `qlm_trace_robustness()`.
+* `qlm_trace()` now supports convenience parameters `save`, `export`, and `report` for one-line workflow documentation. For example: `qlm_trace(coded1, coded2, save = "trace.rds", export = "trace.json", report = "trace.qmd")`.
+* The trace object class is now `qlm_trace` (previously `qlm_trail`).
+
 # quallmer 0.2.0
 
-## The quallmer trail
+## The quallmer trace
 
-* New `qlm_trail()` function extracts and displays provenance chains from coded objects, showing the complete history of coding runs including model parameters, timestamps, and parent-child relationships.
-* `qlm_trail()` now supports `include_data = TRUE` to save actual coded data alongside metadata, enabling complete archival of analysis results with `qlm_trail_save()`.
-* Export functions allow saving provenance trails: `qlm_trail_save()` for RDS archival, `qlm_trail_export()` for JSON format, and `qlm_trail_report()` for human-readable Quarto/RMarkdown documents.
-* `qlm_trail_report()` now correctly displays all comparison and validation metrics when `include_comparisons = TRUE` or `include_validations = TRUE`. Previously, comparison metrics were not properly extracted from `qlm_comparison` objects.
-* Trail print output now shows summaries of comparisons and validations (level, subjects, raters, etc.) for better visibility into workflow assessment steps.
+* New `qlm_trace()` function extracts and displays provenance chains from coded objects, showing the complete history of coding runs including model parameters, timestamps, and parent-child relationships.
+* `qlm_trace()` now supports `include_data = TRUE` to save actual coded data alongside metadata, enabling complete archival of analysis results with `qlm_trace_save()`.
+* Export functions allow saving provenance traces: `qlm_trace_save()` for RDS archival, `qlm_trace_export()` for JSON format, and `qlm_trace_report()` for human-readable Quarto/RMarkdown documents.
+* `qlm_trace_report()` now correctly displays all comparison and validation metrics when `include_comparisons = TRUE` or `include_validations = TRUE`. Previously, comparison metrics were not properly extracted from `qlm_comparison` objects.
+* Trace print output now shows summaries of comparisons and validations (level, subjects, raters, etc.) for better visibility into workflow assessment steps.
 * All `qlm_comparison` and `qlm_validation` objects now include run attributes capturing parent provenance, enabling full workflow traceability across comparisons and validations.
-* Provenance trail automatically captures branching workflows when multiple coded objects are compared or validated.
+* Provenance trace automatically captures branching workflows when multiple coded objects are compared or validated.
 
 ## New API
 

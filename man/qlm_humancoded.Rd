@@ -50,7 +50,7 @@ tibble with additional class and attributes for provenance tracking.
 \description{
 Converts a data frame of human-coded data into a \code{qlm_humancoded} object,
 which inherits from \code{qlm_coded}. This enables provenance tracking and
-integration with \code{qlm_compare()}, \code{qlm_validate()}, and \code{qlm_trail()} for
+integration with \code{qlm_compare()}, \code{qlm_validate()}, and \code{qlm_trace()} for
 human-coded data alongside LLM-coded results.
 }
 \details{
@@ -98,6 +98,6 @@ qlm_compare(human_coded, human_coded_2, by = sentiment, level = "nominal")
 }
 \seealso{
 \code{\link[=qlm_code]{qlm_code()}} for LLM coding, \code{\link[=qlm_compare]{qlm_compare()}} for inter-rater reliability,
-\code{\link[=qlm_validate]{qlm_validate()}} for validation against gold standards, \code{\link[=qlm_trail]{qlm_trail()}} for
+\code{\link[=qlm_validate]{qlm_validate()}} for validation against gold standards, \code{\link[=qlm_trace]{qlm_trace()}} for
 provenance tracking.
 }
