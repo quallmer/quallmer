@@ -1,25 +1,37 @@
-#' Extract provenance trail from quallmer objects
+#' Extract provenance trace from quallmer objects
 #'
 #' Extracts and displays the provenance chain from one or more `qlm_coded`,
 #' `qlm_comparison`, or `qlm_validation` objects. When multiple objects are
 #' provided, attempts to reconstruct the full lineage by matching parent-child
-#' relationships.
+#' relationships. Optionally saves, exports, or generates reports in one call.
 #'
 #' @param ... One or more quallmer objects (`qlm_coded`, `qlm_comparison`, or
 #'   `qlm_validation`). When multiple objects are provided, they will be used
 #'   to reconstruct the complete provenance chain.
 #' @param include_data Logical. If `TRUE`, stores the actual coded data alongside
-#'   the metadata. This allows you to archive complete results with
-#'   `qlm_trail_save()`. Default is `FALSE` to keep trail objects lightweight.
+#'   the metadata. This allows you to archive complete results. Default is `FALSE`
+#'   to keep trace objects lightweight.
+#' @param save Optional file path to save the trace as an RDS file. If provided,
+#'   automatically calls `qlm_trace_save()`.
+#' @param export Optional file path to export the trace as JSON. If provided,
+#'   automatically calls `qlm_trace_export()`.
+#' @param report Optional file path (`.qmd` or `.Rmd`) to generate a report.
+#'   If provided, automatically calls `qlm_trace_report()`.
+#' @param include_comparisons Logical. If `TRUE` and `report` is specified,
+#'   include comparison metrics in the report. Default is `FALSE`.
+#' @param include_validations Logical. If `TRUE` and `report` is specified,
+#'   include validation metrics in the report. Default is `FALSE`.
+#' @param robustness Optional. A `qlm_robustness` object to include in the report.
+#'   Only used if `report` is specified.
 #'
-#' @return A `qlm_trail` object containing:
+#' @return A `qlm_trace` object containing:
 #'   \describe{
 #'     \item{runs}{List of run information, ordered from oldest to newest}
 #'     \item{complete}{Logical indicating whether all parent references were resolved}
 #'   }
 #'
 #' @details
-#' The provenance trail shows the history of coding runs, including:
+#' The provenance trace shows the history of coding runs, including:
 #' - Run name and parent relationship
 #' - Model and parameters used
 #' - Timestamp
@@ -29,33 +41,45 @@
 #' timestamp) is shown. To see the full chain, provide all ancestor objects.
 #'
 #' For branching workflows (e.g., when multiple coded objects are compared),
-#' the trail captures all input runs as parents of the comparison.
+#' the trace captures all input runs as parents of the comparison.
 #'
 #' @examples
 #' \dontrun{
 #' # Single run shows immediate info
 #' coded1 <- qlm_code(reviews, codebook, model = "openai/gpt-4o")
-#' qlm_trail(coded1)
+#' qlm_trace(coded1)
 #'
 #' # Create replication chain
 #' coded2 <- qlm_replicate(coded1, model = "openai/gpt-4o-mini")
 #' coded3 <- qlm_replicate(coded2, temperature = 0.7)
 #'
 #' # Reconstruct full chain
-#' trail <- qlm_trail(coded3, coded2, coded1)
-#' print(trail)
+#' trace <- qlm_trace(coded3, coded2, coded1)
+#' print(trace)
 #'
-#' # Include actual coded data for complete archival
-#' trail_with_data <- qlm_trail(coded3, coded2, coded1, include_data = TRUE)
-#' qlm_trail_save(trail_with_data, "analysis_trail_complete.rds")
+#' # Convenience: save and export in one call
+#' qlm_trace(coded3, coded2, coded1,
+#'           save = "trace.rds",
+#'           export = "trace.json")
 #'
-#' # Export metadata only as JSON
-#' qlm_trail_export(trail, "analysis_trail.json")
+#' # Generate complete report with all metrics
+#' qlm_trace(coded3, coded2, coded1,
+#'           report = "trace.qmd",
+#'           include_comparisons = TRUE,
+#'           include_validations = TRUE)
+#'
+#' # Or use separate functions for more control
+#' trace <- qlm_trace(coded3, coded2, coded1, include_data = TRUE)
+#' qlm_trace_save(trace, "trace_complete.rds")
+#' qlm_trace_export(trace, "trace.json")
 #' }
 #'
-#' @seealso [qlm_replicate()], [qlm_code()], [qlm_compare()], [qlm_validate()]
+#' @seealso [qlm_replicate()], [qlm_code()], [qlm_compare()], [qlm_validate()],
+#'   [qlm_trace_save()], [qlm_trace_export()], [qlm_trace_report()]
 #' @export
-qlm_trail <- function(..., include_data = FALSE) {
+qlm_trace <- function(..., include_data = FALSE, save = NULL, export = NULL,
+                      report = NULL, include_comparisons = FALSE,
+                      include_validations = FALSE, robustness = NULL) {
   objects <- list(...)
 
   if (length(objects) == 0) {
@@ -190,36 +214,54 @@ qlm_trail <- function(..., include_data = FALSE) {
     queue <- c(queue, children)
   }
 
-  structure(
+  trace <- structure(
     list(
       runs = chain,
       complete = complete,
       include_data = include_data
     ),
-    class = "qlm_trail"
+    class = "qlm_trace"
   )
+
+  # Convenience wrappers: apply save/export/report if specified
+  if (!is.null(save)) {
+    qlm_trace_save(trace, save)
+  }
+
+  if (!is.null(export)) {
+    qlm_trace_export(trace, export)
+  }
+
+  if (!is.null(report)) {
+    qlm_trace_report(trace, report,
+                     include_comparisons = include_comparisons,
+                     include_validations = include_validations,
+                     robustness = robustness)
+  }
+
+  trace
 }
 
 
-#' Print a quallmer trail
+#' Print a quallmer trace
 #'
-#' @param x A qlm_trail object.
+#' @param x A qlm_trace object.
 #' @param ... Additional arguments (currently unused).
 #'
 #' @return Invisibly returns the input object \code{x}. Called for side effects (printing to console).
 #' @keywords internal
 #' @export
-print.qlm_trail <- function(x, ...) {
+print.qlm_trace <- function(x, ...) {
   n_runs <- length(x$runs)
 
   if (n_runs == 0) {
-    cat("Empty trail\n")
+    cat("Empty trace\n")
     return(invisible(x))
   }
 
   # Header
   if (n_runs == 1) {
-    cat("# quallmer trail")
+    cat("# quallmer trace")
     if (x$include_data) {
       cat(" [with data]")
     }
@@ -265,7 +307,7 @@ print.qlm_trail <- function(x, ...) {
   } else {
     # Plural handling
     runs_text <- if (n_runs == 1) "run" else "runs"
-    cat("# quallmer trail (", n_runs, " ", runs_text, ")", sep = "")
+    cat("# quallmer trace (", n_runs, " ", runs_text, ")", sep = "")
     if (x$include_data) {
       cat(" [with data]")
     }
@@ -333,7 +375,7 @@ print.qlm_trail <- function(x, ...) {
 
     if (!x$complete) {
       cat("\n")
-      cat("! Trail is incomplete. Some parent runs are missing.\n")
+      cat("! Trace is incomplete. Some parent runs are missing.\n")
     }
   }
 
@@ -341,13 +383,13 @@ print.qlm_trail <- function(x, ...) {
 }
 
 
-#' Save trail to RDS file
+#' Save trace to RDS file
 #'
-#' Saves a provenance trail to an RDS file for archival purposes. If the trail
+#' Saves a provenance trace to an RDS file for archival purposes. If the trace
 #' was created with `include_data = TRUE`, the actual coded data will also be
 #' saved, creating a complete archive of your analysis.
 #'
-#' @param trail A `qlm_trail` object from [qlm_trail()].
+#' @param trace A `qlm_trace` object from [qlm_trace()].
 #' @param file Path to save the RDS file.
 #'
 #' @return Invisibly returns the file path.
@@ -355,36 +397,36 @@ print.qlm_trail <- function(x, ...) {
 #' @examples
 #' \dontrun{
 #' # Save metadata only (lightweight)
-#' trail <- qlm_trail(coded1, coded2, coded3)
-#' qlm_trail_save(trail, "analysis_trail.rds")
+#' trace <- qlm_trace(coded1, coded2, coded3)
+#' qlm_trace_save(trace, "analysis_trace.rds")
 #'
 #' # Save complete archive with coded data
-#' trail_complete <- qlm_trail(coded1, coded2, coded3, include_data = TRUE)
-#' qlm_trail_save(trail_complete, "analysis_trail_complete.rds")
+#' trace_complete <- qlm_trace(coded1, coded2, coded3, include_data = TRUE)
+#' qlm_trace_save(trace_complete, "analysis_trace_complete.rds")
 #' }
 #'
-#' @seealso [qlm_trail()]
+#' @seealso [qlm_trace()]
 #' @export
-qlm_trail_save <- function(trail, file) {
-  if (!inherits(trail, "qlm_trail")) {
+qlm_trace_save <- function(trace, file) {
+  if (!inherits(trace, "qlm_trace")) {
     cli::cli_abort(c(
-      "{.arg trail} must be a {.cls qlm_trail} object.",
-      "i" = "Create one with {.fn qlm_trail}."
+      "{.arg trace} must be a {.cls qlm_trace} object.",
+      "i" = "Create one with {.fn qlm_trace}."
     ))
   }
 
-  saveRDS(trail, file)
-  cli::cli_alert_success("Trail saved to {.path {file}}")
+  saveRDS(trace, file)
+  cli::cli_alert_success("Trace saved to {.path {file}}")
 
   invisible(file)
 }
 
 
-#' Export trail to JSON
+#' Export trace to JSON
 #'
-#' Exports a provenance trail to JSON format for portability and archival.
+#' Exports a provenance trace to JSON format for portability and archival.
 #'
-#' @param trail A `qlm_trail` object from [qlm_trail()].
+#' @param trace A `qlm_trace` object from [qlm_trace()].
 #' @param file Path to save the JSON file.
 #'
 #' @return Invisibly returns the file path.
@@ -402,25 +444,25 @@ qlm_trail_save <- function(trail, file) {
 #'
 #' @examples
 #' \dontrun{
-#' trail <- qlm_trail(coded1, coded2, coded3)
-#' qlm_trail_export(trail, "analysis_trail.json")
+#' trace <- qlm_trace(coded1, coded2, coded3)
+#' qlm_trace_export(trace, "analysis_trace.json")
 #' }
 #'
-#' @seealso [qlm_trail()]
+#' @seealso [qlm_trace()]
 #' @export
-qlm_trail_export <- function(trail, file) {
-  if (!inherits(trail, "qlm_trail")) {
+qlm_trace_export <- function(trace, file) {
+  if (!inherits(trace, "qlm_trace")) {
     cli::cli_abort(c(
-      "{.arg trail} must be a {.cls qlm_trail} object.",
-      "i" = "Create one with {.fn qlm_trail}."
+      "{.arg trace} must be a {.cls qlm_trace} object.",
+      "i" = "Create one with {.fn qlm_trace}."
     ))
   }
 
-  # Convert trail to JSON-friendly format
+  # Convert trace to JSON-friendly format
   export_data <- list(
-    complete = trail$complete,
-    n_runs = length(trail$runs),
-    runs = lapply(trail$runs, function(run) {
+    complete = trace$complete,
+    n_runs = length(trace$runs),
+    runs = lapply(trace$runs, function(run) {
       list(
         name = run$name,
         parent = run$parent,
@@ -447,31 +489,31 @@ qlm_trail_export <- function(trail, file) {
   json_text <- jsonlite::toJSON(export_data, pretty = TRUE, auto_unbox = TRUE)
   writeLines(json_text, file)
 
-  cli::cli_alert_success("Trail exported to {.path {file}}")
+  cli::cli_alert_success("Trace exported to {.path {file}}")
 
   invisible(file)
 }
 
 
-#' Generate trail report
+#' Generate trace report
 #'
 #' Generates a human-readable Quarto/RMarkdown document summarizing the
-#' provenance trail, optionally including assessment metrics across runs.
+#' provenance trace, optionally including assessment metrics across runs.
 #'
-#' @param trail A `qlm_trail` object from [qlm_trail()].
+#' @param trace A `qlm_trace` object from [qlm_trace()].
 #' @param file Path to save the report file (`.qmd` or `.Rmd`).
 #' @param include_comparisons Logical. If `TRUE`, include comparison metrics
-#'   in the report (if any comparisons are in the trail). Default is `FALSE`.
+#'   in the report (if any comparisons are in the trace). Default is `FALSE`.
 #' @param include_validations Logical. If `TRUE`, include validation metrics
-#'   in the report (if any validations are in the trail). Default is `FALSE`.
-#' @param robustness Optional. A `qlm_robustness` object from [qlm_trail_robustness()]
+#'   in the report (if any validations are in the trace). Default is `FALSE`.
+#' @param robustness Optional. A `qlm_robustness` object from [qlm_trace_robustness()]
 #'   containing downstream analysis robustness metrics to include in the report.
 #'
 #' @return Invisibly returns the file path.
 #'
 #' @details
 #' Creates a formatted document showing:
-#' - Trail summary and completeness
+#' - Trace summary and completeness
 #' - Timeline of runs
 #' - Model parameters and settings for each run
 #' - Parent-child relationships
@@ -485,34 +527,34 @@ qlm_trail_export <- function(trail, file) {
 #'
 #' @examples
 #' \dontrun{
-#' # Basic trail report
-#' trail <- qlm_trail(coded1, coded2, coded3)
-#' qlm_trail_report(trail, "analysis_trail.qmd")
+#' # Basic trace report
+#' trace <- qlm_trace(coded1, coded2, coded3)
+#' qlm_trace_report(trace, "analysis_trace.qmd")
 #'
 #' # Include comparison and validation metrics
-#' trail <- qlm_trail(coded1, coded2, comparison, validation)
-#' qlm_trail_report(trail, "full_report.qmd",
+#' trace <- qlm_trace(coded1, coded2, comparison, validation)
+#' qlm_trace_report(trace, "full_report.qmd",
 #'                  include_comparisons = TRUE,
 #'                  include_validations = TRUE)
 #'
 #' # Include robustness assessment
-#' robustness <- qlm_trail_robustness(coded1, coded2, coded3,
+#' robustness <- qlm_trace_robustness(coded1, coded2, coded3,
 #'                                    reference = "run1",
 #'                                    analysis_fn = my_analysis)
-#' qlm_trail_report(trail, "full_report.qmd", robustness = robustness)
+#' qlm_trace_report(trace, "full_report.qmd", robustness = robustness)
 #'
 #' # Render to HTML
 #' quarto::quarto_render("full_report.qmd")
 #' }
 #'
-#' @seealso [qlm_trail()], [qlm_trail_robustness()]
+#' @seealso [qlm_trace()], [qlm_trace_robustness()]
 #' @export
-qlm_trail_report <- function(trail, file, include_comparisons = FALSE,
+qlm_trace_report <- function(trace, file, include_comparisons = FALSE,
                               include_validations = FALSE, robustness = NULL) {
-  if (!inherits(trail, "qlm_trail")) {
+  if (!inherits(trace, "qlm_trace")) {
     cli::cli_abort(c(
-      "{.arg trail} must be a {.cls qlm_trail} object.",
-      "i" = "Create one with {.fn qlm_trail}."
+      "{.arg trace} must be a {.cls qlm_trace} object.",
+      "i" = "Create one with {.fn qlm_trace}."
     ))
   }
 
@@ -520,7 +562,7 @@ qlm_trail_report <- function(trail, file, include_comparisons = FALSE,
   if (!is.null(robustness) && !inherits(robustness, "qlm_robustness")) {
     cli::cli_abort(c(
       "{.arg robustness} must be a {.cls qlm_robustness} object.",
-      "i" = "Create one with {.fn qlm_trail_robustness}."
+      "i" = "Create one with {.fn qlm_trace_robustness}."
     ))
   }
 
@@ -538,7 +580,7 @@ qlm_trail_report <- function(trail, file, include_comparisons = FALSE,
 
   # YAML header
   lines <- c(lines, "---")
-  lines <- c(lines, "title: \"quallmer trail\"")
+  lines <- c(lines, "title: \"quallmer trace\"")
   lines <- c(lines, paste0("date: \"", format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "\""))
   if (ext == "qmd") {
     lines <- c(lines, "format: html")
@@ -549,18 +591,18 @@ qlm_trail_report <- function(trail, file, include_comparisons = FALSE,
   lines <- c(lines, "")
 
   # Summary
-  lines <- c(lines, "## Trail Summary")
+  lines <- c(lines, "## Trace Summary")
   lines <- c(lines, "")
-  lines <- c(lines, paste("- **Number of runs:**", length(trail$runs)))
-  lines <- c(lines, paste("- **Complete:**", if (trail$complete) "Yes" else "No (missing parent runs)"))
+  lines <- c(lines, paste("- **Number of runs:**", length(trace$runs)))
+  lines <- c(lines, paste("- **Complete:**", if (trace$complete) "Yes" else "No (missing parent runs)"))
   lines <- c(lines, "")
 
   # Timeline
   lines <- c(lines, "## Timeline")
   lines <- c(lines, "")
 
-  for (i in seq_along(trail$runs)) {
-    run <- trail$runs[[i]]
+  for (i in seq_along(trace$runs)) {
+    run <- trace$runs[[i]]
 
     lines <- c(lines, paste0("### ", i, ". ", run$name))
     lines <- c(lines, "")
@@ -599,13 +641,13 @@ qlm_trail_report <- function(trail, file, include_comparisons = FALSE,
     lines <- c(lines, "")
   }
 
-  # Extract comparisons and validations from trail if requested
+  # Extract comparisons and validations from trace if requested
   comparisons_list <- list()
   validations_list <- list()
 
   if (include_comparisons || include_validations) {
-    for (run_name in names(trail$runs)) {
-      run <- trail$runs[[run_name]]
+    for (run_name in names(trace$runs)) {
+      run <- trace$runs[[run_name]]
 
       # Check if this run is from a comparison object
       if (include_comparisons && !is.null(run$comparison_data)) {
@@ -830,8 +872,8 @@ qlm_trail_report <- function(trail, file, include_comparisons = FALSE,
   lines <- c(lines, "")
 
   # Get from most recent run
-  if (length(trail$runs) > 0) {
-    last_run <- trail$runs[[length(trail$runs)]]
+  if (length(trace$runs) > 0) {
+    last_run <- trace$runs[[length(trace$runs)]]
     if (!is.null(last_run$metadata)) {
       lines <- c(lines, paste("- **quallmer version:**", last_run$metadata$quallmer_version %||% "unknown"))
       lines <- c(lines, paste("- **ellmer version:**", last_run$metadata$ellmer_version %||% "unknown"))
@@ -842,7 +884,7 @@ qlm_trail_report <- function(trail, file, include_comparisons = FALSE,
   # Write file
   writeLines(lines, file)
 
-  cli::cli_alert_success("Trail report saved to {.path {file}}")
+  cli::cli_alert_success("Trace report saved to {.path {file}}")
   cli::cli_alert_info("Render with {.code quarto::quarto_render(\"{file}\")} or {.code rmarkdown::render(\"{file}\")}")
 
   invisible(file)
@@ -856,7 +898,7 @@ qlm_trail_report <- function(trail, file, include_comparisons = FALSE,
 #' different models, parameters, or codebook variations.
 #'
 #' @param ... One or more `qlm_coded` objects. The objects should be the actual
-#'   coded results (not just the trail). Must include the reference run.
+#'   coded results (not just the trace). Must include the reference run.
 #' @param reference Character string naming the reference run to compare against.
 #'   This should match the `name` attribute of one of the provided objects.
 #' @param analysis_fn A function that takes a `qlm_coded` object and returns
@@ -907,15 +949,15 @@ qlm_trail_report <- function(trail, file, include_comparisons = FALSE,
 #' }
 #'
 #' # Compute robustness
-#' robustness <- qlm_trail_robustness(coded1, coded2, coded3,
+#' robustness <- qlm_trace_robustness(coded1, coded2, coded3,
 #'                                    reference = "gpt4o_run",
 #'                                    analysis_fn = my_analysis)
 #' print(robustness)
 #' }
 #'
-#' @seealso [qlm_trail()], [qlm_compare()]
+#' @seealso [qlm_trace()], [qlm_compare()]
 #' @export
-qlm_trail_robustness <- function(..., reference, analysis_fn) {
+qlm_trace_robustness <- function(..., reference, analysis_fn) {
   # Collect objects
   objects <- list(...)
 

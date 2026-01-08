@@ -1,11 +1,5 @@
 # quallmer (development version)
 
-## The quallmer trace
-
-* **BREAKING CHANGE**: `qlm_trail()` and related functions renamed to `qlm_trace()` to better reflect the workflow traceability concept. This includes `qlm_trace_save()`, `qlm_trace_export()`, `qlm_trace_report()`, and `qlm_trace_robustness()`.
-* `qlm_trace()` now supports convenience parameters `save`, `export`, and `report` for one-line workflow documentation. For example: `qlm_trace(coded1, coded2, save = "trace.rds", export = "trace.json", report = "trace.qmd")`.
-* The trace object class is now `qlm_trace` (previously `qlm_trail`).
-
 # quallmer 0.2.0
 
 ## The quallmer trace
