@@ -30,7 +30,7 @@ provides `qlm_compare()` for evaluating inter-rater reliability and
 `qlm_replicate()`, researchers can systematically compare results across
 different models and settings to assess sensitivity and reproducibility.
 The quallmer trace system automatically captures provenance metadata for
-full workflow traceability using `qlm_trace()` Ok, .
+full workflow traceability using `qlm_trace()`.
 
 **The quallmer package makes AI-assisted qualitative coding accessible
 without requiring deep expertise in R, programming or machine
