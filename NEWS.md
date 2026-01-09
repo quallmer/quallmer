@@ -1,5 +1,12 @@
 # quallmer (development version)
 
+## Breaking changes
+
+* All `qlm_trail*` functions have been renamed to `qlm_trace*` to align terminology with the provenance “trace” API.
+* This is a **breaking change**: existing code using `qlm_trail()` and related helpers must be updated to use the corresponding `qlm_trace*` functions.
+* Migration guide:
+  - Replace `qlm_trail()` calls with `qlm_trace()`.
+  - Replace any other `qlm_trail_*` usages (e.g., `qlm_trail_save()`, `qlm_trail_export()`, `qlm_trail_report()`) with the analogous `qlm_trace_*` functions.
 # quallmer 0.2.0
 
 ## The quallmer trace
