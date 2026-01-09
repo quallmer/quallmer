@@ -60,6 +60,6 @@ Our tutorials will guide you through the following topics:
 
 5. [**The quallmer trace**](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/trace.html): This tutorial will introduce you to the quallmer trace system, which automatically captures provenance metadata for full workflow traceability using `qlm_trace()` and related functions.
 
-6. [**Using the quallmer App**](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/validate.html): This tutorial will introduce you to the quallmer app (provided by the `quallmer.app` package), which allows you to manually code data, check LLM annotations, and calculate inter-rater reliability in a user-friendly and intuitive interface.
+6. [**Using the quallmer app**](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/validate.html): This tutorial will introduce you to the quallmer app (provided by the `quallmer.app` package), which allows you to manually code data, check LLM annotations, and calculate inter-rater reliability in a user-friendly and intuitive interface.
 
 We hope these tutorials will help you get started with the `quallmer` package and empower you to leverage large language models for your qualitative research projects!
