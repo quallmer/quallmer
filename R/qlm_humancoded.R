@@ -2,7 +2,7 @@
 #'
 #' Converts a data frame of human-coded data into a `qlm_humancoded` object,
 #' which inherits from `qlm_coded`. This enables provenance tracking and
-#' integration with `qlm_compare()`, `qlm_validate()`, and `qlm_trace()` for
+#' integration with `qlm_compare()`, `qlm_validate()`, and `qlm_trail()` for
 #' human-coded data alongside LLM-coded results.
 #'
 #' @param data A data frame containing human-coded data. Must include a `.id`
@@ -44,7 +44,7 @@
 #'
 #' @seealso
 #' [qlm_code()] for LLM coding, [qlm_compare()] for inter-rater reliability,
-#' [qlm_validate()] for validation against gold standards, [qlm_trace()] for
+#' [qlm_validate()] for validation against gold standards, [qlm_trail()] for
 #' provenance tracking.
 #'
 #' @examples

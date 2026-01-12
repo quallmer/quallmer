@@ -1,5 +1,5 @@
 ---
-title: "The quallmer trace"
+title: "The quallmer audit trail"
 output: html_document
 ---
 
@@ -7,16 +7,16 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
 ```
 
-The quallmer trace system automatically captures the complete history of your coding workflow, including model parameters, timestamps, and parent-child relationships. This enables full workflow traceability and reproducibility. It also allows you to assess the robustness of your findings across different models and settings. Lastly, it facilitates easy sharing of your analysis with collaborators. Altogether, the trace system provides a lightweight yet powerful way to provide full traceability for your AI-assisted qualitative coding projects.
+The quallmer trail system creates complete audit trails following Lincoln and Guba's (1985) concept for establishing trustworthiness in qualitative research. It automatically captures the full decision history of your coding workflow, including model parameters, timestamps, parent-child relationships, and all coded results. This supports the confirmability and dependability criteria, allowing others to trace the logic of your analytical decisions and verify the consistency of your coding process.
 
-## Why use the quallmer trace?
+## Why use the quallmer trail?
 
-The quallmer trace helps you:
+The quallmer trail helps you:
 
-- Document your complete analysis workflow
-- Track which models and settings were used
-- Assess whether findings are robust across different models
+- Document your complete analysis workflow for transparency
+- Track which models and settings were used at each step
 - Share reproducible workflows with collaborators
+- Establish trustworthiness through a complete audit trail
 
 ## Basic example
 
@@ -24,111 +24,94 @@ The quallmer trace helps you:
 library(quallmer)
 
 # Initial coding run
-coded1 <- qlm_code(texts,
-                   codebook = my_codebook,
-                   model = "openai/gpt-4o",
-                   name = "gpt4o_run")
+coded1 <- qlm_code(
+  data_corpus_LMRDsample,
+  data_codebook_sentiment,
+  model = "openai/gpt-4o",
+  name = "gpt4o_run"
+)
 
 # Replicate with different model (automatically tracks parent)
-coded2 <- qlm_replicate(coded1,
-                        model = "openai/gpt-4o-mini",
-                        name = "mini_run")
+coded2 <- qlm_replicate(
+  coded1,
+  model = "openai/gpt-4o-mini",
+  name = "mini_run"
+)
 
-# Extract and view the complete workflow trace
-trace <- qlm_trace(coded1, coded2)
-print(trace)
+# Extract and view the complete audit trail
+trail <- qlm_trail(coded1, coded2)
+print(trail)
 ```
 
-The trace shows the complete lineage: which models were used, when they ran, and how they relate to each other.
+The trail shows the complete lineage: which models were used, when they ran, how they relate to each other, and the actual coded results.
 
-## Easy and quick workflow documentation
+## Using helper functions
 
-The `qlm_trace` function lets you extract, save, export, and generate reports in a single line:
+You can use individual helper functions for more control over each output:
 
-```{r convenience}
+```{r helpers}
+# Extract the trail
+trail <- qlm_trail(coded1, coded2)
+
+# Save to RDS (complete archive with all data)
+qlm_trail_save(trail, "workflow.rds")
+
+# Export to JSON (portable metadata)
+qlm_trail_export(trail, "workflow.json")
+
+# Generate Quarto report
+qlm_trail_report(trail, "workflow.qmd")
+```
+
+## One-call documentation with qlm_archive()
+
+For convenience, use `qlm_archive()` to create all outputs in one call:
+
+```{r archive}
 # Document entire workflow in one call
-qlm_trace(coded1, coded2,
-          save = "workflow.rds",
-          export = "workflow.json",
-          report = "workflow.qmd")
+qlm_archive(coded1, coded2, path = "workflow")
 ```
 
 This creates:
 
-- **workflow.rds**: Complete trace object for R 
-- **workflow.json**: Portable metadata for archival 
-- **workflow.qmd**: Human-readable report you can render to HTML/PDF 
+- **workflow.rds**: Complete trail object with all coded data (reloadable with `readRDS()`)
+- **workflow.json**: Portable metadata for archival
+- **workflow.qmd**: Human-readable report you can render to HTML/PDF
+
+You can also pipe a trail into `qlm_archive()`:
+
+```{r archive-pipe}
+qlm_trail(coded1, coded2) |>
+  qlm_archive(path = "workflow")
+```
 
 ## Including comparison and validation results
 
 If you've compared or validated your coding, include those objects to capture the full workflow:
-
 ```{r with-comparisons}
 # Compare two coding runs
 comparison <- qlm_compare(coded1, coded2, by = sentiment, level = "nominal")
 
-# Include comparison in trace and generate comprehensive report
-qlm_trace(coded1, coded2, comparison,
-          report = "full_workflow.qmd",
-          include_comparisons = TRUE)
+# Include comparison in trail
+trail <- qlm_trail(coded1, coded2, comparison)
+
+# Generate report with comparison metrics
+qlm_trail_report(trail, "full_workflow.qmd", include_comparisons = TRUE)
 ```
 
 The report will include inter-rater reliability metrics alongside the workflow timeline.
 
-## Checking robustness
-
-Use `qlm_trace_robustness()` to assess whether your substantive findings change across different models:
-
-```{r robustness}
-# Define your downstream analysis
-my_analysis <- function(coded) {
-  list(
-    prop_positive = mean(coded$sentiment == "positive", na.rm = TRUE),
-    mean_score = mean(coded$score, na.rm = TRUE)
-  )
-}
-
-# Compare results across models
-robustness <- qlm_trace_robustness(coded1, coded2,
-                                   reference = "gpt4o_run",
-                                   analysis_fn = my_analysis)
-
-print(robustness)
-```
-
-The output shows:
-
-- How much each statistic differs from the reference run 
-- Absolute and percentage differences 
-- Whether your conclusions are stable across models 
-
-**Interpretation:**
-
-- < 1% difference: Highly robust findings 
-- 1-5% difference: Good robustness 
-- 5-10% difference: Moderate robustness 
-- \> 10% difference: Findings may be sensitive to model choice 
-
-## Archiving with result data
-
-By default, traces store metadata only (lightweight). To archive the complete coded results:
-
-```{r with-data}
-# Include actual coded data for complete archival
-qlm_trace(coded1, coded2,
-          include_data = TRUE,
-          save = "complete_archive.rds")
-```
-
-This creates a self-contained archive of your entire workflow, perfect for replication packages or long-term storage.
-
 ## Summary
 
-The trace system provides workflow traceability with minimal effort:
+The trail system provides workflow traceability following Lincoln and Guba's (1985) audit trail concept:
 
-1. **Automatic tracking**: Every `qlm_code()` and `qlm_replicate()` captures provenance
-2. **Simple extraction**: `qlm_trace()` reconstructs your workflow history
-3. **One-line documentation**: Use convenience parameters for instant documentation
-4. **Robustness checks**: Test if findings are stable across models
+1. **Automatic tracking**: Every `qlm_code()` and `qlm_replicate()` captures the full decision history
+2. **Simple extraction**: `qlm_trail()` reconstructs your complete audit trail with all coded data
+3. **Helper functions**: `qlm_trail_save()`, `qlm_trail_export()`, `qlm_trail_report()` for individual outputs
+4. **One-call documentation**: `qlm_archive()` for instant complete documentation
 
-Always name your runs with the `name` parameter to make traces easier to interpret.
+Always name your runs with the `name` parameter to make trails easier to interpret.
+
+## Reference
+
+Lincoln, Y. S., & Guba, E. G. (1985). *Naturalistic Inquiry*. Sage.

@@ -29,8 +29,9 @@ provides `qlm_compare()` for evaluating inter-rater reliability and
 `qlm_validate()` for assessing accuracy against gold standards. With
 `qlm_replicate()`, researchers can systematically compare results across
 different models and settings to assess sensitivity and reproducibility.
-The quallmer trace system automatically captures provenance metadata for
-full workflow traceability using `qlm_trace()`.
+The quallmer trail system captures complete audit trails following
+Lincoln and Guba’s (1985) concept for establishing trustworthiness in
+qualitative research, using `qlm_trail()` and `qlm_archive()`.
 
 **The quallmer package makes AI-assisted qualitative coding accessible
 without requiring deep expertise in R, programming or machine
@@ -87,22 +88,25 @@ learning.**
 - Enables systematic assessment of coding reliability and sensitivity to
   model choices.
 
-## Traceability
+## Audit trail
 
-#### `qlm_trace()`
+#### `qlm_trail()`
 
-- Extracts and displays the complete trace of the entire coding
-  workflow.
-- Shows the history of coding runs including model parameters,
-  timestamps, and parent relationships.
-- Reports on the impact of different models and settings on coding
-  results and downstream analyses.
-- Automatically captures branching workflows when multiple coded objects
-  are compared or validated.
-- Supports exporting trace information for documentation and
-  reproducibility.
-- Supports compiling trace reports into comprehensive summaries of the
-  entire coding process.
+- Creates complete audit trails following Lincoln and Guba’s (1985)
+  concept for establishing trustworthiness.
+- Captures the full decision history: models, parameters, timestamps,
+  and parent-child relationships.
+- Stores all coded results for confirmability and dependability.
+- Reconstructs branching workflows when multiple coded objects are
+  compared or validated.
+
+#### `qlm_archive()`
+
+- One-call convenience function to document your entire workflow.
+- Creates RDS (complete archive), JSON (portable metadata), and Quarto
+  reports.
+- Works with coded objects directly or with a pre-built `qlm_trail`
+  object.
 
 ## Interactive quallmer app
 
