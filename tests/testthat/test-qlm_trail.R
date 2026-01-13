@@ -182,7 +182,7 @@ test_that("print.qlm_trail() handles single run", {
 
   # Should print without error
   output <- capture.output(print(trail))
-  expect_true(any(grepl("quallmer trail", output)))
+  expect_true(any(grepl("quallmer audit trail", output)))
   expect_true(any(grepl("run1", output)))
 })
 
@@ -379,8 +379,8 @@ test_that("qlm_trail_report() creates Quarto document", {
 
   # Read and verify content
   content <- readLines(temp_file)
-  expect_true(any(grepl("quallmer trail", content)))
-  expect_true(any(grepl("Trail Summary", content)))
+  expect_true(any(grepl("quallmer", content)))
+  expect_true(any(grepl("Trail summary", content)))
   expect_true(any(grepl("Timeline", content)))
   expect_true(any(grepl("run1", content)))
   expect_true(any(grepl("format: html", content)))
@@ -434,22 +434,6 @@ test_that("qlm_trail_report() accepts boolean flags for comparisons/validations"
 })
 
 
-test_that("qlm_trail_report() validates robustness parameter", {
-  coded <- data.frame(.id = 1:3, polarity = c("pos", "neg", "pos"))
-  class(coded) <- c("qlm_coded", "data.frame")
-  attr(coded, "run") <- list(name = "run1", parent = NULL)
-
-  trail <- qlm_trail(coded)
-  temp_file <- tempfile(fileext = ".qmd")
-
-  # Should error with invalid robustness object
-  expect_error(
-    qlm_trail_report(trail, temp_file, robustness = data.frame(x = 1)),
-    "qlm_robustness"
-  )
-})
-
-
 test_that("qlm_trail_report() includes comparison metrics", {
   # Create coded objects
   coded1 <- data.frame(.id = 1:3, polarity = c("pos", "neg", "pos"))
@@ -487,7 +471,7 @@ test_that("qlm_trail_report() includes comparison metrics", {
   content_str <- paste(content, collapse = " ")
 
   # Check for comparison section
-  expect_true(any(grepl("Inter-rater Reliability Comparisons", content)))
+  expect_true(any(grepl("Inter-rater reliability comparisons", content)))
   expect_true(any(grepl("Krippendorff", content)))  # "Krippendorff's alpha"
   expect_true(any(grepl("0\\.85", content)))  # alpha_nominal value
 })
@@ -533,49 +517,9 @@ test_that("qlm_trail_report() includes validation metrics", {
   content <- readLines(temp_file)
 
   # Check for validation section
-  expect_true(any(grepl("Validation Against Gold Standard", content)))
+  expect_true(any(grepl("Validation against gold standard", content)))
   expect_true(any(grepl("0\\.90", content)))  # accuracy
   expect_true(any(grepl("0\\.88", content)))  # precision
-})
-
-
-test_that("qlm_trail_report() includes robustness metrics", {
-  # Create coded objects
-  coded1 <- data.frame(.id = 1:3, score = c(3, 2, 4))
-  class(coded1) <- c("qlm_coded", "data.frame")
-  attr(coded1, "run") <- list(name = "run1", parent = NULL)
-
-  coded2 <- data.frame(.id = 1:3, score = c(3.2, 2.1, 4.3))
-  class(coded2) <- c("qlm_coded", "data.frame")
-  attr(coded2, "run") <- list(name = "run2", parent = NULL)
-
-  # Create robustness object
-  robustness <- data.frame(
-    run = "run2",
-    statistic = "mean_score",
-    value = 3.2,
-    reference_value = 3.0,
-    abs_diff = 0.2,
-    pct_diff = 6.67,
-    stringsAsFactors = FALSE
-  )
-  class(robustness) <- c("qlm_robustness", "data.frame")
-  attr(robustness, "reference") <- "run1"
-
-  trail <- qlm_trail(coded1, coded2)
-
-  temp_file <- tempfile(fileext = ".qmd")
-  withr::defer(unlink(temp_file))
-
-  qlm_trail_report(trail, temp_file, robustness = robustness)
-
-  content <- readLines(temp_file)
-
-  # Check for robustness section
-  expect_true(any(grepl("Downstream Analysis Robustness", content)))
-  expect_true(any(grepl("Reference run: run1", content)))
-  expect_true(any(grepl("mean_score", content)))
-  expect_true(any(grepl("6\\.67", content)))  # percent change
 })
 
 
@@ -602,34 +546,19 @@ test_that("qlm_trail_report() includes all metrics together", {
   class(comparison) <- "qlm_comparison"
   attr(comparison, "run") <- list(name = "comp1", parent = c("run1", "run2"))
 
-  # Create robustness
-  robustness <- data.frame(
-    run = "run2",
-    statistic = "mean_score",
-    value = 3.2,
-    reference_value = 3.0,
-    abs_diff = 0.2,
-    pct_diff = 6.67,
-    stringsAsFactors = FALSE
-  )
-  class(robustness) <- c("qlm_robustness", "data.frame")
-  attr(robustness, "reference") <- "run1"
-
   trail <- qlm_trail(coded1, coded2, comparison)
 
   temp_file <- tempfile(fileext = ".qmd")
   withr::defer(unlink(temp_file))
 
-  qlm_trail_report(trail, temp_file, include_comparisons = TRUE, robustness = robustness)
+  qlm_trail_report(trail, temp_file, include_comparisons = TRUE)
 
   content <- readLines(temp_file)
 
   # Check all sections present
-  expect_true(any(grepl("Assessment Metrics", content)))
-  expect_true(any(grepl("Inter-rater Reliability Comparisons", content)))
-  expect_true(any(grepl("Downstream Analysis Robustness", content)))
+  expect_true(any(grepl("Assessment metrics", content)))
+  expect_true(any(grepl("Inter-rater reliability comparisons", content)))
   expect_true(any(grepl("ICC", content, ignore.case = TRUE)))  # ICC in comparison
-  expect_true(any(grepl("mean_score", content)))
 })
 
 
@@ -692,115 +621,158 @@ test_that("qlm_trail() handles complex branching workflow", {
 })
 
 
-test_that("qlm_trail_robustness computes downstream analysis differences", {
-  skip_if_not_installed("ellmer")
+# Tests for qlm_archive()
 
-  # Create mock coded objects
-  coded1 <- data.frame(
-    .id = c("a", "b", "c"),
-    score = c(1, 2, 3),
-    category = c("pos", "neg", "pos")
+test_that("qlm_archive() requires path argument", {
+  coded <- data.frame(.id = 1:3, polarity = c("pos", "neg", "pos"))
+  class(coded) <- c("qlm_coded", "data.frame")
+  attr(coded, "run") <- list(name = "run1", parent = NULL)
+
+  expect_error(
+    qlm_archive(coded),
+    "path.*required"
   )
-  class(coded1) <- c("qlm_coded", "data.frame")
-  attr(coded1, "run") <- list(name = "run1")
-
-  # Similar results
-  coded2 <- data.frame(
-    .id = c("a", "b", "c"),
-    score = c(1, 2, 3),
-    category = c("pos", "neg", "pos")
-  )
-  class(coded2) <- c("qlm_coded", "data.frame")
-  attr(coded2, "run") <- list(name = "run2")
-
-  # Different results
-  coded3 <- data.frame(
-    .id = c("a", "b", "c"),
-    score = c(2, 3, 4),
-    category = c("pos", "neg", "neg")
-  )
-  class(coded3) <- c("qlm_coded", "data.frame")
-  attr(coded3, "run") <- list(name = "run3")
-
-  # Define analysis function
-  my_analysis <- function(coded) {
-    list(
-      mean_score = mean(coded$score, na.rm = TRUE),
-      sd_score = sd(coded$score, na.rm = TRUE)
-    )
-  }
-
-  # Compute robustness
-  rob <- qlm_trail_robustness(coded1, coded2, coded3,
-                               reference = "run1",
-                               analysis_fn = my_analysis)
-
-  expect_s3_class(rob, "qlm_robustness")
-  expect_s3_class(rob, "data.frame")
-  expect_equal(attr(rob, "reference"), "run1")
-
-  # Check columns
-  expect_true("run" %in% names(rob))
-  expect_true("statistic" %in% names(rob))
-  expect_true("value" %in% names(rob))
-  expect_true("reference_value" %in% names(rob))
-  expect_true("abs_diff" %in% names(rob))
-  expect_true("pct_diff" %in% names(rob))
-
-  # Check run2 (same as run1, so zero difference)
-  run2_mean <- rob[rob$run == "run2" & rob$statistic == "mean_score", ]
-  expect_equal(run2_mean$abs_diff, 0)
-  expect_equal(run2_mean$pct_diff, 0)
-
-  # Check run3 (different, should have non-zero differences)
-  run3_mean <- rob[rob$run == "run3" & rob$statistic == "mean_score", ]
-  expect_true(run3_mean$abs_diff > 0)
 })
 
 
-test_that("qlm_trail_robustness validates inputs", {
-  skip_if_not_installed("ellmer")
+test_that("qlm_archive() creates all output files", {
+  coded <- data.frame(.id = 1:3, polarity = c("pos", "neg", "pos"))
+  class(coded) <- c("qlm_coded", "data.frame")
+  attr(coded, "run") <- list(
+    name = "run1",
+    parent = NULL,
+    call = quote(qlm_code(data, codebook)),
+    metadata = list(timestamp = as.POSIXct("2024-01-01 12:00:00"))
+  )
 
-  coded1 <- data.frame(.id = c("a", "b"), score = c(1, 2))
+  temp_dir <- tempdir()
+  temp_path <- file.path(temp_dir, "test_archive")
+  withr::defer({
+    unlink(paste0(temp_path, ".rds"))
+    unlink(paste0(temp_path, ".json"))
+    unlink(paste0(temp_path, ".qmd"))
+  })
+
+  result <- qlm_archive(coded, path = temp_path)
+
+  expect_true(file.exists(paste0(temp_path, ".rds")))
+  expect_true(file.exists(paste0(temp_path, ".json")))
+  expect_true(file.exists(paste0(temp_path, ".qmd")))
+  expect_s3_class(result, "qlm_trail")
+})
+
+
+test_that("qlm_archive() works without report", {
+  coded <- data.frame(.id = 1:3, polarity = c("pos", "neg", "pos"))
+  class(coded) <- c("qlm_coded", "data.frame")
+  attr(coded, "run") <- list(
+    name = "run1",
+    parent = NULL,
+    call = quote(qlm_code(data, codebook)),
+    metadata = list(timestamp = as.POSIXct("2024-01-01 12:00:00"))
+  )
+
+  temp_dir <- tempdir()
+  temp_path <- file.path(temp_dir, "test_archive_no_report")
+  withr::defer({
+    unlink(paste0(temp_path, ".rds"))
+    unlink(paste0(temp_path, ".json"))
+    unlink(paste0(temp_path, ".qmd"))
+  })
+
+  result <- qlm_archive(coded, path = temp_path, report = FALSE)
+
+  expect_true(file.exists(paste0(temp_path, ".rds")))
+  expect_true(file.exists(paste0(temp_path, ".json")))
+  expect_false(file.exists(paste0(temp_path, ".qmd")))
+})
+
+
+test_that("qlm_archive() accepts qlm_trail object", {
+  coded <- data.frame(.id = 1:3, polarity = c("pos", "neg", "pos"))
+  class(coded) <- c("qlm_coded", "data.frame")
+  attr(coded, "run") <- list(
+    name = "run1",
+    parent = NULL,
+    call = quote(qlm_code(data, codebook)),
+    metadata = list(timestamp = as.POSIXct("2024-01-01 12:00:00"))
+  )
+
+  trail <- qlm_trail(coded)
+
+  temp_dir <- tempdir()
+  temp_path <- file.path(temp_dir, "test_archive_from_trail")
+  withr::defer({
+    unlink(paste0(temp_path, ".rds"))
+    unlink(paste0(temp_path, ".json"))
+    unlink(paste0(temp_path, ".qmd"))
+  })
+
+  result <- qlm_archive(trail, path = temp_path)
+
+  expect_true(file.exists(paste0(temp_path, ".rds")))
+  expect_true(file.exists(paste0(temp_path, ".json")))
+  expect_true(file.exists(paste0(temp_path, ".qmd")))
+})
+
+
+test_that("qlm_archive() warns when extra objects passed with trail", {
+  coded1 <- data.frame(.id = 1:3, polarity = c("pos", "neg", "pos"))
   class(coded1) <- c("qlm_coded", "data.frame")
-  attr(coded1, "run") <- list(name = "run1")
+  attr(coded1, "run") <- list(name = "run1", parent = NULL)
 
-  my_analysis <- function(coded) list(mean_score = mean(coded$score))
-
-  # Require at least 2 objects
-  expect_error(
-    qlm_trail_robustness(coded1, reference = "run1", analysis_fn = my_analysis),
-    "At least two"
-  )
-
-  # Require reference to exist
-  coded2 <- data.frame(.id = c("a", "b"), score = c(1, 2))
+  coded2 <- data.frame(.id = 1:3, polarity = c("pos", "pos", "pos"))
   class(coded2) <- c("qlm_coded", "data.frame")
-  attr(coded2, "run") <- list(name = "run2")
+  attr(coded2, "run") <- list(name = "run2", parent = NULL)
 
-  expect_error(
-    qlm_trail_robustness(coded1, coded2, reference = "run999", analysis_fn = my_analysis),
-    "not found"
+  trail <- qlm_trail(coded1)
+
+  temp_dir <- tempdir()
+  temp_path <- file.path(temp_dir, "test_archive_extra_warn")
+  withr::defer({
+    unlink(paste0(temp_path, ".rds"))
+    unlink(paste0(temp_path, ".json"))
+    unlink(paste0(temp_path, ".qmd"))
+  })
+
+  expect_warning(
+    qlm_archive(trail, coded2, path = temp_path),
+    "Extra objects ignored"
+  )
+})
+
+
+test_that("qlm_archive() handles multiple coded objects", {
+  coded1 <- data.frame(.id = 1:3, polarity = c("pos", "neg", "pos"))
+  class(coded1) <- c("qlm_coded", "data.frame")
+  attr(coded1, "run") <- list(
+    name = "run1",
+    parent = NULL,
+    call = quote(qlm_code(data, codebook))
   )
 
-  # Require qlm_coded objects
-  not_coded <- data.frame(.id = c("a", "b"), score = c(1, 2))
-
-  expect_error(
-    qlm_trail_robustness(coded1, not_coded, reference = "run1", analysis_fn = my_analysis),
-    "qlm_coded"
+  coded2 <- data.frame(.id = 1:3, polarity = c("pos", "pos", "pos"))
+  class(coded2) <- c("qlm_coded", "data.frame")
+  attr(coded2, "run") <- list(
+    name = "run2",
+    parent = "run1",
+    call = quote(qlm_replicate(coded1))
   )
 
-  # Require analysis_fn to be a function
-  expect_error(
-    qlm_trail_robustness(coded1, coded2, reference = "run1", analysis_fn = "not a function"),
-    "must be a function"
-  )
+  temp_dir <- tempdir()
+  temp_path <- file.path(temp_dir, "test_archive_multi")
+  withr::defer({
+    unlink(paste0(temp_path, ".rds"))
+    unlink(paste0(temp_path, ".json"))
+    unlink(paste0(temp_path, ".qmd"))
+  })
 
-  # Require analysis_fn to return named list
-  bad_fn <- function(coded) c(1, 2, 3)
-  expect_error(
-    qlm_trail_robustness(coded1, coded2, reference = "run1", analysis_fn = bad_fn),
-    "named list"
-  )
+  result <- qlm_archive(coded1, coded2, path = temp_path)
+
+  expect_s3_class(result, "qlm_trail")
+  expect_length(result$runs, 2)
+
+  # Verify saved trail has both runs
+  loaded <- readRDS(paste0(temp_path, ".rds"))
+  expect_length(loaded$runs, 2)
 })

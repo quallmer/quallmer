@@ -15,22 +15,22 @@ qlm_trail_save(trail, file)
 Invisibly returns the file path.
 }
 \description{
-Saves a provenance trail to an RDS file for archival purposes. If the trail
-was created with \code{include_data = TRUE}, the actual coded data will also be
-saved, creating a complete archive of your analysis.
+Saves an audit trail to an RDS file for archival purposes. The trail includes
+all coded data, creating a complete archive of your analysis.
 }
 \examples{
 \dontrun{
-# Save metadata only (lightweight)
-trail <- qlm_trail(coded1, coded2, coded3)
-qlm_trail_save(trail, "analysis_trail.rds")
+# Code movie reviews and create replication
+coded1 <- qlm_code(data_corpus_LMRDsample, data_codebook_sentiment,
+                   model = "openai/gpt-4o", name = "gpt4o_run")
+coded2 <- qlm_replicate(coded1, model = "openai/gpt-4o-mini", name = "mini_run")
 
-# Save complete archive with coded data
-trail_complete <- qlm_trail(coded1, coded2, coded3, include_data = TRUE)
-qlm_trail_save(trail_complete, "analysis_trail_complete.rds")
+# Extract trail and save
+trail <- qlm_trail(coded1, coded2)
+qlm_trail_save(trail, "analysis_trail.rds")
 }
 
 }
 \seealso{
-\code{\link[=qlm_trail]{qlm_trail()}}
+\code{\link[=qlm_trail]{qlm_trail()}}, \code{\link[=qlm_archive]{qlm_archive()}}
 }

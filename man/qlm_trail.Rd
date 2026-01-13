@@ -2,70 +2,86 @@
 % Please edit documentation in R/qlm_trail.R
 \name{qlm_trail}
 \alias{qlm_trail}
-\title{Extract provenance trail from quallmer objects}
+\title{Extract audit trail from quallmer objects}
 \usage{
-qlm_trail(..., include_data = FALSE)
+qlm_trail(...)
 }
 \arguments{
 \item{...}{One or more quallmer objects (\code{qlm_coded}, \code{qlm_comparison}, or
 \code{qlm_validation}). When multiple objects are provided, they will be used
-to reconstruct the complete provenance chain.}
-
-\item{include_data}{Logical. If \code{TRUE}, stores the actual coded data alongside
-the metadata. This allows you to archive complete results with
-\code{qlm_trail_save()}. Default is \code{FALSE} to keep trail objects lightweight.}
+to reconstruct the complete workflow chain.}
 }
 \value{
 A \code{qlm_trail} object containing:
+
 \describe{
-\item{runs}{List of run information, ordered from oldest to newest}
+\item{runs}{List of run information with coded data, ordered from oldest to newest}
 \item{complete}{Logical indicating whether all parent references were resolved}
 }
 }
 \description{
-Extracts and displays the provenance chain from one or more \code{qlm_coded},
-\code{qlm_comparison}, or \code{qlm_validation} objects. When multiple objects are
-provided, attempts to reconstruct the full lineage by matching parent-child
-relationships.
+Creates a complete audit trail documenting your qualitative coding workflow.
+Following Lincoln and Guba's (1985) concept of the audit trail for
+establishing trustworthiness in qualitative research, this function captures
+the full decision history of your AI-assisted coding process.
 }
 \details{
-The provenance trail shows the history of coding runs, including:
+The audit trail captures the complete history of your coding workflow:
 \itemize{
-\item Run name and parent relationship
-\item Model and parameters used
-\item Timestamp
-\item Call that created the run
+\item Run names and parent-child relationships
+\item Models and parameters used at each step
+\item Timestamps documenting when each step occurred
+\item The actual coded results from each run
+\item Comparison and validation metrics (when applicable)
 }
 
-When a single object is provided, only its immediate lineage (name, parent,
-timestamp) is shown. To see the full chain, provide all ancestor objects.
+This supports the confirmability and dependability criteria described by
+Lincoln and Guba, allowing others to trace the logic of your analytical
+decisions and verify the consistency of your coding process.
+
+When a single object is provided, only its immediate information is shown.
+To see the full chain, provide all ancestor objects.
 
 For branching workflows (e.g., when multiple coded objects are compared),
 the trail captures all input runs as parents of the comparison.
 }
 \examples{
 \dontrun{
-# Single run shows immediate info
-coded1 <- qlm_code(reviews, codebook, model = "openai/gpt-4o")
-qlm_trail(coded1)
+# Code movie reviews with sentiment codebook
 
-# Create replication chain
-coded2 <- qlm_replicate(coded1, model = "openai/gpt-4o-mini")
-coded3 <- qlm_replicate(coded2, temperature = 0.7)
+library(quanteda)
 
-# Reconstruct full chain
-trail <- qlm_trail(coded3, coded2, coded1)
+test_corpus <- data_corpus_LMRDsample \%>\%
+  corpus_sample(size = 10, by = polarity)
+
+coded1 <- qlm_code(
+  test_corpus,
+  data_codebook_sentiment,
+  model = "openai/gpt-4o",
+  name = "gpt4o_run"
+)
+
+# Replicate with different model
+coded2 <- qlm_replicate(coded1, model = "openai/gpt-4o-mini", name = "mini_run")
+
+# Extract and view the audit trail
+trail <- qlm_trail(coded1, coded2)
 print(trail)
 
-# Include actual coded data for complete archival
-trail_with_data <- qlm_trail(coded3, coded2, coded1, include_data = TRUE)
-qlm_trail_save(trail_with_data, "analysis_trail_complete.rds")
+# Use helper functions for saving/exporting
+qlm_trail_save(trail, "trail.rds")
+qlm_trail_export(trail, "trail.json")
+qlm_trail_report(trail, "trail.qmd")
 
-# Export metadata only as JSON
-qlm_trail_export(trail, "analysis_trail.json")
+# Or use qlm_archive() for one-call documentation
+qlm_archive(coded1, coded2, path = "workflow")
 }
 
+}
+\references{
+Lincoln, Y. S., & Guba, E. G. (1985). \emph{Naturalistic Inquiry}. Sage.
 }
 \seealso{
-\code{\link[=qlm_replicate]{qlm_replicate()}}, \code{\link[=qlm_code]{qlm_code()}}, \code{\link[=qlm_compare]{qlm_compare()}}, \code{\link[=qlm_validate]{qlm_validate()}}
+\code{\link[=qlm_replicate]{qlm_replicate()}}, \code{\link[=qlm_code]{qlm_code()}}, \code{\link[=qlm_compare]{qlm_compare()}}, \code{\link[=qlm_validate]{qlm_validate()}},
+\code{\link[=qlm_trail_save]{qlm_trail_save()}}, \code{\link[=qlm_trail_export]{qlm_trail_export()}}, \code{\link[=qlm_trail_report]{qlm_trail_report()}}, \code{\link[=qlm_archive]{qlm_archive()}}
 }

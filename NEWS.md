@@ -1,14 +1,23 @@
+# quallmer (development version)
+
+## The quallmer audit trail
+
+* The trail API has been refactored to better align with Lincoln and Guba's (1985) audit trail concept for establishing trustworthiness in qualitative research.
+* `qlm_trail()` now always includes coded data (no `include_data` parameter). The audit trail captures the complete decision history for confirmability and dependability.
+* New `qlm_archive()` convenience function saves, exports, and generates reports in one call. Accepts coded objects directly or a piped `qlm_trail` object.
+* `qlm_trace_robustness()` has been removed from this release. Sensitivity analysis will be addressed in a separate PR.
+* Helper functions renamed: `qlm_trace_save()` → `qlm_trail_save()`, `qlm_trace_export()` → `qlm_trail_export()`, `qlm_trace_report()` → `qlm_trail_report()`.
+
 # quallmer 0.2.0
 
-## The quallmer trail
+## The quallmer audit trail
 
-* New `qlm_trail()` function extracts and displays provenance chains from coded objects, showing the complete history of coding runs including model parameters, timestamps, and parent-child relationships.
-* `qlm_trail()` now supports `include_data = TRUE` to save actual coded data alongside metadata, enabling complete archival of analysis results with `qlm_trail_save()`.
-* Export functions allow saving provenance trails: `qlm_trail_save()` for RDS archival, `qlm_trail_export()` for JSON format, and `qlm_trail_report()` for human-readable Quarto/RMarkdown documents.
-* `qlm_trail_report()` now correctly displays all comparison and validation metrics when `include_comparisons = TRUE` or `include_validations = TRUE`. Previously, comparison metrics were not properly extracted from `qlm_comparison` objects.
-* Trail print output now shows summaries of comparisons and validations (level, subjects, raters, etc.) for better visibility into workflow assessment steps.
-* All `qlm_comparison` and `qlm_validation` objects now include run attributes capturing parent provenance, enabling full workflow traceability across comparisons and validations.
-* Provenance trail automatically captures branching workflows when multiple coded objects are compared or validated.
+* New `qlm_trail()` function creates complete audit trails following Lincoln and Guba's (1985) concept for establishing trustworthiness in qualitative research.
+* Export functions: `qlm_trail_save()` for RDS archival, `qlm_trail_export()` for JSON format, and `qlm_trail_report()` for human-readable Quarto/RMarkdown documents.
+* `qlm_trail_report()` displays all comparison and validation metrics when `include_comparisons = TRUE` or `include_validations = TRUE`.
+* Trail print output shows summaries of comparisons and validations (level, subjects, raters, etc.) for better visibility into workflow assessment steps.
+* All `qlm_comparison` and `qlm_validation` objects include run attributes capturing parent relationships, enabling full workflow traceability.
+* Audit trail automatically captures branching workflows when multiple coded objects are compared or validated.
 
 ## New API
 

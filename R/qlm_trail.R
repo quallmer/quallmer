@@ -1,61 +1,78 @@
-#' Extract provenance trail from quallmer objects
+#' Extract audit trail from quallmer objects
 #'
-#' Extracts and displays the provenance chain from one or more `qlm_coded`,
-#' `qlm_comparison`, or `qlm_validation` objects. When multiple objects are
-#' provided, attempts to reconstruct the full lineage by matching parent-child
-#' relationships.
+#' Creates a complete audit trail documenting your qualitative coding workflow.
+#' Following Lincoln and Guba's (1985) concept of the audit trail for
+#' establishing trustworthiness in qualitative research, this function captures
+#' the full decision history of your AI-assisted coding process.
 #'
 #' @param ... One or more quallmer objects (`qlm_coded`, `qlm_comparison`, or
 #'   `qlm_validation`). When multiple objects are provided, they will be used
-#'   to reconstruct the complete provenance chain.
-#' @param include_data Logical. If `TRUE`, stores the actual coded data alongside
-#'   the metadata. This allows you to archive complete results with
-#'   `qlm_trail_save()`. Default is `FALSE` to keep trail objects lightweight.
+#'   to reconstruct the complete workflow chain.
 #'
 #' @return A `qlm_trail` object containing:
+#'
 #'   \describe{
-#'     \item{runs}{List of run information, ordered from oldest to newest}
+#'     \item{runs}{List of run information with coded data, ordered from oldest to newest}
 #'     \item{complete}{Logical indicating whether all parent references were resolved}
 #'   }
 #'
 #' @details
-#' The provenance trail shows the history of coding runs, including:
-#' - Run name and parent relationship
-#' - Model and parameters used
-#' - Timestamp
-#' - Call that created the run
+#' The audit trail captures the complete history of your coding workflow:
+#' - Run names and parent-child relationships
+#' - Models and parameters used at each step
+#' - Timestamps documenting when each step occurred
+#' - The actual coded results from each run
+#' - Comparison and validation metrics (when applicable)
 #'
-#' When a single object is provided, only its immediate lineage (name, parent,
-#' timestamp) is shown. To see the full chain, provide all ancestor objects.
+#' This supports the confirmability and dependability criteria described by
+#' Lincoln and Guba, allowing others to trace the logic of your analytical
+#' decisions and verify the consistency of your coding process.
+#'
+#' When a single object is provided, only its immediate information is shown.
+#' To see the full chain, provide all ancestor objects.
 #'
 #' For branching workflows (e.g., when multiple coded objects are compared),
 #' the trail captures all input runs as parents of the comparison.
 #'
+#' @references
+#' Lincoln, Y. S., & Guba, E. G. (1985). *Naturalistic Inquiry*. Sage.
+#'
 #' @examples
 #' \dontrun{
-#' # Single run shows immediate info
-#' coded1 <- qlm_code(reviews, codebook, model = "openai/gpt-4o")
-#' qlm_trail(coded1)
+#' # Code movie reviews with sentiment codebook
 #'
-#' # Create replication chain
-#' coded2 <- qlm_replicate(coded1, model = "openai/gpt-4o-mini")
-#' coded3 <- qlm_replicate(coded2, temperature = 0.7)
+#' library(quanteda)
 #'
-#' # Reconstruct full chain
-#' trail <- qlm_trail(coded3, coded2, coded1)
+#' test_corpus <- data_corpus_LMRDsample %>%
+#'   corpus_sample(size = 10, by = polarity)
+#'
+#' coded1 <- qlm_code(
+#'   test_corpus,
+#'   data_codebook_sentiment,
+#'   model = "openai/gpt-4o",
+#'   name = "gpt4o_run"
+#' )
+#'
+#' # Replicate with different model
+#' coded2 <- qlm_replicate(coded1, model = "openai/gpt-4o-mini", name = "mini_run")
+#'
+#' # Extract and view the audit trail
+#' trail <- qlm_trail(coded1, coded2)
 #' print(trail)
 #'
-#' # Include actual coded data for complete archival
-#' trail_with_data <- qlm_trail(coded3, coded2, coded1, include_data = TRUE)
-#' qlm_trail_save(trail_with_data, "analysis_trail_complete.rds")
+#' # Use helper functions for saving/exporting
+#' qlm_trail_save(trail, "trail.rds")
+#' qlm_trail_export(trail, "trail.json")
+#' qlm_trail_report(trail, "trail.qmd")
 #'
-#' # Export metadata only as JSON
-#' qlm_trail_export(trail, "analysis_trail.json")
+#' # Or use qlm_archive() for one-call documentation
+#' qlm_archive(coded1, coded2, path = "workflow")
 #' }
 #'
-#' @seealso [qlm_replicate()], [qlm_code()], [qlm_compare()], [qlm_validate()]
+#' @seealso [qlm_replicate()], [qlm_code()], [qlm_compare()], [qlm_validate()],
+#'   [qlm_trail_save()], [qlm_trail_export()], [qlm_trail_report()], [qlm_archive()]
 #' @export
-qlm_trail <- function(..., include_data = FALSE) {
+qlm_trail <- function(...) {
   objects <- list(...)
 
   if (length(objects) == 0) {
@@ -133,15 +150,12 @@ qlm_trail <- function(..., include_data = FALSE) {
       )
     }
 
-    # Store data if requested
-    if (include_data) {
-      # For qlm_coded objects, store the data frame
-      if (inherits(obj, "qlm_coded")) {
-        run$data <- as.data.frame(obj)
-      }
-      # For comparisons and validations, we already stored the relevant summary data
-      # The actual underlying coded data would be in their parent runs
+    # Always store coded data for complete audit trail
+    if (inherits(obj, "qlm_coded")) {
+      run$data <- as.data.frame(obj)
     }
+    # For comparisons and validations, we already stored the relevant summary data
+    # The actual underlying coded data would be in their parent runs
 
     # Store run with its index for ordering
     run$object_index <- i
@@ -193,8 +207,7 @@ qlm_trail <- function(..., include_data = FALSE) {
   structure(
     list(
       runs = chain,
-      complete = complete,
-      include_data = include_data
+      complete = complete
     ),
     class = "qlm_trail"
   )
@@ -219,11 +232,7 @@ print.qlm_trail <- function(x, ...) {
 
   # Header
   if (n_runs == 1) {
-    cat("# quallmer trail")
-    if (x$include_data) {
-      cat(" [with data]")
-    }
-    cat("\n")
+    cat("# quallmer audit trail\n")
     run <- x$runs[[1]]
     cat("Run:     ", run$name, "\n", sep = "")
     if (!is.null(run$parent)) {
@@ -265,11 +274,7 @@ print.qlm_trail <- function(x, ...) {
   } else {
     # Plural handling
     runs_text <- if (n_runs == 1) "run" else "runs"
-    cat("# quallmer trail (", n_runs, " ", runs_text, ")", sep = "")
-    if (x$include_data) {
-      cat(" [with data]")
-    }
-    cat("\n\n")
+    cat("# quallmer audit trail (", n_runs, " ", runs_text, ")\n\n", sep = "")
 
     for (i in seq_along(x$runs)) {
       run <- x$runs[[i]]
@@ -343,9 +348,8 @@ print.qlm_trail <- function(x, ...) {
 
 #' Save trail to RDS file
 #'
-#' Saves a provenance trail to an RDS file for archival purposes. If the trail
-#' was created with `include_data = TRUE`, the actual coded data will also be
-#' saved, creating a complete archive of your analysis.
+#' Saves an audit trail to an RDS file for archival purposes. The trail includes
+#' all coded data, creating a complete archive of your analysis.
 #'
 #' @param trail A `qlm_trail` object from [qlm_trail()].
 #' @param file Path to save the RDS file.
@@ -354,16 +358,17 @@ print.qlm_trail <- function(x, ...) {
 #'
 #' @examples
 #' \dontrun{
-#' # Save metadata only (lightweight)
-#' trail <- qlm_trail(coded1, coded2, coded3)
-#' qlm_trail_save(trail, "analysis_trail.rds")
+#' # Code movie reviews and create replication
+#' coded1 <- qlm_code(data_corpus_LMRDsample, data_codebook_sentiment,
+#'                    model = "openai/gpt-4o", name = "gpt4o_run")
+#' coded2 <- qlm_replicate(coded1, model = "openai/gpt-4o-mini", name = "mini_run")
 #'
-#' # Save complete archive with coded data
-#' trail_complete <- qlm_trail(coded1, coded2, coded3, include_data = TRUE)
-#' qlm_trail_save(trail_complete, "analysis_trail_complete.rds")
+#' # Extract trail and save
+#' trail <- qlm_trail(coded1, coded2)
+#' qlm_trail_save(trail, "analysis_trail.rds")
 #' }
 #'
-#' @seealso [qlm_trail()]
+#' @seealso [qlm_trail()], [qlm_archive()]
 #' @export
 qlm_trail_save <- function(trail, file) {
   if (!inherits(trail, "qlm_trail")) {
@@ -382,7 +387,7 @@ qlm_trail_save <- function(trail, file) {
 
 #' Export trail to JSON
 #'
-#' Exports a provenance trail to JSON format for portability and archival.
+#' Exports an audit trail to JSON format for portability and archival.
 #'
 #' @param trail A `qlm_trail` object from [qlm_trail()].
 #' @param file Path to save the JSON file.
@@ -397,16 +402,22 @@ qlm_trail_save <- function(trail, file) {
 #' - Codebook names
 #' - Call information (as text)
 #'
-#' Large objects like the full codebook schema and data are not included
-#' to keep file sizes manageable.
+#' Large objects like the full codebook schema and coded data are stored in
+#' the RDS format (via [qlm_trail_save()]) rather than JSON.
 #'
 #' @examples
 #' \dontrun{
-#' trail <- qlm_trail(coded1, coded2, coded3)
+#' # Code movie reviews and create replication
+#' coded1 <- qlm_code(data_corpus_LMRDsample, data_codebook_sentiment,
+#'                    model = "openai/gpt-4o", name = "gpt4o_run")
+#' coded2 <- qlm_replicate(coded1, model = "openai/gpt-4o-mini", name = "mini_run")
+#'
+#' # Extract trail and export to JSON
+#' trail <- qlm_trail(coded1, coded2)
 #' qlm_trail_export(trail, "analysis_trail.json")
 #' }
 #'
-#' @seealso [qlm_trail()]
+#' @seealso [qlm_trail()], [qlm_archive()]
 #' @export
 qlm_trail_export <- function(trail, file) {
   if (!inherits(trail, "qlm_trail")) {
@@ -456,7 +467,7 @@ qlm_trail_export <- function(trail, file) {
 #' Generate trail report
 #'
 #' Generates a human-readable Quarto/RMarkdown document summarizing the
-#' provenance trail, optionally including assessment metrics across runs.
+#' audit trail, optionally including assessment metrics across runs.
 #'
 #' @param trail A `qlm_trail` object from [qlm_trail()].
 #' @param file Path to save the report file (`.qmd` or `.Rmd`).
@@ -464,8 +475,6 @@ qlm_trail_export <- function(trail, file) {
 #'   in the report (if any comparisons are in the trail). Default is `FALSE`.
 #' @param include_validations Logical. If `TRUE`, include validation metrics
 #'   in the report (if any validations are in the trail). Default is `FALSE`.
-#' @param robustness Optional. A `qlm_robustness` object from [qlm_trail_robustness()]
-#'   containing downstream analysis robustness metrics to include in the report.
 #'
 #' @return Invisibly returns the file path.
 #'
@@ -478,49 +487,38 @@ qlm_trail_export <- function(trail, file) {
 #' - Assessment metrics (if requested):
 #'   - Inter-rater reliability comparisons
 #'   - Validation results against gold standards
-#'   - Downstream analysis robustness
 #'
 #' The generated file can be rendered to HTML, PDF, or other formats using
 #' Quarto or RMarkdown.
 #'
 #' @examples
 #' \dontrun{
-#' # Basic trail report
-#' trail <- qlm_trail(coded1, coded2, coded3)
+#' # Code movie reviews and create replication
+#' coded1 <- qlm_code(data_corpus_LMRDsample, data_codebook_sentiment,
+#'                    model = "openai/gpt-4o", name = "gpt4o_run")
+#' coded2 <- qlm_replicate(coded1, model = "openai/gpt-4o-mini", name = "mini_run")
+#'
+#' # Generate basic trail report
+#' trail <- qlm_trail(coded1, coded2)
 #' qlm_trail_report(trail, "analysis_trail.qmd")
 #'
-#' # Include comparison and validation metrics
-#' trail <- qlm_trail(coded1, coded2, comparison, validation)
-#' qlm_trail_report(trail, "full_report.qmd",
-#'                  include_comparisons = TRUE,
-#'                  include_validations = TRUE)
-#'
-#' # Include robustness assessment
-#' robustness <- qlm_trail_robustness(coded1, coded2, coded3,
-#'                                    reference = "run1",
-#'                                    analysis_fn = my_analysis)
-#' qlm_trail_report(trail, "full_report.qmd", robustness = robustness)
+#' # Include comparison metrics
+#' comparison <- qlm_compare(coded1, coded2, by = sentiment, level = "nominal")
+#' trail <- qlm_trail(coded1, coded2, comparison)
+#' qlm_trail_report(trail, "full_report.qmd", include_comparisons = TRUE)
 #'
 #' # Render to HTML
 #' quarto::quarto_render("full_report.qmd")
 #' }
 #'
-#' @seealso [qlm_trail()], [qlm_trail_robustness()]
+#' @seealso [qlm_trail()], [qlm_archive()]
 #' @export
 qlm_trail_report <- function(trail, file, include_comparisons = FALSE,
-                              include_validations = FALSE, robustness = NULL) {
+                              include_validations = FALSE) {
   if (!inherits(trail, "qlm_trail")) {
     cli::cli_abort(c(
       "{.arg trail} must be a {.cls qlm_trail} object.",
       "i" = "Create one with {.fn qlm_trail}."
-    ))
-  }
-
-  # Validate robustness if provided
-  if (!is.null(robustness) && !inherits(robustness, "qlm_robustness")) {
-    cli::cli_abort(c(
-      "{.arg robustness} must be a {.cls qlm_robustness} object.",
-      "i" = "Create one with {.fn qlm_trail_robustness}."
     ))
   }
 
@@ -545,11 +543,12 @@ qlm_trail_report <- function(trail, file, include_comparisons = FALSE,
   } else {
     lines <- c(lines, "output: html_document")
   }
+
   lines <- c(lines, "---")
   lines <- c(lines, "")
 
   # Summary
-  lines <- c(lines, "## Trail Summary")
+  lines <- c(lines, "## Trail summary")
   lines <- c(lines, "")
   lines <- c(lines, paste("- **Number of runs:**", length(trail$runs)))
   lines <- c(lines, paste("- **Complete:**", if (trail$complete) "Yes" else "No (missing parent runs)"))
@@ -689,15 +688,15 @@ qlm_trail_report <- function(trail, file, include_comparisons = FALSE,
   }
 
   # Assessment Metrics
-  has_metrics <- length(comparisons_list) > 0 || length(validations_list) > 0 || !is.null(robustness)
+  has_metrics <- length(comparisons_list) > 0 || length(validations_list) > 0
 
   if (has_metrics) {
-    lines <- c(lines, "## Assessment Metrics")
+    lines <- c(lines, "## Assessment metrics")
     lines <- c(lines, "")
 
     # Comparisons
     if (length(comparisons_list) > 0) {
-      lines <- c(lines, "### Inter-rater Reliability Comparisons")
+      lines <- c(lines, "### Inter-rater reliability comparisons")
       lines <- c(lines, "")
       lines <- c(lines, "The following comparisons were performed to assess agreement between runs:")
       lines <- c(lines, "")
@@ -749,7 +748,7 @@ qlm_trail_report <- function(trail, file, include_comparisons = FALSE,
 
     # Validations
     if (length(validations_list) > 0) {
-      lines <- c(lines, "### Validation Against Gold Standard")
+      lines <- c(lines, "### Validation against gold standard")
       lines <- c(lines, "")
       lines <- c(lines, "The following runs were validated against gold standard annotations:")
       lines <- c(lines, "")
@@ -794,39 +793,10 @@ qlm_trail_report <- function(trail, file, include_comparisons = FALSE,
         }
       }
     }
-
-    # Robustness
-    if (!is.null(robustness) && nrow(robustness) > 0) {
-      ref <- attr(robustness, "reference")
-      lines <- c(lines, "### Downstream Analysis Robustness")
-      lines <- c(lines, "")
-      lines <- c(lines, paste("Reference run:", ref))
-      lines <- c(lines, "")
-      lines <- c(lines, "The following table shows how downstream analysis results differ from the reference run:")
-      lines <- c(lines, "")
-
-      # Create markdown table
-      lines <- c(lines, "| Run | Statistic | Value | Reference Value | Absolute Difference | Percent Change |")
-      lines <- c(lines, "|-----|-----------|-------|-----------------|---------------------|----------------|")
-
-      for (i in seq_len(nrow(robustness))) {
-        pct_str <- if (is.na(robustness$pct_diff[i])) "NA" else sprintf("%.2f%%", robustness$pct_diff[i])
-        lines <- c(lines, sprintf("| %s | %s | %.4f | %.4f | %.4f | %s |",
-                                  robustness$run[i],
-                                  robustness$statistic[i],
-                                  robustness$value[i],
-                                  robustness$reference_value[i],
-                                  robustness$abs_diff[i],
-                                  pct_str))
-      }
-      lines <- c(lines, "")
-      lines <- c(lines, "**Note:** Smaller differences indicate more robust findings. Percent change is positive for increases and negative for decreases.")
-      lines <- c(lines, "")
-    }
   }
 
   # Metadata
-  lines <- c(lines, "## System Information")
+  lines <- c(lines, "## System information")
   lines <- c(lines, "")
 
   # Get from most recent run
@@ -849,247 +819,99 @@ qlm_trail_report <- function(trail, file, include_comparisons = FALSE,
 }
 
 
-#' Compute robustness scale showing downstream analysis changes
+#' Archive quallmer workflow
 #'
-#' Assesses how much downstream analysis results vary across different coding
-#' runs. This helps determine whether substantive conclusions are robust to
-#' different models, parameters, or codebook variations.
+#' Convenience function that saves, exports, and optionally generates a report
+#' for a quallmer workflow in one call. Accepts either coded objects directly
+#' or a pre-built `qlm_trail` object.
 #'
-#' @param ... One or more `qlm_coded` objects. The objects should be the actual
-#'   coded results (not just the trail). Must include the reference run.
-#' @param reference Character string naming the reference run to compare against.
-#'   This should match the `name` attribute of one of the provided objects.
-#' @param analysis_fn A function that takes a `qlm_coded` object and returns
-#'   a named list or data frame of analysis results. The function will be applied
-#'   to each coded object to compute downstream statistics.
+#' @param x Either a `qlm_trail` object from [qlm_trail()], or the first
+#'   quallmer object (`qlm_coded`, `qlm_comparison`, or `qlm_validation`).
+#' @param ... Additional quallmer objects to include in the trail (only used
+#'   when `x` is not a `qlm_trail` object).
+#' @param path Base path for output files. Creates `{path}.rds`, `{path}.json`,
+#'   and optionally `{path}.qmd`.
+#' @param report Logical. If `TRUE`, generates a Quarto report file.
+#'   Default is `TRUE`.
 #'
-#' @return A data frame with robustness metrics:
-#'   \describe{
-#'     \item{run}{Name of the run}
-#'     \item{statistic}{Name of the analysis statistic}
-#'     \item{value}{Value from this run}
-#'     \item{reference_value}{Value from reference run}
-#'     \item{abs_diff}{Absolute difference from reference}
-#'     \item{pct_diff}{Percent difference from reference (NULL if reference is 0)}
-#'   }
+#' @return Invisibly returns the `qlm_trail` object.
 #'
 #' @details
-#' Robustness is assessed by:
-#' 1. Applying your analysis function to each coded object
-#' 2. Comparing the resulting statistics to the reference run
-#' 3. Computing absolute and percentage differences
+#' This function creates a complete archive of your workflow:
+#' - `{path}.rds`: Complete trail object for R (can be reloaded with `readRDS()`)
+#' - `{path}.json`: Portable metadata for archival or sharing
+#' - `{path}.qmd`: Human-readable report (if `report = TRUE`)
 #'
-#' Smaller differences indicate more robust findings that don't depend heavily
-#' on model choice. Large differences suggest your conclusions may be sensitive
-#' to which model or settings you use.
+#' The function can be used in two ways:
 #'
-#' The `analysis_fn` should return a named list or data frame where each element
-#' is a single numeric value representing a statistic of interest (e.g., mean,
-#' proportion, correlation coefficient, regression coefficient).
+#' 1. **Standalone**: Pass coded objects directly:
+#'    ```r
+#'    qlm_archive(coded1, coded2, path = "workflow")
+#'    ```
+#'
+#' 2. **Piped**: Pass a pre-built trail:
+#'    ```r
+#'    qlm_trail(coded1, coded2) |>
+#'      qlm_archive(path = "workflow")
+#'    ```
 #'
 #' @examples
 #' \dontrun{
-#' # Create multiple coded versions
-#' coded1 <- qlm_code(texts, codebook, model = "openai/gpt-4o",
-#'                    name = "gpt4o_run")
-#' coded2 <- qlm_replicate(coded1, model = "openai/gpt-4o-mini",
-#'                         name = "mini_run")
-#' coded3 <- qlm_replicate(coded1, temperature = 0.7,
-#'                         name = "temp07_run")
+#' # Code movie reviews and create replication
+#' coded1 <- qlm_code(data_corpus_LMRDsample, data_codebook_sentiment,
+#'                    model = "openai/gpt-4o", name = "gpt4o_run")
+#' coded2 <- qlm_replicate(coded1, model = "openai/gpt-4o-mini", name = "mini_run")
 #'
-#' # Define downstream analysis function
-#' my_analysis <- function(coded) {
-#'   list(
-#'     mean_score = mean(coded$score, na.rm = TRUE),
-#'     prop_positive = mean(coded$sentiment == "positive", na.rm = TRUE),
-#'     sd_score = sd(coded$score, na.rm = TRUE)
-#'   )
+#' # Archive entire workflow in one call
+#' qlm_archive(coded1, coded2, path = "workflow")
+#'
+#' # Piped usage
+#' qlm_trail(coded1, coded2) |>
+#'   qlm_archive(path = "workflow")
+#'
+#' # Without report
+#' qlm_archive(coded1, coded2, path = "workflow", report = FALSE)
 #' }
 #'
-#' # Compute robustness
-#' robustness <- qlm_trail_robustness(coded1, coded2, coded3,
-#'                                    reference = "gpt4o_run",
-#'                                    analysis_fn = my_analysis)
-#' print(robustness)
-#' }
-#'
-#' @seealso [qlm_trail()], [qlm_compare()]
+#' @seealso [qlm_trail()], [qlm_trail_save()], [qlm_trail_export()], [qlm_trail_report()]
 #' @export
-qlm_trail_robustness <- function(..., reference, analysis_fn) {
-  # Collect objects
-  objects <- list(...)
-
-  if (length(objects) < 2) {
-    cli::cli_abort(c(
-      "At least two {.cls qlm_coded} objects are required.",
-      "i" = "Provide the reference run and at least one comparison run."
-    ))
-  }
-
-  # Validate all are qlm_coded
-  for (i in seq_along(objects)) {
-    if (!inherits(objects[[i]], "qlm_coded")) {
-      cli::cli_abort(c(
-        "All objects must be {.cls qlm_coded} objects.",
-        "x" = "Object {i} has class {.cls {class(objects[[i]])}}."
+qlm_archive <- function(x, ..., path, report = TRUE) {
+  # Check if x is already a trail
+  if (inherits(x, "qlm_trail")) {
+    trail <- x
+    # Check for extra objects passed with a trail (not allowed)
+    extra <- list(...)
+    if (length(extra) > 0) {
+      cli::cli_warn(c(
+        "Extra objects ignored when {.arg x} is a {.cls qlm_trail}.",
+        "i" = "Create trail with all objects: {.code qlm_trail(coded1, coded2, ...)}."
       ))
     }
+  } else {
+    # Build trail from objects
+    trail <- qlm_trail(x, ...)
   }
 
-  # Validate analysis_fn is a function
-  if (!is.function(analysis_fn)) {
-    cli::cli_abort(c(
-      "{.arg analysis_fn} must be a function.",
-      "i" = "Provide a function that takes a coded object and returns analysis results."
-    ))
+  # Validate path
+  if (missing(path)) {
+    cli::cli_abort("{.arg path} is required.")
   }
 
-  # Extract run names
-  run_names <- sapply(objects, function(obj) {
-    attr(obj, "run")$name
-  })
+  # Generate file paths
+  rds_file <- paste0(path, ".rds")
+  json_file <- paste0(path, ".json")
+  qmd_file <- paste0(path, ".qmd")
 
-  # Validate reference exists
-  if (!reference %in% run_names) {
-    cli::cli_abort(c(
-      "Reference run {.val {reference}} not found.",
-      "i" = "Available runs: {.val {run_names}}"
-    ))
+  # Save RDS
+  qlm_trail_save(trail, rds_file)
+
+  # Export JSON
+  qlm_trail_export(trail, json_file)
+
+  # Generate report if requested
+  if (report) {
+    qlm_trail_report(trail, qmd_file)
   }
 
-  # Get reference object and compute reference analysis
-  ref_idx <- which(run_names == reference)
-  ref_obj <- objects[[ref_idx]]
-
-  ref_results <- tryCatch(
-    analysis_fn(ref_obj),
-    error = function(e) {
-      cli::cli_abort(c(
-        "Error running {.arg analysis_fn} on reference run:",
-        "x" = conditionMessage(e)
-      ))
-    }
-  )
-
-  # Convert to named list if data frame
-  if (is.data.frame(ref_results)) {
-    ref_results <- as.list(ref_results[1, , drop = FALSE])
-  }
-
-  # Validate analysis results
-  if (!is.list(ref_results) || is.null(names(ref_results))) {
-    cli::cli_abort(c(
-      "{.arg analysis_fn} must return a named list or data frame.",
-      "i" = "Example: {.code list(mean_score = 3.5, prop_positive = 0.7)}"
-    ))
-  }
-
-  # Check all values are numeric
-  if (!all(sapply(ref_results, function(x) is.numeric(x) && length(x) == 1))) {
-    cli::cli_abort(c(
-      "All values in {.arg analysis_fn} output must be single numeric values.",
-      "i" = "Each statistic should be a single number."
-    ))
-  }
-
-  # Compute analysis for all runs
-  results <- list()
-
-  for (i in seq_along(objects)) {
-    obj <- objects[[i]]
-    run_name <- run_names[i]
-
-    # Run analysis
-    run_results <- tryCatch(
-      analysis_fn(obj),
-      error = function(e) {
-        cli::cli_warn(c(
-          "Error running {.arg analysis_fn} on run {.val {run_name}}:",
-          "x" = conditionMessage(e),
-          "i" = "This run will be skipped."
-        ))
-        return(NULL)
-      }
-    )
-
-    if (is.null(run_results)) next
-
-    # Convert to named list if data frame
-    if (is.data.frame(run_results)) {
-      run_results <- as.list(run_results[1, , drop = FALSE])
-    }
-
-    # Compare to reference
-    for (stat_name in names(ref_results)) {
-      if (!stat_name %in% names(run_results)) {
-        cli::cli_warn("Statistic {.val {stat_name}} not found in run {.val {run_name}}")
-        next
-      }
-
-      ref_val <- ref_results[[stat_name]]
-      run_val <- run_results[[stat_name]]
-
-      abs_diff <- abs(run_val - ref_val)
-      pct_diff <- if (ref_val == 0) {
-        NA_real_
-      } else {
-        100 * (run_val - ref_val) / ref_val
-      }
-
-      results[[length(results) + 1]] <- data.frame(
-        run = run_name,
-        statistic = stat_name,
-        value = run_val,
-        reference_value = ref_val,
-        abs_diff = abs_diff,
-        pct_diff = pct_diff,
-        stringsAsFactors = FALSE
-      )
-    }
-  }
-
-  # Combine results
-  if (length(results) == 0) {
-    cli::cli_abort("No valid analysis results were produced.")
-  }
-
-  result_df <- do.call(rbind, results)
-
-  structure(
-    result_df,
-    class = c("qlm_robustness", "data.frame"),
-    reference = reference
-  )
+  invisible(trail)
 }
-
-
-#' Print robustness results
-#'
-#' @param x A qlm_robustness object.
-#' @param ... Additional arguments (currently unused).
-#'
-#' @return Invisibly returns the input object \code{x}. Called for side effects (printing to console).
-#' @keywords internal
-#' @export
-print.qlm_robustness <- function(x, ...) {
-  if (nrow(x) == 0) {
-    cat("Empty robustness scale\n")
-    return(invisible(x))
-  }
-
-  ref <- attr(x, "reference")
-  cat("# Downstream Analysis Robustness\n")
-  cat("Reference run: ", ref, "\n\n", sep = "")
-
-  # Print as data frame
-  print(as.data.frame(x), row.names = FALSE, digits = 4)
-
-  cat("\n")
-  cat("abs_diff: Absolute difference from reference\n")
-  cat("pct_diff: Percent change from reference (positive = increase)\n")
-  cat("\nSmaller differences indicate more robust findings.\n")
-
-  invisible(x)
-}
-
-
