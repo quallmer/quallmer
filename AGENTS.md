@@ -58,7 +58,7 @@
 - Write small, focused tests; mock external services. No network in unit
   tests.
 - Run locally with `devtools::test()`; coverage with
-  [`covr::package_coverage()`](http://covr.r-lib.org/reference/package_coverage.md).
+  `covr::package_coverage()`.
 - CI: GitHub Actions run R CMD check, snapshots, and Codecov upload.
 
 ## Commit & Pull Requests

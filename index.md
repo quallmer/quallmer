@@ -21,10 +21,12 @@ for assessing accuracy against gold standards. With
 [`qlm_replicate()`](https://seraphinem.github.io/quallmer/reference/qlm_replicate.md),
 researchers can systematically compare results across different models
 and settings to assess sensitivity and reproducibility. The quallmer
-trail system automatically captures provenance metadata for full
-workflow traceability using
+trail system captures complete audit trails following Lincoln and Guba’s
+(1985) concept for establishing trustworthiness in qualitative research,
+using
 [`qlm_trail()`](https://seraphinem.github.io/quallmer/reference/qlm_trail.md)
-and related functions.
+and
+[`qlm_archive()`](https://seraphinem.github.io/quallmer/reference/qlm_archive.md).
 
 **The quallmer package makes AI-assisted qualitative coding accessible
 without requiring deep expertise in R, programming or machine
@@ -81,37 +83,27 @@ learning.**
 - Enables systematic assessment of coding reliability and sensitivity to
   model choices.
 
-## The quallmer trail
-
-All `qlm_coded`, `qlm_comparison`, and `qlm_validation` objects
-automatically capture provenance metadata including model parameters,
-timestamps, and parent-child relationships. This enables full workflow
-traceability. It also allows users to assess the impact of different
-models and settings on coding results as well as on downstream analyses.
+## Audit trail
 
 #### `qlm_trail()`
 
-- Extracts and displays the complete provenance chain from coded
-  objects.
-- Shows the history of coding runs including model parameters,
-  timestamps, and parent relationships.
-- Reconstructs full lineage by following parent-child references across
-  multiple objects.
-- Automatically captures branching workflows when multiple coded objects
-  are compared or validated.
+- Creates complete audit trails following Lincoln and Guba’s (1985)
+  concept for establishing trustworthiness.
+- Captures the full decision history: models, parameters, timestamps,
+  and parent-child relationships.
+- Stores all coded results for confirmability and dependability.
+- Reconstructs branching workflows when multiple coded objects are
+  compared or validated.
 
-#### `qlm_trail_save()`, `qlm_trail_export()`, `qlm_trail_report()`
+#### `qlm_archive()`
 
-- **Save**: Archive provenance trails to RDS format for long-term
-  storage.
-- **Export**: Convert trails to JSON format for portability and
-  integration with other tools.
-- **Report**: Generate human-readable Quarto/RMarkdown documents
-  summarizing the complete workflow history, including an assessment of
-  the impact of different models and settings on coding results and
-  downstream analyses.
+- One-call convenience function to document your entire workflow.
+- Creates RDS (complete archive), JSON (portable metadata), and Quarto
+  reports.
+- Works with coded objects directly or with a pre-built `qlm_trail`
+  object.
 
-## Interactive validation
+## Interactive quallmer app
 
 For an interactive Shiny application to perform manual coding, review
 AI-generated annotations, and compute agreement metrics, see the

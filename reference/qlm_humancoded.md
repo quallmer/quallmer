@@ -130,16 +130,16 @@ human_coded
 #> # A tibble: 10 × 2
 #>      .id sentiment
 #>  * <int> <chr>    
-#>  1     1 neg      
+#>  1     1 pos      
 #>  2     2 pos      
-#>  3     3 pos      
+#>  3     3 neg      
 #>  4     4 pos      
 #>  5     5 neg      
-#>  6     6 pos      
-#>  7     7 neg      
-#>  8     8 neg      
-#>  9     9 pos      
-#> 10    10 pos      
+#>  6     6 neg      
+#>  7     7 pos      
+#>  8     8 pos      
+#>  9     9 neg      
+#> 10    10 neg      
 
 # With complete metadata
 human_coded <- qlm_humancoded(

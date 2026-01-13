@@ -1,14 +1,14 @@
-# Extract provenance trail from quallmer objects
+# Extract audit trail from quallmer objects
 
-Extracts and displays the provenance chain from one or more `qlm_coded`,
-`qlm_comparison`, or `qlm_validation` objects. When multiple objects are
-provided, attempts to reconstruct the full lineage by matching
-parent-child relationships.
+Creates a complete audit trail documenting your qualitative coding
+workflow. Following Lincoln and Guba's (1985) concept of the audit trail
+for establishing trustworthiness in qualitative research, this function
+captures the full decision history of your AI-assisted coding process.
 
 ## Usage
 
 ``` r
-qlm_trail(..., include_data = FALSE)
+qlm_trail(...)
 ```
 
 ## Arguments
@@ -17,14 +17,7 @@ qlm_trail(..., include_data = FALSE)
 
   One or more quallmer objects (`qlm_coded`, `qlm_comparison`, or
   `qlm_validation`). When multiple objects are provided, they will be
-  used to reconstruct the complete provenance chain.
-
-- include_data:
-
-  Logical. If `TRUE`, stores the actual coded data alongside the
-  metadata. This allows you to archive complete results with
-  [`qlm_trail_save()`](https://seraphinem.github.io/quallmer/reference/qlm_trail_save.md).
-  Default is `FALSE` to keep trail objects lightweight.
+  used to reconstruct the complete workflow chain.
 
 ## Value
 
@@ -32,7 +25,7 @@ A `qlm_trail` object containing:
 
 - runs:
 
-  List of run information, ordered from oldest to newest
+  List of run information with coded data, ordered from oldest to newest
 
 - complete:
 
@@ -40,52 +33,75 @@ A `qlm_trail` object containing:
 
 ## Details
 
-The provenance trail shows the history of coding runs, including:
+The audit trail captures the complete history of your coding workflow:
 
-- Run name and parent relationship
+- Run names and parent-child relationships
 
-- Model and parameters used
+- Models and parameters used at each step
 
-- Timestamp
+- Timestamps documenting when each step occurred
 
-- Call that created the run
+- The actual coded results from each run
 
-When a single object is provided, only its immediate lineage (name,
-parent, timestamp) is shown. To see the full chain, provide all ancestor
-objects.
+- Comparison and validation metrics (when applicable)
+
+This supports the confirmability and dependability criteria described by
+Lincoln and Guba, allowing others to trace the logic of your analytical
+decisions and verify the consistency of your coding process.
+
+When a single object is provided, only its immediate information is
+shown. To see the full chain, provide all ancestor objects.
 
 For branching workflows (e.g., when multiple coded objects are
 compared), the trail captures all input runs as parents of the
 comparison.
+
+## References
+
+Lincoln, Y. S., & Guba, E. G. (1985). *Naturalistic Inquiry*. Sage.
 
 ## See also
 
 [`qlm_replicate()`](https://seraphinem.github.io/quallmer/reference/qlm_replicate.md),
 [`qlm_code()`](https://seraphinem.github.io/quallmer/reference/qlm_code.md),
 [`qlm_compare()`](https://seraphinem.github.io/quallmer/reference/qlm_compare.md),
-[`qlm_validate()`](https://seraphinem.github.io/quallmer/reference/qlm_validate.md)
+[`qlm_validate()`](https://seraphinem.github.io/quallmer/reference/qlm_validate.md),
+[`qlm_trail_save()`](https://seraphinem.github.io/quallmer/reference/qlm_trail_save.md),
+[`qlm_trail_export()`](https://seraphinem.github.io/quallmer/reference/qlm_trail_export.md),
+[`qlm_trail_report()`](https://seraphinem.github.io/quallmer/reference/qlm_trail_report.md),
+[`qlm_archive()`](https://seraphinem.github.io/quallmer/reference/qlm_archive.md)
 
 ## Examples
 
 ``` r
 if (FALSE) { # \dontrun{
-# Single run shows immediate info
-coded1 <- qlm_code(reviews, codebook, model = "openai/gpt-4o")
-qlm_trail(coded1)
+# Code movie reviews with sentiment codebook
 
-# Create replication chain
-coded2 <- qlm_replicate(coded1, model = "openai/gpt-4o-mini")
-coded3 <- qlm_replicate(coded2, temperature = 0.7)
+library(quanteda)
 
-# Reconstruct full chain
-trail <- qlm_trail(coded3, coded2, coded1)
+test_corpus <- data_corpus_LMRDsample %>%
+  corpus_sample(size = 10, by = polarity)
+
+coded1 <- qlm_code(
+  test_corpus,
+  data_codebook_sentiment,
+  model = "openai/gpt-4o",
+  name = "gpt4o_run"
+)
+
+# Replicate with different model
+coded2 <- qlm_replicate(coded1, model = "openai/gpt-4o-mini", name = "mini_run")
+
+# Extract and view the audit trail
+trail <- qlm_trail(coded1, coded2)
 print(trail)
 
-# Include actual coded data for complete archival
-trail_with_data <- qlm_trail(coded3, coded2, coded1, include_data = TRUE)
-qlm_trail_save(trail_with_data, "analysis_trail_complete.rds")
+# Use helper functions for saving/exporting
+qlm_trail_save(trail, "trail.rds")
+qlm_trail_export(trail, "trail.json")
+qlm_trail_report(trail, "trail.qmd")
 
-# Export metadata only as JSON
-qlm_trail_export(trail, "analysis_trail.json")
+# Or use qlm_archive() for one-call documentation
+qlm_archive(coded1, coded2, path = "workflow")
 } # }
 ```

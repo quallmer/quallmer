@@ -14,7 +14,7 @@
   model](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/ollama.md):
 - [Signing up for an openai API
   key](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/openai.md):
-- [The quallmer
-  trail](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/trail.md):
+- [The quallmer audit
+  trail](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/trace.md):
 - [Using the quallmer
   app](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/validate.md):

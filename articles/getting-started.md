@@ -102,17 +102,15 @@ Our tutorials will guide you through the following topics:
     function to re-execute coding with different settings for
     reliability testing.
 
-5.  [**The quallmer trail for
-    traceability**](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/trail.html):
-    This tutorial will introduce you to the quallmer trail system, which
+5.  [**The quallmer
+    trace**](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/trace.html):
+    This tutorial will introduce you to the quallmer trace system, which
     automatically captures provenance metadata for full workflow
-    traceability using
-    [`qlm_trail()`](https://seraphinem.github.io/quallmer/reference/qlm_trail.md)
-    and related functions.
+    traceability using `qlm_trace()` and related functions.
 
-6.  [**Using the Validate
-    App**](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/validate.html):
-    This tutorial will introduce you to the Validate App (provided by
+6.  [**Using the quallmer
+    app**](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/validate.html):
+    This tutorial will introduce you to the quallmer app (provided by
     the `quallmer.app` package), which allows you to manually code data,
     check LLM annotations, and calculate inter-rater reliability in a
     user-friendly and intuitive interface.

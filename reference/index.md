@@ -17,6 +17,8 @@
 - [`data_corpus_manifsentsUK2010sample`](https://seraphinem.github.io/quallmer/reference/data_corpus_manifsentsUK2010sample.md)
   : Sample of UK manifesto sentences 2010 crowd-annotated for
   immigration
+- [`qlm_archive()`](https://seraphinem.github.io/quallmer/reference/qlm_archive.md)
+  : Archive quallmer workflow
 - [`qlm_code()`](https://seraphinem.github.io/quallmer/reference/qlm_code.md)
   : Code qualitative data with an LLM
 - [`qlm_codebook()`](https://seraphinem.github.io/quallmer/reference/qlm_codebook.md)
@@ -28,13 +30,11 @@
 - [`qlm_replicate()`](https://seraphinem.github.io/quallmer/reference/qlm_replicate.md)
   : Replicate a coding task
 - [`qlm_trail()`](https://seraphinem.github.io/quallmer/reference/qlm_trail.md)
-  : Extract provenance trail from quallmer objects
+  : Extract audit trail from quallmer objects
 - [`qlm_trail_export()`](https://seraphinem.github.io/quallmer/reference/qlm_trail_export.md)
   : Export trail to JSON
 - [`qlm_trail_report()`](https://seraphinem.github.io/quallmer/reference/qlm_trail_report.md)
   : Generate trail report
-- [`qlm_trail_robustness()`](https://seraphinem.github.io/quallmer/reference/qlm_trail_robustness.md)
-  : Compute robustness scale showing downstream analysis changes
 - [`qlm_trail_save()`](https://seraphinem.github.io/quallmer/reference/qlm_trail_save.md)
   : Save trail to RDS file
 - [`qlm_validate()`](https://seraphinem.github.io/quallmer/reference/qlm_validate.md)

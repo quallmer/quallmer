@@ -1,6 +1,6 @@
 # Export trail to JSON
 
-Exports a provenance trail to JSON format for portability and archival.
+Exports an audit trail to JSON format for portability and archival.
 
 ## Usage
 
@@ -37,18 +37,27 @@ The JSON export includes:
 
 - Call information (as text)
 
-Large objects like the full codebook schema and data are not included to
-keep file sizes manageable.
+Large objects like the full codebook schema and coded data are stored in
+the RDS format (via
+[`qlm_trail_save()`](https://seraphinem.github.io/quallmer/reference/qlm_trail_save.md))
+rather than JSON.
 
 ## See also
 
-[`qlm_trail()`](https://seraphinem.github.io/quallmer/reference/qlm_trail.md)
+[`qlm_trail()`](https://seraphinem.github.io/quallmer/reference/qlm_trail.md),
+[`qlm_archive()`](https://seraphinem.github.io/quallmer/reference/qlm_archive.md)
 
 ## Examples
 
 ``` r
 if (FALSE) { # \dontrun{
-trail <- qlm_trail(coded1, coded2, coded3)
+# Code movie reviews and create replication
+coded1 <- qlm_code(data_corpus_LMRDsample, data_codebook_sentiment,
+                   model = "openai/gpt-4o", name = "gpt4o_run")
+coded2 <- qlm_replicate(coded1, model = "openai/gpt-4o-mini", name = "mini_run")
+
+# Extract trail and export to JSON
+trail <- qlm_trail(coded1, coded2)
 qlm_trail_export(trail, "analysis_trail.json")
 } # }
 ```

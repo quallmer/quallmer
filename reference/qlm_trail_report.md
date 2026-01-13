@@ -1,7 +1,7 @@
 # Generate trail report
 
 Generates a human-readable Quarto/RMarkdown document summarizing the
-provenance trail, optionally including assessment metrics across runs.
+audit trail, optionally including assessment metrics across runs.
 
 ## Usage
 
@@ -10,8 +10,7 @@ qlm_trail_report(
   trail,
   file,
   include_comparisons = FALSE,
-  include_validations = FALSE,
-  robustness = NULL
+  include_validations = FALSE
 )
 ```
 
@@ -36,13 +35,6 @@ qlm_trail_report(
   Logical. If `TRUE`, include validation metrics in the report (if any
   validations are in the trail). Default is `FALSE`.
 
-- robustness:
-
-  Optional. A `qlm_robustness` object from
-  [`qlm_trail_robustness()`](https://seraphinem.github.io/quallmer/reference/qlm_trail_robustness.md)
-  containing downstream analysis robustness metrics to include in the
-  report.
-
 ## Value
 
 Invisibly returns the file path.
@@ -65,35 +57,31 @@ Creates a formatted document showing:
 
   - Validation results against gold standards
 
-  - Downstream analysis robustness
-
 The generated file can be rendered to HTML, PDF, or other formats using
 Quarto or RMarkdown.
 
 ## See also
 
 [`qlm_trail()`](https://seraphinem.github.io/quallmer/reference/qlm_trail.md),
-[`qlm_trail_robustness()`](https://seraphinem.github.io/quallmer/reference/qlm_trail_robustness.md)
+[`qlm_archive()`](https://seraphinem.github.io/quallmer/reference/qlm_archive.md)
 
 ## Examples
 
 ``` r
 if (FALSE) { # \dontrun{
-# Basic trail report
-trail <- qlm_trail(coded1, coded2, coded3)
+# Code movie reviews and create replication
+coded1 <- qlm_code(data_corpus_LMRDsample, data_codebook_sentiment,
+                   model = "openai/gpt-4o", name = "gpt4o_run")
+coded2 <- qlm_replicate(coded1, model = "openai/gpt-4o-mini", name = "mini_run")
+
+# Generate basic trail report
+trail <- qlm_trail(coded1, coded2)
 qlm_trail_report(trail, "analysis_trail.qmd")
 
-# Include comparison and validation metrics
-trail <- qlm_trail(coded1, coded2, comparison, validation)
-qlm_trail_report(trail, "full_report.qmd",
-                 include_comparisons = TRUE,
-                 include_validations = TRUE)
-
-# Include robustness assessment
-robustness <- qlm_trail_robustness(coded1, coded2, coded3,
-                                   reference = "run1",
-                                   analysis_fn = my_analysis)
-qlm_trail_report(trail, "full_report.qmd", robustness = robustness)
+# Include comparison metrics
+comparison <- qlm_compare(coded1, coded2, by = sentiment, level = "nominal")
+trail <- qlm_trail(coded1, coded2, comparison)
+qlm_trail_report(trail, "full_report.qmd", include_comparisons = TRUE)
 
 # Render to HTML
 quarto::quarto_render("full_report.qmd")

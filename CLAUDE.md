@@ -24,8 +24,7 @@ modifying roxygen2 comments - All new code requires accompanying tests
   `devtools::test(filter = "name", reporter = "check")`
 - **Avoid** `devtools::test_active_file()` - prefer full test suite
 - Place new tests near similar existing tests
-- Check coverage:
-  [`covr::package_coverage()`](http://covr.r-lib.org/reference/package_coverage.md)
+- Check coverage: `covr::package_coverage()`
 
 ### Documentation
 
@@ -142,8 +141,7 @@ ellmer’s streaming and async features
 - Run specific tests:
   `devtools::test(filter = "name", reporter = "check")`
 - **Avoid** `devtools::test_active_file()` - always run full test suite
-- Check coverage:
-  [`covr::package_coverage()`](http://covr.r-lib.org/reference/package_coverage.md)
+- Check coverage: `covr::package_coverage()`
 
 ### Testing Principles
 

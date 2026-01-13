@@ -9,7 +9,7 @@
 <url><loc>https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/custom-codebook.html</loc></url>
 <url><loc>https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/ollama.html</loc></url>
 <url><loc>https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/openai.html</loc></url>
-<url><loc>https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/trail.html</loc></url>
+<url><loc>https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/trace.html</loc></url>
 <url><loc>https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/validate.html</loc></url>
 <url><loc>https://seraphinem.github.io/quallmer/authors.html</loc></url>
 <url><loc>https://seraphinem.github.io/quallmer/index.html</loc></url>
@@ -28,13 +28,13 @@
 <url><loc>https://seraphinem.github.io/quallmer/reference/print.qlm_codebook.html</loc></url>
 <url><loc>https://seraphinem.github.io/quallmer/reference/print.qlm_coded.html</loc></url>
 <url><loc>https://seraphinem.github.io/quallmer/reference/print.qlm_comparison.html</loc></url>
-<url><loc>https://seraphinem.github.io/quallmer/reference/print.qlm_robustness.html</loc></url>
 <url><loc>https://seraphinem.github.io/quallmer/reference/print.qlm_trail.html</loc></url>
 <url><loc>https://seraphinem.github.io/quallmer/reference/print.qlm_validation.html</loc></url>
 <url><loc>https://seraphinem.github.io/quallmer/reference/print.task.html</loc></url>
 <url><loc>https://seraphinem.github.io/quallmer/reference/print.trail_compare.html</loc></url>
 <url><loc>https://seraphinem.github.io/quallmer/reference/print.trail_record.html</loc></url>
 <url><loc>https://seraphinem.github.io/quallmer/reference/print.trail_setting.html</loc></url>
+<url><loc>https://seraphinem.github.io/quallmer/reference/qlm_archive.html</loc></url>
 <url><loc>https://seraphinem.github.io/quallmer/reference/qlm_code.html</loc></url>
 <url><loc>https://seraphinem.github.io/quallmer/reference/qlm_codebook.html</loc></url>
 <url><loc>https://seraphinem.github.io/quallmer/reference/qlm_compare.html</loc></url>
@@ -43,7 +43,6 @@
 <url><loc>https://seraphinem.github.io/quallmer/reference/qlm_trail.html</loc></url>
 <url><loc>https://seraphinem.github.io/quallmer/reference/qlm_trail_export.html</loc></url>
 <url><loc>https://seraphinem.github.io/quallmer/reference/qlm_trail_report.html</loc></url>
-<url><loc>https://seraphinem.github.io/quallmer/reference/qlm_trail_robustness.html</loc></url>
 <url><loc>https://seraphinem.github.io/quallmer/reference/qlm_trail_save.html</loc></url>
 <url><loc>https://seraphinem.github.io/quallmer/reference/qlm_validate.html</loc></url>
 <url><loc>https://seraphinem.github.io/quallmer/reference/quallmer-package.html</loc></url>
