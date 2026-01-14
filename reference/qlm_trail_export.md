@@ -13,7 +13,7 @@ qlm_trail_export(trail, file)
 - trail:
 
   A `qlm_trail` object from
-  [`qlm_trail()`](https://seraphinem.github.io/quallmer/reference/qlm_trail.md).
+  [`qlm_trail()`](https://quallmer.github.io/quallmer/reference/qlm_trail.md).
 
 - file:
 
@@ -39,13 +39,13 @@ The JSON export includes:
 
 Large objects like the full codebook schema and coded data are stored in
 the RDS format (via
-[`qlm_trail_save()`](https://seraphinem.github.io/quallmer/reference/qlm_trail_save.md))
+[`qlm_trail_save()`](https://quallmer.github.io/quallmer/reference/qlm_trail_save.md))
 rather than JSON.
 
 ## See also
 
-[`qlm_trail()`](https://seraphinem.github.io/quallmer/reference/qlm_trail.md),
-[`qlm_archive()`](https://seraphinem.github.io/quallmer/reference/qlm_archive.md)
+[`qlm_trail()`](https://quallmer.github.io/quallmer/reference/qlm_trail.md),
+[`qlm_archive()`](https://quallmer.github.io/quallmer/reference/qlm_archive.md)
 
 ## Examples
 

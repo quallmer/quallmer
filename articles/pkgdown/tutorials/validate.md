@@ -8,7 +8,7 @@ scores. This tutorial will guide you through the steps of using the
 quallmer app effectively. If you prefer to work programmatically, the
 quallmer package also provides functions to perform these tasks without
 the app, which are described in [other
-tutorials](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/compare.html).
+tutorials](https://quallmer.github.io/quallmer/articles/pkgdown/tutorials/compare.html).
 
 ## Installation
 

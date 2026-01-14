@@ -5,28 +5,28 @@ AI-assisted qualitative coding to large amounts of texts, images, pdfs,
 tabular data and other structured data.**
 
 Using
-[`qlm_code()`](https://seraphinem.github.io/quallmer/reference/qlm_code.md),
+[`qlm_code()`](https://quallmer.github.io/quallmer/reference/qlm_code.md),
 users can apply codebook-based qualitative coding powered by large
 language models (LLMs) to generate structured, interpretable outputs.
 The package includes built-in codebooks for common applications and
 allows researchers to create custom codebooks tailored to their specific
 research questions using
-[`qlm_codebook()`](https://seraphinem.github.io/quallmer/reference/qlm_codebook.md).
+[`qlm_codebook()`](https://quallmer.github.io/quallmer/reference/qlm_codebook.md).
 To ensure quality and reliability of AI-generated coding, **quallmer**
 provides
-[`qlm_compare()`](https://seraphinem.github.io/quallmer/reference/qlm_compare.md)
+[`qlm_compare()`](https://quallmer.github.io/quallmer/reference/qlm_compare.md)
 for evaluating inter-rater reliability and
-[`qlm_validate()`](https://seraphinem.github.io/quallmer/reference/qlm_validate.md)
+[`qlm_validate()`](https://quallmer.github.io/quallmer/reference/qlm_validate.md)
 for assessing accuracy against gold standards. With
-[`qlm_replicate()`](https://seraphinem.github.io/quallmer/reference/qlm_replicate.md),
+[`qlm_replicate()`](https://quallmer.github.io/quallmer/reference/qlm_replicate.md),
 researchers can systematically compare results across different models
 and settings to assess sensitivity and reproducibility. The quallmer
 trail system captures complete audit trails following Lincoln and Guba’s
 (1985) concept for establishing trustworthiness in qualitative research,
 using
-[`qlm_trail()`](https://seraphinem.github.io/quallmer/reference/qlm_trail.md)
+[`qlm_trail()`](https://quallmer.github.io/quallmer/reference/qlm_trail.md)
 and
-[`qlm_archive()`](https://seraphinem.github.io/quallmer/reference/qlm_archive.md).
+[`qlm_archive()`](https://quallmer.github.io/quallmer/reference/qlm_archive.md).
 
 **The quallmer package makes AI-assisted qualitative coding accessible
 without requiring deep expertise in R, programming or machine
@@ -117,9 +117,9 @@ package. For authentication and usage of each of these LLMs, please
 refer to the respective
 [ellmer](https://ellmer.tidyverse.org/reference/index.html)
 documentation and see our [tutorial for setting up an OpenAI API
-key](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/openai.html)
+key](https://quallmer.github.io/quallmer/articles/pkgdown/tutorials/openai.html)
 or [getting started with an open-source Ollama
-model](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/ollama.html).
+model](https://quallmer.github.io/quallmer/articles/pkgdown/tutorials/ollama.html).
 
 ## Installation
 
@@ -135,7 +135,7 @@ pak::pak("SeraphineM/quallmer")
 
 To learn more about how to use the package, please refer to our
 [step-by-step
-tutorials](https://seraphinem.github.io/quallmer/articles/getting-started.html).
+tutorials](https://quallmer.github.io/quallmer/articles/getting-started.html).
 
 ## Acknowledgments
 
@@ -148,42 +148,42 @@ restructuring.
 
 ## All functions
 
-- [`data_codebook_fact`](https://seraphinem.github.io/quallmer/reference/data_codebook_fact.md)
+- [`data_codebook_fact`](https://quallmer.github.io/quallmer/reference/data_codebook_fact.md)
   : Fact-checking codebook
-- [`data_codebook_ideology`](https://seraphinem.github.io/quallmer/reference/data_codebook_ideology.md)
+- [`data_codebook_ideology`](https://quallmer.github.io/quallmer/reference/data_codebook_ideology.md)
   : Ideological scaling codebook for left-right dimension
-- [`data_codebook_salience`](https://seraphinem.github.io/quallmer/reference/data_codebook_salience.md)
+- [`data_codebook_salience`](https://quallmer.github.io/quallmer/reference/data_codebook_salience.md)
   : Topic salience codebook
-- [`data_codebook_sentiment`](https://seraphinem.github.io/quallmer/reference/data_codebook_sentiment.md)
+- [`data_codebook_sentiment`](https://quallmer.github.io/quallmer/reference/data_codebook_sentiment.md)
   : Sentiment analysis codebook for movie reviews
-- [`data_codebook_stance`](https://seraphinem.github.io/quallmer/reference/data_codebook_stance.md)
+- [`data_codebook_stance`](https://quallmer.github.io/quallmer/reference/data_codebook_stance.md)
   : Stance detection codebook for climate change
-- [`data_corpus_LMRDsample`](https://seraphinem.github.io/quallmer/reference/data_corpus_LMRDsample.md)
+- [`data_corpus_LMRDsample`](https://quallmer.github.io/quallmer/reference/data_corpus_LMRDsample.md)
   : Sample from Large Movie Review Dataset (Maas et al. 2011)
-- [`data_corpus_manifsentsUK2010sample`](https://seraphinem.github.io/quallmer/reference/data_corpus_manifsentsUK2010sample.md)
+- [`data_corpus_manifsentsUK2010sample`](https://quallmer.github.io/quallmer/reference/data_corpus_manifsentsUK2010sample.md)
   : Sample of UK manifesto sentences 2010 crowd-annotated for
   immigration
-- [`qlm_archive()`](https://seraphinem.github.io/quallmer/reference/qlm_archive.md)
+- [`qlm_archive()`](https://quallmer.github.io/quallmer/reference/qlm_archive.md)
   : Archive quallmer workflow
-- [`qlm_code()`](https://seraphinem.github.io/quallmer/reference/qlm_code.md)
+- [`qlm_code()`](https://quallmer.github.io/quallmer/reference/qlm_code.md)
   : Code qualitative data with an LLM
-- [`qlm_codebook()`](https://seraphinem.github.io/quallmer/reference/qlm_codebook.md)
+- [`qlm_codebook()`](https://quallmer.github.io/quallmer/reference/qlm_codebook.md)
   : Define a qualitative codebook
-- [`qlm_compare()`](https://seraphinem.github.io/quallmer/reference/qlm_compare.md)
+- [`qlm_compare()`](https://quallmer.github.io/quallmer/reference/qlm_compare.md)
   : Compare coded results for inter-rater reliability
-- [`qlm_humancoded()`](https://seraphinem.github.io/quallmer/reference/qlm_humancoded.md)
+- [`qlm_humancoded()`](https://quallmer.github.io/quallmer/reference/qlm_humancoded.md)
   : Convert human-coded data to qlm_coded format
-- [`qlm_replicate()`](https://seraphinem.github.io/quallmer/reference/qlm_replicate.md)
+- [`qlm_replicate()`](https://quallmer.github.io/quallmer/reference/qlm_replicate.md)
   : Replicate a coding task
-- [`qlm_trail()`](https://seraphinem.github.io/quallmer/reference/qlm_trail.md)
+- [`qlm_trail()`](https://quallmer.github.io/quallmer/reference/qlm_trail.md)
   : Extract audit trail from quallmer objects
-- [`qlm_trail_export()`](https://seraphinem.github.io/quallmer/reference/qlm_trail_export.md)
+- [`qlm_trail_export()`](https://quallmer.github.io/quallmer/reference/qlm_trail_export.md)
   : Export trail to JSON
-- [`qlm_trail_report()`](https://seraphinem.github.io/quallmer/reference/qlm_trail_report.md)
+- [`qlm_trail_report()`](https://quallmer.github.io/quallmer/reference/qlm_trail_report.md)
   : Generate trail report
-- [`qlm_trail_save()`](https://seraphinem.github.io/quallmer/reference/qlm_trail_save.md)
+- [`qlm_trail_save()`](https://quallmer.github.io/quallmer/reference/qlm_trail_save.md)
   : Save trail to RDS file
-- [`qlm_validate()`](https://seraphinem.github.io/quallmer/reference/qlm_validate.md)
+- [`qlm_validate()`](https://quallmer.github.io/quallmer/reference/qlm_validate.md)
   : Validate coded results against a gold standard
 
 # Articles
@@ -191,18 +191,18 @@ restructuring.
 ### All vignettes
 
 - [Comparing and replicating coded
-  results](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/compare.md):
+  results](https://quallmer.github.io/quallmer/articles/pkgdown/tutorials/compare.md):
 - [Creating
-  codebooks](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/custom-codebook.md):
+  codebooks](https://quallmer.github.io/quallmer/articles/pkgdown/tutorials/custom-codebook.md):
 - [Example: Sentiment
-  analysis](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/example_sentiment.md):
+  analysis](https://quallmer.github.io/quallmer/articles/pkgdown/examples/example_sentiment.md):
 - [Getting started with
-  quallmer](https://seraphinem.github.io/quallmer/articles/getting-started.md):
+  quallmer](https://quallmer.github.io/quallmer/articles/getting-started.md):
 - [Working with an open-source Ollama
-  model](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/ollama.md):
+  model](https://quallmer.github.io/quallmer/articles/pkgdown/tutorials/ollama.md):
 - [Signing up for an openai API
-  key](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/openai.md):
+  key](https://quallmer.github.io/quallmer/articles/pkgdown/tutorials/openai.md):
 - [The quallmer audit
-  trail](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/trace.md):
+  trail](https://quallmer.github.io/quallmer/articles/pkgdown/tutorials/trace.md):
 - [Using the quallmer
-  app](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/validate.md):
+  app](https://quallmer.github.io/quallmer/articles/pkgdown/tutorials/validate.md):

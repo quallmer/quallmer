@@ -194,11 +194,11 @@ nominal data. For ordinal data, these metrics are not computed.
 
 ## See also
 
-[`qlm_compare()`](https://seraphinem.github.io/quallmer/reference/qlm_compare.md)
+[`qlm_compare()`](https://quallmer.github.io/quallmer/reference/qlm_compare.md)
 for inter-rater reliability between coded objects,
-[`qlm_code()`](https://seraphinem.github.io/quallmer/reference/qlm_code.md)
+[`qlm_code()`](https://quallmer.github.io/quallmer/reference/qlm_code.md)
 for LLM coding,
-[`qlm_humancoded()`](https://seraphinem.github.io/quallmer/reference/qlm_humancoded.md)
+[`qlm_humancoded()`](https://quallmer.github.io/quallmer/reference/qlm_humancoded.md)
 for human coding,
 [`yardstick::accuracy()`](https://yardstick.tidymodels.org/reference/accuracy.html),
 [`yardstick::precision()`](https://yardstick.tidymodels.org/reference/precision.html),

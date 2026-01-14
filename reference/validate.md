@@ -95,9 +95,9 @@ columns:
 ## Details
 
 This function has been superseded by
-[`qlm_compare()`](https://seraphinem.github.io/quallmer/reference/qlm_compare.md)
+[`qlm_compare()`](https://quallmer.github.io/quallmer/reference/qlm_compare.md)
 for inter-rater reliability and
-[`qlm_validate()`](https://seraphinem.github.io/quallmer/reference/qlm_validate.md)
+[`qlm_validate()`](https://quallmer.github.io/quallmer/reference/qlm_validate.md)
 for gold-standard validation.
 
 This function validates nominal coding data with multiple coders in two

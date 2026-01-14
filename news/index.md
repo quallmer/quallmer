@@ -7,40 +7,40 @@
 - The trail API has been refactored to better align with Lincoln and
   Guba’s (1985) audit trail concept for establishing trustworthiness in
   qualitative research.
-- [`qlm_trail()`](https://seraphinem.github.io/quallmer/reference/qlm_trail.md)
+- [`qlm_trail()`](https://quallmer.github.io/quallmer/reference/qlm_trail.md)
   now always includes coded data (no `include_data` parameter). The
   audit trail captures the complete decision history for confirmability
   and dependability.
 - New
-  [`qlm_archive()`](https://seraphinem.github.io/quallmer/reference/qlm_archive.md)
+  [`qlm_archive()`](https://quallmer.github.io/quallmer/reference/qlm_archive.md)
   convenience function saves, exports, and generates reports in one
   call. Accepts coded objects directly or a piped `qlm_trail` object.
 - `qlm_trace_robustness()` has been removed from this release.
   Sensitivity analysis will be addressed in a separate PR.
 - Helper functions renamed: `qlm_trace_save()` →
-  [`qlm_trail_save()`](https://seraphinem.github.io/quallmer/reference/qlm_trail_save.md),
+  [`qlm_trail_save()`](https://quallmer.github.io/quallmer/reference/qlm_trail_save.md),
   `qlm_trace_export()` →
-  [`qlm_trail_export()`](https://seraphinem.github.io/quallmer/reference/qlm_trail_export.md),
+  [`qlm_trail_export()`](https://quallmer.github.io/quallmer/reference/qlm_trail_export.md),
   `qlm_trace_report()` →
-  [`qlm_trail_report()`](https://seraphinem.github.io/quallmer/reference/qlm_trail_report.md).
+  [`qlm_trail_report()`](https://quallmer.github.io/quallmer/reference/qlm_trail_report.md).
 
 ## quallmer 0.2.0
 
 ### The quallmer audit trail
 
 - New
-  [`qlm_trail()`](https://seraphinem.github.io/quallmer/reference/qlm_trail.md)
+  [`qlm_trail()`](https://quallmer.github.io/quallmer/reference/qlm_trail.md)
   function creates complete audit trails following Lincoln and
   Guba’s (1985) concept for establishing trustworthiness in qualitative
   research.
 - Export functions:
-  [`qlm_trail_save()`](https://seraphinem.github.io/quallmer/reference/qlm_trail_save.md)
+  [`qlm_trail_save()`](https://quallmer.github.io/quallmer/reference/qlm_trail_save.md)
   for RDS archival,
-  [`qlm_trail_export()`](https://seraphinem.github.io/quallmer/reference/qlm_trail_export.md)
+  [`qlm_trail_export()`](https://quallmer.github.io/quallmer/reference/qlm_trail_export.md)
   for JSON format, and
-  [`qlm_trail_report()`](https://seraphinem.github.io/quallmer/reference/qlm_trail_report.md)
+  [`qlm_trail_report()`](https://quallmer.github.io/quallmer/reference/qlm_trail_report.md)
   for human-readable Quarto/RMarkdown documents.
-- [`qlm_trail_report()`](https://seraphinem.github.io/quallmer/reference/qlm_trail_report.md)
+- [`qlm_trail_report()`](https://quallmer.github.io/quallmer/reference/qlm_trail_report.md)
   displays all comparison and validation metrics when
   `include_comparisons = TRUE` or `include_validations = TRUE`.
 - Trail print output shows summaries of comparisons and validations
@@ -57,31 +57,31 @@
 The package introduces a new `qlm_*()` API with richer return objects
 and clearer terminology for qualitative researchers:
 
-- [`qlm_codebook()`](https://seraphinem.github.io/quallmer/reference/qlm_codebook.md)
+- [`qlm_codebook()`](https://quallmer.github.io/quallmer/reference/qlm_codebook.md)
   defines coding instructions, replacing
-  [`task()`](https://seraphinem.github.io/quallmer/reference/task.md)
+  [`task()`](https://quallmer.github.io/quallmer/reference/task.md)
   (#27).
-- [`qlm_code()`](https://seraphinem.github.io/quallmer/reference/qlm_code.md)
+- [`qlm_code()`](https://quallmer.github.io/quallmer/reference/qlm_code.md)
   executes coding tasks and returns a tibble with coded results and
   metadata as attributes, replacing
-  [`annotate()`](https://seraphinem.github.io/quallmer/reference/annotate.md)
+  [`annotate()`](https://quallmer.github.io/quallmer/reference/annotate.md)
   (#27). The returned `qlm_coded` object prints as a tibble and can be
   used directly in data manipulation workflows. Now includes `name`
   parameter for tracking runs and hierarchical attribute structure with
   provenance support.
-- [`qlm_compare()`](https://seraphinem.github.io/quallmer/reference/qlm_compare.md)
+- [`qlm_compare()`](https://quallmer.github.io/quallmer/reference/qlm_compare.md)
   compares multiple `qlm_coded` objects to assess inter-rater
   reliability. Automatically computes all statistically appropriate
   measures from the irr package based on the specified measurement level
   (nominal, ordinal, or interval).
-- [`qlm_validate()`](https://seraphinem.github.io/quallmer/reference/qlm_validate.md)
+- [`qlm_validate()`](https://quallmer.github.io/quallmer/reference/qlm_validate.md)
   validates a `qlm_coded` object against a gold standard (human-coded
   reference data). Automatically computes all statistically appropriate
   metrics based on the specified measurement level, using measures from
   the yardstick, irr, and stats packages. For nominal data, supports
   multiple averaging methods (macro, micro, weighted, or per-class
   breakdown).
-- [`qlm_replicate()`](https://seraphinem.github.io/quallmer/reference/qlm_replicate.md)
+- [`qlm_replicate()`](https://quallmer.github.io/quallmer/reference/qlm_replicate.md)
   re-executes coding with optional overrides (model, codebook,
   parameters) while tracking provenance chain. Enables systematic
   assessment of coding reliability and sensitivity to model choices.
@@ -110,42 +110,42 @@ workflow actions, nouns for accessor functions.
   `data_codebook_fact`.
 - All predefined `task_*()` functions are deprecated in favor of using
   the data objects or creating custom codebooks with
-  [`qlm_codebook()`](https://seraphinem.github.io/quallmer/reference/qlm_codebook.md).
+  [`qlm_codebook()`](https://quallmer.github.io/quallmer/reference/qlm_codebook.md).
 
 ### Deprecated and superseded functions
 
-- [`task()`](https://seraphinem.github.io/quallmer/reference/task.md) is
+- [`task()`](https://quallmer.github.io/quallmer/reference/task.md) is
   deprecated in favor of
-  [`qlm_codebook()`](https://seraphinem.github.io/quallmer/reference/qlm_codebook.md)
+  [`qlm_codebook()`](https://quallmer.github.io/quallmer/reference/qlm_codebook.md)
   (#27).
-- [`annotate()`](https://seraphinem.github.io/quallmer/reference/annotate.md)
+- [`annotate()`](https://quallmer.github.io/quallmer/reference/annotate.md)
   is deprecated in favor of
-  [`qlm_code()`](https://seraphinem.github.io/quallmer/reference/qlm_code.md)
+  [`qlm_code()`](https://quallmer.github.io/quallmer/reference/qlm_code.md)
   (#27).
-- [`validate()`](https://seraphinem.github.io/quallmer/reference/validate.md)
+- [`validate()`](https://quallmer.github.io/quallmer/reference/validate.md)
   is superseded by
-  [`qlm_compare()`](https://seraphinem.github.io/quallmer/reference/qlm_compare.md)
+  [`qlm_compare()`](https://quallmer.github.io/quallmer/reference/qlm_compare.md)
   (for inter-rater reliability) and
-  [`qlm_validate()`](https://seraphinem.github.io/quallmer/reference/qlm_validate.md)
+  [`qlm_validate()`](https://quallmer.github.io/quallmer/reference/qlm_validate.md)
   (for gold standard validation). The function remains available but is
   marked with a lifecycle badge.
 - Trail functions
-  ([`trail_settings()`](https://seraphinem.github.io/quallmer/reference/trail_settings.md),
-  [`trail_record()`](https://seraphinem.github.io/quallmer/reference/trail_record.md),
-  [`trail_compare()`](https://seraphinem.github.io/quallmer/reference/trail_compare.md),
-  [`trail_matrix()`](https://seraphinem.github.io/quallmer/reference/trail_matrix.md),
-  [`trail_icr()`](https://seraphinem.github.io/quallmer/reference/trail_icr.md))
+  ([`trail_settings()`](https://quallmer.github.io/quallmer/reference/trail_settings.md),
+  [`trail_record()`](https://quallmer.github.io/quallmer/reference/trail_record.md),
+  [`trail_compare()`](https://quallmer.github.io/quallmer/reference/trail_compare.md),
+  [`trail_matrix()`](https://quallmer.github.io/quallmer/reference/trail_matrix.md),
+  [`trail_icr()`](https://quallmer.github.io/quallmer/reference/trail_icr.md))
   are deprecated. Use
-  [`qlm_code()`](https://seraphinem.github.io/quallmer/reference/qlm_code.md)
+  [`qlm_code()`](https://quallmer.github.io/quallmer/reference/qlm_code.md)
   with model and temperature parameters directly, or
-  [`qlm_replicate()`](https://seraphinem.github.io/quallmer/reference/qlm_replicate.md)
+  [`qlm_replicate()`](https://quallmer.github.io/quallmer/reference/qlm_replicate.md)
   for systematic comparisons across models.
 
 **Backward compatibility**: Old code continues to work with deprecation
 warnings. New `qlm_codebook` objects work with old
-[`annotate()`](https://seraphinem.github.io/quallmer/reference/annotate.md),
+[`annotate()`](https://quallmer.github.io/quallmer/reference/annotate.md),
 and old `task` objects work with new
-[`qlm_code()`](https://seraphinem.github.io/quallmer/reference/qlm_code.md).
+[`qlm_code()`](https://quallmer.github.io/quallmer/reference/qlm_code.md).
 This is achieved through dual-class inheritance where `qlm_codebook`
 inherits from both `"qlm_codebook"` and `"task"`.
 
@@ -159,7 +159,7 @@ inherits from both `"qlm_codebook"` and `"task"`.
 
 ### Other changes
 
-- [`qlm_validate()`](https://seraphinem.github.io/quallmer/reference/qlm_validate.md)
+- [`qlm_validate()`](https://quallmer.github.io/quallmer/reference/qlm_validate.md)
   now uses distinct, statistically appropriate metrics for each
   measurement level:
 
@@ -180,7 +180,7 @@ inherits from both `"qlm_codebook"` and `"task"`.
   statistically sound validation that respects the mathematical
   properties of each measurement scale.
 
-- [`qlm_compare()`](https://seraphinem.github.io/quallmer/reference/qlm_compare.md)
+- [`qlm_compare()`](https://quallmer.github.io/quallmer/reference/qlm_compare.md)
   now computes all statistically appropriate measures for each
   measurement level:
 
@@ -203,25 +203,25 @@ inherits from both `"qlm_codebook"` and `"task"`.
   agreement).
 
 - New
-  [`qlm_humancoded()`](https://seraphinem.github.io/quallmer/reference/qlm_humancoded.md)
+  [`qlm_humancoded()`](https://quallmer.github.io/quallmer/reference/qlm_humancoded.md)
   function converts human-coded data frames into `qlm_humancoded`
   objects (dual inheritance: `qlm_humancoded` + `qlm_coded`), enabling
   full provenance tracking for human coding alongside LLM results.
   Supports custom metadata for coder information, training details, and
   coding instructions (#43).
 
-- [`qlm_validate()`](https://seraphinem.github.io/quallmer/reference/qlm_validate.md)
+- [`qlm_validate()`](https://quallmer.github.io/quallmer/reference/qlm_validate.md)
   and
-  [`qlm_compare()`](https://seraphinem.github.io/quallmer/reference/qlm_compare.md)
+  [`qlm_compare()`](https://quallmer.github.io/quallmer/reference/qlm_compare.md)
   now accept plain data frames and automatically convert them to
   `qlm_humancoded` objects with an informational message. Users can call
-  [`qlm_humancoded()`](https://seraphinem.github.io/quallmer/reference/qlm_humancoded.md)
+  [`qlm_humancoded()`](https://quallmer.github.io/quallmer/reference/qlm_humancoded.md)
   directly to provide richer metadata (coder names, instructions, etc.)
   or use plain data frames for quick comparisons (#43).
 
-- [`qlm_validate()`](https://seraphinem.github.io/quallmer/reference/qlm_validate.md)
+- [`qlm_validate()`](https://quallmer.github.io/quallmer/reference/qlm_validate.md)
   and
-  [`qlm_compare()`](https://seraphinem.github.io/quallmer/reference/qlm_compare.md)
+  [`qlm_compare()`](https://quallmer.github.io/quallmer/reference/qlm_compare.md)
   now support non-standard evaluation (NSE) for the `by` argument,
   allowing both `by = sentiment` (unquoted) and `by = "sentiment"`
   (quoted) syntax. This provides a more natural, tidyverse-style
@@ -232,9 +232,9 @@ inherits from both `"qlm_codebook"` and `"task"`.
   instead of model information.
 
 - Improved error messages in
-  [`qlm_compare()`](https://seraphinem.github.io/quallmer/reference/qlm_compare.md)
+  [`qlm_compare()`](https://quallmer.github.io/quallmer/reference/qlm_compare.md)
   and
-  [`qlm_validate()`](https://seraphinem.github.io/quallmer/reference/qlm_validate.md)
+  [`qlm_validate()`](https://quallmer.github.io/quallmer/reference/qlm_validate.md)
   now show which objects are missing the requested variable and list
   available alternatives.
 

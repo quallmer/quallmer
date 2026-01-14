@@ -35,7 +35,7 @@ Chat with Large Language Models*. R package.
 
 Useful links:
 
-- <https://seraphinem.github.io/quallmer/>
+- <https://quallmer.github.io/quallmer/>
 
 ## Author
 

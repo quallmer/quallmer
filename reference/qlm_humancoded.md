@@ -3,10 +3,10 @@
 Converts a data frame of human-coded data into a `qlm_humancoded`
 object, which inherits from `qlm_coded`. This enables provenance
 tracking and integration with
-[`qlm_compare()`](https://seraphinem.github.io/quallmer/reference/qlm_compare.md),
-[`qlm_validate()`](https://seraphinem.github.io/quallmer/reference/qlm_validate.md),
+[`qlm_compare()`](https://quallmer.github.io/quallmer/reference/qlm_compare.md),
+[`qlm_validate()`](https://quallmer.github.io/quallmer/reference/qlm_validate.md),
 and
-[`qlm_trail()`](https://seraphinem.github.io/quallmer/reference/qlm_trail.md)
+[`qlm_trail()`](https://quallmer.github.io/quallmer/reference/qlm_trail.md)
 for human-coded data alongside LLM-coded results.
 
 ## Usage
@@ -102,13 +102,13 @@ information, clearly distinguishing human from LLM coding in workflows.
 
 ## See also
 
-[`qlm_code()`](https://seraphinem.github.io/quallmer/reference/qlm_code.md)
+[`qlm_code()`](https://quallmer.github.io/quallmer/reference/qlm_code.md)
 for LLM coding,
-[`qlm_compare()`](https://seraphinem.github.io/quallmer/reference/qlm_compare.md)
+[`qlm_compare()`](https://quallmer.github.io/quallmer/reference/qlm_compare.md)
 for inter-rater reliability,
-[`qlm_validate()`](https://seraphinem.github.io/quallmer/reference/qlm_validate.md)
+[`qlm_validate()`](https://quallmer.github.io/quallmer/reference/qlm_validate.md)
 for validation against gold standards,
-[`qlm_trail()`](https://seraphinem.github.io/quallmer/reference/qlm_trail.md)
+[`qlm_trail()`](https://quallmer.github.io/quallmer/reference/qlm_trail.md)
 for provenance tracking.
 
 ## Examples

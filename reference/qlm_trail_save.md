@@ -14,7 +14,7 @@ qlm_trail_save(trail, file)
 - trail:
 
   A `qlm_trail` object from
-  [`qlm_trail()`](https://seraphinem.github.io/quallmer/reference/qlm_trail.md).
+  [`qlm_trail()`](https://quallmer.github.io/quallmer/reference/qlm_trail.md).
 
 - file:
 
@@ -26,8 +26,8 @@ Invisibly returns the file path.
 
 ## See also
 
-[`qlm_trail()`](https://seraphinem.github.io/quallmer/reference/qlm_trail.md),
-[`qlm_archive()`](https://seraphinem.github.io/quallmer/reference/qlm_archive.md)
+[`qlm_trail()`](https://quallmer.github.io/quallmer/reference/qlm_trail.md),
+[`qlm_archive()`](https://quallmer.github.io/quallmer/reference/qlm_archive.md)
 
 ## Examples
 

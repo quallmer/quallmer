@@ -35,8 +35,8 @@ input_type
 
 ## See also
 
-[`qlm_codebook()`](https://seraphinem.github.io/quallmer/reference/qlm_codebook.md),
-[`qlm_code()`](https://seraphinem.github.io/quallmer/reference/qlm_code.md)
+[`qlm_codebook()`](https://quallmer.github.io/quallmer/reference/qlm_codebook.md),
+[`qlm_code()`](https://quallmer.github.io/quallmer/reference/qlm_code.md)
 
 ## Examples
 

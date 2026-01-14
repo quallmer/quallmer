@@ -2,7 +2,7 @@
 
 A `qlm_codebook` object defining instructions for sentiment analysis of
 movie reviews. Designed to work with
-[data_corpus_LMRDsample](https://seraphinem.github.io/quallmer/reference/data_corpus_LMRDsample.md)
+[data_corpus_LMRDsample](https://quallmer.github.io/quallmer/reference/data_corpus_LMRDsample.md)
 but with an expanded polarity scale that includes a "mixed" category.
 
 ## Usage
@@ -37,10 +37,10 @@ input_type
 
 ## See also
 
-[`qlm_codebook()`](https://seraphinem.github.io/quallmer/reference/qlm_codebook.md),
-[`qlm_code()`](https://seraphinem.github.io/quallmer/reference/qlm_code.md),
-[`qlm_compare()`](https://seraphinem.github.io/quallmer/reference/qlm_compare.md),
-[data_corpus_LMRDsample](https://seraphinem.github.io/quallmer/reference/data_corpus_LMRDsample.md)
+[`qlm_codebook()`](https://quallmer.github.io/quallmer/reference/qlm_codebook.md),
+[`qlm_code()`](https://quallmer.github.io/quallmer/reference/qlm_code.md),
+[`qlm_compare()`](https://quallmer.github.io/quallmer/reference/qlm_compare.md),
+[data_corpus_LMRDsample](https://quallmer.github.io/quallmer/reference/data_corpus_LMRDsample.md)
 
 ## Examples
 

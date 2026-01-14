@@ -3,7 +3,7 @@
 ## Project Structure & Modules
 
 - R: Package code and Shiny app (e.g.,
-  [`annotate()`](https://seraphinem.github.io/quallmer/reference/annotate.md),
+  [`annotate()`](https://quallmer.github.io/quallmer/reference/annotate.md),
   `validate_app()`).
 - tests/testthat: Unit tests (testthat 3e) and test runner
   `tests/testthat.R`.
@@ -78,12 +78,12 @@
 - Prefer one bullet per change; keep it user-facing and concise.
 - Use code font for functions/args; reference issues/PRs and authors.
 - Examples:
-  - [`annotate()`](https://seraphinem.github.io/quallmer/reference/annotate.md)
+  - [`annotate()`](https://quallmer.github.io/quallmer/reference/annotate.md)
     now accepts named vectors as IDs in output (#123, @login).
   - Fixed crash in `validate_app()` when `gold` column is missing
     (#145).
   - Documentation: Added “Agreement metrics” vignette; clarified
-    [`task()`](https://seraphinem.github.io/quallmer/reference/task.md)
+    [`task()`](https://quallmer.github.io/quallmer/reference/task.md)
     examples (#150).
 
 ## Security & Configuration

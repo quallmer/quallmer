@@ -43,7 +43,7 @@ An object of class `"trail_setting"`.
 ## Details
 
 `trail_settings()` is deprecated. Use
-[`qlm_code()`](https://seraphinem.github.io/quallmer/reference/qlm_code.md)
+[`qlm_code()`](https://quallmer.github.io/quallmer/reference/qlm_code.md)
 with the `model` and `temperature` parameters directly instead. For
 systematic comparisons across different models or settings, see
-[`qlm_replicate()`](https://seraphinem.github.io/quallmer/reference/qlm_replicate.md).
+[`qlm_replicate()`](https://quallmer.github.io/quallmer/reference/qlm_replicate.md).

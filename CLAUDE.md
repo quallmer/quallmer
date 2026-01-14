@@ -4,7 +4,7 @@
 
 quallmer is an R package for qualitative data annotation and validation.
 It provides: -
-[`annotate()`](https://seraphinem.github.io/quallmer/reference/annotate.md):
+[`annotate()`](https://quallmer.github.io/quallmer/reference/annotate.md):
 Core function for LLM-powered text annotation - `validate_app()`: Shiny
 application for validating annotations against gold standards -
 Integration with the ellmer framework for LLM interactions
@@ -85,7 +85,7 @@ quallmer::validate_app()  # Launch validation interface
 - **Line length**: Keep reasonable; avoid overly long lines
 - **Naming**: snake_case for all functions, arguments, and objects
   - Examples:
-    [`trail_settings()`](https://seraphinem.github.io/quallmer/reference/trail_settings.md),
+    [`trail_settings()`](https://quallmer.github.io/quallmer/reference/trail_settings.md),
     `task_sentiment()`, `gold_standard`
 - **Organization**: Newspaper-style - high-level functions first,
   helpers below
@@ -269,7 +269,7 @@ contributors: `(#123, @username)` - Examples: -
 - [ellmer documentation](https://ellmer.tidyverse.org/): LLM integration
   framework
 - [quallmer
-  documentation](https://seraphinem.github.io/quallmer/index.html)
+  documentation](https://quallmer.github.io/quallmer/index.html)
 
 ## General attitude
 

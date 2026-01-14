@@ -79,4 +79,4 @@ any sensitive data, code, or text that should remain confidential.
 
 Now you are ready to use openai models with the `quallmer` package! For
 example, you can [test the setup by running the example on sentiment
-analysis.](https://seraphinem.github.io/quallmer/articles/pkgdown/examples/sentiment.html)
+analysis.](https://quallmer.github.io/quallmer/articles/pkgdown/examples/sentiment.html)

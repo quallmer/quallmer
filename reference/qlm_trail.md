@@ -62,14 +62,14 @@ Lincoln, Y. S., & Guba, E. G. (1985). *Naturalistic Inquiry*. Sage.
 
 ## See also
 
-[`qlm_replicate()`](https://seraphinem.github.io/quallmer/reference/qlm_replicate.md),
-[`qlm_code()`](https://seraphinem.github.io/quallmer/reference/qlm_code.md),
-[`qlm_compare()`](https://seraphinem.github.io/quallmer/reference/qlm_compare.md),
-[`qlm_validate()`](https://seraphinem.github.io/quallmer/reference/qlm_validate.md),
-[`qlm_trail_save()`](https://seraphinem.github.io/quallmer/reference/qlm_trail_save.md),
-[`qlm_trail_export()`](https://seraphinem.github.io/quallmer/reference/qlm_trail_export.md),
-[`qlm_trail_report()`](https://seraphinem.github.io/quallmer/reference/qlm_trail_report.md),
-[`qlm_archive()`](https://seraphinem.github.io/quallmer/reference/qlm_archive.md)
+[`qlm_replicate()`](https://quallmer.github.io/quallmer/reference/qlm_replicate.md),
+[`qlm_code()`](https://quallmer.github.io/quallmer/reference/qlm_code.md),
+[`qlm_compare()`](https://quallmer.github.io/quallmer/reference/qlm_compare.md),
+[`qlm_validate()`](https://quallmer.github.io/quallmer/reference/qlm_validate.md),
+[`qlm_trail_save()`](https://quallmer.github.io/quallmer/reference/qlm_trail_save.md),
+[`qlm_trail_export()`](https://quallmer.github.io/quallmer/reference/qlm_trail_export.md),
+[`qlm_trail_report()`](https://quallmer.github.io/quallmer/reference/qlm_trail_report.md),
+[`qlm_archive()`](https://quallmer.github.io/quallmer/reference/qlm_archive.md)
 
 ## Examples
 

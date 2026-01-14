@@ -19,7 +19,7 @@ qlm_replicate(x, ..., codebook = NULL, model = NULL, batch = NULL, name = NULL)
 - ...:
 
   Optional overrides passed to
-  [`qlm_code()`](https://seraphinem.github.io/quallmer/reference/qlm_code.md),
+  [`qlm_code()`](https://quallmer.github.io/quallmer/reference/qlm_code.md),
   such as `temperature` or `max_tokens`.
 
 - codebook:
@@ -50,9 +50,9 @@ A `qlm_coded` object with `run$parent` set to the parent's run name.
 
 ## See also
 
-[`qlm_code()`](https://seraphinem.github.io/quallmer/reference/qlm_code.md)
+[`qlm_code()`](https://quallmer.github.io/quallmer/reference/qlm_code.md)
 for initial coding,
-[`qlm_compare()`](https://seraphinem.github.io/quallmer/reference/qlm_compare.md)
+[`qlm_compare()`](https://quallmer.github.io/quallmer/reference/qlm_compare.md)
 for comparing replicated results.
 
 ## Examples

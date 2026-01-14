@@ -4,11 +4,11 @@ In this tutorial, we will explore how to assess the reliability and
 validity of LLM-coded results using the `quallmer` package. We will
 cover three key functions:
 
-- [`qlm_compare()`](https://seraphinem.github.io/quallmer/reference/qlm_compare.md) -
+- [`qlm_compare()`](https://quallmer.github.io/quallmer/reference/qlm_compare.md) -
   for assessing inter-rater reliability between multiple coded results
-- [`qlm_validate()`](https://seraphinem.github.io/quallmer/reference/qlm_validate.md) -
+- [`qlm_validate()`](https://quallmer.github.io/quallmer/reference/qlm_validate.md) -
   for validating coded results against a gold standard
-- [`qlm_replicate()`](https://seraphinem.github.io/quallmer/reference/qlm_replicate.md) -
+- [`qlm_replicate()`](https://quallmer.github.io/quallmer/reference/qlm_replicate.md) -
   for re-executing coding with different settings to test reliability
 
 These tools help ensure that your qualitative coding is robust,
@@ -83,7 +83,7 @@ coded1 <- qlm_code(data_corpus_inaugural,
 
     ## [working] (0 + 0) -> 10 -> 1 | ■■■■                               9%
 
-    ## [working] (0 + 0) -> 2 -> 9 | ■■■■■■■■■■■■■■■■■■■■■■■■■■        82%
+    ## [working] (0 + 0) -> 1 -> 10 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■      91%
 
     ## [working] (0 + 0) -> 0 -> 11 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100%
 
@@ -102,21 +102,21 @@ coded1
     ##    .id          score explanation                                               
     ##  * <chr>        <int> <chr>                                                     
     ##  1 1985-Reagan      8 The text emphasizes limited government, reduced taxes, an…
-    ##  2 1989-Bush        7 The text reflects a center-right ideological position. It…
+    ##  2 1989-Bush        7 The text emphasizes free markets, limited government inte…
     ##  3 1993-Clinton     4 The text emphasizes themes of renewal, change, and respon…
     ##  4 1997-Clinton     4 The text emphasizes themes of equality, community, and op…
-    ##  5 2001-Bush        6 The text emphasizes traditional American values such as f…
+    ##  5 2001-Bush        6 The text reflects a centrist to moderately right-leaning …
     ##  6 2005-Bush        7 The text emphasizes a strong commitment to spreading demo…
     ##  7 2009-Obama       3 The text emphasizes themes of unity, responsibility, and …
     ##  8 2013-Obama       3 The text emphasizes equality, collective action, and soci…
     ##  9 2017-Trump       8 The text emphasizes nationalism, protectionism, and a foc…
     ## 10 2021-Biden       3 The text emphasizes unity, democracy, and addressing soci…
-    ## 11 2025-Trump       8 The text emphasizes nationalism, strong border control, m…
+    ## 11 2025-Trump       8 The text emphasizes strong nationalist and protectionist …
 
 ## Replicating with different settings
 
 The
-[`qlm_replicate()`](https://seraphinem.github.io/quallmer/reference/qlm_replicate.md)
+[`qlm_replicate()`](https://quallmer.github.io/quallmer/reference/qlm_replicate.md)
 function allows you to re-execute coding with different models,
 parameters, or codebooks while maintaining a provenance chain. This is
 useful for testing the sensitivity of your results to different
@@ -131,7 +131,7 @@ coded2 <- qlm_replicate(coded1,
                         name = "mini_run")
 ```
 
-    ## [working] (0 + 0) -> 10 -> 1 | ■■■■                               9%
+    ## [working] (0 + 0) -> 9 -> 2 | ■■■■■■                            18%
 
     ## [working] (0 + 0) -> 0 -> 11 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100%
 
@@ -146,15 +146,13 @@ coded3 <- qlm_replicate(coded1,
 
     ## [working] (0 + 0) -> 10 -> 1 | ■■■■                               9%
 
-    ## [working] (0 + 0) -> 6 -> 5 | ■■■■■■■■■■■■■■■                   45%
-
     ## [working] (0 + 0) -> 0 -> 11 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100%
 
 ## Comparing multiple coded results
 
 Once you have multiple coded results, you can assess inter-rater
 reliability using
-[`qlm_compare()`](https://seraphinem.github.io/quallmer/reference/qlm_compare.md).
+[`qlm_compare()`](https://quallmer.github.io/quallmer/reference/qlm_compare.md).
 This is useful when you want to check consistency across different
 models, coders, or coding runs.
 
@@ -175,10 +173,10 @@ comparison
     ## # Raters:   3 
     ## # Level:    ordinal 
     ## 
-    ## Krippendorff's alpha: 0.8498
-    ## Kendall's W:          0.8636
-    ## Spearman's rho:       0.8529
-    ## Percent agreement:    0.3636
+    ## Krippendorff's alpha: 0.7236
+    ## Kendall's W:          0.8177
+    ## Spearman's rho:       0.7804
+    ## Percent agreement:    0.0000
 
 The output shows:
 
@@ -206,16 +204,16 @@ qlm_compare(coded1, coded2, coded3,
     ## # Raters:   3 
     ## # Level:    ordinal 
     ## 
-    ## Krippendorff's alpha: 0.8498
-    ## Kendall's W:          0.8636
-    ## Spearman's rho:       0.8529
-    ## Percent agreement:    0.8182
+    ## Krippendorff's alpha: 0.7236
+    ## Kendall's W:          0.8177
+    ## Spearman's rho:       0.7804
+    ## Percent agreement:    0.7273
 
 ## Validating against a gold standard
 
 When you have human-coded reference data (a gold standard), you can
 assess the accuracy of LLM coding using
-[`qlm_validate()`](https://seraphinem.github.io/quallmer/reference/qlm_validate.md).
+[`qlm_validate()`](https://quallmer.github.io/quallmer/reference/qlm_validate.md).
 This computes classification metrics like accuracy, precision, recall,
 and F1-score.
 
@@ -340,13 +338,13 @@ qlm_validate(coded1, gold = gold_standard, by = "score", level = "interval")
 In this tutorial, you learned how to:
 
 - Use
-  [`qlm_replicate()`](https://seraphinem.github.io/quallmer/reference/qlm_replicate.md)
+  [`qlm_replicate()`](https://quallmer.github.io/quallmer/reference/qlm_replicate.md)
   to systematically test coding across different models and settings
 - Use
-  [`qlm_compare()`](https://seraphinem.github.io/quallmer/reference/qlm_compare.md)
+  [`qlm_compare()`](https://quallmer.github.io/quallmer/reference/qlm_compare.md)
   to assess inter-rater reliability between multiple coded results
 - Use
-  [`qlm_validate()`](https://seraphinem.github.io/quallmer/reference/qlm_validate.md)
+  [`qlm_validate()`](https://quallmer.github.io/quallmer/reference/qlm_validate.md)
   to measure accuracy against a gold standard
 - Interpret reliability and validation metrics
 

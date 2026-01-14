@@ -26,13 +26,13 @@ definition.
 ## Details
 
 `task()` has been deprecated in favor of
-[`qlm_codebook()`](https://seraphinem.github.io/quallmer/reference/qlm_codebook.md).
+[`qlm_codebook()`](https://quallmer.github.io/quallmer/reference/qlm_codebook.md).
 The new function returns an object with dual class inheritance that
 works with both the old and new APIs.
 
 ## See also
 
-[`qlm_codebook()`](https://seraphinem.github.io/quallmer/reference/qlm_codebook.md)
+[`qlm_codebook()`](https://quallmer.github.io/quallmer/reference/qlm_codebook.md)
 for the replacement function.
 
 ## Examples

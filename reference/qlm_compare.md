@@ -139,11 +139,11 @@ computed as the mean of all pairwise correlations between raters.
 
 ## See also
 
-[`qlm_validate()`](https://seraphinem.github.io/quallmer/reference/qlm_validate.md)
+[`qlm_validate()`](https://quallmer.github.io/quallmer/reference/qlm_validate.md)
 for validation of coding against gold standards,
-[`qlm_code()`](https://seraphinem.github.io/quallmer/reference/qlm_code.md)
+[`qlm_code()`](https://quallmer.github.io/quallmer/reference/qlm_code.md)
 for LLM coding,
-[`qlm_humancoded()`](https://seraphinem.github.io/quallmer/reference/qlm_humancoded.md)
+[`qlm_humancoded()`](https://quallmer.github.io/quallmer/reference/qlm_humancoded.md)
 for human coding.
 
 ## Examples

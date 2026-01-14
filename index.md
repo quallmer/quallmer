@@ -5,28 +5,28 @@ AI-assisted qualitative coding to large amounts of texts, images, pdfs,
 tabular data and other structured data.**
 
 Using
-[`qlm_code()`](https://seraphinem.github.io/quallmer/reference/qlm_code.md),
+[`qlm_code()`](https://quallmer.github.io/quallmer/reference/qlm_code.md),
 users can apply codebook-based qualitative coding powered by large
 language models (LLMs) to generate structured, interpretable outputs.
 The package includes built-in codebooks for common applications and
 allows researchers to create custom codebooks tailored to their specific
 research questions using
-[`qlm_codebook()`](https://seraphinem.github.io/quallmer/reference/qlm_codebook.md).
+[`qlm_codebook()`](https://quallmer.github.io/quallmer/reference/qlm_codebook.md).
 To ensure quality and reliability of AI-generated coding, **quallmer**
 provides
-[`qlm_compare()`](https://seraphinem.github.io/quallmer/reference/qlm_compare.md)
+[`qlm_compare()`](https://quallmer.github.io/quallmer/reference/qlm_compare.md)
 for evaluating inter-rater reliability and
-[`qlm_validate()`](https://seraphinem.github.io/quallmer/reference/qlm_validate.md)
+[`qlm_validate()`](https://quallmer.github.io/quallmer/reference/qlm_validate.md)
 for assessing accuracy against gold standards. With
-[`qlm_replicate()`](https://seraphinem.github.io/quallmer/reference/qlm_replicate.md),
+[`qlm_replicate()`](https://quallmer.github.io/quallmer/reference/qlm_replicate.md),
 researchers can systematically compare results across different models
 and settings to assess sensitivity and reproducibility. The quallmer
 trail system captures complete audit trails following Lincoln and Guba’s
 (1985) concept for establishing trustworthiness in qualitative research,
 using
-[`qlm_trail()`](https://seraphinem.github.io/quallmer/reference/qlm_trail.md)
+[`qlm_trail()`](https://quallmer.github.io/quallmer/reference/qlm_trail.md)
 and
-[`qlm_archive()`](https://seraphinem.github.io/quallmer/reference/qlm_archive.md).
+[`qlm_archive()`](https://quallmer.github.io/quallmer/reference/qlm_archive.md).
 
 **The quallmer package makes AI-assisted qualitative coding accessible
 without requiring deep expertise in R, programming or machine
@@ -117,9 +117,9 @@ package. For authentication and usage of each of these LLMs, please
 refer to the respective
 [ellmer](https://ellmer.tidyverse.org/reference/index.html)
 documentation and see our [tutorial for setting up an OpenAI API
-key](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/openai.html)
+key](https://quallmer.github.io/quallmer/articles/pkgdown/tutorials/openai.html)
 or [getting started with an open-source Ollama
-model](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/ollama.html).
+model](https://quallmer.github.io/quallmer/articles/pkgdown/tutorials/ollama.html).
 
 ## Installation
 
@@ -135,7 +135,7 @@ pak::pak("SeraphineM/quallmer")
 
 To learn more about how to use the package, please refer to our
 [step-by-step
-tutorials](https://seraphinem.github.io/quallmer/articles/getting-started.html).
+tutorials](https://quallmer.github.io/quallmer/articles/getting-started.html).
 
 ## Acknowledgments
 

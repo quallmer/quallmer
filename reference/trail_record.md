@@ -53,7 +53,7 @@ trail_record(
 - annotate_fun:
 
   Function used to perform the annotation (default
-  [`annotate()`](https://seraphinem.github.io/quallmer/reference/annotate.md)).
+  [`annotate()`](https://quallmer.github.io/quallmer/reference/annotate.md)).
 
 ## Value
 
@@ -62,7 +62,7 @@ An object of class `"trail_record"`.
 ## Details
 
 `trail_record()` is deprecated. Use
-[`qlm_code()`](https://seraphinem.github.io/quallmer/reference/qlm_code.md)
+[`qlm_code()`](https://quallmer.github.io/quallmer/reference/qlm_code.md)
 instead, which automatically captures metadata for reproducibility. For
 systematic comparisons across different models or settings, see
-[`qlm_replicate()`](https://seraphinem.github.io/quallmer/reference/qlm_replicate.md).
+[`qlm_replicate()`](https://quallmer.github.io/quallmer/reference/qlm_replicate.md).

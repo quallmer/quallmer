@@ -1,7 +1,7 @@
 # Example: Sentiment analysis
 
 This example demonstrates sentiment analysis of movie reviews using
-[`qlm_code()`](https://seraphinem.github.io/quallmer/reference/qlm_code.md)
+[`qlm_code()`](https://quallmer.github.io/quallmer/reference/qlm_code.md)
 with the predefined `data_codebook_sentiment` codebook. We’ll analyze
 reviews from the Large Movie Review Dataset (Maas et al. 2011) and
 validate the results against movie ratings and polarity assigned by the
@@ -156,7 +156,7 @@ cat("Total cost: $", round(sum(coded_g2.5_flash$cost), 4), sep = "")
 
 The corpus includes human-coded sentiment labels in its docvars. We can
 use
-[`qlm_validate()`](https://seraphinem.github.io/quallmer/reference/qlm_validate.md)
+[`qlm_validate()`](https://quallmer.github.io/quallmer/reference/qlm_validate.md)
 to assess the LLM’s performance:
 
 ``` r
@@ -245,7 +245,7 @@ qlm_validate(
 ### Compared to the previous LLM scoring
 
 We can use
-[`qlm_compare()`](https://seraphinem.github.io/quallmer/reference/qlm_compare.md)
+[`qlm_compare()`](https://quallmer.github.io/quallmer/reference/qlm_compare.md)
 to try a more advanced model, to see how this changes things, comparing
 its performance to the previous model, and also to the gold standard.
 

@@ -34,5 +34,5 @@ The unit ID column is retained under the name `id_col`.
 ## Details
 
 `trail_matrix()` is deprecated. Use
-[`qlm_compare()`](https://seraphinem.github.io/quallmer/reference/qlm_compare.md)
+[`qlm_compare()`](https://quallmer.github.io/quallmer/reference/qlm_compare.md)
 to compare multiple coded objects directly.

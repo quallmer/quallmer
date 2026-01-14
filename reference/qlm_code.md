@@ -22,9 +22,9 @@ qlm_code(x, codebook, model, ..., batch = FALSE, name = "original")
 - codebook:
 
   A codebook object created with
-  [`qlm_codebook()`](https://seraphinem.github.io/quallmer/reference/qlm_codebook.md).
+  [`qlm_codebook()`](https://quallmer.github.io/quallmer/reference/qlm_codebook.md).
   Also accepts deprecated
-  [`task()`](https://seraphinem.github.io/quallmer/reference/task.md)
+  [`task()`](https://quallmer.github.io/quallmer/reference/task.md)
   objects for backward compatibility.
 
 - model:
@@ -111,9 +111,9 @@ results.
 
 ## See also
 
-[`qlm_codebook()`](https://seraphinem.github.io/quallmer/reference/qlm_codebook.md)
+[`qlm_codebook()`](https://quallmer.github.io/quallmer/reference/qlm_codebook.md)
 for creating codebooks,
-[`annotate()`](https://seraphinem.github.io/quallmer/reference/annotate.md)
+[`annotate()`](https://quallmer.github.io/quallmer/reference/annotate.md)
 for the deprecated function.
 
 ## Examples

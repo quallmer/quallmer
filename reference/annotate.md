@@ -13,8 +13,8 @@ annotate(.data, task, model_name, ...)
 - task:
 
   A task object created with
-  [`task()`](https://seraphinem.github.io/quallmer/reference/task.md) or
-  [`qlm_codebook()`](https://seraphinem.github.io/quallmer/reference/qlm_codebook.md).
+  [`task()`](https://quallmer.github.io/quallmer/reference/task.md) or
+  [`qlm_codebook()`](https://quallmer.github.io/quallmer/reference/qlm_codebook.md).
 
 - ...:
 
@@ -44,13 +44,13 @@ A data frame with one row per input element, containing:
 ## Details
 
 `annotate()` has been deprecated in favor of
-[`qlm_code()`](https://seraphinem.github.io/quallmer/reference/qlm_code.md).
+[`qlm_code()`](https://quallmer.github.io/quallmer/reference/qlm_code.md).
 The new function returns a richer object that includes metadata and
 settings for reproducibility.
 
 ## See also
 
-[`qlm_code()`](https://seraphinem.github.io/quallmer/reference/qlm_code.md)
+[`qlm_code()`](https://quallmer.github.io/quallmer/reference/qlm_code.md)
 for the replacement function.
 
 ## Examples

@@ -15,7 +15,7 @@ qlm_archive(x, ..., path, report = TRUE)
 - x:
 
   Either a `qlm_trail` object from
-  [`qlm_trail()`](https://seraphinem.github.io/quallmer/reference/qlm_trail.md),
+  [`qlm_trail()`](https://quallmer.github.io/quallmer/reference/qlm_trail.md),
   or the first quallmer object (`qlm_coded`, `qlm_comparison`, or
   `qlm_validation`).
 
@@ -61,10 +61,10 @@ The function can be used in two ways:
 
 ## See also
 
-[`qlm_trail()`](https://seraphinem.github.io/quallmer/reference/qlm_trail.md),
-[`qlm_trail_save()`](https://seraphinem.github.io/quallmer/reference/qlm_trail_save.md),
-[`qlm_trail_export()`](https://seraphinem.github.io/quallmer/reference/qlm_trail_export.md),
-[`qlm_trail_report()`](https://seraphinem.github.io/quallmer/reference/qlm_trail_report.md)
+[`qlm_trail()`](https://quallmer.github.io/quallmer/reference/qlm_trail.md),
+[`qlm_trail_save()`](https://quallmer.github.io/quallmer/reference/qlm_trail_save.md),
+[`qlm_trail_export()`](https://quallmer.github.io/quallmer/reference/qlm_trail_export.md),
+[`qlm_trail_report()`](https://quallmer.github.io/quallmer/reference/qlm_trail_report.md)
 
 ## Examples
 

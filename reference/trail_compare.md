@@ -55,7 +55,7 @@ trail_compare(
 
   Optional character scalar specifying a directory to cache LLM outputs.
   Passed to
-  [`trail_record()`](https://seraphinem.github.io/quallmer/reference/trail_record.md).
+  [`trail_record()`](https://quallmer.github.io/quallmer/reference/trail_record.md).
   If `NULL`, caching disabled. For examples and tests, use
   [`tempdir()`](https://rdrr.io/r/base/tempfile.html) to comply with
   CRAN policies.
@@ -68,9 +68,9 @@ trail_compare(
 - annotate_fun:
 
   Annotation backend function used by
-  [`trail_record()`](https://seraphinem.github.io/quallmer/reference/trail_record.md)
+  [`trail_record()`](https://quallmer.github.io/quallmer/reference/trail_record.md)
   (default =
-  [`annotate()`](https://seraphinem.github.io/quallmer/reference/annotate.md)).
+  [`annotate()`](https://quallmer.github.io/quallmer/reference/annotate.md)).
 
 - min_coders:
 
@@ -100,9 +100,9 @@ A `trail_compare` object with components:
 ## Details
 
 `trail_compare()` is deprecated. Use
-[`qlm_replicate()`](https://seraphinem.github.io/quallmer/reference/qlm_replicate.md)
+[`qlm_replicate()`](https://quallmer.github.io/quallmer/reference/qlm_replicate.md)
 to re-run coding with different models or settings, then use
-[`qlm_compare()`](https://seraphinem.github.io/quallmer/reference/qlm_compare.md)
+[`qlm_compare()`](https://quallmer.github.io/quallmer/reference/qlm_compare.md)
 to assess inter-rater reliability.
 
 All settings are applied to the same text units. Because the ID column
@@ -112,11 +112,11 @@ reliability statistics in `icr`.
 
 ## See also
 
-- [`trail_record()`](https://seraphinem.github.io/quallmer/reference/trail_record.md)
+- [`trail_record()`](https://quallmer.github.io/quallmer/reference/trail_record.md)
   – run a task for a single setting
 
-- [`trail_matrix()`](https://seraphinem.github.io/quallmer/reference/trail_matrix.md)
+- [`trail_matrix()`](https://quallmer.github.io/quallmer/reference/trail_matrix.md)
   – align records into coder-style wide format
 
-- [`trail_icr()`](https://seraphinem.github.io/quallmer/reference/trail_icr.md)
+- [`trail_icr()`](https://quallmer.github.io/quallmer/reference/trail_icr.md)
   – compute inter-rater reliability across settings

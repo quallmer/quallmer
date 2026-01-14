@@ -1,7 +1,7 @@
 # Define a qualitative codebook
 
 Creates a codebook definition for use with
-[`qlm_code()`](https://seraphinem.github.io/quallmer/reference/qlm_code.md).
+[`qlm_code()`](https://quallmer.github.io/quallmer/reference/qlm_code.md).
 A codebook specifies what information to extract from input data,
 including the instructions that guide the LLM and the structured output
 schema.
@@ -50,29 +50,29 @@ qlm_codebook(
 
 A codebook object (a list with class `c("qlm_codebook", "task")`)
 containing the codebook definition. Use with
-[`qlm_code()`](https://seraphinem.github.io/quallmer/reference/qlm_code.md)
+[`qlm_code()`](https://quallmer.github.io/quallmer/reference/qlm_code.md)
 to apply the codebook to data.
 
 ## Details
 
 This function replaces
-[`task()`](https://seraphinem.github.io/quallmer/reference/task.md),
-which is now deprecated. The returned object has dual class inheritance
+[`task()`](https://quallmer.github.io/quallmer/reference/task.md), which
+is now deprecated. The returned object has dual class inheritance
 (`c("qlm_codebook", "task")`) to maintain backward compatibility with
 existing code using
-[`annotate()`](https://seraphinem.github.io/quallmer/reference/annotate.md).
+[`annotate()`](https://quallmer.github.io/quallmer/reference/annotate.md).
 
 ## See also
 
-[`qlm_code()`](https://seraphinem.github.io/quallmer/reference/qlm_code.md)
+[`qlm_code()`](https://quallmer.github.io/quallmer/reference/qlm_code.md)
 for applying codebooks to data,
-[data_codebook_sentiment](https://seraphinem.github.io/quallmer/reference/data_codebook_sentiment.md),
-[data_codebook_stance](https://seraphinem.github.io/quallmer/reference/data_codebook_stance.md),
-[data_codebook_ideology](https://seraphinem.github.io/quallmer/reference/data_codebook_ideology.md),
-[data_codebook_salience](https://seraphinem.github.io/quallmer/reference/data_codebook_salience.md),
-[data_codebook_fact](https://seraphinem.github.io/quallmer/reference/data_codebook_fact.md)
+[data_codebook_sentiment](https://quallmer.github.io/quallmer/reference/data_codebook_sentiment.md),
+[data_codebook_stance](https://quallmer.github.io/quallmer/reference/data_codebook_stance.md),
+[data_codebook_ideology](https://quallmer.github.io/quallmer/reference/data_codebook_ideology.md),
+[data_codebook_salience](https://quallmer.github.io/quallmer/reference/data_codebook_salience.md),
+[data_codebook_fact](https://quallmer.github.io/quallmer/reference/data_codebook_fact.md)
 for predefined codebooks,
-[`task()`](https://seraphinem.github.io/quallmer/reference/task.md) for
+[`task()`](https://quallmer.github.io/quallmer/reference/task.md) for
 the deprecated function.
 
 ## Examples

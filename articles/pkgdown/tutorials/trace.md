@@ -68,7 +68,7 @@ qlm_trail_report(trail, "workflow.qmd")
 ## One-call documentation with qlm_archive()
 
 For convenience, use
-[`qlm_archive()`](https://seraphinem.github.io/quallmer/reference/qlm_archive.md)
+[`qlm_archive()`](https://quallmer.github.io/quallmer/reference/qlm_archive.md)
 to create all outputs in one call:
 
 ``` r
@@ -84,7 +84,7 @@ This creates:
 - **workflow.qmd**: Human-readable report you can render to HTML/PDF
 
 You can also pipe a trail into
-[`qlm_archive()`](https://seraphinem.github.io/quallmer/reference/qlm_archive.md):
+[`qlm_archive()`](https://quallmer.github.io/quallmer/reference/qlm_archive.md):
 
 ``` r
 qlm_trail(coded1, coded2) |>
@@ -116,20 +116,20 @@ The trail system provides workflow traceability following Lincoln and
 Guba’s (1985) audit trail concept:
 
 1.  **Automatic tracking**: Every
-    [`qlm_code()`](https://seraphinem.github.io/quallmer/reference/qlm_code.md)
+    [`qlm_code()`](https://quallmer.github.io/quallmer/reference/qlm_code.md)
     and
-    [`qlm_replicate()`](https://seraphinem.github.io/quallmer/reference/qlm_replicate.md)
+    [`qlm_replicate()`](https://quallmer.github.io/quallmer/reference/qlm_replicate.md)
     captures the full decision history
 2.  **Simple extraction**:
-    [`qlm_trail()`](https://seraphinem.github.io/quallmer/reference/qlm_trail.md)
+    [`qlm_trail()`](https://quallmer.github.io/quallmer/reference/qlm_trail.md)
     reconstructs your complete audit trail with all coded data
 3.  **Helper functions**:
-    [`qlm_trail_save()`](https://seraphinem.github.io/quallmer/reference/qlm_trail_save.md),
-    [`qlm_trail_export()`](https://seraphinem.github.io/quallmer/reference/qlm_trail_export.md),
-    [`qlm_trail_report()`](https://seraphinem.github.io/quallmer/reference/qlm_trail_report.md)
+    [`qlm_trail_save()`](https://quallmer.github.io/quallmer/reference/qlm_trail_save.md),
+    [`qlm_trail_export()`](https://quallmer.github.io/quallmer/reference/qlm_trail_export.md),
+    [`qlm_trail_report()`](https://quallmer.github.io/quallmer/reference/qlm_trail_report.md)
     for individual outputs
 4.  **One-call documentation**:
-    [`qlm_archive()`](https://seraphinem.github.io/quallmer/reference/qlm_archive.md)
+    [`qlm_archive()`](https://quallmer.github.io/quallmer/reference/qlm_archive.md)
     for instant complete documentation
 
 Always name your runs with the `name` parameter to make trails easier to
