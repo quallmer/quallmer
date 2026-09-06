@@ -1189,3 +1189,110 @@ test_that("the report discloses a registration a backfill pass relied on, and un
   expect_true(any(grepl("| a | ", content, fixed = TRUE) & grepl("not recorded", content, fixed = TRUE)))
   expect_true(any(grepl(hash_file(paths[["b"]]), content, fixed = TRUE)))
 })
+
+
+# Transcripts (#178) -----------------------------------------------------------
+
+test_that("qlm_trail() reports the transcription behind a run and keeps its table", {
+  tr <- fake_transcript(c("a", "b"))
+  record <- transcription_record(tr)
+  record$source[2] <- "https://example.org/b.wav"
+  record$language <- c("en", "en")
+  record$prompt <- c("names", "names")
+  run <- new_qlm_coded(
+    results = data.frame(id = c("a", "b"), score = c(1, 2)),
+    codebook = score_codebook(), data = tr, input_type = "text",
+    chat_args = list(name = "anthropic/claude-sonnet-5"), execution_args = list(),
+    metadata = list(timestamp = Sys.time(), n_units = 2, transcription = record),
+    name = "coded_transcripts", call = quote(qlm_code(...)), parent = NULL
+  )
+  path <- tempfile("trail_transcript")
+  withr::defer({
+    unlink(paste0(path, ".rds"))
+    unlink(paste0(path, ".qmd"))
+  })
+
+  suppressMessages(trail <- qlm_trail(run, path = path))
+  content <- readLines(paste0(path, ".qmd"))
+  expect_true(any(grepl("**Transcribed from (audio):** 2 files, SHA-256 recorded at transcription time", content, fixed = TRUE)))
+  expect_true(any(grepl("| a | a.wav | 1,000 | `hash-a` | openai/gpt-4o-mini-transcribe | en | ok |", content, fixed = TRUE)))
+  expect_true(any(grepl("| b | https://example.org/b.wav | 1,000 |", content, fixed = TRUE)))
+  expect_true(any(grepl("**Transcription model `openai/gpt-4o-mini-transcribe`:** prompt: \"names\"; usage: 20 seconds of audio", content, fixed = TRUE)))
+
+  # The archive keeps the full table, usage included
+  saved <- readRDS(paste0(path, ".rds"))
+  kept <- qlm_meta(saved$runs[["coded_transcripts"]]$coded, "transcription")
+  expect_equal(kept$usage[[1]], list(type = "duration", seconds = 10))
+  expect_equal(trail$runs[["coded_transcripts"]]$transcription$.id, c("a", "b"))
+})
+
+
+test_that("transcription_lines sums usage only when every unit reported the same shape", {
+  tr <- fake_transcript(c("a", "b"))
+  record <- transcription_record(tr)
+  expect_length(transcription_lines(NULL), 0)
+  lines <- transcription_lines(record)
+  expect_true(any(grepl("usage: 20 seconds of audio", lines, fixed = TRUE)))
+
+  record$usage[[2]] <- list(type = "tokens", input_tokens = 100, output_tokens = 10)
+  expect_true(any(grepl("usage reported per file in the .rds", transcription_lines(record), fixed = TRUE)))
+
+  record$usage[[1]] <- list(type = "tokens", input_tokens = 50, output_tokens = 5)
+  expect_true(any(grepl("usage: 150 input tokens, 15 output tokens", transcription_lines(record), fixed = TRUE)))
+
+  record$usage <- list(list(tokens = list(input = 600, output = 40, cached_input = 0), cost = 0.001, note = "n"),
+                       list(tokens = list(input = 400, output = 30, cached_input = 0), cost = 0.001, note = "n"))
+  lines <- transcription_lines(record)
+  expect_true(any(grepl("usage: 1000 input tokens, 70 output tokens (audio tokens priced at the text rate)", lines, fixed = TRUE)))
+
+  record$usage <- list(NULL, NULL)
+  expect_true(any(grepl("usage not reported", transcription_lines(record), fixed = TRUE)))
+})
+
+
+test_that("a key given to an inline qlm_transcribe() reaches neither trail file (#178)", {
+  tr <- fake_transcript(c("a", "b"))
+  run <- new_qlm_coded(
+    results = data.frame(id = c("a", "b"), score = c(1, 2)),
+    codebook = score_codebook(), data = tr, input_type = "text",
+    chat_args = list(name = "openai/gpt-4o-mini"), execution_args = list(),
+    metadata = list(timestamp = Sys.time(), n_units = 2, transcription = transcription_record(tr)),
+    name = "inline",
+    call = quote(qlm_code(qlm_transcribe(files, api_key = "sk-nested-secret"),
+                          codebook, model = "openai/gpt-4o-mini")),
+    parent = NULL
+  )
+  path <- tempfile("trail_nested")
+  withr::defer({
+    unlink(paste0(path, ".rds"))
+    unlink(paste0(path, ".qmd"))
+  })
+  suppressMessages(qlm_trail(run, path = path))
+
+  qmd <- readLines(paste0(path, ".qmd"))
+  expect_false(any(grepl("sk-nested-secret", qmd, fixed = TRUE)))
+  expect_true(any(grepl('qlm_transcribe(files, api_key = "<redacted>")', qmd, fixed = TRUE)))
+  saved <- readRDS(paste0(path, ".rds"))
+  serialised <- rawToChar(serialize(saved, NULL, ascii = TRUE))
+  expect_false(grepl("sk-nested-secret", serialised, fixed = TRUE))
+})
+
+
+test_that("transcription_lines reports each distinct configuration with its units", {
+  tr <- fake_transcript(c("a", "b", "c"))
+  record <- transcription_record(tr)
+  record$prompt <- c("names", "names", NA)
+  record$base_url <- c(NA, NA, "https://proxy.example.org/v1")
+  lines <- transcription_lines(record)
+  models <- grep("^\\*\\*Transcription model", lines, value = TRUE)
+  expect_length(models, 2)
+  expect_match(models[1], 'prompt: "names"; usage: 20 seconds of audio; units: a, b', fixed = TRUE)
+  expect_match(models[2], "endpoint: https://proxy.example.org/v1; usage: 10 seconds of audio; units: c", fixed = TRUE)
+
+  # One configuration names no units
+  record$prompt <- "names"
+  record$base_url <- NA_character_
+  models <- grep("^\\*\\*Transcription model", transcription_lines(record), value = TRUE)
+  expect_length(models, 1)
+  expect_false(grepl("units:", models, fixed = TRUE))
+})
