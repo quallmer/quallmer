@@ -64,6 +64,5 @@ Suggests:
     withr,
     yardstick
 Config/testthat/edition: 3
-Remotes: tidyverse/ellmer
 VignetteBuilder: knitr
 Config/roxygen2/version: 8.1.0
