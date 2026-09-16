@@ -159,7 +159,13 @@ and re-prompts a unit whose response does not conform. <code>"auto"</code> (the
 default) attempts the structured call and falls back to <code>"json"</code> if it
 fails, or if no response it completed matched the schema. On either
 path every response is validated against the codebook locally before it
-is tabulated. See Details for which to use.</p></dd>
+is tabulated. The JSON path asks for JSON syntax in the field the
+transport takes: <code>text.format</code> for native OpenAI's Responses API and
+<code>response_format</code> for every provider ellmer reaches through Chat
+Completions, including registered and <code>openai_compatible/</code> endpoints.
+Providers with neither field, Anthropic among them, use prompted JSON
+with the same parsing, validation and repair. See Details for which to
+use.</p></dd>
 
 
 <dt id="arg-json-retries">json_retries<a class="anchor" aria-label="anchor" href="#arg-json-retries"></a></dt>
