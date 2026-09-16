@@ -1,11 +1,12 @@
 #' Code data with a provider that does not enforce the output schema
 #'
-#' Coding handler used by [qlm_code()] for providers whose structured-output
-#' endpoint guarantees JSON syntax but not JSON Schema conformance (currently
-#' DeepSeek). Rather than trusting the provider, it asks for JSON mode, puts the
-#' codebook schema in the system prompt, validates each response locally against
-#' `codebook$schema`, and re-prompts with the specific validation error when a
-#' response does not conform.
+#' Coding handler used by [qlm_code()] for prompted JSON generation. It puts
+#' the codebook schema in the system prompt, asks for JSON syntax in whatever
+#' form the transport ellmer chose takes (see `json_mode_api_args()`),
+#' validates each response locally against `codebook$schema`, and re-prompts
+#' with the specific validation error when a response does not conform.
+#' Providers whose transport has no JSON-mode field use the same prompt,
+#' parsing, validation and repair without one.
 #'
 #' Requests go through [ellmer::parallel_chat()] rather than
 #' [ellmer::parallel_chat_text()] because the latter reduces each chat to its
@@ -72,25 +73,28 @@ code_handler_json <- function(x, codebook, model, chat_args, execution_args,
   }
   json_retries <- as.integer(json_retries)
 
-  # JSON mode belongs in the raw request body. User api_args are kept, but
-  # response_format is deliberately overwritten so that validation always has
-  # JSON to work with.
   api_args <- chat_args$api_args %||% list()
   if (!is.list(api_args)) {
     cli::cli_abort("{.arg api_args} must be a named list.", call = error_call)
   }
-  chat_args$api_args <- utils::modifyList(
-    api_args,
-    list(response_format = list(type = "json_object"))
-  )
 
-  chat <- do.call(ellmer::chat, c(
-    list(
-      name = model,
-      system_prompt = json_system_prompt(codebook)
-    ),
+  # The JSON-mode field belongs to the transport ellmer picks for this
+  # provider, which is only known once the chat exists. Anthropic, for one,
+  # rejects the OpenAI field outright (#191). Build the chat, read its
+  # provider, and rebuild with the field when the transport has one; the
+  # rebuild names the model ellmer settled on so a defaulted model is not
+  # announced twice.
+  constructor_args <- c(
+    list(name = model, system_prompt = json_system_prompt(codebook)),
     chat_args
-  ))
+  )
+  chat <- do.call(ellmer::chat, constructor_args)
+  json_args <- json_mode_api_args(chat, api_args)
+  if (!identical(json_args, api_args)) {
+    constructor_args$name <- paste0(model_provider(model), "/", chat$get_model())
+    constructor_args$api_args <- json_args
+    chat <- do.call(ellmer::chat, constructor_args)
+  }
   for (tl in tools) {
     chat$register_tool(tl)
   }
@@ -264,6 +268,36 @@ code_handler_json <- function(x, codebook, model, chat_args, execution_args,
     unpriced = unpriced
   )
   results
+}
+
+
+#' Ask for JSON syntax in the field the chat's transport takes
+#'
+#' ellmer's provider class says which API a request goes to, so it is what
+#' decides the field, not the prefix or the URL: `chat_openai()` sends a
+#' Responses request whatever its `base_url`, so it takes `text.format`;
+#' every other `ProviderOpenAICompatible` (DeepSeek, Groq, Mistral, Azure,
+#' OpenRouter, Ollama, a registered prefix, an `openai_compatible/` URL)
+#' sends Chat Completions and takes `response_format`; anything else has
+#' neither field and relies on the prompt. No endpoint is second-guessed: one
+#' that does not honour its transport's field answers with its own error,
+#' which is more useful than a silent downgrade to prompting alone.
+#'
+#' @param chat The chat built for this run, whose provider is inspected.
+#' @param api_args User-supplied raw API arguments, as a list.
+#' @return `api_args`, with the JSON-mode field set when the transport has
+#'   one. The whole format value is replaced, so a caller's `json_schema`
+#'   setting cannot leave schema-only fields behind.
+#' @keywords internal
+#' @noRd
+json_mode_api_args <- function(chat, api_args) {
+  provider <- chat$get_provider()
+  if (inherits(provider, "ellmer::ProviderOpenAI")) {
+    api_args$text$format <- list(type = "json_object")
+  } else if (inherits(provider, "ellmer::ProviderOpenAICompatible")) {
+    api_args$response_format <- list(type = "json_object")
+  }
+  api_args
 }
 
 

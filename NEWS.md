@@ -331,6 +331,15 @@ Everything in this section postdates quallmer 0.4.0, released on CRAN on
 
 ### Coding runs
 
+* `qlm_code()` no longer injects the OpenAI-style `response_format` field
+  into every request on the JSON path, including automatic fallback, which
+  Anthropic rejected with HTTP 400. The field now follows the transport
+  ellmer uses: native OpenAI's Responses API gets `text.format`, every
+  provider reached through Chat Completions (DeepSeek, Groq, Mistral, Azure,
+  OpenRouter, Ollama, registered prefixes and `openai_compatible/` endpoints)
+  keeps `response_format`, and providers with neither field, Anthropic among
+  them, use prompted JSON with local validation and repair (#191).
+
 * `qlm_segment()` now records token counts and cost when asked, and takes
   `prices` as `qlm_code()` does. It forwarded `include_tokens` and
   `include_cost` to ellmer, but ellmer attaches usage only to a converted

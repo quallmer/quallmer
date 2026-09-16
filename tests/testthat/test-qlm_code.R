@@ -1790,11 +1790,18 @@ test_that("the JSON path forwards api_args too, adding only the response format"
   codebook <- qlm_codebook("Test", "Prompt", type_obj)
   user_params <- ellmer::params(temperature = 0.6)
 
+  # A Chat Completions provider, so the handler rebuilds the chat once with
+  # the JSON-mode field; `seen` is that second construction.
+  provider <- ellmer::chat_openai_compatible(
+    base_url = "https://api.moonshot.ai/v1", model = "kimi-k3",
+    credentials = function() "offline"
+  )$get_provider()
   seen <- NULL
   h <- code_handler_json
   mockery::stub(h, "ellmer::chat", function(...) {
     seen <<- list(...)
-    structure(list(), class = "Chat")
+    structure(list(get_provider = function() provider,
+                   get_model = function() "kimi-k3"), class = "Chat")
   })
   mockery::stub(h, "json_chat_turns", function(chat, prompts, pc_args) {
     list(text = "{\"score\":1}", error = NA_character_, status = NA_integer_,
@@ -1804,6 +1811,7 @@ test_that("the JSON path forwards api_args too, adding only the response format"
 
   h(x = "a", codebook = codebook, model = "openai_compatible/kimi-k3",
     chat_args = list(params = user_params,
+                     base_url = "https://api.moonshot.ai/v1",
                      api_args = list(reasoning_effort = "max")),
     execution_args = list())
 

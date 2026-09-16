@@ -82,7 +82,13 @@ and re-prompts a unit whose response does not conform. \code{"auto"} (the
 default) attempts the structured call and falls back to \code{"json"} if it
 fails, or if no response it completed matched the schema. On either
 path every response is validated against the codebook locally before it
-is tabulated. See Details for which to use.}
+is tabulated. The JSON path asks for JSON syntax in the field the
+transport takes: \code{text.format} for native OpenAI's Responses API and
+\code{response_format} for every provider ellmer reaches through Chat
+Completions, including registered and \verb{openai_compatible/} endpoints.
+Providers with neither field, Anthropic among them, use prompted JSON
+with the same parsing, validation and repair. See Details for which to
+use.}
 
 \item{json_retries}{Integer; the number of additional requests \pkg{quallmer}
 may make for a unit on the JSON path after an unusable response. Default

@@ -29,7 +29,7 @@ json_test_usage <- function(n) {
 # would otherwise ask the provider; `hint` is what it answers.
 json_test_handler <- function(attempts, calls = NULL, hint = character()) {
   h <- code_handler_json
-  mockery::stub(h, "ellmer::chat", function(...) structure(list(), class = "fake_chat"))
+  mockery::stub(h, "ellmer::chat", json_test_chat)
   mockery::stub(h, "model_name_hint", function(...) hint)
   i <- 0L
   mockery::stub(h, "json_chat_turns", function(chat, prompts, pc_args) {
@@ -57,6 +57,18 @@ json_test_messages <- function(x) {
     function(e) if (is.null(e)) NA_character_ else conditionMessage(e),
     character(1)
   )
+}
+
+# Build the actual provider request without sending it, so tests catch fields
+# in the request body as well as the arguments handed to ellmer's constructor.
+json_test_request_body <- function(chat, prompt) {
+  request <- utils::getFromNamespace("chat_request", "ellmer")(
+    provider = chat$get_provider(), model = chat$get_model_object(),
+    turns = c(chat$get_turns(include_system_prompt = TRUE),
+              list(ellmer::UserTurn(prompt))),
+    stream = FALSE
+  )
+  request$body$data
 }
 
 
@@ -517,11 +529,15 @@ test_that("code_handler_json honours json_retries", {
 })
 
 test_that("code_handler_json forces JSON mode while keeping user api_args", {
+  provider <- ellmer::chat_deepseek(
+    model = "deepseek-chat", credentials = function() "offline"
+  )$get_provider()
   captured <- NULL
   h <- code_handler_json
   mockery::stub(h, "ellmer::chat", function(...) {
     captured <<- list(...)
-    structure(list(), class = "fake_chat")
+    structure(list(get_provider = function() provider,
+                   get_model = function() "deepseek-chat"), class = "fake_chat")
   })
   mockery::stub(h, "json_chat_turns", function(chat, prompts, pc_args) {
     list(text = "{\"score\":1,\"lab\":\"pos\"}", error = NA_character_,
@@ -537,6 +553,244 @@ test_that("code_handler_json forces JSON mode while keeping user api_args", {
   expect_equal(captured$api_args$seed, 1L)
   expect_equal(captured$api_args$response_format, list(type = "json_object"))
   expect_match(captured$system_prompt, "Return exactly one valid JSON object")
+})
+
+test_that("provider inspection failures are raised before any request (#191)", {
+  local_mocked_bindings(
+    chat = function(...) list(get_provider = function() stop("Cannot inspect provider")),
+    .package = "ellmer"
+  )
+  local_mocked_bindings(
+    json_chat_turns = function(...) stop("Unexpected request")
+  )
+  expect_error(
+    code_handler_json("a", json_test_codebook(), "deepseek/deepseek-chat",
+                      chat_args = list(), execution_args = list()),
+    "Cannot inspect provider"
+  )
+})
+
+test_that("JSON reconstruction preserves the default model and announces it once (#191)", {
+  real_chat <- ellmer::chat
+  constructed <- list()
+  sent <- NULL
+  messages <- character()
+  local_mocked_bindings(
+    chat = function(...) {
+      # ellmer silences default-model messages inside testthat. Enable them
+      # only during construction: testthat needs TESTTHAT to identify the
+      # package when setting up mocks in an installed-package test run.
+      chat <- withr::with_envvar(c(TESTTHAT = "false"), real_chat(...))
+      constructed[[length(constructed) + 1L]] <<- chat
+      chat
+    },
+    .package = "ellmer"
+  )
+  local_mocked_bindings(json_chat_turns = function(chat, prompts, pc_args) {
+    sent <<- chat
+    turn_records(list(text_turn('{"score": 1, "lab": "pos"}')))
+  })
+  for (provider in c("openai", "deepseek")) {
+    constructed <- list()
+    messages <- character()
+    result <- withCallingHandlers(
+      code_handler_json(
+        "a", json_test_codebook(), model = provider,
+        chat_args = list(credentials = function() "offline"),
+        execution_args = list()
+      ),
+      message = function(cnd) {
+        messages <<- c(messages, conditionMessage(cnd))
+        invokeRestart("muffleMessage")
+      }
+    )
+
+    expect_length(constructed, 2)
+    model <- constructed[[1]]$get_model()
+    expect_identical(sent$get_model(), model)
+    defaults <- messages[grepl("Using model", messages, fixed = TRUE)]
+    expect_length(defaults, 1)
+    expect_match(defaults, model, fixed = TRUE)
+    body <- json_test_request_body(sent, "a")
+    format <- if (provider == "openai") body$text$format else body$response_format
+    expect_equal(format, list(type = "json_object"))
+    expect_equal(result$score, 1)
+  }
+})
+
+test_that("Anthropic JSON coding uses prompted JSON and repairs invalid responses (#191)", {
+  bodies <- list()
+  local_mocked_bindings(
+    json_chat_turns = function(chat, prompts, pc_args) {
+      bodies[[length(bodies) + 1L]] <<- json_test_request_body(chat, prompts[[1]])
+      text <- if (length(bodies) == 1L) "not JSON" else '{"score": 1, "lab": "pos"}'
+      turn_records(list(text_turn(text)))
+    }
+  )
+  result <- qlm_code(
+    "a", json_test_codebook(), model = "anthropic/claude-sonnet-4-5",
+    structured = "json", credentials = function() "offline",
+    api_args = list(metadata = list(user_id = "test-user")),
+    include_tokens = TRUE, include_cost = TRUE
+  )
+
+  expect_length(bodies, 2)
+  for (body in bodies) {
+    expect_false("response_format" %in% names(body))
+    expect_equal(body$metadata, list(user_id = "test-user"))
+    expect_match(body$system[[1]]$text, "Return exactly one valid JSON object")
+    expect_match(body$system[[1]]$text, '"score"')
+  }
+  expect_equal(result$score, 1)
+  expect_equal(as.character(result$lab), "pos")
+  expect_equal(unname(result$input_tokens), 20)
+  expect_equal(unname(result$output_tokens), 10)
+  expect_equal(unname(result$cost), 0.002)
+})
+
+test_that("Anthropic auto fallback preserves usage and keeps truncated rows (#191)", {
+  bodies <- list()
+  sent <- list()
+  local_mocked_bindings(
+    structured_chat_turns = function(...) {
+      list(json_turn(list(score = "invalid", lab = "pos")),
+           json_turn(list(score = 2, lab = "pos"), finish_reason = "max_tokens"))
+    },
+    json_chat_turns = function(chat, prompts, pc_args) {
+      sent[[length(sent) + 1L]] <<- prompts
+      bodies[[length(bodies) + 1L]] <<- json_test_request_body(chat, prompts[[1]])
+      value <- if (length(bodies) == 1L) {
+        '{"score": "invalid", "lab": "pos"}'
+      } else {
+        '{"score": 1, "lab": "pos"}'
+      }
+      turn_records(list(text_turn(value)))
+    }
+  )
+  expect_warning(
+    result <- qlm_code(
+      c(repair = "repair me", truncated = "keep me"), json_test_codebook(),
+      model = "anthropic/claude-sonnet-4-5", structured = "auto",
+      credentials = function() "offline",
+      api_args = list(metadata = list(user_id = "test-user")),
+      include_tokens = TRUE, include_cost = TRUE
+    ),
+    "falling back"
+  )
+
+  expect_length(bodies, 2)
+  expect_equal(unname(sent[[1]]), list("repair me"))
+  expect_length(sent[[2]], 1)
+  for (body in bodies) {
+    expect_false("response_format" %in% names(body))
+    expect_equal(body$metadata, list(user_id = "test-user"))
+  }
+  expect_equal(result$score, c(1, NA))
+  expect_null(result$.error[[1]])
+  expect_match(conditionMessage(result$.error[[2]]), "max_tokens")
+  expect_equal(result$input_tokens, c(30, 10))
+  expect_equal(result$output_tokens, c(15, 5))
+  expect_equal(result$cost, c(0.003, 0.001))
+})
+
+test_that("Anthropic truncation alone does not trigger fallback (#191)", {
+  local_mocked_bindings(
+    structured_chat_turns = function(...) {
+      list(json_turn(list(score = 1, lab = "pos"), finish_reason = "max_tokens"))
+    },
+    json_chat_turns = function(...) stop("Unexpected fallback")
+  )
+  expect_warning(
+    result <- qlm_code(
+      "a", json_test_codebook(), model = "anthropic/claude-sonnet-4-5",
+      credentials = function() "offline", include_tokens = TRUE
+    ),
+    "could not be coded"
+  )
+  expect_true(is.na(result$score))
+  expect_match(conditionMessage(result$.error[[1]]), "max_tokens")
+  expect_equal(unname(result$input_tokens), 10)
+})
+
+test_that("JSON request settings match the effective API (#191)", {
+  body <- NULL
+  local_mocked_bindings(json_chat_turns = function(chat, prompts, pc_args) {
+    body <<- json_test_request_body(chat, prompts[[1]])
+    turn_records(list(text_turn('{"score": 1, "lab": "pos"}')))
+  })
+  cases <- list(
+    list(model = "deepseek/deepseek-chat"),
+    list(model = "groq/llama-3.3-70b-versatile"),
+    list(model = "mistral/mistral-small-latest"),
+    list(model = "openai_compatible/gpt-4o-mini", base_url = "https://api.openai.com/v1"),
+    list(model = "dashscope/qwen-plus"),
+    list(model = "dashscope-cn/qwen-plus"),
+    list(model = "zai/glm-4.5")
+  )
+  for (args in cases) {
+    result <- do.call(qlm_code, c(list(
+      x = "a", codebook = json_test_codebook(), structured = "json",
+      credentials = function() "offline",
+      api_args = list(seed = 42L, response_format = list(
+        type = "json_schema", json_schema = list(name = "old")
+      ))
+    ), args))
+    expect_equal(body$response_format, list(type = "json_object"), info = args$model)
+    expect_equal(body$seed, 42L)
+    expect_equal(result$score, 1)
+  }
+
+  qlm_code(
+    "a", json_test_codebook(), model = "openai/gpt-4o-mini", structured = "json",
+    credentials = function() "offline",
+    api_args = list(text = list(verbosity = "low", format = list(
+      type = "json_schema", name = "old", schema = list()
+    )))
+  )
+  expect_null(body$response_format)
+  expect_equal(body$text, list(verbosity = "low", format = list(type = "json_object")))
+})
+
+test_that("the JSON-mode field follows the transport, not the prefix or URL (#191)", {
+  body <- NULL
+  local_mocked_bindings(json_chat_turns = function(chat, prompts, pc_args) {
+    body <<- json_test_request_body(chat, prompts[[1]])
+    turn_records(list(text_turn('{"score": 1, "lab": "pos"}')))
+  })
+  # An arbitrary endpoint, an override of a registered one, and an override
+  # of a native one all go through Chat Completions, as does the built-in
+  # moonshot prefix, so all take response_format.
+  cases <- list(
+    list(model = "openai_compatible/custom", base_url = "https://example.org/v1"),
+    list(model = "dashscope/custom", base_url = "https://example.org/v1"),
+    list(model = "deepseek/custom", base_url = "https://example.org/v1"),
+    list(model = "moonshot/kimi-k3")
+  )
+  for (args in cases) {
+    result <- do.call(qlm_code, c(list(
+      x = "a", codebook = json_test_codebook(), structured = "json",
+      credentials = function() "offline", api_args = list(seed = 42L)
+    ), args))
+    expect_equal(body$response_format, list(type = "json_object"), info = args$model)
+    expect_equal(body$seed, 42L)
+    expect_equal(result$score, 1)
+  }
+  # Native OpenAI sends a Responses request whatever its URL, so a gateway
+  # still gets text.format.
+  qlm_code(
+    "a", json_test_codebook(), model = "openai/gpt-4o-mini", structured = "json",
+    base_url = "https://gateway.example/openai/v1", credentials = function() "offline"
+  )
+  expect_null(body$response_format)
+  expect_equal(body$text$format, list(type = "json_object"))
+  # A transport with neither field is left to the prompt.
+  qlm_code(
+    "a", json_test_codebook(), model = "google_gemini/gemini-2.5-flash",
+    structured = "json", credentials = function() "offline",
+    api_args = list(seed = 42L)
+  )
+  expect_false(any(c("response_format", "text") %in% names(body)))
+  expect_equal(body$seed, 42L)
 })
 
 test_that("code_handler_json rejects unsupported requests", {
@@ -909,11 +1163,13 @@ test_that("code_handler_json registers tools on the chat it builds (#122)", {
   skip_if_not_installed("mockery")
   registered <- list()
   h <- code_handler_json
-  mockery::stub(h, "ellmer::chat", function(...) {
-    structure(list(register_tool = function(tl) {
+  mockery::stub(h, "ellmer::chat", function(name, ...) {
+    chat <- json_test_chat(name)
+    chat$register_tool <- function(tl) {
       registered[[length(registered) + 1L]] <<- tl
       invisible(NULL)
-    }), class = "fake_chat")
+    }
+    chat
   })
   mockery::stub(h, "model_name_hint", function(...) character())
   mockery::stub(h, "json_chat_turns", function(chat, prompts, pc_args) {
@@ -940,7 +1196,7 @@ test_that("code_handler_json forwards on_error as given, with no default of its 
   seen <- new.env()
 
   h <- code_handler_json
-  mockery::stub(h, "ellmer::chat", function(...) structure(list(), class = "fake_chat"))
+  mockery::stub(h, "ellmer::chat", json_test_chat)
   mockery::stub(h, "json_chat_turns", function(chat, prompts, pc_args) {
     seen$pc_args <- pc_args
     list(

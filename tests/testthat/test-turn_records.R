@@ -359,14 +359,15 @@ test_that("the JSON path classes its failures by stage too", {
     request_error("HTTP 500", 500L)
   )
   h <- code_handler_json
-  mockery::stub(h, "ellmer::chat", function(...) structure(list(), class = "Chat"))
+  mockery::stub(h, "ellmer::chat", json_test_chat)
   mockery::stub(h, "json_chat_turns", function(chat, prompts, pc_args) {
     turn_records(turns[seq_along(prompts)])
   })
 
   expect_warning(
     out <- h(letters[1:5], codebook, model = "openai_compatible/x",
-             chat_args = list(), execution_args = list(include_tokens = TRUE),
+             chat_args = list(base_url = "https://example.org/v1"),
+             execution_args = list(include_tokens = TRUE),
              json_retries = 0L),
     "4 responses could not be coded"
   )
@@ -388,11 +389,12 @@ test_that("the JSON path starts its usage from a prior structured attempt", {
                   dimnames = list(NULL, c("input_tokens", "output_tokens",
                                           "cached_input_tokens", "cost")))
   h <- code_handler_json
-  mockery::stub(h, "ellmer::chat", function(...) structure(list(), class = "Chat"))
+  mockery::stub(h, "ellmer::chat", json_test_chat)
   mockery::stub(h, "json_chat_turns", function(chat, prompts, pc_args) turn_records(turns))
 
   out <- h(c("a", "b"), codebook, model = "openai_compatible/x",
-           chat_args = list(), execution_args = list(include_tokens = TRUE, include_cost = TRUE),
+           chat_args = list(base_url = "https://example.org/v1"),
+           execution_args = list(include_tokens = TRUE, include_cost = TRUE),
            json_retries = 0L, prior_usage = prior)
   expect_equal(out$input_tokens, c(17, NA))
   expect_equal(out$cost, c(0.15, NA))

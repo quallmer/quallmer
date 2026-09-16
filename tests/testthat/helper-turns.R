@@ -43,6 +43,17 @@ offline_chat <- function(model = "openai/gpt-4.1-mini", ...) {
                ...)
 }
 
+# A minimal chat double carrying the real provider and model, which is what
+# the JSON handler inspects to choose its JSON-mode field. The constructor
+# arguments reach ellmer, so a provider that needs a `base_url` gets it, but
+# the double keeps none of them: a test that needs to see what the handler
+# passed to ellmer::chat() must capture them itself.
+json_test_chat <- function(name, ...) {
+  chat <- offline_chat(name, ...)
+  structure(list(get_provider = chat$get_provider, get_model = chat$get_model),
+            class = "fake_chat")
+}
+
 # Turns from a table of expected rows, for tests written against the table
 # ellmer used to hand back. Each row becomes a JSON turn carrying the schema
 # columns, with the usage columns as its tokens and cost when they are
