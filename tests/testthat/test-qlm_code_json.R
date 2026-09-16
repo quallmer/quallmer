@@ -22,13 +22,6 @@ json_test_usage <- function(n) {
   )
 }
 
-# A minimal chat double with the real provider and model used for dispatch.
-json_test_chat <- function(name, ...) {
-  chat <- offline_chat(name)
-  structure(list(get_provider = chat$get_provider, get_model = chat$get_model),
-            class = "fake_chat")
-}
-
 # A code_handler_json() with ellmer::chat() and json_chat_turns() stubbed out.
 # `attempts` is a list of list(text =, error =, status =, finish =), one per
 # expected round trip; `error`, `status` and `finish` default to NA. The
