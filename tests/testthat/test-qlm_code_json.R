@@ -59,6 +59,18 @@ json_test_messages <- function(x) {
   )
 }
 
+# Build the actual provider request without sending it, so tests catch fields
+# in the request body as well as the arguments handed to ellmer's constructor.
+json_test_request_body <- function(chat, prompt) {
+  request <- utils::getFromNamespace("chat_request", "ellmer")(
+    provider = chat$get_provider(), model = chat$get_model_object(),
+    turns = c(chat$get_turns(include_system_prompt = TRUE),
+              list(ellmer::UserTurn(prompt))),
+    stream = FALSE
+  )
+  request$body$data
+}
+
 
 # json_schema_from_type() -----------------------------------------------------
 
@@ -537,6 +549,166 @@ test_that("code_handler_json forces JSON mode while keeping user api_args", {
   expect_equal(captured$api_args$seed, 1L)
   expect_equal(captured$api_args$response_format, list(type = "json_object"))
   expect_match(captured$system_prompt, "Return exactly one valid JSON object")
+})
+
+test_that("Anthropic JSON coding uses prompted JSON and repairs invalid responses (#191)", {
+  bodies <- list()
+  local_mocked_bindings(
+    json_chat_turns = function(chat, prompts, pc_args) {
+      bodies[[length(bodies) + 1L]] <<- json_test_request_body(chat, prompts[[1]])
+      text <- if (length(bodies) == 1L) "not JSON" else '{"score": 1, "lab": "pos"}'
+      turn_records(list(text_turn(text)))
+    }
+  )
+  result <- qlm_code(
+    "a", json_test_codebook(), model = "anthropic/claude-sonnet-4-5",
+    structured = "json", credentials = function() "offline",
+    api_args = list(metadata = list(user_id = "test-user")),
+    include_tokens = TRUE, include_cost = TRUE
+  )
+
+  expect_length(bodies, 2)
+  for (body in bodies) {
+    expect_false("response_format" %in% names(body))
+    expect_equal(body$metadata, list(user_id = "test-user"))
+    expect_match(body$system[[1]]$text, "Return exactly one valid JSON object")
+    expect_match(body$system[[1]]$text, '"score"')
+  }
+  expect_equal(result$score, 1)
+  expect_equal(as.character(result$lab), "pos")
+  expect_equal(unname(result$input_tokens), 20)
+  expect_equal(unname(result$output_tokens), 10)
+  expect_equal(unname(result$cost), 0.002)
+})
+
+test_that("Anthropic auto fallback preserves usage and keeps truncated rows (#191)", {
+  bodies <- list()
+  sent <- list()
+  local_mocked_bindings(
+    structured_chat_turns = function(...) {
+      list(json_turn(list(score = "invalid", lab = "pos")),
+           json_turn(list(score = 2, lab = "pos"), finish_reason = "max_tokens"))
+    },
+    json_chat_turns = function(chat, prompts, pc_args) {
+      sent[[length(sent) + 1L]] <<- prompts
+      bodies[[length(bodies) + 1L]] <<- json_test_request_body(chat, prompts[[1]])
+      value <- if (length(bodies) == 1L) {
+        '{"score": "invalid", "lab": "pos"}'
+      } else {
+        '{"score": 1, "lab": "pos"}'
+      }
+      turn_records(list(text_turn(value)))
+    }
+  )
+  expect_warning(
+    result <- qlm_code(
+      c(repair = "repair me", truncated = "keep me"), json_test_codebook(),
+      model = "anthropic/claude-sonnet-4-5", structured = "auto",
+      credentials = function() "offline",
+      api_args = list(metadata = list(user_id = "test-user")),
+      include_tokens = TRUE, include_cost = TRUE
+    ),
+    "falling back"
+  )
+
+  expect_length(bodies, 2)
+  expect_equal(unname(sent[[1]]), list("repair me"))
+  expect_length(sent[[2]], 1)
+  for (body in bodies) {
+    expect_false("response_format" %in% names(body))
+    expect_equal(body$metadata, list(user_id = "test-user"))
+  }
+  expect_equal(result$score, c(1, NA))
+  expect_null(result$.error[[1]])
+  expect_match(conditionMessage(result$.error[[2]]), "max_tokens")
+  expect_equal(result$input_tokens, c(30, 10))
+  expect_equal(result$output_tokens, c(15, 5))
+  expect_equal(result$cost, c(0.003, 0.001))
+})
+
+test_that("Anthropic truncation alone does not trigger fallback (#191)", {
+  local_mocked_bindings(
+    structured_chat_turns = function(...) {
+      list(json_turn(list(score = 1, lab = "pos"), finish_reason = "max_tokens"))
+    },
+    json_chat_turns = function(...) stop("Unexpected fallback")
+  )
+  expect_warning(
+    result <- qlm_code(
+      "a", json_test_codebook(), model = "anthropic/claude-sonnet-4-5",
+      credentials = function() "offline", include_tokens = TRUE
+    ),
+    "could not be coded"
+  )
+  expect_true(is.na(result$score))
+  expect_match(conditionMessage(result$.error[[1]]), "max_tokens")
+  expect_equal(unname(result$input_tokens), 10)
+})
+
+test_that("JSON request settings match the effective API (#191)", {
+  body <- NULL
+  local_mocked_bindings(json_chat_turns = function(chat, prompts, pc_args) {
+    body <<- json_test_request_body(chat, prompts[[1]])
+    turn_records(list(text_turn('{"score": 1, "lab": "pos"}')))
+  })
+  cases <- list(
+    list(model = "deepseek/deepseek-chat"),
+    list(model = "groq/llama-3.3-70b-versatile"),
+    list(model = "mistral/mistral-small-latest"),
+    list(model = "openai_compatible/gpt-4o-mini", base_url = "https://api.openai.com/v1"),
+    list(model = "dashscope/qwen-plus"),
+    list(model = "dashscope-cn/qwen-plus"),
+    list(model = "zai/glm-4.5")
+  )
+  for (args in cases) {
+    result <- do.call(qlm_code, c(list(
+      x = "a", codebook = json_test_codebook(), structured = "json",
+      credentials = function() "offline",
+      api_args = list(seed = 42L, response_format = list(
+        type = "json_schema", json_schema = list(name = "old")
+      ))
+    ), args))
+    expect_equal(body$response_format, list(type = "json_object"), info = args$model)
+    expect_equal(body$seed, 42L)
+    expect_equal(result$score, 1)
+  }
+
+  qlm_code(
+    "a", json_test_codebook(), model = "openai/gpt-4o-mini", structured = "json",
+    credentials = function() "offline",
+    api_args = list(text = list(verbosity = "low", format = list(
+      type = "json_schema", name = "old", schema = list()
+    )))
+  )
+  expect_null(body$response_format)
+  expect_equal(body$text, list(verbosity = "low", format = list(type = "json_object")))
+})
+
+test_that("unknown endpoints use prompts without inferring JSON-mode support (#191)", {
+  body <- NULL
+  local_mocked_bindings(json_chat_turns = function(chat, prompts, pc_args) {
+    body <<- json_test_request_body(chat, prompts[[1]])
+    turn_records(list(text_turn('{"score": 1, "lab": "pos"}')))
+  })
+  # Both an arbitrary endpoint and an override of a known registered endpoint
+  # must use the effective URL, not the requested prefix, to decide support.
+  for (model in c("openai_compatible/custom", "dashscope/custom", "deepseek/custom")) {
+    result <- qlm_code(
+      "a", json_test_codebook(), model = model, structured = "json",
+      base_url = "https://example.org/v1", credentials = function() "offline",
+      api_args = list(seed = 42L)
+    )
+    expect_false("response_format" %in% names(body), info = model)
+    expect_equal(body$seed, 42L)
+    expect_equal(result$score, 1)
+  }
+  # An explicit format supplied for an unknown endpoint remains the caller's.
+  qlm_code(
+    "a", json_test_codebook(), model = "openai_compatible/custom", structured = "json",
+    base_url = "https://example.org/v1", credentials = function() "offline",
+    api_args = list(response_format = list(type = "json_object"))
+  )
+  expect_equal(body$response_format, list(type = "json_object"))
 })
 
 test_that("code_handler_json rejects unsupported requests", {

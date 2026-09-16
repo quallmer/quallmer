@@ -18,9 +18,8 @@ model_param_names <- function() {
 #'
 #' * `stop` is OpenAI's body field; ellmer spells the standardised form
 #'   `stop_sequences`.
-#' * `response_format` is a raw body field. The JSON-mode path sets it itself,
-#'   so passing it at the top level is always wrong, while `api_args` remains
-#'   the way to set it deliberately.
+#' * `response_format` is a raw body field for APIs that support it. Passing
+#'   it at the top level is wrong; `api_args` is the way to set it deliberately.
 #'
 #' @keywords internal
 #' @noRd

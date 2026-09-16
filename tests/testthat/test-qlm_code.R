@@ -1802,14 +1802,15 @@ test_that("the JSON path forwards api_args too, adding only the response format"
            NULL, c("input_tokens", "output_tokens", "cached_input_tokens", "cost"))))
   })
 
-  h(x = "a", codebook = codebook, model = "openai_compatible/kimi-k3",
+  h(x = "a", codebook = codebook, model = "openai_compatible/glm-4.5",
     chat_args = list(params = user_params,
+                     base_url = "https://api.z.ai/api/paas/v4",
                      api_args = list(reasoning_effort = "max")),
     execution_args = list())
 
   expect_identical(seen$params, user_params)
   expect_equal(seen$api_args$reasoning_effort, "max")
-  # JSON mode is the one thing this path must set
+  # This known endpoint accepts JSON mode.
   expect_equal(seen$api_args$response_format, list(type = "json_object"))
 })
 

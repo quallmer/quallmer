@@ -82,7 +82,11 @@ and re-prompts a unit whose response does not conform. \code{"auto"} (the
 default) attempts the structured call and falls back to \code{"json"} if it
 fails, or if no response it completed matched the schema. On either
 path every response is validated against the codebook locally before it
-is tabulated. See Details for which to use.}
+is tabulated. The JSON path enables provider-enforced JSON syntax only
+for known APIs that support it. Anthropic and unknown endpoints instead
+use prompted JSON with the same parsing, validation and repair. An
+unknown endpoint's format setting can be supplied through \code{api_args}.
+See Details for which to use.}
 
 \item{json_retries}{Integer; the number of additional requests \pkg{quallmer}
 may make for a unit on the JSON path after an unusable response. Default
