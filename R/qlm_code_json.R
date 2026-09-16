@@ -291,7 +291,7 @@ code_handler_json <- function(x, codebook, model, chat_args, execution_args,
 #' @keywords internal
 #' @noRd
 json_mode_api_args <- function(chat, api_args) {
-  provider <- tryCatch(chat$get_provider(), error = function(e) NULL)
+  provider <- chat$get_provider()
   if (inherits(provider, "ellmer::ProviderOpenAI")) {
     api_args$text$format <- list(type = "json_object")
   } else if (inherits(provider, "ellmer::ProviderOpenAICompatible")) {

@@ -22,6 +22,13 @@ json_test_usage <- function(n) {
   )
 }
 
+# A minimal chat double with the real provider and model used for dispatch.
+json_test_chat <- function(name, ...) {
+  chat <- offline_chat(name)
+  structure(list(get_provider = chat$get_provider, get_model = chat$get_model),
+            class = "fake_chat")
+}
+
 # A code_handler_json() with ellmer::chat() and json_chat_turns() stubbed out.
 # `attempts` is a list of list(text =, error =, status =, finish =), one per
 # expected round trip; `error`, `status` and `finish` default to NA. The
@@ -29,7 +36,7 @@ json_test_usage <- function(n) {
 # would otherwise ask the provider; `hint` is what it answers.
 json_test_handler <- function(attempts, calls = NULL, hint = character()) {
   h <- code_handler_json
-  mockery::stub(h, "ellmer::chat", function(...) structure(list(), class = "fake_chat"))
+  mockery::stub(h, "ellmer::chat", json_test_chat)
   mockery::stub(h, "model_name_hint", function(...) hint)
   i <- 0L
   mockery::stub(h, "json_chat_turns", function(chat, prompts, pc_args) {
@@ -553,6 +560,68 @@ test_that("code_handler_json forces JSON mode while keeping user api_args", {
   expect_equal(captured$api_args$seed, 1L)
   expect_equal(captured$api_args$response_format, list(type = "json_object"))
   expect_match(captured$system_prompt, "Return exactly one valid JSON object")
+})
+
+test_that("provider inspection failures are raised before any request (#191)", {
+  local_mocked_bindings(
+    chat = function(...) list(get_provider = function() stop("Cannot inspect provider")),
+    .package = "ellmer"
+  )
+  local_mocked_bindings(
+    json_chat_turns = function(...) stop("Unexpected request")
+  )
+  expect_error(
+    code_handler_json("a", json_test_codebook(), "deepseek/deepseek-chat",
+                      chat_args = list(), execution_args = list()),
+    "Cannot inspect provider"
+  )
+})
+
+test_that("JSON reconstruction preserves the default model and announces it once (#191)", {
+  # ellmer normally silences default-model messages inside testthat.
+  withr::local_envvar(TESTTHAT = "false")
+  real_chat <- ellmer::chat
+  constructed <- list()
+  sent <- NULL
+  messages <- character()
+  local_mocked_bindings(
+    chat = function(...) {
+      chat <- real_chat(...)
+      constructed[[length(constructed) + 1L]] <<- chat
+      chat
+    },
+    .package = "ellmer"
+  )
+  local_mocked_bindings(json_chat_turns = function(chat, prompts, pc_args) {
+    sent <<- chat
+    turn_records(list(text_turn('{"score": 1, "lab": "pos"}')))
+  })
+  for (provider in c("openai", "deepseek")) {
+    constructed <- list()
+    messages <- character()
+    result <- withCallingHandlers(
+      code_handler_json(
+        "a", json_test_codebook(), model = provider,
+        chat_args = list(credentials = function() "offline"),
+        execution_args = list()
+      ),
+      message = function(cnd) {
+        messages <<- c(messages, conditionMessage(cnd))
+        invokeRestart("muffleMessage")
+      }
+    )
+
+    expect_length(constructed, 2)
+    model <- constructed[[1]]$get_model()
+    expect_identical(sent$get_model(), model)
+    defaults <- messages[grepl("Using model", messages, fixed = TRUE)]
+    expect_length(defaults, 1)
+    expect_match(defaults, model, fixed = TRUE)
+    body <- json_test_request_body(sent, "a")
+    format <- if (provider == "openai") body$text$format else body$response_format
+    expect_equal(format, list(type = "json_object"))
+    expect_equal(result$score, 1)
+  }
 })
 
 test_that("Anthropic JSON coding uses prompted JSON and repairs invalid responses (#191)", {
@@ -1100,11 +1169,13 @@ test_that("code_handler_json registers tools on the chat it builds (#122)", {
   skip_if_not_installed("mockery")
   registered <- list()
   h <- code_handler_json
-  mockery::stub(h, "ellmer::chat", function(...) {
-    structure(list(register_tool = function(tl) {
+  mockery::stub(h, "ellmer::chat", function(name, ...) {
+    chat <- json_test_chat(name)
+    chat$register_tool <- function(tl) {
       registered[[length(registered) + 1L]] <<- tl
       invisible(NULL)
-    }), class = "fake_chat")
+    }
+    chat
   })
   mockery::stub(h, "model_name_hint", function(...) character())
   mockery::stub(h, "json_chat_turns", function(chat, prompts, pc_args) {
@@ -1131,7 +1202,7 @@ test_that("code_handler_json forwards on_error as given, with no default of its 
   seen <- new.env()
 
   h <- code_handler_json
-  mockery::stub(h, "ellmer::chat", function(...) structure(list(), class = "fake_chat"))
+  mockery::stub(h, "ellmer::chat", json_test_chat)
   mockery::stub(h, "json_chat_turns", function(chat, prompts, pc_args) {
     seen$pc_args <- pc_args
     list(
