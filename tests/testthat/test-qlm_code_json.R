@@ -529,11 +529,15 @@ test_that("code_handler_json honours json_retries", {
 })
 
 test_that("code_handler_json forces JSON mode while keeping user api_args", {
+  provider <- ellmer::chat_deepseek(
+    model = "deepseek-chat", credentials = function() "offline"
+  )$get_provider()
   captured <- NULL
   h <- code_handler_json
   mockery::stub(h, "ellmer::chat", function(...) {
     captured <<- list(...)
-    structure(list(), class = "fake_chat")
+    structure(list(get_provider = function() provider,
+                   get_model = function() "deepseek-chat"), class = "fake_chat")
   })
   mockery::stub(h, "json_chat_turns", function(chat, prompts, pc_args) {
     list(text = "{\"score\":1,\"lab\":\"pos\"}", error = NA_character_,
@@ -684,31 +688,46 @@ test_that("JSON request settings match the effective API (#191)", {
   expect_equal(body$text, list(verbosity = "low", format = list(type = "json_object")))
 })
 
-test_that("unknown endpoints use prompts without inferring JSON-mode support (#191)", {
+test_that("the JSON-mode field follows the transport, not the prefix or URL (#191)", {
   body <- NULL
   local_mocked_bindings(json_chat_turns = function(chat, prompts, pc_args) {
     body <<- json_test_request_body(chat, prompts[[1]])
     turn_records(list(text_turn('{"score": 1, "lab": "pos"}')))
   })
-  # Both an arbitrary endpoint and an override of a known registered endpoint
-  # must use the effective URL, not the requested prefix, to decide support.
-  for (model in c("openai_compatible/custom", "dashscope/custom", "deepseek/custom")) {
-    result <- qlm_code(
-      "a", json_test_codebook(), model = model, structured = "json",
-      base_url = "https://example.org/v1", credentials = function() "offline",
-      api_args = list(seed = 42L)
-    )
-    expect_false("response_format" %in% names(body), info = model)
+  # An arbitrary endpoint, an override of a registered one, and an override
+  # of a native one all go through Chat Completions, as does the built-in
+  # moonshot prefix, so all take response_format.
+  cases <- list(
+    list(model = "openai_compatible/custom", base_url = "https://example.org/v1"),
+    list(model = "dashscope/custom", base_url = "https://example.org/v1"),
+    list(model = "deepseek/custom", base_url = "https://example.org/v1"),
+    list(model = "moonshot/kimi-k3")
+  )
+  for (args in cases) {
+    result <- do.call(qlm_code, c(list(
+      x = "a", codebook = json_test_codebook(), structured = "json",
+      credentials = function() "offline", api_args = list(seed = 42L)
+    ), args))
+    expect_equal(body$response_format, list(type = "json_object"), info = args$model)
     expect_equal(body$seed, 42L)
     expect_equal(result$score, 1)
   }
-  # An explicit format supplied for an unknown endpoint remains the caller's.
+  # Native OpenAI sends a Responses request whatever its URL, so a gateway
+  # still gets text.format.
   qlm_code(
-    "a", json_test_codebook(), model = "openai_compatible/custom", structured = "json",
-    base_url = "https://example.org/v1", credentials = function() "offline",
-    api_args = list(response_format = list(type = "json_object"))
+    "a", json_test_codebook(), model = "openai/gpt-4o-mini", structured = "json",
+    base_url = "https://gateway.example/openai/v1", credentials = function() "offline"
   )
-  expect_equal(body$response_format, list(type = "json_object"))
+  expect_null(body$response_format)
+  expect_equal(body$text$format, list(type = "json_object"))
+  # A transport with neither field is left to the prompt.
+  qlm_code(
+    "a", json_test_codebook(), model = "google_gemini/gemini-2.5-flash",
+    structured = "json", credentials = function() "offline",
+    api_args = list(seed = 42L)
+  )
+  expect_false(any(c("response_format", "text") %in% names(body)))
+  expect_equal(body$seed, 42L)
 })
 
 test_that("code_handler_json rejects unsupported requests", {

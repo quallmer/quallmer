@@ -53,11 +53,13 @@
 #'   default) attempts the structured call and falls back to `"json"` if it
 #'   fails, or if no response it completed matched the schema. On either
 #'   path every response is validated against the codebook locally before it
-#'   is tabulated. The JSON path enables provider-enforced JSON syntax only
-#'   for known APIs that support it. Anthropic and unknown endpoints instead
-#'   use prompted JSON with the same parsing, validation and repair. An
-#'   unknown endpoint's format setting can be supplied through `api_args`.
-#'   See Details for which to use.
+#'   is tabulated. The JSON path asks for JSON syntax in the field the
+#'   transport takes: `text.format` for native OpenAI's Responses API and
+#'   `response_format` for every provider ellmer reaches through Chat
+#'   Completions, including registered and `openai_compatible/` endpoints.
+#'   Providers with neither field, Anthropic among them, use prompted JSON
+#'   with the same parsing, validation and repair. See Details for which to
+#'   use.
 #' @param json_retries Integer; the number of additional requests \pkg{quallmer}
 #'   may make for a unit on the JSON path after an unusable response. Default
 #'   is 2, giving at most three JSON-path requests per unit. This is implemented
