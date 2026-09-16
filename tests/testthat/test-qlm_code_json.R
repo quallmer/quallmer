@@ -571,15 +571,16 @@ test_that("provider inspection failures are raised before any request (#191)", {
 })
 
 test_that("JSON reconstruction preserves the default model and announces it once (#191)", {
-  # ellmer normally silences default-model messages inside testthat.
-  withr::local_envvar(TESTTHAT = "false")
   real_chat <- ellmer::chat
   constructed <- list()
   sent <- NULL
   messages <- character()
   local_mocked_bindings(
     chat = function(...) {
-      chat <- real_chat(...)
+      # ellmer silences default-model messages inside testthat. Enable them
+      # only during construction: testthat needs TESTTHAT to identify the
+      # package when setting up mocks in an installed-package test run.
+      chat <- withr::with_envvar(c(TESTTHAT = "false"), real_chat(...))
       constructed[[length(constructed) + 1L]] <<- chat
       chat
     },
