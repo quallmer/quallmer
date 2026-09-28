@@ -10,10 +10,10 @@ navbar:
     left:
     - home
     - quick-start
+    - reference
     - tutorials
     - examples
     - workshops
-    - reference
     - news
     right:
     - search
