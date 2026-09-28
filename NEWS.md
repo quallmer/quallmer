@@ -1,7 +1,4 @@
-# quallmer 0.4.0.9000 (development version)
-
-Everything in this section postdates quallmer 0.4.0, released on CRAN on
-2026-05-06.
+# quallmer 0.5.0
 
 ## Breaking changes
 
@@ -333,6 +330,20 @@ Everything in this section postdates quallmer 0.4.0, released on CRAN on
   model's transcript beside Whisper's, the cost, and the recorded file
   hashes (#124).
 
+* `?qlm_code` gains an "Incomplete runs" section: what a failed unit looks
+  like in the object, the layers at which it can be tried again, what a
+  backfill leaves alone and why, with a pointer to the workflow guide's
+  section and its failure-to-mechanism table (#174).
+
+* The package now ships a coded run that came back incomplete and its
+  backfilled counterpart, in `inst/extdata/example_objects.rds`, coded once
+  with a live model and a deliberately short timeout and low `max_tokens`.
+  The workflow guide's "Completing an incomplete run" section, the audit
+  trail tutorial, and the examples of `qlm_failures()` and `qlm_backfill()`
+  now show `qlm_failures()`, `print()` and the trail's `Backfill:` line on
+  those objects, evaluated, where before they described the output in prose
+  or sat in `\dontrun{}` (#173).
+
 ## Bug fixes
 
 ### Coding runs
@@ -603,22 +614,6 @@ Everything in this section postdates quallmer 0.4.0, released on CRAN on
   structure, so they round-trip with their class and metadata intact and
   can be extracted from the trail for replication without modification
   (#93).
-
-## Documentation
-
-* `?qlm_code` gains an "Incomplete runs" section: what a failed unit looks
-  like in the object, the layers at which it can be tried again, what a
-  backfill leaves alone and why, with a pointer to the workflow guide's
-  section and its failure-to-mechanism table (#174).
-
-* The package now ships a coded run that came back incomplete and its
-  backfilled counterpart, in `inst/extdata/example_objects.rds`, coded once
-  with a live model and a deliberately short timeout and low `max_tokens`.
-  The workflow guide's "When a run comes back incomplete" section, the audit
-  trail tutorial, and the examples of `qlm_failures()` and `qlm_backfill()`
-  now show `qlm_failures()`, `print()` and the trail's `Backfill:` line on
-  those objects, evaluated, where before they described the output in prose
-  or sat in `\dontrun{}` (#173).
 
 ## Internal changes
 
