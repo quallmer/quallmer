@@ -43,10 +43,12 @@
     <li><a class="dropdown-item" href="../../../articles/pkgdown/getting-started/ollama.html">Working with an open-source Ollama model</a></li>
   </ul>
 </li>
+<li class="nav-item"><a class="nav-link" href="../../../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-tutorials" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Tutorials</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-tutorials">
 <li><a class="dropdown-item" href="../../../articles/pkgdown/tutorials/trail.html">The quallmer audit trail</a></li>
+    <li><a class="dropdown-item" href="../../../articles/pkgdown/tutorials/tools.html">Coding with web-search tools</a></li>
     <li><a class="dropdown-item" href="../../../articles/pkgdown/tutorials/validate.html">Using the quallmer.app</a></li>
   </ul>
 </li>
@@ -61,7 +63,6 @@
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../../../articles/pkgdown/workshops.html">Workshops</a></li>
-<li class="nav-item"><a class="nav-link" href="../../../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../../../news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
@@ -102,9 +103,7 @@ addresses to demonstrate the core functions.</p>
 <code><a href="../../../reference/qlm_codebook.html">qlm_codebook()</a></code>
 </li>
 <li>
-<strong>Code</strong> your data with <code><a href="../../../reference/qlm_code.html">qlm_code()</a></code>, and
-complete a run that came back with failures using
-<code><a href="../../../reference/qlm_backfill.html">qlm_backfill()</a></code>
+<strong>Code</strong> your data with <code><a href="../../../reference/qlm_code.html">qlm_code()</a></code>
 </li>
 <li>
 <strong>Replicate</strong> with different settings using
@@ -171,9 +170,57 @@ segmentation</a>.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">coded</span></span></code></pre></div>
-<div class="section level3">
-<h3 id="when-a-run-comes-back-incomplete">When a run comes back incomplete<a class="anchor" aria-label="anchor" href="#when-a-run-comes-back-incomplete"></a>
-</h3>
+<blockquote>
+<p><strong>Tip:</strong> Did some units come back as failures? If a few
+timed out, were refused, or did not fit in the model’s context window,
+<code><a href="../../../reference/qlm_backfill.html">qlm_backfill()</a></code> re-codes just those units and merges them
+into the run. See <a href="#completing-an-incomplete-run">Completing an
+incomplete run</a> below.</p>
+</blockquote>
+</div>
+<div class="section level2">
+<h2 id="step-3-replicate-with-a-different-model">Step 3: Replicate with a different model<a class="anchor" aria-label="anchor" href="#step-3-replicate-with-a-different-model"></a>
+</h2>
+<p>Test reliability by coding again with a different model:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">coded2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../../reference/qlm_replicate.html">qlm_replicate</a></span><span class="op">(</span></span>
+<span>  <span class="va">coded</span>,</span>
+<span>  model <span class="op">=</span> <span class="st">"openai/gpt-4o"</span>,</span>
+<span>  name <span class="op">=</span> <span class="st">"gpt4o"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">coded2</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="step-4-compare-results">Step 4: Compare results<a class="anchor" aria-label="anchor" href="#step-4-compare-results"></a>
+</h2>
+<p>Assess inter-rater reliability between the two coding runs:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">comparison</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../../reference/qlm_compare.html">qlm_compare</a></span><span class="op">(</span><span class="va">coded</span>, <span class="va">coded2</span><span class="op">)</span></span>
+<span><span class="va">comparison</span></span></code></pre></div>
+<p>If you have gold standard human coding, you can also validate against
+it with <code><a href="../../../reference/qlm_validate.html">qlm_validate()</a></code>.</p>
+</div>
+<div class="section level2">
+<h2 id="step-5-create-an-audit-trail">Step 5: Create an audit trail<a class="anchor" aria-label="anchor" href="#step-5-create-an-audit-trail"></a>
+</h2>
+<p>Document your complete workflow, including models, parameters, and
+results and a Quarto report with replication instructions:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># View the trail</span></span>
+<span><span class="va">trail</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../../reference/qlm_trail.html">qlm_trail</a></span><span class="op">(</span><span class="va">coded</span>, <span class="va">coded2</span>, <span class="va">comparison</span><span class="op">)</span></span>
+<span><span class="va">trail</span></span>
+<span></span>
+<span><span class="co"># Save trail and generate report</span></span>
+<span><span class="fu"><a href="../../../reference/qlm_trail.html">qlm_trail</a></span><span class="op">(</span><span class="va">coded</span>, <span class="va">coded2</span>, <span class="va">comparison</span>, path <span class="op">=</span> <span class="st">"my_analysis"</span><span class="op">)</span></span>
+<span><span class="co"># Creates: my_analysis.rds, my_analysis.qmd</span></span></code></pre></div>
+<p>This workflow provides a structured approach to leveraging LLMs for
+qualitative coding with transparency as well as full traceability and
+the ability to replicate and validate your analyses.</p>
+</div>
+<div class="section level2">
+<h2 id="completing-an-incomplete-run">Optional: completing an incomplete run<a class="anchor" aria-label="anchor" href="#completing-an-incomplete-run"></a>
+</h2>
 <p>A run over a real corpus rarely comes back complete. Requests time
 out or hit a rate limit, a provider refuses a text on one pass and codes
 it on the next, an endpoint accepts the schema and then returns
@@ -185,7 +232,7 @@ runs without a key. Eight movie reviews were coded with a deliberately
 short request timeout and a <code>max_tokens</code> of 90, and came back
 with both kinds of failure this section is about: a request that timed
 out, and responses the model could not fit into the output limit.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">examples</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"example_objects.rds"</span>, package <span class="op">=</span> <span class="st">"quallmer"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">incomplete</span> <span class="op">&lt;-</span> <span class="va">examples</span><span class="op">$</span><span class="va">example_coded_incomplete</span></span>
 <span><span class="va">incomplete</span></span></code></pre></div>
@@ -207,7 +254,7 @@ out, and responses the model could not fit into the output limit.</p>
 <span><span class="co">## <span style="color: #BCBCBC;">6</span> 7227_7.txt   <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>  <span style="color: #BB0000;">NA</span>                                   <span style="color: #949494;">&lt;httr2_fl&gt;</span></span></span>
 <span><span class="co">## <span style="color: #BCBCBC;">7</span> 8877_8.txt   pos            9 <span style="color: #949494;">"</span>The one thing I really can't seem t… <span style="color: #949494;">&lt;NULL&gt;</span>    </span></span>
 <span><span class="co">## <span style="color: #BCBCBC;">8</span> 11413_10.txt <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>  <span style="color: #BB0000;">NA</span>                                   <span style="color: #949494;">&lt;qllmr_t_&gt;</span></span></span></code></pre>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../../../reference/qlm_failures.html">qlm_failures</a></span><span class="op">(</span><span class="va">incomplete</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 4 × 3</span></span></span>
 <span><span class="co">##   .id          reason                                                 .error    </span></span>
@@ -244,7 +291,7 @@ fit in its context window. Each pass is recorded in the object’s
 metadata, and <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> and the audit trail say what was
 backfilled and by which model, so a result coded by two instruments is
 disclosed as one.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">filled</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../../reference/qlm_backfill.html">qlm_backfill</a></span><span class="op">(</span><span class="va">incomplete</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Leaving 3 units alone: rejected on length, or cut off at `max_tokens`. A</span></span>
 <span><span class="co">#&gt;   different `model`, or a higher `params(max_tokens = )`, would retry them.</span></span>
@@ -254,7 +301,7 @@ disclosed as one.</p>
 <p>The object that call returned is saved with the package too. The
 timed-out unit is coded now, the cut-off ones are still listed, and the
 header says what was done:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">filled</span> <span class="op">&lt;-</span> <span class="va">examples</span><span class="op">$</span><span class="va">example_coded_backfilled</span></span>
 <span><span class="va">filled</span></span></code></pre></div>
 <pre><code><span><span class="co">## # quallmer coded object</span></span>
@@ -276,7 +323,7 @@ header says what was done:</p>
 <span><span class="co">## <span style="color: #BCBCBC;">6</span> 7227_7.txt   pos            8 <span style="color: #949494;">"</span>ah man this movie was funny as hell… <span style="color: #949494;">&lt;NULL&gt;</span>    </span></span>
 <span><span class="co">## <span style="color: #BCBCBC;">7</span> 8877_8.txt   pos            9 <span style="color: #949494;">"</span>The one thing I really can't seem t… <span style="color: #949494;">&lt;NULL&gt;</span>    </span></span>
 <span><span class="co">## <span style="color: #BCBCBC;">8</span> 11413_10.txt <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>  <span style="color: #BB0000;">NA</span>                                   <span style="color: #949494;">&lt;qllmr_t_&gt;</span></span></span></code></pre>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../../../reference/qlm_failures.html">qlm_failures</a></span><span class="op">(</span><span class="va">filled</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 3 × 3</span></span></span>
 <span><span class="co">##   .id          reason                                                 .error    </span></span>
@@ -358,47 +405,6 @@ the first wave only with <code>json_retries = 0</code>. The second is
 call, if you would rather not make them a separate step. Either way, a
 replication made with <code><a href="../../../reference/qlm_replicate.html">qlm_replicate()</a></code> replays the passes
 recorded on its parent, so both are complete on the same terms.</p>
-</div>
-</div>
-<div class="section level2">
-<h2 id="step-3-replicate-with-a-different-model">Step 3: Replicate with a different model<a class="anchor" aria-label="anchor" href="#step-3-replicate-with-a-different-model"></a>
-</h2>
-<p>Test reliability by coding again with a different model:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">coded2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../../reference/qlm_replicate.html">qlm_replicate</a></span><span class="op">(</span></span>
-<span>  <span class="va">coded</span>,</span>
-<span>  model <span class="op">=</span> <span class="st">"openai/gpt-4o"</span>,</span>
-<span>  name <span class="op">=</span> <span class="st">"gpt4o"</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">coded2</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="step-4-compare-results">Step 4: Compare results<a class="anchor" aria-label="anchor" href="#step-4-compare-results"></a>
-</h2>
-<p>Assess inter-rater reliability between the two coding runs:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">comparison</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../../reference/qlm_compare.html">qlm_compare</a></span><span class="op">(</span><span class="va">coded</span>, <span class="va">coded2</span><span class="op">)</span></span>
-<span><span class="va">comparison</span></span></code></pre></div>
-<p>If you have gold standard human coding, you can also validate against
-it with <code><a href="../../../reference/qlm_validate.html">qlm_validate()</a></code>.</p>
-</div>
-<div class="section level2">
-<h2 id="step-5-create-an-audit-trail">Step 5: Create an audit trail<a class="anchor" aria-label="anchor" href="#step-5-create-an-audit-trail"></a>
-</h2>
-<p>Document your complete workflow, including models, parameters, and
-results and a Quarto report with replication instructions:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># View the trail</span></span>
-<span><span class="va">trail</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../../reference/qlm_trail.html">qlm_trail</a></span><span class="op">(</span><span class="va">coded</span>, <span class="va">coded2</span>, <span class="va">comparison</span><span class="op">)</span></span>
-<span><span class="va">trail</span></span>
-<span></span>
-<span><span class="co"># Save trail and generate report</span></span>
-<span><span class="fu"><a href="../../../reference/qlm_trail.html">qlm_trail</a></span><span class="op">(</span><span class="va">coded</span>, <span class="va">coded2</span>, <span class="va">comparison</span>, path <span class="op">=</span> <span class="st">"my_analysis"</span><span class="op">)</span></span>
-<span><span class="co"># Creates: my_analysis.rds, my_analysis.qmd</span></span></code></pre></div>
-<p>This workflow provides a structured approach to leveraging LLMs for
-qualitative coding with transparency as well as full traceability and
-the ability to replicate and validate your analyses.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
