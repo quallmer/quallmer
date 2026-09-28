@@ -22,6 +22,7 @@
     <li><a class="dropdown-item" href="../articles/pkgdown/getting-started/openai.html">Signing up for an OpenAI API key</a></li>
     <li><a class="dropdown-item" href="../articles/pkgdown/getting-started/ollama.html">Working with an open-source Ollama model</a></li>
   </ul></li>
+<li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-tutorials" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Tutorials</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-tutorials"><li><a class="dropdown-item" href="../articles/pkgdown/tutorials/trail.html">The quallmer audit trail</a></li>
@@ -37,7 +38,6 @@
     <li><a class="dropdown-item" href="../articles/pkgdown/examples/example_quasi_sentences.html">Quasi-sentence segmentation</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../articles/pkgdown/workshops.html">Workshops</a></li>
-<li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="active nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -84,7 +84,8 @@
 </ul></div>
 <div class="section level3">
 <h3 id="documentation-0-4-0-9000">Documentation<a class="anchor" aria-label="anchor" href="#documentation-0-4-0-9000"></a></h3>
-<ul><li>The “Audio transcription and analysis” example article now shows both routes: transcription with Whisper followed by coding of the transcripts, and coding the recordings directly with <code>input_type = "audio"</code> on <code>gemini-2.5-flash</code>, ending with <code><a href="../reference/qlm_compare.html">qlm_compare()</a></code> of the two runs, the model’s transcript beside Whisper’s, the cost, and the recorded file hashes (#124).</li>
+<ul><li><p><code><a href="../reference/qlm_backfill.html">qlm_backfill()</a></code> is no longer presented as part of the coding step of the workflow. The README, the “Getting started” vignette, and “The quallmer workflow” article now describe it in an optional section on completing an incomplete run, and the reference index lists it with <code><a href="../reference/qlm_failures.html">qlm_failures()</a></code> under a new “Completing incomplete runs” heading (#190, @SeraphineM).</p></li>
+<li><p>The “Audio transcription and analysis” example article now shows both routes: transcription with Whisper followed by coding of the transcripts, and coding the recordings directly with <code>input_type = "audio"</code> on <code>gemini-2.5-flash</code>, ending with <code><a href="../reference/qlm_compare.html">qlm_compare()</a></code> of the two runs, the model’s transcript beside Whisper’s, the cost, and the recorded file hashes (#124).</p></li>
 </ul></div>
 <div class="section level3">
 <h3 id="bug-fixes-0-4-0-9000">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-4-0-9000"></a></h3>

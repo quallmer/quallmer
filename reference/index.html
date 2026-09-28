@@ -22,6 +22,7 @@
     <li><a class="dropdown-item" href="../articles/pkgdown/getting-started/openai.html">Signing up for an OpenAI API key</a></li>
     <li><a class="dropdown-item" href="../articles/pkgdown/getting-started/ollama.html">Working with an open-source Ollama model</a></li>
   </ul></li>
+<li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-tutorials" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Tutorials</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-tutorials"><li><a class="dropdown-item" href="../articles/pkgdown/tutorials/trail.html">The quallmer audit trail</a></li>
@@ -37,7 +38,6 @@
     <li><a class="dropdown-item" href="../articles/pkgdown/examples/example_quasi_sentences.html">Quasi-sentence segmentation</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../articles/pkgdown/workshops.html">Workshops</a></li>
-<li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -78,13 +78,6 @@
 
         <dt>
 
-          <code><a href="qlm_backfill.html">qlm_backfill()</a></code>
-
-        </dt>
-        <dd>Re-code the units a run failed on</dd>
-
-        <dt>
-
           <code><a href="qlm_codebook.html">qlm_codebook()</a></code>
 
         </dt>
@@ -103,6 +96,29 @@
 
         </dt>
         <dd>Transcribe audio recordings</dd>
+      </dl></div><div class="section level2">
+      <h2 id="completing-incomplete-runs">Completing incomplete runs<a class="anchor" aria-label="anchor" href="#completing-incomplete-runs"></a></h2>
+
+      <div class="section-desc"><p>Optional functions for finding and re-coding the units a run failed on</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="qlm_failures.html">qlm_failures()</a></code>
+
+        </dt>
+        <dd>List the units a coding run failed on</dd>
+
+        <dt>
+
+          <code><a href="qlm_backfill.html">qlm_backfill()</a></code>
+
+        </dt>
+        <dd>Re-code the units a run failed on</dd>
       </dl></div><div class="section level2">
       <h2 id="advanced-configuration">Advanced configuration<a class="anchor" aria-label="anchor" href="#advanced-configuration"></a></h2>
 
@@ -179,13 +195,6 @@
 
         </dt>
         <dd>Extract input data from qlm_coded objects</dd>
-
-        <dt>
-
-          <code><a href="qlm_failures.html">qlm_failures()</a></code>
-
-        </dt>
-        <dd>List the units a coding run failed on</dd>
       </dl></div><div class="section level2">
       <h2 id="validation-and-comparison">Validation and comparison<a class="anchor" aria-label="anchor" href="#validation-and-comparison"></a></h2>
 

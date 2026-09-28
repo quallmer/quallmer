@@ -46,6 +46,7 @@
     <li><a class="dropdown-item" href="articles/pkgdown/getting-started/ollama.html">Working with an open-source Ollama model</a></li>
   </ul>
 </li>
+<li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-tutorials" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Tutorials</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-tutorials">
@@ -65,7 +66,6 @@
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="articles/pkgdown/workshops.html">Workshops</a></li>
-<li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
@@ -120,17 +120,6 @@
 <li>Applies LLM-based coding to qualitative data using a <code>qlm_codebook</code>.</li>
 <li>Works with any LLM supported by <a href="https://ellmer.tidyverse.org/index.html" class="external-link">ellmer</a>.</li>
 <li>Returns a <code>qlm_coded</code> object containing the coded results and metadata for reproducibility.</li>
-</ul>
-</div>
-<div class="section level4">
-<h4 id="qlm_backfill">
-<code>qlm_backfill()</code><a class="anchor" aria-label="anchor" href="#qlm_backfill"></a>
-</h4>
-<ul>
-<li>Completes a run: <code><a href="reference/qlm_failures.html">qlm_failures()</a></code> lists the units a run failed on and why, and <code><a href="reference/qlm_backfill.html">qlm_backfill()</a></code> re-codes just those units and merges them back, so a few transient failures do not mean re-running the corpus.</li>
-<li>Uses the run’s own model and settings by default; a different model can be given for units the original consistently refuses or cannot fit, and the result then records which units came from which model.</li>
-<li>
-<code>qlm_code(backfill = 2)</code> does this in the same call.</li>
 </ul>
 </div>
 <div class="section level4">
@@ -197,6 +186,21 @@
 <li>Reconstructs branching workflows when multiple coded objects are compared or validated.</li>
 <li>Generates replication materials: environment setup, API configuration, and executable R code.</li>
 <li>Use <code>qlm_trail(..., path = "filename")</code> to save RDS archive and Quarto report.</li>
+</ul>
+</div>
+</div>
+<div class="section level3">
+<h3 id="optional-complete-an-incomplete-run">Optional: complete an incomplete run<a class="anchor" aria-label="anchor" href="#optional-complete-an-incomplete-run"></a>
+</h3>
+<div class="section level4">
+<h4 id="qlm_backfill">
+<code>qlm_backfill()</code><a class="anchor" aria-label="anchor" href="#qlm_backfill"></a>
+</h4>
+<ul>
+<li>Completes a run: <code><a href="reference/qlm_failures.html">qlm_failures()</a></code> lists the units a run failed on and why, and <code><a href="reference/qlm_backfill.html">qlm_backfill()</a></code> re-codes just those units and merges them back, so a few transient failures do not mean re-running the corpus.</li>
+<li>Uses the run’s own model and settings by default; a different model can be given for units the original consistently refuses or cannot fit, and the result then records which units came from which model.</li>
+<li>
+<code>qlm_code(backfill = 2)</code> does this in the same call.</li>
 </ul>
 </div>
 </div>
