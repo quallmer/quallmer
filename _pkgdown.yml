@@ -76,10 +76,15 @@ reference:
     contents:
       - qlm_code
       - qlm_replicate
-      - qlm_backfill
       - qlm_codebook
       - qlm_segment
       - qlm_transcribe
+
+  - title: Completing incomplete runs
+    desc: Optional functions for finding and re-coding the units a run failed on
+    contents:
+      - qlm_failures
+      - qlm_backfill
 
   - title: Advanced configuration
     desc: Optional session configuration for provider endpoints
@@ -100,7 +105,6 @@ reference:
       - "`qlm_meta<-`"
       - codebook
       - inputs
-      - qlm_failures
 
   - title: Validation and comparison
     desc: Assess reliability and validate against gold standards
