@@ -36,6 +36,8 @@ trail system connects these objects to show your complete workflow:
 
     qlm_code()       →  Creates coded object with run metadata
           ↓
+    qlm_backfill()   →  Completes the run; each pass is recorded on the same object
+          ↓
     qlm_replicate()  →  Creates new object linked to parent
           ↓
     qlm_compare()    →  Creates comparison linked to inputs
@@ -85,46 +87,35 @@ complete record of what was tested and how the results compare.
 Pass any quallmer objects to
 [`qlm_trail()`](https://quallmer.github.io/quallmer/reference/qlm_trail.md):
 
-``` r
-library(quallmer)
-
-# After your analysis...
-coded1 <- qlm_code(
-  texts, codebook,
-  model = "openai/gpt-4o",
-  name = "gpt4o",
-  notes = "Initial coding with GPT-4o"
-)
-
-coded2 <- qlm_replicate(
-  coded1,
-  model = "anthropic/claude-sonnet-4",
-  name = "claude",
-  notes = "Replication to check model agreement"
-)
-
-comparison <- qlm_compare(coded1, coded2, by = sentiment)
-
-# Create the audit trail
-trail <- qlm_trail(coded1, coded2, comparison)
-trail
-```
+[`library`](https://rdrr.io/r/base/library.html)`(`[`quallmer`](https://quallmer.github.io/quallmer/)`)`` `` ``# After your analysis...`` ``coded1`` ``<-`` `[`qlm_code`](https://quallmer.github.io/quallmer/reference/qlm_code.md)`(`` `` ``texts``, ``codebook``,`` `` model ``=`` ``"openai/gpt-4o"``,`` `` name ``=`` ``"gpt4o"``,`` `` notes ``=`` ``"Initial coding with GPT-4o"`` ``)`` `` ``coded2`` ``<-`` `[`qlm_replicate`](https://quallmer.github.io/quallmer/reference/qlm_replicate.md)`(`` `` ``coded1``,`` `` model ``=`` ``"anthropic/claude-sonnet-4"``,`` `` name ``=`` ``"claude"``,`` `` notes ``=`` ``"Replication to check model agreement"`` ``)`` `` ``comparison`` ``<-`` `[`qlm_compare`](https://quallmer.github.io/quallmer/reference/qlm_compare.md)`(``coded1``, ``coded2``, by ``=`` ``sentiment``)`` `` ``# Create the audit trail`` ``trail`` ``<-`` `[`qlm_trail`](https://quallmer.github.io/quallmer/reference/qlm_trail.md)`(``coded1``, ``coded2``, ``comparison``)`` ``trail`
 
 The print output shows:
 
 - Run names and parent relationships
 - Timestamps and model information
+- Backfill passes, and any other model they used, so a run completed by
+  two instruments is disclosed as one
 - Notes documenting why each run was performed
 - Comparison/validation summaries
 - Whether the chain is complete
+
+A run completed by
+[`qlm_backfill()`](https://quallmer.github.io/quallmer/reference/qlm_backfill.md)
+says so in its trail. The object below ships with the package: a run
+that came back with failures, backfilled once (the workflow guide walks
+through it), so this runs without a key:
+
+`examples`` ``<-`` `[`readRDS`](https://rdrr.io/r/base/readRDS.html)`(`[`system.file`](https://rdrr.io/r/base/system.file.html)`(``"extdata"``, ``"example_objects.rds"``, package ``=`` ``"quallmer"``)``)`` ``trail`` ``<-`` `[`qlm_trail`](https://quallmer.github.io/quallmer/reference/qlm_trail.md)`(``examples``$``example_coded_backfilled``)`` ``trail`` ``#> # quallmer audit trail`` ``#> Run: example_incomplete`` ``#> Created: 2026-09-04 21:01:37`` ``#> Model: anthropic/claude-haiku-4-5`` ``#> Backfill: 1 pass, recovered 1 of 1`
+
+The Quarto report described below carries the same line, as
+**Backfill:** among the run’s process notes, and a pass costed on other
+rates than the run gets a **Cost** line of its own.
 
 ## Saving the trail
 
 Add a `path` argument to save permanent files:
 
-``` r
-qlm_trail(coded1, coded2, comparison, path = "my_analysis")
-```
+[`qlm_trail`](https://quallmer.github.io/quallmer/reference/qlm_trail.md)`(``coded1``, ``coded2``, ``comparison``, path ``=`` ``"my_analysis"``)`
 
 This creates:
 
@@ -143,27 +134,13 @@ The generated `.qmd` file contains:
 
 Render it with:
 
-``` r
-quarto::quarto_render("my_analysis.qmd")
-```
+`quarto``::`[`quarto_render`](https://quarto-dev.github.io/quarto-r/reference/quarto_render.html)`(``"my_analysis.qmd"``)`
 
 ## Loading saved trails
 
 Reload a trail to access the data:
 
-``` r
-trail <- readRDS("my_analysis.rds")
-
-# Access runs
-names(trail$runs)
-
-# Get coded data from a run
-trail$runs$gpt4o$data
-
-# Check run metadata
-trail$runs$gpt4o$metadata$timestamp
-trail$runs$gpt4o$chat_args$name
-```
+`trail`` ``<-`` `[`readRDS`](https://rdrr.io/r/base/readRDS.html)`(``"my_analysis.rds"``)`` `` ``# Access runs`` `[`names`](https://rdrr.io/r/base/names.html)`(``trail``$``runs``)`` `` ``# Get coded data from a run`` ``trail``$``runs``$``gpt4o``$``data`` `` ``# Check run metadata`` ``trail``$``runs``$``gpt4o``$``metadata``$``timestamp`` ``trail``$``runs``$``gpt4o``$``chat_args``$``name`
 
 ## Best practices
 

@@ -12,34 +12,7 @@ package in R and ping `Ollama` to ensure connectivity. We then download
 the model `llama3.2:1b`. Although it is a comparatively small LLM, this
 can take some time, depending on your machine.
 
-``` r
-# Do not forget to run the ollama app (outside of R) first!
-# If you installed Ollama using the Windows/Mac installer, 
-# you can simply start Ollama from your start menu/by clicking on the app icon.
-
-# Install R package rollama 
-#install.packages("rollama")
-
-# Load the rollama package and ping Ollama to ensure connectivity.
-library(rollama)
-ping_ollama()
-# if everything works as it should, 
-# you should see the following in your console:
-# Ollama (v0.4.2) is running at <http://localhost:11434>!
-
-# install the light-weight model of Ollama, llama3.2:1b
-#pull_model("llama3.2:1b")
-
-# NOTE: llama3.2:1b is a comparatively small LLM 
-# (only 1 billion parameters compared to over 1 trillion of gpt-o4)
-# and might not be as powerful as other LLMs, 
-# but it is a good starting point for educational purposes
-# for more advanced tasks, you might want to use larger models
-# which you can pull with the command pull_model("model_name")
-
-# let's do a simple test with the model
-query("What is the capital of Australia.", model = "llama3.2:1b")
-```
+`# Do not forget to run the ollama app (outside of R) first!`` ``# If you installed Ollama using the Windows/Mac installer, `` ``# you can simply start Ollama from your start menu/by clicking on the app icon.`` `` ``# Install R package rollama `` ``#install.packages("rollama")`` `` ``# Load the rollama package and ping Ollama to ensure connectivity.`` `[`library`](https://rdrr.io/r/base/library.html)`(`[`rollama`](https://jbgruber.github.io/rollama/)`)`` `[`ping_ollama`](https://jbgruber.github.io/rollama/reference/ping_ollama.html)`(``)`` ``# if everything works as it should, `` ``# you should see the following in your console:`` ``# Ollama (v0.4.2) is running at <http://localhost:11434>!`` `` ``# install the light-weight model of Ollama, llama3.2:1b`` ``#pull_model("llama3.2:1b")`` `` ``# NOTE: llama3.2:1b is a comparatively small LLM `` ``# (only 1 billion parameters compared to over 1 trillion of gpt-o4)`` ``# and might not be as powerful as other LLMs, `` ``# but it is a good starting point for educational purposes`` ``# for more advanced tasks, you might want to use larger models`` ``# which you can pull with the command pull_model("model_name")`` `` ``# let's do a simple test with the model`` `[`query`](https://jbgruber.github.io/rollama/reference/query.html)`(``"What is the capital of Australia."``, model ``=`` ``"llama3.2:1b"``)`
 
 Now that we have set up the Ollama model, we can use it with the
 `quallmer` package for qualitative coding tasks. To use an Ollama model,

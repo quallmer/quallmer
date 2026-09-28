@@ -12,8 +12,8 @@
 <link rel="icon" sizes="any" href="../favicon.ico">
 <link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Getting started with quallmer">
 </head>
@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">quallmer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -106,9 +106,9 @@ supported LLM interactions, please refer to its documentation <a href="https://e
 <h2 id="basic-usage">Basic usage<a class="anchor" aria-label="anchor" href="#basic-usage"></a>
 </h2>
 <p>The <code>quallmer</code> package is developed for using it in R.
-Please make sure you have a recent version of <a href="https://posit.co/download/rstudio-desktop" class="external-link">R and RStudio
-installed</a> on your computer. If you are new to R and RStudio, you can
-find <a href="https://instats.org/seminar/introduction-to-r-with-rstudio-free-1-h3" class="external-link">a
+Please make sure you have a recent version of <a href="https://docs.posit.co/ide/user/#rstudio-ide-oss-downloads" class="external-link">R and
+RStudio installed</a> on your computer. If you are new to R and RStudio,
+you can find <a href="https://instats.org/seminar/introduction-to-r-with-rstudio-free-1-h3" class="external-link">a
 great and free-of-charge 1.5h introduction to R and RStudio on
 instats</a>.</p>
 <p>To get started with <code>quallmer</code>, you first need to install
@@ -133,7 +133,9 @@ the package from GitHub.</p>
 <code><a href="../reference/qlm_codebook.html">qlm_codebook()</a></code>
 </li>
 <li>
-<strong>Code</strong> your data with <code><a href="../reference/qlm_code.html">qlm_code()</a></code>
+<strong>Code</strong> your data with <code><a href="../reference/qlm_code.html">qlm_code()</a></code>, and
+complete a run that came back with failures using
+<code><a href="../reference/qlm_backfill.html">qlm_backfill()</a></code>
 </li>
 <li>
 <strong>Replicate</strong> with different settings using
@@ -180,7 +182,7 @@ documentation</a>.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

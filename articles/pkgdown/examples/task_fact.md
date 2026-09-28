@@ -14,14 +14,7 @@ highest confidence in the truthfulness of the claims.**
 
 ### Loading packages and data
 
-``` r
-
-# We will use the quanteda package 
-# for loading a sample corpus of innaugural speeches
-# If you have not yet installed the quanteda package, you can do so by:
-# install.packages("quanteda")
-library(quanteda)
-```
+`# We will use the quanteda package `` ``# for loading a sample corpus of innaugural speeches`` ``# If you have not yet installed the quanteda package, you can do so by:`` ``# install.packages("quanteda")`` `[`library`](https://rdrr.io/r/base/library.html)`(`[`quanteda`](https://quanteda.io)`)`
 
     ## Package version: 4.3.1
     ## Unicode version: 14.0
@@ -31,30 +24,15 @@ library(quanteda)
 
     ## See https://quanteda.io for tutorials and examples.
 
-``` r
-
-library(quallmer)
-```
+[`library`](https://rdrr.io/r/base/library.html)`(`[`quallmer`](https://seraphinem.github.io/quallmer/)`)`
 
     ## Loading required package: ellmer
 
-``` r
-
-# For educational purposes, 
-# we will use a subset of the inaugural speeches corpus
-# The three most recent speeches in the corpus
-data_corpus_inaugural <- quanteda::data_corpus_inaugural[57:60]
-```
+`# For educational purposes, `` ``# we will use a subset of the inaugural speeches corpus`` ``# The three most recent speeches in the corpus`` ``data_corpus_inaugural`` ``<-`` ``quanteda``::`[`data_corpus_inaugural`](https://quanteda.io/reference/data_corpus_inaugural.html)`[``57``:``60``]`
 
 ### Using `annotate()` for fact checking of claims in texts
 
-``` r
-
-# Apply predefined fact checking task with task_fact() in the annotate() function
-result <- annotate(data_corpus_inaugural, task = task_fact(),
-                   model_name = "openai/gpt-4o",
-                   params = list(temperature = 0))
-```
+`# Apply predefined fact checking task with task_fact() in the annotate() function`` ``result`` ``<-`` `[`annotate`](https://quallmer.github.io/quallmer/reference/annotate.md)`(``data_corpus_inaugural``, task ``=`` `[`task_fact`](https://quallmer.github.io/quallmer/reference/task_fact.md)`(``)``,`` `` model_name ``=`` ``"openai/gpt-4o"``,`` `` params ``=`` `[`list`](https://rdrr.io/r/base/list.html)`(``temperature ``=`` ``0``)``)`
 
     ## [working] (0 + 0) -> 3 -> 1 | ■■■■■■■■■                         25%
 
@@ -66,13 +44,7 @@ result <- annotate(data_corpus_inaugural, task = task_fact(),
 
 ### Using `annotate()` for fact checking with a specific number of claims to check
 
-``` r
-
-# Apply predefined fact checking task with task_fact() in the annotate() function
-result_claims <- annotate(data_corpus_inaugural, task = task_fact(max_topics = 3),
-                   model_name = "openai/gpt-4o",
-                   params = list(temperature = 0))
-```
+`# Apply predefined fact checking task with task_fact() in the annotate() function`` ``result_claims`` ``<-`` `[`annotate`](https://quallmer.github.io/quallmer/reference/annotate.md)`(``data_corpus_inaugural``, task ``=`` `[`task_fact`](https://quallmer.github.io/quallmer/reference/task_fact.md)`(``max_topics ``=`` ``3``)``,`` `` model_name ``=`` ``"openai/gpt-4o"``,`` `` params ``=`` `[`list`](https://rdrr.io/r/base/list.html)`(``temperature ``=`` ``0``)``)`
 
     ## [working] (0 + 0) -> 3 -> 1 | ■■■■■■■■■                         25%
 

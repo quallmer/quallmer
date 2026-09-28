@@ -10,14 +10,7 @@ sample corpus of innaugural speeches from US presidents.
 
 ### Loading packages and data
 
-``` r
-
-# We will use the quanteda package 
-# for loading a sample corpus of innaugural speeches
-# If you have not yet installed the quanteda package, you can do so by:
-# install.packages("quanteda")
-library(quanteda)
-```
+`# We will use the quanteda package `` ``# for loading a sample corpus of innaugural speeches`` ``# If you have not yet installed the quanteda package, you can do so by:`` ``# install.packages("quanteda")`` `[`library`](https://rdrr.io/r/base/library.html)`(`[`quanteda`](https://quanteda.io)`)`
 
     ## Package version: 4.3.1
     ## Unicode version: 14.0
@@ -27,30 +20,15 @@ library(quanteda)
 
     ## See https://quanteda.io for tutorials and examples.
 
-``` r
-
-library(quallmer)
-```
+[`library`](https://rdrr.io/r/base/library.html)`(`[`quallmer`](https://seraphinem.github.io/quallmer/)`)`
 
     ## Loading required package: ellmer
 
-``` r
-
-# For educational purposes, 
-# we will use a subset of the inaugural speeches corpus
-# The three most recent speeches in the corpus
-data_corpus_inaugural <- quanteda::data_corpus_inaugural[57:60]
-```
+`# For educational purposes, `` ``# we will use a subset of the inaugural speeches corpus`` ``# The three most recent speeches in the corpus`` ``data_corpus_inaugural`` ``<-`` ``quanteda``::`[`data_corpus_inaugural`](https://quanteda.io/reference/data_corpus_inaugural.html)`[``57``:``60``]`
 
 ### Using `annotate()` for salience of ANY topics discussed in texts
 
-``` r
-
-# Apply predefined salience task with task_salience() in the annotate() function
-result <- annotate(data_corpus_inaugural, task = task_salience(),
-                   model_name = "openai/gpt-4o",
-                   params = list(temperature = 0))
-```
+`# Apply predefined salience task with task_salience() in the annotate() function`` ``result`` ``<-`` `[`annotate`](https://quallmer.github.io/quallmer/reference/annotate.md)`(``data_corpus_inaugural``, task ``=`` `[`task_salience`](https://quallmer.github.io/quallmer/reference/task_salience.md)`(``)``,`` `` model_name ``=`` ``"openai/gpt-4o"``,`` `` params ``=`` `[`list`](https://rdrr.io/r/base/list.html)`(``temperature ``=`` ``0``)``)`
 
     ## [working] (0 + 0) -> 3 -> 1 | ■■■■■■■■■                         25%
 
@@ -62,15 +40,7 @@ result <- annotate(data_corpus_inaugural, task = task_salience(),
 
 ### Using `annotate()` for salience of a SPECIFIED LIST of topics discussed in texts
 
-``` r
-
-# Define a list of topics to focus on
-topics <- c("economy", "health", "education", "environment", "foreign policy")
-# Apply predefined salience task with task_salience() in the annotate() function
-result <- annotate(data_corpus_inaugural, task = task_salience(topics),
-                   model_name = "openai/gpt-4o",
-                   params = list(temperature = 0))
-```
+`# Define a list of topics to focus on`` ``topics`` ``<-`` `[`c`](https://rdrr.io/r/base/c.html)`(``"economy"``, ``"health"``, ``"education"``, ``"environment"``, ``"foreign policy"``)`` ``# Apply predefined salience task with task_salience() in the annotate() function`` ``result`` ``<-`` `[`annotate`](https://quallmer.github.io/quallmer/reference/annotate.md)`(``data_corpus_inaugural``, task ``=`` `[`task_salience`](https://quallmer.github.io/quallmer/reference/task_salience.md)`(``topics``)``,`` `` model_name ``=`` ``"openai/gpt-4o"``,`` `` params ``=`` `[`list`](https://rdrr.io/r/base/list.html)`(``temperature ``=`` ``0``)``)`
 
     ## [working] (0 + 0) -> 3 -> 1 | ■■■■■■■■■                         25%
 
@@ -82,47 +52,7 @@ result <- annotate(data_corpus_inaugural, task = task_salience(topics),
 
 ### Adjusting the task_salience() so it also returns the stance for each topic
 
-``` r
-
-# Customizing the task to include the stance for each topic
-custom_task <- task(
-  name = "Salience and stance of topics",
-  system_prompt = paste(
-    "You are an expert analysing the content of texts.",
-    "",
-    "Task:",
-    "- Read the text carefully.",
-    "- Identify and rank the salience of the following topics: economy, health, education, environment, foreign policy.",
-    "- For each topic mentioned, assign a stance as one of the following:",
-    "  pro, neutral, or contra.",
-    "- Append the stance directly after each topic name in the form 'topic: stance'.",
-    "- Return all topic:stance entries in descending order of salience.",
-    "- Separate entries with commas when presenting them in a list.",
-    "",
-    "Do not infer information that is not in the text.",
-    "Base all evaluations solely on the language and arguments in the document.",
-    "",
-    "Output:",
-    "- `topic_stance`: a ranked list of topic labels with stance labels appended (e.g., 'economy: pro', 'health: contra').",
-    "- `explanation`: a brief justification explaining why the topics were ordered and how stance was determined.",
-    sep = "\n"
-  ),
-  type_def = ellmer::type_object(
-    topic_stance = ellmer::type_array(
-      ellmer::type_string("Topic and stance label combined (e.g., 'economy: pro'), ranked by salience.")
-    ),
-    explanation = ellmer::type_string(
-      "Brief justification for the salience ordering and stance classification."
-    )
-  ),
-  input_type = "text"
-)
-
-# Apply the customized task in the annotate() function
-custom_result <- annotate(data_corpus_inaugural, task = custom_task,
-                   model_name = "openai/gpt-4o",
-                   params = list(temperature = 0))
-```
+`# Customizing the task to include the stance for each topic`` ``custom_task`` ``<-`` `[`task`](https://quallmer.github.io/quallmer/reference/task.md)`(`` `` name ``=`` ``"Salience and stance of topics"``,`` `` system_prompt ``=`` `[`paste`](https://rdrr.io/r/base/paste.html)`(`` `` ``"You are an expert analysing the content of texts."``,`` `` ``""``,`` `` ``"Task:"``,`` `` ``"- Read the text carefully."``,`` `` ``"- Identify and rank the salience of the following topics: economy, health, education, environment, foreign policy."``,`` `` ``"- For each topic mentioned, assign a stance as one of the following:"``,`` `` ``" pro, neutral, or contra."``,`` `` ``"- Append the stance directly after each topic name in the form 'topic: stance'."``,`` `` ``"- Return all topic:stance entries in descending order of salience."``,`` `` ``"- Separate entries with commas when presenting them in a list."``,`` `` ``""``,`` `` ``"Do not infer information that is not in the text."``,`` `` ``"Base all evaluations solely on the language and arguments in the document."``,`` `` ``""``,`` `` ``"Output:"``,`` `` ``` "- `topic_stance`: a ranked list of topic labels with stance labels appended (e.g., 'economy: pro', 'health: contra')." ```,`` `` ``` "- `explanation`: a brief justification explaining why the topics were ordered and how stance was determined." ```,`` `` sep ``=`` ``"\n"`` `` ``)``,`` `` type_def ``=`` ``ellmer``::`[`type_object`](https://ellmer.tidyverse.org/reference/type_boolean.html)`(`` `` topic_stance ``=`` ``ellmer``::`[`type_array`](https://ellmer.tidyverse.org/reference/type_boolean.html)`(`` `` ``ellmer``::`[`type_string`](https://ellmer.tidyverse.org/reference/type_boolean.html)`(``"Topic and stance label combined (e.g., 'economy: pro'), ranked by salience."``)`` `` ``)``,`` `` explanation ``=`` ``ellmer``::`[`type_string`](https://ellmer.tidyverse.org/reference/type_boolean.html)`(`` `` ``"Brief justification for the salience ordering and stance classification."`` `` ``)`` `` ``)``,`` `` input_type ``=`` ``"text"`` ``)`` `` ``# Apply the customized task in the annotate() function`` ``custom_result`` ``<-`` `[`annotate`](https://quallmer.github.io/quallmer/reference/annotate.md)`(``data_corpus_inaugural``, task ``=`` ``custom_task``,`` `` model_name ``=`` ``"openai/gpt-4o"``,`` `` params ``=`` `[`list`](https://rdrr.io/r/base/list.html)`(``temperature ``=`` ``0``)``)`
 
     ## [working] (0 + 0) -> 3 -> 1 | ■■■■■■■■■                         25%
 

@@ -18,27 +18,19 @@ documentation [here](https://ellmer.tidyverse.org/index.html).
 
 The `quallmer` package is developed for using it in R. Please make sure
 you have a recent version of [R and RStudio
-installed](https://posit.co/download/rstudio-desktop) on your computer.
-If you are new to R and RStudio, you can find [a great and
-free-of-charge 1.5h introduction to R and RStudio on
+installed](https://docs.posit.co/ide/user/#rstudio-ide-oss-downloads) on
+your computer. If you are new to R and RStudio, you can find [a great
+and free-of-charge 1.5h introduction to R and RStudio on
 instats](https://instats.org/seminar/introduction-to-r-with-rstudio-free-1-h3).
 
 To get started with `quallmer`, you first need to install the package
 from GitHub.
 
-``` r
-# If you don't have pak installed yet, uncomment and run the following line:
-# install.packages("pak")
-# Then, install quallmer using pak:
-pak::pak("quallmer/quallmer")
-```
+`# If you don't have pak installed yet, uncomment and run the following line:`` ``# install.packages("pak")`` ``# Then, install quallmer using pak:`` ``pak``::`[`pak`](https://pak.r-lib.org/reference/pak.html)`(``"quallmer/quallmer"``)`
 
 Then, you can load the package and begin using its functions.
 
-``` r
-library(quallmer)
-#> Loading required package: ellmer
-```
+[`library`](https://rdrr.io/r/base/library.html)`(`[`quallmer`](https://quallmer.github.io/quallmer/)`)`` ``#> Loading required package: ellmer`
 
 ## The quallmer workflow
 
@@ -47,7 +39,9 @@ The typical quallmer workflow consists of five steps:
 1.  **Define** your codebook with
     [`qlm_codebook()`](https://quallmer.github.io/quallmer/reference/qlm_codebook.md)
 2.  **Code** your data with
-    [`qlm_code()`](https://quallmer.github.io/quallmer/reference/qlm_code.md)
+    [`qlm_code()`](https://quallmer.github.io/quallmer/reference/qlm_code.md),
+    and complete a run that came back with failures using
+    [`qlm_backfill()`](https://quallmer.github.io/quallmer/reference/qlm_backfill.md)
 3.  **Replicate** with different settings using
     [`qlm_replicate()`](https://quallmer.github.io/quallmer/reference/qlm_replicate.md)
 4.  **Compare** results with

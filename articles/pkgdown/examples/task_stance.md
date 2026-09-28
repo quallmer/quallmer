@@ -12,14 +12,7 @@ speeches to determine their stance on “Climate Change”.
 
 ### Loading packages and data
 
-``` r
-
-# We will use the quanteda package 
-# for loading a sample corpus of innaugural speeches
-# If you have not yet installed the quanteda package, you can do so by:
-# install.packages("quanteda")
-library(quanteda)
-```
+`# We will use the quanteda package `` ``# for loading a sample corpus of innaugural speeches`` ``# If you have not yet installed the quanteda package, you can do so by:`` ``# install.packages("quanteda")`` `[`library`](https://rdrr.io/r/base/library.html)`(`[`quanteda`](https://quanteda.io)`)`
 
     ## Package version: 4.3.1
     ## Unicode version: 14.0
@@ -29,32 +22,15 @@ library(quanteda)
 
     ## See https://quanteda.io for tutorials and examples.
 
-``` r
-
-library(quallmer)
-```
+[`library`](https://rdrr.io/r/base/library.html)`(`[`quallmer`](https://seraphinem.github.io/quallmer/)`)`
 
     ## Loading required package: ellmer
 
-``` r
-
-# For educational purposes, 
-# we will use a subset of the inaugural speeches corpus
-# The three most recent speeches in the corpus
-data_corpus_inaugural <- quanteda::data_corpus_inaugural[57:60]
-```
+`# For educational purposes, `` ``# we will use a subset of the inaugural speeches corpus`` ``# The three most recent speeches in the corpus`` ``data_corpus_inaugural`` ``<-`` ``quanteda``::`[`data_corpus_inaugural`](https://quanteda.io/reference/data_corpus_inaugural.html)`[``57``:``60``]`
 
 ### Using `annotate()` for stance detection of texts
 
-``` r
-
-# Define topic of interest
-topic <- "Climate Change"
-# Apply predefined stance task with task_stance() in the annotate() function
-result <- annotate(data_corpus_inaugural, task = task_stance(topic),
-                   model_name = "openai/gpt-4o",
-                   params = list(temperature = 0))
-```
+`# Define topic of interest`` ``topic`` ``<-`` ``"Climate Change"`` ``# Apply predefined stance task with task_stance() in the annotate() function`` ``result`` ``<-`` `[`annotate`](https://quallmer.github.io/quallmer/reference/annotate.md)`(``data_corpus_inaugural``, task ``=`` `[`task_stance`](https://quallmer.github.io/quallmer/reference/task_stance.md)`(``topic``)``,`` `` model_name ``=`` ``"openai/gpt-4o"``,`` `` params ``=`` `[`list`](https://rdrr.io/r/base/list.html)`(``temperature ``=`` ``0``)``)`
 
     ## [working] (0 + 0) -> 3 -> 1 | ■■■■■■■■■                         25%
 
@@ -78,27 +54,7 @@ tutorial](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/custo
 For example, you might want to include an additional field for
 confidence level.
 
-``` r
-
-custom_stance <- task(
-  name = "Custom stance detection",
-  system_prompt = paste0(
-    "You are an expert annotator. Read each short text carefully and determine its stance towards ",
-    topic,
-    ". Classify the stance as Pro, Neutral, or Contra, provide a brief explanation for your classification, and indicate your confidence level from 0 to 1."
-  ),
-  type_def = ellmer::type_object(
-    stance = ellmer::type_string("Stance towards the topic: Pro, Neutral, or Contra"),
-    explanation = ellmer::type_string("Brief explanation of the classification"),
-    confidence = ellmer::type_number("Confidence level from 0 to 1")
-  ),
-  input_type = "text"
-)
-# Apply the custom stance task
-custom_result <- annotate(data_corpus_inaugural, task = custom_stance,
-                          model_name = "openai/gpt-4o",
-                          params = list(temperature = 0))
-```
+`custom_stance`` ``<-`` `[`task`](https://quallmer.github.io/quallmer/reference/task.md)`(`` `` name ``=`` ``"Custom stance detection"``,`` `` system_prompt ``=`` `[`paste0`](https://rdrr.io/r/base/paste.html)`(`` `` ``"You are an expert annotator. Read each short text carefully and determine its stance towards "``,`` `` ``topic``,`` `` ``". Classify the stance as Pro, Neutral, or Contra, provide a brief explanation for your classification, and indicate your confidence level from 0 to 1."`` `` ``)``,`` `` type_def ``=`` ``ellmer``::`[`type_object`](https://ellmer.tidyverse.org/reference/type_boolean.html)`(`` `` stance ``=`` ``ellmer``::`[`type_string`](https://ellmer.tidyverse.org/reference/type_boolean.html)`(``"Stance towards the topic: Pro, Neutral, or Contra"``)``,`` `` explanation ``=`` ``ellmer``::`[`type_string`](https://ellmer.tidyverse.org/reference/type_boolean.html)`(``"Brief explanation of the classification"``)``,`` `` confidence ``=`` ``ellmer``::`[`type_number`](https://ellmer.tidyverse.org/reference/type_boolean.html)`(``"Confidence level from 0 to 1"``)`` `` ``)``,`` `` input_type ``=`` ``"text"`` ``)`` ``# Apply the custom stance task`` ``custom_result`` ``<-`` `[`annotate`](https://quallmer.github.io/quallmer/reference/annotate.md)`(``data_corpus_inaugural``, task ``=`` ``custom_stance``,`` `` model_name ``=`` ``"openai/gpt-4o"``,`` `` params ``=`` `[`list`](https://rdrr.io/r/base/list.html)`(``temperature ``=`` ``0``)``)`
 
     ## [working] (0 + 0) -> 3 -> 1 | ■■■■■■■■■                         25%
 
@@ -114,27 +70,7 @@ custom_result <- annotate(data_corpus_inaugural, task = custom_stance,
 Or, you might want the LLM to extract specific arguments supporting the
 stance.
 
-``` r
-
-argument_stance <- task(
-  name = "Argument-based stance detection",
-  system_prompt = paste0(
-    "You are an expert annotator. Read each short text carefully and determine its stance towards ",
-    topic,
-    ". Classify the stance as Pro, Neutral, or Contra, provide a brief explanation for your classification, and list up to three key arguments supporting the stance."
-  ),
-  type_def = ellmer::type_object(
-    stance = ellmer::type_string("Stance towards the topic: Pro, Neutral, or Contra"),
-    explanation = ellmer::type_string("Brief explanation of the classification"),
-    arguments = ellmer::type_string("Key arguments supporting the stance")
-  ),
-  input_type = "text"
-)
-# Apply the argument-based stance task
-argument_result <- annotate(data_corpus_inaugural, task = argument_stance,
-                            model_name = "openai/gpt-4o",
-                            params = list(temperature = 0))
-```
+`argument_stance`` ``<-`` `[`task`](https://quallmer.github.io/quallmer/reference/task.md)`(`` `` name ``=`` ``"Argument-based stance detection"``,`` `` system_prompt ``=`` `[`paste0`](https://rdrr.io/r/base/paste.html)`(`` `` ``"You are an expert annotator. Read each short text carefully and determine its stance towards "``,`` `` ``topic``,`` `` ``". Classify the stance as Pro, Neutral, or Contra, provide a brief explanation for your classification, and list up to three key arguments supporting the stance."`` `` ``)``,`` `` type_def ``=`` ``ellmer``::`[`type_object`](https://ellmer.tidyverse.org/reference/type_boolean.html)`(`` `` stance ``=`` ``ellmer``::`[`type_string`](https://ellmer.tidyverse.org/reference/type_boolean.html)`(``"Stance towards the topic: Pro, Neutral, or Contra"``)``,`` `` explanation ``=`` ``ellmer``::`[`type_string`](https://ellmer.tidyverse.org/reference/type_boolean.html)`(``"Brief explanation of the classification"``)``,`` `` arguments ``=`` ``ellmer``::`[`type_string`](https://ellmer.tidyverse.org/reference/type_boolean.html)`(``"Key arguments supporting the stance"``)`` `` ``)``,`` `` input_type ``=`` ``"text"`` ``)`` ``# Apply the argument-based stance task`` ``argument_result`` ``<-`` `[`annotate`](https://quallmer.github.io/quallmer/reference/annotate.md)`(``data_corpus_inaugural``, task ``=`` ``argument_stance``,`` `` model_name ``=`` ``"openai/gpt-4o"``,`` `` params ``=`` `[`list`](https://rdrr.io/r/base/list.html)`(``temperature ``=`` ``0``)``)`
 
     ## [working] (0 + 0) -> 3 -> 1 | ■■■■■■■■■                         25%
 

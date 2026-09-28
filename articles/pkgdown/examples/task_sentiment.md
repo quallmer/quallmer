@@ -9,33 +9,15 @@ negative) to 1 (very positive) and a brief explanation.
 
 ### Loading packages and data
 
-``` r
-
-library(quallmer)
-```
+[`library`](https://rdrr.io/r/base/library.html)`(`[`quallmer`](https://seraphinem.github.io/quallmer/)`)`
 
     ## Loading required package: ellmer
 
-``` r
-
-#Example texts
-texts <- c(
-"This is wonderful!",
-"I really dislike this approach.",
-"The results are somewhat disappointing.",
-"Absolutely fantastic work!"
-)
-```
+`#Example texts`` ``texts`` ``<-`` `[`c`](https://rdrr.io/r/base/c.html)`(`` ``"This is wonderful!"``,`` ``"I really dislike this approach."``,`` ``"The results are somewhat disappointing."``,`` ``"Absolutely fantastic work!"`` ``)`
 
 ### Using `annotate()` for predefined sentiment analysis of texts
 
-``` r
-
-# Apply predefined sentiment task with task_sentiment() in the annotate() function
-result <- annotate(texts, task = task_sentiment(),
-                   model_name = "openai/gpt-4o",
-                   params = list(temperature = 0))
-```
+`# Apply predefined sentiment task with task_sentiment() in the annotate() function`` ``result`` ``<-`` `[`annotate`](https://quallmer.github.io/quallmer/reference/annotate.md)`(``texts``, task ``=`` `[`task_sentiment`](https://quallmer.github.io/quallmer/reference/task_sentiment.md)`(``)``,`` `` model_name ``=`` ``"openai/gpt-4o"``,`` `` params ``=`` `[`list`](https://rdrr.io/r/base/list.html)`(``temperature ``=`` ``0``)``)`
 
     ## [working] (0 + 0) -> 3 -> 1 | ■■■■■■■■■                         25%
 
@@ -58,23 +40,7 @@ tutorial](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/custo
 For example, you might want to include an additional field for
 confidence level.
 
-``` r
-
-custom_sentiment <- task(
-  name = "Custom sentiment analysis",
-  system_prompt = "You are an expert annotator. Rate the sentiment of each text from -1 (very negative) to 1 (very positive), briefly explain why, and provide a confidence level from 0 to 1.",
-  type_def = ellmer::type_object(
-    score = ellmer::type_number("Sentiment score between -1 (very negative) and 1 (very positive)"),
-    explanation = ellmer::type_string("Brief explanation of the rating"),
-    confidence = ellmer::type_number("Confidence level from 0 to 1")
-  ),
-  input_type = "text"
-)
-# Apply the custom sentiment task
-custom_result <- annotate(texts, task = custom_sentiment,
-                          model_name = "openai/gpt-4o",
-                          params = list(temperature = 0))
-```
+`custom_sentiment`` ``<-`` `[`task`](https://quallmer.github.io/quallmer/reference/task.md)`(`` `` name ``=`` ``"Custom sentiment analysis"``,`` `` system_prompt ``=`` ``"You are an expert annotator. Rate the sentiment of each text from -1 (very negative) to 1 (very positive), briefly explain why, and provide a confidence level from 0 to 1."``,`` `` type_def ``=`` ``ellmer``::`[`type_object`](https://ellmer.tidyverse.org/reference/type_boolean.html)`(`` `` score ``=`` ``ellmer``::`[`type_number`](https://ellmer.tidyverse.org/reference/type_boolean.html)`(``"Sentiment score between -1 (very negative) and 1 (very positive)"``)``,`` `` explanation ``=`` ``ellmer``::`[`type_string`](https://ellmer.tidyverse.org/reference/type_boolean.html)`(``"Brief explanation of the rating"``)``,`` `` confidence ``=`` ``ellmer``::`[`type_number`](https://ellmer.tidyverse.org/reference/type_boolean.html)`(``"Confidence level from 0 to 1"``)`` `` ``)``,`` `` input_type ``=`` ``"text"`` ``)`` ``# Apply the custom sentiment task`` ``custom_result`` ``<-`` `[`annotate`](https://quallmer.github.io/quallmer/reference/annotate.md)`(``texts``, task ``=`` ``custom_sentiment``,`` `` model_name ``=`` ``"openai/gpt-4o"``,`` `` params ``=`` `[`list`](https://rdrr.io/r/base/list.html)`(``temperature ``=`` ``0``)``)`
 
 | id | score | explanation | confidence |
 |---:|---:|:---|---:|
@@ -86,22 +52,7 @@ custom_result <- annotate(texts, task = custom_sentiment,
 Or, you might want to change the scoring scale to a 5-point Likert
 scale.
 
-``` r
-
-likert_sentiment <- task(
-  name = "Likert scale sentiment analysis",
-  system_prompt = "You are an expert annotator. Rate the sentiment of each text on a scale from 1 (very negative) to 5 (very positive) and briefly explain why.",
-  type_def = ellmer::type_object(
-    score = ellmer::type_number("Sentiment score between 1 (very negative) and 5 (very positive)"),
-    explanation = ellmer::type_string("Brief explanation of the rating")
-  ),
-  input_type = "text"
-)
-# Apply the Likert scale sentiment task
-likert_result <- annotate(texts, task = likert_sentiment,
-                          model_name = "openai/gpt-4o",
-                          params = list(temperature = 0))
-```
+`likert_sentiment`` ``<-`` `[`task`](https://quallmer.github.io/quallmer/reference/task.md)`(`` `` name ``=`` ``"Likert scale sentiment analysis"``,`` `` system_prompt ``=`` ``"You are an expert annotator. Rate the sentiment of each text on a scale from 1 (very negative) to 5 (very positive) and briefly explain why."``,`` `` type_def ``=`` ``ellmer``::`[`type_object`](https://ellmer.tidyverse.org/reference/type_boolean.html)`(`` `` score ``=`` ``ellmer``::`[`type_number`](https://ellmer.tidyverse.org/reference/type_boolean.html)`(``"Sentiment score between 1 (very negative) and 5 (very positive)"``)``,`` `` explanation ``=`` ``ellmer``::`[`type_string`](https://ellmer.tidyverse.org/reference/type_boolean.html)`(``"Brief explanation of the rating"``)`` `` ``)``,`` `` input_type ``=`` ``"text"`` ``)`` ``# Apply the Likert scale sentiment task`` ``likert_result`` ``<-`` `[`annotate`](https://quallmer.github.io/quallmer/reference/annotate.md)`(``texts``, task ``=`` ``likert_sentiment``,`` `` model_name ``=`` ``"openai/gpt-4o"``,`` `` params ``=`` `[`list`](https://rdrr.io/r/base/list.html)`(``temperature ``=`` ``0``)``)`
 
     ## [working] (0 + 0) -> 3 -> 1 | ■■■■■■■■■                         25%
 

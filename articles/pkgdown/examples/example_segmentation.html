@@ -12,8 +12,8 @@
 <link rel="icon" sizes="any" href="../../../favicon.ico">
 <link rel="manifest" href="../../../site.webmanifest">
 <script src="../../../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../../../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../../../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../../../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../../../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../../../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../../../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../../../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../../../deps/headroom-0.11.0/headroom.min.js"></script><script src="../../../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../../../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../../../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../../../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../../../deps/search-1.0.0/fuse.min.js"></script><script src="../../../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../../../pkgdown.js"></script><meta property="og:title" content="Example: Text segmentation">
 </head>
@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../../../index.html">quallmer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -439,7 +439,7 @@ positive versus negative commentary:</p>
 <span>  <span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_flip.html" class="external-link">coord_flip</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="example_segmentation_files/figure-html/plot-absa-1.png" class="r-plt" width="768"></p>
+<p><img src="example_segmentation_files/figure-html/plot-absa-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 </div>
 <div class="section level2">
@@ -463,7 +463,7 @@ thematic structure automatically.</p>
 <span><span class="co">#&gt; "Chief Justice Roberts, Vice President Harris, Speaker Pelosi..."</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; 2025-Trump :</span></span>
-<span><span class="co">#&gt; "Thank you.  Thank you very much, everybody.  Wow.  Thank you..."</span></span></code></pre></div>
+<span><span class="co">#&gt; "Thank you. Thank you very much, everybody. Wow. Thank you..."</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="the-codebook-1">The codebook<a class="anchor" aria-label="anchor" href="#the-codebook-1"></a>
@@ -594,7 +594,7 @@ thematic structure automatically.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_flip.html" class="external-link">coord_flip</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="example_segmentation_files/figure-html/plot-inaugural-1.png" class="r-plt" width="864"></p>
+<p><img src="example_segmentation_files/figure-html/plot-inaugural-1.png" class="r-plt" alt="" width="864"></p>
 </div>
 </div>
 <div class="section level2">
@@ -663,32 +663,23 @@ sentiment label assigned to each span:</p>
 <span><span class="co">#&gt; Raters: 2</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── sentiment (unitizing)</span></span>
-<span><span class="co">#&gt; Krippendorff's alpha (unitizing) [239_2.txt]                  0.3123 </span></span>
-<span><span class="co">#&gt; Krippendorff's alpha (unitizing) [12000_9.txt]                0.9943 </span></span>
-<span><span class="co">#&gt; Krippendorff's alpha (unitizing) [(overall)]                  0.8310 </span></span>
-<span><span class="co">#&gt; Krippendorff's alpha (coding | unitizing) [(overall)]         0.8276 </span></span>
-<span><span class="co">#&gt; alpha (unitizing, value=positive) [(overall, coverage=100%)]  1.0000 </span></span>
-<span><span class="co">#&gt; alpha (unitizing, value=negative) [(overall, coverage=100%)]  0.7444 </span></span>
-<span><span class="co">#&gt; alpha (unitizing, value=neutral) [(overall, coverage=100%)]   0.5999</span></span>
+<span><span class="co">#&gt; Krippendorff's alpha (unitizing) [239_2.txt]           0.3123 </span></span>
+<span><span class="co">#&gt; Krippendorff's alpha (unitizing) [12000_9.txt]         0.9943 </span></span>
+<span><span class="co">#&gt; Krippendorff's alpha (unitizing) [(overall)]           0.8310 </span></span>
+<span><span class="co">#&gt; Krippendorff's alpha (coding | unitizing) [(overall)]  0.8276</span></span>
 <span><span class="co">#&gt; </span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">alphas_by</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    variable     level                     measure     value</span></span>
-<span><span class="co">#&gt; 1 sentiment unitizing             alpha_u_nominal 0.3122950</span></span>
-<span><span class="co">#&gt; 2 sentiment unitizing             alpha_u_nominal 0.9942546</span></span>
-<span><span class="co">#&gt; 3 sentiment unitizing             alpha_u_nominal 0.8310061</span></span>
-<span><span class="co">#&gt; 4 sentiment unitizing            alpha_cu_nominal 0.8276303</span></span>
-<span><span class="co">#&gt; 5 sentiment unitizing alpha_u_per_value[positive] 1.0000000</span></span>
-<span><span class="co">#&gt; 6 sentiment unitizing alpha_u_per_value[negative] 0.7444180</span></span>
-<span><span class="co">#&gt; 7 sentiment unitizing  alpha_u_per_value[neutral] 0.5998600</span></span>
-<span><span class="co">#&gt;                      docid      rater1            rater2</span></span>
-<span><span class="co">#&gt; 1                239_2.txt GPT-4o-mini Claude Sonnet 4.5</span></span>
-<span><span class="co">#&gt; 2              12000_9.txt GPT-4o-mini Claude Sonnet 4.5</span></span>
-<span><span class="co">#&gt; 3                (overall) GPT-4o-mini Claude Sonnet 4.5</span></span>
-<span><span class="co">#&gt; 4                (overall) GPT-4o-mini Claude Sonnet 4.5</span></span>
-<span><span class="co">#&gt; 5 (overall, coverage=100%) GPT-4o-mini Claude Sonnet 4.5</span></span>
-<span><span class="co">#&gt; 6 (overall, coverage=100%) GPT-4o-mini Claude Sonnet 4.5</span></span>
-<span><span class="co">#&gt; 7 (overall, coverage=100%) GPT-4o-mini Claude Sonnet 4.5</span></span></code></pre></div>
+<span><span class="co">#&gt;    variable     level          measure     value       docid      rater1</span></span>
+<span><span class="co">#&gt; 1 sentiment unitizing  alpha_u_nominal 0.3122950   239_2.txt GPT-4o-mini</span></span>
+<span><span class="co">#&gt; 2 sentiment unitizing  alpha_u_nominal 0.9942546 12000_9.txt GPT-4o-mini</span></span>
+<span><span class="co">#&gt; 3 sentiment unitizing  alpha_u_nominal 0.8310061   (overall) GPT-4o-mini</span></span>
+<span><span class="co">#&gt; 4 sentiment unitizing alpha_cu_nominal 0.8276303   (overall) GPT-4o-mini</span></span>
+<span><span class="co">#&gt;              rater2</span></span>
+<span><span class="co">#&gt; 1 Claude Sonnet 4.5</span></span>
+<span><span class="co">#&gt; 2 Claude Sonnet 4.5</span></span>
+<span><span class="co">#&gt; 3 Claude Sonnet 4.5</span></span>
+<span><span class="co">#&gt; 4 Claude Sonnet 4.5</span></span></code></pre></div>
 <p>The per-review breakdown shows which texts are more or less
 consistently segmented, while the overall row is the value to
 report.</p>
@@ -728,7 +719,7 @@ Computational Linguistics</em>, 142–150.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

@@ -15,14 +15,7 @@ dimension (optional).
 
 ### Loading packages and data
 
-``` r
-
-# We will use the quanteda package 
-# for loading a sample corpus of innaugural speeches
-# If you have not yet installed the quanteda package, you can do so by:
-# install.packages("quanteda")
-library(quanteda)
-```
+`# We will use the quanteda package `` ``# for loading a sample corpus of innaugural speeches`` ``# If you have not yet installed the quanteda package, you can do so by:`` ``# install.packages("quanteda")`` `[`library`](https://rdrr.io/r/base/library.html)`(`[`quanteda`](https://quanteda.io)`)`
 
     ## Package version: 4.3.1
     ## Unicode version: 14.0
@@ -32,36 +25,15 @@ library(quanteda)
 
     ## See https://quanteda.io for tutorials and examples.
 
-``` r
-
-library(quallmer)
-```
+[`library`](https://rdrr.io/r/base/library.html)`(`[`quallmer`](https://seraphinem.github.io/quallmer/)`)`
 
     ## Loading required package: ellmer
 
-``` r
-
-# For educational purposes, 
-# we will use a subset of the inaugural speeches corpus
-# The three most recent speeches in the corpus
-data_corpus_inaugural <- quanteda::data_corpus_inaugural[57:60]
-```
+`# For educational purposes, `` ``# we will use a subset of the inaugural speeches corpus`` ``# The three most recent speeches in the corpus`` ``data_corpus_inaugural`` ``<-`` ``quanteda``::`[`data_corpus_inaugural`](https://quanteda.io/reference/data_corpus_inaugural.html)`[``57``:``60``]`
 
 ### Using `annotate()` for ideological scaling of texts
 
-``` r
-
-# Define ideological dimension
-dimension <- "inclusive–exclusive"
-# Provide definition for the dimension
-definition <- "Inclusive language emphasizes equal rights, diversity, pluralism, 
-and protection of minorities, whereas exclusive language emphasizes exclusion 
-of groups, national homogeneity, and restricting rights."
-# Apply predefined ideology task with task_ideology() in the annotate() function
-result <- annotate(data_corpus_inaugural, task = task_ideology(dimension, definition),
-                   model_name = "openai/gpt-4o",
-                   params = list(temperature = 0))
-```
+`# Define ideological dimension`` ``dimension`` ``<-`` ``"inclusive–exclusive"`` ``# Provide definition for the dimension`` ``definition`` ``<-`` ``"Inclusive language emphasizes equal rights, diversity, pluralism, `` ``and protection of minorities, whereas exclusive language emphasizes exclusion `` ``of groups, national homogeneity, and restricting rights."`` ``# Apply predefined ideology task with task_ideology() in the annotate() function`` ``result`` ``<-`` `[`annotate`](https://quallmer.github.io/quallmer/reference/annotate.md)`(``data_corpus_inaugural``, task ``=`` `[`task_ideology`](https://quallmer.github.io/quallmer/reference/task_ideology.md)`(``dimension``, ``definition``)``,`` `` model_name ``=`` ``"openai/gpt-4o"``,`` `` params ``=`` `[`list`](https://rdrr.io/r/base/list.html)`(``temperature ``=`` ``0``)``)`
 
     ## [working] (0 + 0) -> 3 -> 1 | ■■■■■■■■■                         25%
 
@@ -84,29 +56,7 @@ with [`task()`](https://quallmer.github.io/quallmer/reference/task.md)
 tutorial](https://seraphinem.github.io/quallmer/articles/pkgdown/tutorials/customtask.html)).
 For example, you might like to change the scale from 0-10 to -5 to +5.
 
-``` r
-
-custom_ideology <- task(
-    name = "Ideological scaling",
-    system_prompt = paste0(
-      "You are an expert political scientist performing ideological text scaling.",
-      "Task:",
-      "- Read each short text carefully.",
-      "- Place the text on a -5 to +5 scale for the following ideological dimension: ",
-      dimension, 
-      definition
-    ),
-    type_def = ellmer::type_object(
-      score       = ellmer::type_integer("Ideological position on the specified dimension (0–10, where -5 = first pole, +5 = second pole)"),
-      explanation = ellmer::type_string("Brief justification for the assigned score, referring to specific elements in the text")
-    ),
-    input_type = "text"
-  )
-# Apply the custom task
-custom_result <- annotate(data_corpus_inaugural, task = custom_ideology,
-                          model_name = "openai/gpt-4o",
-                          params = list(temperature = 0))
-```
+`custom_ideology`` ``<-`` `[`task`](https://quallmer.github.io/quallmer/reference/task.md)`(`` `` name ``=`` ``"Ideological scaling"``,`` `` system_prompt ``=`` `[`paste0`](https://rdrr.io/r/base/paste.html)`(`` `` ``"You are an expert political scientist performing ideological text scaling."``,`` `` ``"Task:"``,`` `` ``"- Read each short text carefully."``,`` `` ``"- Place the text on a -5 to +5 scale for the following ideological dimension: "``,`` `` ``dimension``, `` `` ``definition`` `` ``)``,`` `` type_def ``=`` ``ellmer``::`[`type_object`](https://ellmer.tidyverse.org/reference/type_boolean.html)`(`` `` score ``=`` ``ellmer``::`[`type_integer`](https://ellmer.tidyverse.org/reference/type_boolean.html)`(``"Ideological position on the specified dimension (0–10, where -5 = first pole, +5 = second pole)"``)``,`` `` explanation ``=`` ``ellmer``::`[`type_string`](https://ellmer.tidyverse.org/reference/type_boolean.html)`(``"Brief justification for the assigned score, referring to specific elements in the text"``)`` `` ``)``,`` `` input_type ``=`` ``"text"`` `` ``)`` ``# Apply the custom task`` ``custom_result`` ``<-`` `[`annotate`](https://quallmer.github.io/quallmer/reference/annotate.md)`(``data_corpus_inaugural``, task ``=`` ``custom_ideology``,`` `` model_name ``=`` ``"openai/gpt-4o"``,`` `` params ``=`` `[`list`](https://rdrr.io/r/base/list.html)`(``temperature ``=`` ``0``)``)`
 
     ## [working] (0 + 0) -> 3 -> 1 | ■■■■■■■■■                         25%
 

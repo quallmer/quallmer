@@ -16,14 +16,7 @@ reproducible, and accurate.
 
 ## Loading packages and data
 
-``` r
-
-# We will use the quanteda package
-# for loading a sample corpus of inaugural speeches
-# If you have not yet installed the quanteda package, you can do so by:
-# install.packages("quanteda")
-library(quanteda)
-```
+`# We will use the quanteda package`` ``# for loading a sample corpus of inaugural speeches`` ``# If you have not yet installed the quanteda package, you can do so by:`` ``# install.packages("quanteda")`` `[`library`](https://rdrr.io/r/base/library.html)`(`[`quanteda`](https://quanteda.io)`)`
 
     ## Package version: 4.3.1
     ## Unicode version: 14.0
@@ -33,20 +26,11 @@ library(quanteda)
 
     ## See https://quanteda.io for tutorials and examples.
 
-``` r
-
-library(quallmer)
-```
+[`library`](https://rdrr.io/r/base/library.html)`(`[`quallmer`](https://seraphinem.github.io/quallmer/)`)`
 
     ## Loading required package: ellmer
 
-``` r
-
-# For educational purposes,
-# we will use a subset of the inaugural speeches corpus
-# The ten most recent speeches in the corpus
-data_corpus_inaugural <- quanteda::data_corpus_inaugural[50:60]
-```
+`# For educational purposes,`` ``# we will use a subset of the inaugural speeches corpus`` ``# The ten most recent speeches in the corpus`` ``data_corpus_inaugural`` ``<-`` ``quanteda``::`[`data_corpus_inaugural`](https://quanteda.io/reference/data_corpus_inaugural.html)`[``50``:``60``]`
 
 ## Using a codebook for this tutorial
 
@@ -54,11 +38,7 @@ For this tutorial, we’ll use the built-in `data_codebook_fact` as a
 quick example. This allows us to focus on the comparison and validation
 functions rather than codebook design.
 
-``` r
-
-# View the built-in sentiment codebook
-data_codebook_ideology
-```
+`# View the built-in sentiment codebook`` ``data_codebook_ideology`
 
     ## quallmer codebook: Ideological scaling 
     ##   Input type:   text
@@ -76,15 +56,7 @@ tutorial for details).
 Let’s code the speeches using our codebook with a specific model and
 settings:
 
-``` r
-
-# Code the speeches with GPT-4o using the built-in codebook on ideology
-coded1 <- qlm_code(data_corpus_inaugural,
-                   codebook = data_codebook_ideology,
-                   model = "openai/gpt-4o",
-                   params = params(temperature = 0),
-                   name = "gpt4o_run")
-```
+`# Code the speeches with GPT-4o using the built-in codebook on ideology`` ``coded1`` ``<-`` `[`qlm_code`](https://quallmer.github.io/quallmer/reference/qlm_code.md)`(``data_corpus_inaugural``,`` `` codebook ``=`` ``data_codebook_ideology``,`` `` model ``=`` ``"openai/gpt-4o"``,`` `` params ``=`` `[`params`](https://ellmer.tidyverse.org/reference/params.html)`(``temperature ``=`` ``0``)``,`` `` name ``=`` ``"gpt4o_run"``)`
 
     ## [working] (0 + 0) -> 10 -> 1 | ■■■■                               9%
 
@@ -92,11 +64,7 @@ coded1 <- qlm_code(data_corpus_inaugural,
 
     ## [working] (0 + 0) -> 0 -> 11 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100%
 
-``` r
-
-# View the results
-coded1
-```
+`# View the results`` ``coded1`
 
     ## # quallmer coded object
     ## # Run:      gpt4o_run
@@ -130,13 +98,7 @@ settings.
 
 ### Replicating with a different model
 
-``` r
-
-# Replicate the coding with openai/gpt-4o-mini
-coded2 <- qlm_replicate(coded1,
-                        model = "openai/gpt-4o-mini",
-                        name = "mini_run")
-```
+`# Replicate the coding with openai/gpt-4o-mini`` ``coded2`` ``<-`` `[`qlm_replicate`](https://quallmer.github.io/quallmer/reference/qlm_replicate.md)`(``coded1``,`` `` model ``=`` ``"openai/gpt-4o-mini"``,`` `` name ``=`` ``"mini_run"``)`
 
     ## [working] (0 + 0) -> 2 -> 9 | ■■■■■■■■■■■■■■■■■■■■■■■■■■        82%
 
@@ -144,13 +106,7 @@ coded2 <- qlm_replicate(coded1,
 
 ### Replicating with different temperature
 
-``` r
-
-# Replicate with higher temperature for more variability
-coded3 <- qlm_replicate(coded1,
-                        params = params(temperature = 0.7),
-                        name = "gpt4o_temp07")
-```
+`# Replicate with higher temperature for more variability`` ``coded3`` ``<-`` `[`qlm_replicate`](https://quallmer.github.io/quallmer/reference/qlm_replicate.md)`(``coded1``,`` `` params ``=`` `[`params`](https://ellmer.tidyverse.org/reference/params.html)`(``temperature ``=`` ``0.7``)``,`` `` name ``=`` ``"gpt4o_temp07"``)`
 
     ## [working] (0 + 0) -> 10 -> 1 | ■■■■                               9%
 
@@ -166,16 +122,7 @@ models, coders, or coding runs.
 
 ### Computing Krippendorff’s alpha
 
-``` r
-
-# Compare the first three runs to assess reliability
-comparison <- qlm_compare(coded1, coded2, coded3, 
-                          by = "score",
-                          level = "ordinal")
-
-# View the comparison results
-comparison
-```
+`# Compare the first three runs to assess reliability`` ``comparison`` ``<-`` `[`qlm_compare`](https://quallmer.github.io/quallmer/reference/qlm_compare.md)`(``coded1``, ``coded2``, ``coded3``, `` `` by ``=`` ``"score"``,`` `` level ``=`` ``"ordinal"``)`` `` ``# View the comparison results`` ``comparison`
 
     ## # Inter-rater reliability
     ## # Subjects: 11 
@@ -201,13 +148,7 @@ agreement to +/-1 of the values to be compared, then we can get a
 different definition of agreement, thus changing the score. “Percent
 agreement” then rises substantially.
 
-``` r
-
-qlm_compare(coded1, coded2, coded3, 
-            by = "score",
-            level = "ordinal",
-            tolerance = 1)
-```
+[`qlm_compare`](https://quallmer.github.io/quallmer/reference/qlm_compare.md)`(``coded1``, ``coded2``, ``coded3``, `` `` by ``=`` ``"score"``,`` `` level ``=`` ``"ordinal"``,`` `` tolerance ``=`` ``1``)`
 
     ## # Inter-rater reliability
     ## # Subjects: 11 
@@ -231,24 +172,11 @@ and F1-score.
 
 For this example, let’s simulate having human-coded sentiment data:
 
-``` r
-
-# In practice, this would be your human-coded reference data
-gold_standard <- data.frame(
-  .id = coded1$.id,
-  score = c(8, 7, 4, 7, 6, 7, 5, 6, 8, 3, 8)
-)
-```
+`# In practice, this would be your human-coded reference data`` ``gold_standard`` ``<-`` `[`data.frame`](https://rdrr.io/r/base/data.frame.html)`(`` `` .id ``=`` ``coded1``$``.id``,`` `` score ``=`` `[`c`](https://rdrr.io/r/base/c.html)`(``8``, ``7``, ``4``, ``7``, ``6``, ``7``, ``5``, ``6``, ``8``, ``3``, ``8``)`` ``)`
 
 ### Computing validation metrics
 
-``` r
-
-# Validate the LLM coding against the gold standard
-validation <- qlm_validate(coded1,
-                           gold = gold_standard,
-                           by = "score")
-```
+`# Validate the LLM coding against the gold standard`` ``validation`` ``<-`` `[`qlm_validate`](https://quallmer.github.io/quallmer/reference/qlm_validate.md)`(``coded1``,`` `` gold ``=`` ``gold_standard``,`` `` by ``=`` ``"score"``)`
 
     ## Warning: While computing multiclass `precision()`, some levels had no predicted events
     ## (i.e. `true_positive + false_positive = 0`).
@@ -265,11 +193,7 @@ validation <- qlm_validate(coded1,
     ## problematic event level:
     ## '5': 1
 
-``` r
-
-# View validation results
-validation
-```
+`# View validation results`` ``validation`
 
     ## # quallmer validation
     ## # n: 11 | classes: 6 | average: macro
@@ -293,10 +217,7 @@ The output shows:
 Of course, we can also perform validation treating this data as ordinal
 or even interval:
 
-``` r
-
-qlm_validate(coded1, gold = gold_standard, by = "score", level = "ordinal")
-```
+[`qlm_validate`](https://quallmer.github.io/quallmer/reference/qlm_validate.md)`(``coded1``, gold ``=`` ``gold_standard``, by ``=`` ``"score"``, level ``=`` ``"ordinal"``)`
 
     ## # quallmer validation
     ## # n: 11 | levels: 6
@@ -306,10 +227,7 @@ qlm_validate(coded1, gold = gold_standard, by = "score", level = "ordinal")
     ## Pearson's r:   0.8884
     ## MAE:           0.7273
 
-``` r
-
-qlm_validate(coded1, gold = gold_standard, by = "score", level = "interval")
-```
+[`qlm_validate`](https://quallmer.github.io/quallmer/reference/qlm_validate.md)`(``coded1``, gold ``=`` ``gold_standard``, by ``=`` ``"score"``, level ``=`` ``"interval"``)`
 
     ## # quallmer validation
     ## # n: 11

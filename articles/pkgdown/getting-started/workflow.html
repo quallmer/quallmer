@@ -12,8 +12,8 @@
 <link rel="icon" sizes="any" href="../../../favicon.ico">
 <link rel="manifest" href="../../../site.webmanifest">
 <script src="../../../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../../../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../../../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../../../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../../../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../../../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../../../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../../../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../../../deps/headroom-0.11.0/headroom.min.js"></script><script src="../../../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../../../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../../../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../../../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../../../deps/search-1.0.0/fuse.min.js"></script><script src="../../../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../../../pkgdown.js"></script><meta property="og:title" content="The quallmer workflow">
 </head>
@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../../../index.html">quallmer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -102,7 +102,9 @@ addresses to demonstrate the core functions.</p>
 <code><a href="../../../reference/qlm_codebook.html">qlm_codebook()</a></code>
 </li>
 <li>
-<strong>Code</strong> your data with <code><a href="../../../reference/qlm_code.html">qlm_code()</a></code>
+<strong>Code</strong> your data with <code><a href="../../../reference/qlm_code.html">qlm_code()</a></code>, and
+complete a run that came back with failures using
+<code><a href="../../../reference/qlm_backfill.html">qlm_backfill()</a></code>
 </li>
 <li>
 <strong>Replicate</strong> with different settings using
@@ -169,12 +171,200 @@ segmentation</a>.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">coded</span></span></code></pre></div>
+<div class="section level3">
+<h3 id="when-a-run-comes-back-incomplete">When a run comes back incomplete<a class="anchor" aria-label="anchor" href="#when-a-run-comes-back-incomplete"></a>
+</h3>
+<p>A run over a real corpus rarely comes back complete. Requests time
+out or hit a rate limit, a provider refuses a text on one pass and codes
+it on the next, an endpoint accepts the schema and then returns
+something that does not fit it. The units that failed sit in the object
+as rows of <code>NA</code>, <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> counts them, and
+<code><a href="../../../reference/qlm_failures.html">qlm_failures()</a></code> lists them with the reason.</p>
+<p>The run below ships with the package, so the rest of this section
+runs without a key. Eight movie reviews were coded with a deliberately
+short request timeout and a <code>max_tokens</code> of 90, and came back
+with both kinds of failure this section is about: a request that timed
+out, and responses the model could not fit into the output limit.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">examples</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"example_objects.rds"</span>, package <span class="op">=</span> <span class="st">"quallmer"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">incomplete</span> <span class="op">&lt;-</span> <span class="va">examples</span><span class="op">$</span><span class="va">example_coded_incomplete</span></span>
+<span><span class="va">incomplete</span></span></code></pre></div>
+<pre><code><span><span class="co">## # quallmer coded object</span></span>
+<span><span class="co">## # Run:      example_incomplete</span></span>
+<span><span class="co">## # Codebook: Sentiment with evidence</span></span>
+<span><span class="co">## # Model:    anthropic/claude-haiku-4-5</span></span>
+<span><span class="co">## # Units:    8 (4 scored, 4 failed)</span></span>
+<span><span class="co">## # Notes:    Coded with a deliberately short request timeout and max_tokens = 90, so that the run came back incomplete</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## <span style="color: #949494;"># A tibble: 8 × 5</span></span></span>
+<span><span class="co">##   .id          sentiment rating evidence                              .error    </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">*</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                 <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>    </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">1</span> 3275_2.txt   neg            1 <span style="color: #949494;">"</span>Lets just say that from now on, we … <span style="color: #949494;">&lt;NULL&gt;</span>    </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">2</span> 3150_1.txt   <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>  <span style="color: #BB0000;">NA</span>                                   <span style="color: #949494;">&lt;qllmr_t_&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">3</span> 3918_1.txt   <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>  <span style="color: #BB0000;">NA</span>                                   <span style="color: #949494;">&lt;qllmr_t_&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">4</span> 7530_1.txt   neg            1 <span style="color: #949494;">"</span>\"to call this the next cult classi… <span style="color: #949494;">&lt;NULL&gt;</span>    </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">5</span> 4247_8.txt   pos            7 <span style="color: #949494;">"</span>One very strange piece of cinema. Y… <span style="color: #949494;">&lt;NULL&gt;</span>    </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">6</span> 7227_7.txt   <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>  <span style="color: #BB0000;">NA</span>                                   <span style="color: #949494;">&lt;httr2_fl&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">7</span> 8877_8.txt   pos            9 <span style="color: #949494;">"</span>The one thing I really can't seem t… <span style="color: #949494;">&lt;NULL&gt;</span>    </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">8</span> 11413_10.txt <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>  <span style="color: #BB0000;">NA</span>                                   <span style="color: #949494;">&lt;qllmr_t_&gt;</span></span></span></code></pre>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../../../reference/qlm_failures.html">qlm_failures</a></span><span class="op">(</span><span class="va">incomplete</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 4 × 3</span></span></span>
+<span><span class="co">##   .id          reason                                                 .error    </span></span>
+<span><span class="co">##   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                                  <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>    </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">1</span> 3150_1.txt   <span style="color: #949494;">"</span>The response used the whole max_tokens limit of 90 a… <span style="color: #949494;">&lt;qllmr_t_&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">2</span> 3918_1.txt   <span style="color: #949494;">"</span>The response used the whole max_tokens limit of 90 a… <span style="color: #949494;">&lt;qllmr_t_&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">3</span> 7227_7.txt   <span style="color: #949494;">"</span>Failed to perform HTTP request.\nCaused by error:\n!… <span style="color: #949494;">&lt;httr2_fl&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">4</span> 11413_10.txt <span style="color: #949494;">"</span>The response used the whole max_tokens limit of 90 a… <span style="color: #949494;">&lt;qllmr_t_&gt;</span></span></span></code></pre>
+<p>quallmer deals with failures at three points, and it helps to keep
+them apart.</p>
+<p><strong>Retries happen during the run, one request at a time, in two
+layers.</strong> The inner layer is ellmer’s: every request quallmer
+sends is retried at the transport level if a rate limit or a server
+error turns it away, a few times with a pause between, on every provider
+and every path; <code>options(ellmer_max_tries = )</code> sets the
+count. The outer layer is quallmer’s, and exists on the JSON path only:
+when a request comes back unusable after ellmer’s tries, whether empty,
+unparsable, refused, not conforming to the codebook’s schema, or still
+failing on transport, <code><a href="../../../reference/qlm_code.html">qlm_code()</a></code> sends the unit again, up
+to <code>json_retries</code> more times, and each of those requests gets
+ellmer’s tries afresh. On the structured path there is no outer layer: a
+request is tried by ellmer and then stands, and the only second chance
+is that <code>structured = "auto"</code> falls back to the JSON path
+when the structured call fails as a whole. A unit still failed after all
+of this is what <code><a href="../../../reference/qlm_failures.html">qlm_failures()</a></code> shows.</p>
+<p><strong>Backfilling happens after the run, on the object it
+produced.</strong> <code><a href="../../../reference/qlm_backfill.html">qlm_backfill()</a></code> looks up the units that
+failed, re-codes just those with the run’s own model and settings, and
+merges what comes back; everything that succeeded the first time is left
+exactly as it was. Because it works on the finished object, you can run
+it later, look at the failures first, or give it a different
+<code>model</code> for units the original consistently refuses or cannot
+fit in its context window. Each pass is recorded in the object’s
+metadata, and <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> and the audit trail say what was
+backfilled and by which model, so a result coded by two instruments is
+disclosed as one.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">filled</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../../reference/qlm_backfill.html">qlm_backfill</a></span><span class="op">(</span><span class="va">incomplete</span><span class="op">)</span></span>
+<span><span class="co">#&gt; ℹ Leaving 3 units alone: rejected on length, or cut off at `max_tokens`. A</span></span>
+<span><span class="co">#&gt;   different `model`, or a higher `params(max_tokens = )`, would retry them.</span></span>
+<span><span class="co">#&gt; ℹ Backfill pass 1 of 2: re-coding 1 unit with "anthropic/claude-haiku-4-5".</span></span>
+<span><span class="co">#&gt; ℹ Recovered 1 unit; 3 still failed.</span></span>
+<span><span class="co">#&gt; ℹ Nothing recoverable remains.</span></span></code></pre></div>
+<p>The object that call returned is saved with the package too. The
+timed-out unit is coded now, the cut-off ones are still listed, and the
+header says what was done:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">filled</span> <span class="op">&lt;-</span> <span class="va">examples</span><span class="op">$</span><span class="va">example_coded_backfilled</span></span>
+<span><span class="va">filled</span></span></code></pre></div>
+<pre><code><span><span class="co">## # quallmer coded object</span></span>
+<span><span class="co">## # Run:      example_incomplete</span></span>
+<span><span class="co">## # Codebook: Sentiment with evidence</span></span>
+<span><span class="co">## # Model:    anthropic/claude-haiku-4-5</span></span>
+<span><span class="co">## # Units:    8 (5 scored, 3 failed)</span></span>
+<span><span class="co">## # Backfill: 1 pass, recovered 1 of 1</span></span>
+<span><span class="co">## # Notes:    Coded with a deliberately short request timeout and max_tokens = 90, so that the run came back incomplete</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## <span style="color: #949494;"># A tibble: 8 × 5</span></span></span>
+<span><span class="co">##   .id          sentiment rating evidence                              .error    </span></span>
+<span><span class="co">##   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                 <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>    </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">1</span> 3275_2.txt   neg            1 <span style="color: #949494;">"</span>Lets just say that from now on, we … <span style="color: #949494;">&lt;NULL&gt;</span>    </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">2</span> 3150_1.txt   <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>  <span style="color: #BB0000;">NA</span>                                   <span style="color: #949494;">&lt;qllmr_t_&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">3</span> 3918_1.txt   <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>  <span style="color: #BB0000;">NA</span>                                   <span style="color: #949494;">&lt;qllmr_t_&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">4</span> 7530_1.txt   neg            1 <span style="color: #949494;">"</span>\"to call this the next cult classi… <span style="color: #949494;">&lt;NULL&gt;</span>    </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">5</span> 4247_8.txt   pos            7 <span style="color: #949494;">"</span>One very strange piece of cinema. Y… <span style="color: #949494;">&lt;NULL&gt;</span>    </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">6</span> 7227_7.txt   pos            8 <span style="color: #949494;">"</span>ah man this movie was funny as hell… <span style="color: #949494;">&lt;NULL&gt;</span>    </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">7</span> 8877_8.txt   pos            9 <span style="color: #949494;">"</span>The one thing I really can't seem t… <span style="color: #949494;">&lt;NULL&gt;</span>    </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">8</span> 11413_10.txt <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>  <span style="color: #BB0000;">NA</span>                                   <span style="color: #949494;">&lt;qllmr_t_&gt;</span></span></span></code></pre>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../../../reference/qlm_failures.html">qlm_failures</a></span><span class="op">(</span><span class="va">filled</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 3 × 3</span></span></span>
+<span><span class="co">##   .id          reason                                                 .error    </span></span>
+<span><span class="co">##   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                                  <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>    </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">1</span> 3150_1.txt   The response used the whole max_tokens limit of 90 an… <span style="color: #949494;">&lt;qllmr_t_&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">2</span> 3918_1.txt   The response used the whole max_tokens limit of 90 an… <span style="color: #949494;">&lt;qllmr_t_&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">3</span> 11413_10.txt The response used the whole max_tokens limit of 90 an… <span style="color: #949494;">&lt;qllmr_t_&gt;</span></span></span></code></pre>
+<p>The two are for different failures. Retries catch what a moment’s
+wait fixes, in the middle of the run. Backfilling recovers what is left
+when the run is over, which for a corpus of any size is usually
+something. Two kinds of failure a backfill leaves alone, because
+re-sending the same request cannot change the outcome: a text the
+provider rejected as longer than the model’s context window, and a
+response cut off at <code>max_tokens</code>. Those are retried only with
+a different <code>model</code>, or for a truncated response a higher
+<code>params(max_tokens = )</code>. Content refusals are retried, since
+the same text is refused on one pass and coded on the next.</p>
+<table class="table">
+<colgroup>
+<col width="33%">
+<col width="33%">
+<col width="33%">
+</colgroup>
+<thead><tr class="header">
+<th>Failure</th>
+<th>Stage and mechanism</th>
+<th>Setting or action</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>Rate limit, timeout, or transient server error</td>
+<td>ellmer retries the transport request, on every path and for every
+request quallmer sends</td>
+<td><code>options(ellmer_max_tries = n)</code></td>
+</tr>
+<tr class="even">
+<td>Unusable response on the JSON path after ellmer’s tries: empty,
+malformed, refused, schema-invalid, or still failing on transport</td>
+<td>quallmer sends the unit again during the run, each request with
+ellmer’s tries afresh</td>
+<td><code>json_retries = n</code></td>
+</tr>
+<tr class="odd">
+<td>Anything still failed after the run</td>
+<td>quallmer makes another pass over the failed units</td>
+<td>
+<code>backfill = n</code> in <code><a href="../../../reference/qlm_code.html">qlm_code()</a></code>, or
+<code>qlm_backfill(..., passes = n)</code>
+</td>
+</tr>
+<tr class="even">
+<td>Input exceeds the model’s context window</td>
+<td>Backfill with a larger-context model</td>
+<td><code>qlm_backfill(..., model = )</code></td>
+</tr>
+<tr class="odd">
+<td>Output was cut off at <code>max_tokens</code>
+</td>
+<td>Backfill with a higher output limit</td>
+<td><code>qlm_backfill(..., params = ellmer::params(max_tokens = ))</code></td>
+</tr>
+</tbody>
+</table>
+<p>Two settings shape how much there is to backfill. The first is what a
+failure does to the rest of the run. By default <code><a href="../../../reference/qlm_code.html">qlm_code()</a></code>
+runs with <code>on_error = "continue"</code> on both paths, so every
+unit is attempted and only the units that actually failed are left for a
+backfill, each with its reason in <code>.error</code>. Pass
+<code>on_error = "return"</code> to stop sending new requests after the
+first failure and return what there is, which is ellmer’s own default.
+On the structured path that is the whole run: one timeout can then leave
+most of a corpus uncoded, and the units never sent carry no
+<code>.error</code>. On the JSON path it is one wave, since
+<code>json_retries</code> sends the units a wave did not reach in later
+waves, each stopped in turn at its first failure, and whatever is still
+unsent at the end does carry an <code>.error</code>; the run stops after
+the first wave only with <code>json_retries = 0</code>. The second is
+<code>qlm_code(backfill = 2)</code>, which runs the passes in the same
+call, if you would rather not make them a separate step. Either way, a
+replication made with <code><a href="../../../reference/qlm_replicate.html">qlm_replicate()</a></code> replays the passes
+recorded on its parent, so both are complete on the same terms.</p>
+</div>
 </div>
 <div class="section level2">
 <h2 id="step-3-replicate-with-a-different-model">Step 3: Replicate with a different model<a class="anchor" aria-label="anchor" href="#step-3-replicate-with-a-different-model"></a>
 </h2>
 <p>Test reliability by coding again with a different model:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">coded2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../../reference/qlm_replicate.html">qlm_replicate</a></span><span class="op">(</span></span>
 <span>  <span class="va">coded</span>,</span>
 <span>  model <span class="op">=</span> <span class="st">"openai/gpt-4o"</span>,</span>
@@ -187,7 +377,7 @@ segmentation</a>.</p>
 <h2 id="step-4-compare-results">Step 4: Compare results<a class="anchor" aria-label="anchor" href="#step-4-compare-results"></a>
 </h2>
 <p>Assess inter-rater reliability between the two coding runs:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">comparison</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../../reference/qlm_compare.html">qlm_compare</a></span><span class="op">(</span><span class="va">coded</span>, <span class="va">coded2</span><span class="op">)</span></span>
 <span><span class="va">comparison</span></span></code></pre></div>
 <p>If you have gold standard human coding, you can also validate against
@@ -198,7 +388,7 @@ it with <code><a href="../../../reference/qlm_validate.html">qlm_validate()</a><
 </h2>
 <p>Document your complete workflow, including models, parameters, and
 results and a Quarto report with replication instructions:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># View the trail</span></span>
 <span><span class="va">trail</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../../reference/qlm_trail.html">qlm_trail</a></span><span class="op">(</span><span class="va">coded</span>, <span class="va">coded2</span>, <span class="va">comparison</span><span class="op">)</span></span>
 <span><span class="va">trail</span></span>
@@ -221,7 +411,7 @@ the ability to replicate and validate your analyses.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

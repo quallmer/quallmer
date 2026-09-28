@@ -18,12 +18,7 @@ the model follows the handbook instructions.
 
 ## Packages
 
-``` r
-library(quallmer)
-library(quanteda)
-library(dplyr)
-library(ggplot2)
-```
+[`library`](https://rdrr.io/r/base/library.html)`(`[`quallmer`](https://quallmer.github.io/quallmer/)`)`` `[`library`](https://rdrr.io/r/base/library.html)`(`[`quanteda`](https://quanteda.io)`)`` `[`library`](https://rdrr.io/r/base/library.html)`(`[`dplyr`](https://dplyr.tidyverse.org)`)`` `[`library`](https://rdrr.io/r/base/library.html)`(`[`ggplot2`](https://ggplot2.tidyverse.org)`)`
 
 ## The data
 
@@ -31,11 +26,7 @@ The manifesto text is provided as the `Liberal_SDP_1983` document in
 `data_corpus_MPexamples`, a two-document corpus of Manifesto Project
 example texts included in quallmer.
 
-``` r
-lib_corp <- corpus_subset(data_corpus_MPexamples, country == "UK")
-cat(substr(lib_corp, 1, 500), "...\n")
-#> ‘Working together for Britain' The General Election on June 9th, 1983 will be seen as a watershed in British politics. It may be recalled as the fateful day when depression became hopelessness and the slide of the post-war years accelerated into the depths of decline. Alternatively it may be remembered as the turning point when the people of this country, at the eleventh hour, decided to turn their backs on dogma and bitterness and chose a new road of partnership and progress. It is to offer rea ...
-```
+`lib_corp`` ``<-`` `[`corpus_subset`](https://quanteda.io/reference/corpus_subset.html)`(``data_corpus_MPexamples``, ``country`` ``==`` ``"UK"``)`` `[`cat`](https://rdrr.io/r/base/cat.html)`(`[`substr`](https://rdrr.io/r/base/substr.html)`(``lib_corp``, ``1``, ``500``)``, ``"...\n"``)`` ``#> ‘Working together for Britain' The General Election on June 9th, 1983 will be seen as a watershed in British politics. It may be recalled as the fateful day when depression became hopelessness and the slide of the post-war years accelerated into the depths of decline. Alternatively it may be remembered as the turning point when the people of this country, at the eleventh hour, decided to turn their backs on dogma and bitterness and chose a new road of partnership and progress. It is to offer rea ...`
 
 ## The codebook
 
@@ -46,62 +37,11 @@ when to cut and when not to cut, the worked example, and the expected
 output. We load the file at runtime and append a short tail telling the
 model how to format its output.
 
-``` r
-qs_instructions <- paste(
-  readLines("data/quasi-sentences/instructions_test.txt"),
-  collapse = "\n"
-)
-
-cb_qs <- qlm_codebook(
-  name = "Manifesto Project quasi-sentence segmentation",
-  instructions = paste(
-    qs_instructions,
-    "",
-    "Return every quasi-sentence in document order.",
-    "Each returned 'text' must be verbatim text copied exactly from the input.",
-    "Section headers (capitalised lines without end-of-sentence punctuation)",
-    "should be joined to the first sentence that follows them.",
-    "Mark whether each quasi-sentence is a COMPLETE natural sentence or a FRAGMENT",
-    "cut from a larger natural sentence.",
-    sep = "\n"
-  ),
-  schema = ellmer::type_object(
-    sentence_type = ellmer::type_enum(
-      c("complete", "fragment"),
-      description = paste(
-        "Whether this quasi-sentence is a complete natural sentence ('complete')",
-        "or a fragment cut from a larger natural sentence that was split ('fragment')"
-      )
-    ),
-    reason = ellmer::type_string("Rule governing the segmentation decision.")
-  ),
-  role = "You are an expert political science coder trained in the Manifesto Project methodology."
-)
-
-cb_qs
-#> quallmer codebook: Manifesto Project quasi-sentence segmentation 
-#>   Input type:   text
-#>   Role:         You are an expert political science coder trained in the Man...
-#>   Instructions: 3.2 Unitising - Cutting Text into Quasi-Sentences
-#> 
-#> The codin...
-#>   Output schema:ellmer::TypeObject
-#>   Levels:
-#>     sentence_type: nominal
-#>     reason: nominal
-```
+`qs_instructions`` ``<-`` `[`paste`](https://rdrr.io/r/base/paste.html)`(`` `` `[`readLines`](https://rdrr.io/r/base/readLines.html)`(``"data/quasi-sentences/instructions_test.txt"``)``,`` `` collapse ``=`` ``"\n"`` ``)`` `` ``cb_qs`` ``<-`` `[`qlm_codebook`](https://quallmer.github.io/quallmer/reference/qlm_codebook.md)`(`` `` name ``=`` ``"Manifesto Project quasi-sentence segmentation"``,`` `` instructions ``=`` `[`paste`](https://rdrr.io/r/base/paste.html)`(`` `` ``qs_instructions``,`` `` ``""``,`` `` ``"Return every quasi-sentence in document order."``,`` `` ``"Each returned 'text' must be verbatim text copied exactly from the input."``,`` `` ``"Section headers (capitalised lines without end-of-sentence punctuation)"``,`` `` ``"should be joined to the first sentence that follows them."``,`` `` ``"Mark whether each quasi-sentence is a COMPLETE natural sentence or a FRAGMENT"``,`` `` ``"cut from a larger natural sentence."``,`` `` sep ``=`` ``"\n"`` `` ``)``,`` `` schema ``=`` ``ellmer``::`[`type_object`](https://ellmer.tidyverse.org/reference/type_boolean.html)`(`` `` sentence_type ``=`` ``ellmer``::`[`type_enum`](https://ellmer.tidyverse.org/reference/type_boolean.html)`(`` `` `[`c`](https://rdrr.io/r/base/c.html)`(``"complete"``, ``"fragment"``)``,`` `` description ``=`` `[`paste`](https://rdrr.io/r/base/paste.html)`(`` `` ``"Whether this quasi-sentence is a complete natural sentence ('complete')"``,`` `` ``"or a fragment cut from a larger natural sentence that was split ('fragment')"`` `` ``)`` `` ``)``,`` `` reason ``=`` ``ellmer``::`[`type_string`](https://ellmer.tidyverse.org/reference/type_boolean.html)`(``"Rule governing the segmentation decision."``)`` `` ``)``,`` `` role ``=`` ``"You are an expert political science coder trained in the Manifesto Project methodology."`` ``)`` `` ``cb_qs`` ``#> quallmer codebook: Manifesto Project quasi-sentence segmentation `` ``#> Input type: text`` ``#> Role: You are an expert political science coder trained in the Man...`` ``#> Instructions: 3.2 Unitising - Cutting Text into Quasi-Sentences`` ``#> `` ``#> The codin...`` ``#> Output schema:ellmer::TypeObject`` ``#> Levels:`` ``#> sentence_type: nominal`` ``#> reason: nominal`
 
 ## Segmenting the manifesto
 
-``` r
-segs_manifesto <- qlm_segment(
-  lib_corp,
-  codebook = cb_qs,
-  model    = "openai/gpt-5.1",
-  name     = "GPT 5.1"
-)
-saveRDS(segs_manifesto, "data/segs_manifesto_lib.rds")
-```
+`segs_manifesto`` ``<-`` `[`qlm_segment`](https://quallmer.github.io/quallmer/reference/qlm_segment.md)`(`` `` ``lib_corp``,`` `` codebook ``=`` ``cb_qs``,`` `` model ``=`` ``"openai/gpt-5.1"``,`` `` name ``=`` ``"GPT 5.1"`` ``)`` `[`saveRDS`](https://rdrr.io/r/base/readRDS.html)`(``segs_manifesto``, ``"data/segs_manifesto_lib.rds"``)`
 
 ## Results
 
@@ -111,12 +51,7 @@ The model produced 70 quasi-sentences from the manifesto. The full
 segmentation is shown below. Each quasi-sentence is numbered, labelled
 by type (`complete` or `fragment`), and displayed on its own line.
 
-``` r
-dv <- docvars(segs_manifesto) |>
-  mutate(text = as.character(segs_manifesto))
-
-cat(sprintf("**%d.** _%s_\n> %s\n\n", dv$segid, dv$sentence_type, dv$text))
-```
+`dv`` ``<-`` `[`docvars`](https://quanteda.io/reference/docvars.html)`(``segs_manifesto``)`` ``|>`` `` `[`mutate`](https://dplyr.tidyverse.org/reference/mutate.html)`(``text ``=`` `[`as.character`](https://rdrr.io/r/base/character.html)`(``segs_manifesto``)``)`` `` `[`cat`](https://rdrr.io/r/base/cat.html)`(`[`sprintf`](https://rdrr.io/r/base/sprintf.html)`(``"**%d.** _%s_\n> %s\n\n"``, ``dv``$``segid``, ``dv``$``sentence_type``, ``dv``$``text``)``)`
 
 **1.** *complete* \> ‘Working together for Britain’ The General Election
 on June 9th, 1983 will be seen as a watershed in British politics.
@@ -394,44 +329,19 @@ rough calibration check: a very low rate suggests the model is treating
 every sentence as a single unit; a very high rate suggests
 over-splitting.
 
-``` r
-dv |>
-  count(sentence_type) |>
-  mutate(pct = round(100 * n / sum(n), 1)) |>
-  knitr::kable(
-    col.names = c("Sentence type", "Count", "%"),
-    caption   = "Quasi-sentence types"
-  )
-```
+`dv`` ``|>`` `` `[`count`](https://dplyr.tidyverse.org/reference/count.html)`(``sentence_type``)`` ``|>`` `` `[`mutate`](https://dplyr.tidyverse.org/reference/mutate.html)`(``pct ``=`` `[`round`](https://rdrr.io/r/base/Round.html)`(``100`` ``*`` ``n`` ``/`` `[`sum`](https://rdrr.io/r/base/sum.html)`(``n``)``, ``1``)``)`` ``|>`` `` ``knitr``::`[`kable`](https://rdrr.io/pkg/knitr/man/kable.html)`(`` `` col.names ``=`` `[`c`](https://rdrr.io/r/base/c.html)`(``"Sentence type"``, ``"Count"``, ``"%"``)``,`` `` caption ``=`` ``"Quasi-sentence types"`` `` ``)`
 
 | Sentence type | Count |   % |
 |:--------------|------:|----:|
 | complete      |    70 | 100 |
 
-Quasi-sentence types
+Quasi-sentence types {.table}
 
 As an additional sanity check, fragments cut from natural sentences
 should tend to be shorter than complete sentences. The distribution of
 segment lengths (in characters) confirms this pattern:
 
-``` r
-dv |>
-  mutate(
-    nchar         = nchar(text),
-    sentence_type = factor(sentence_type, levels = c("complete", "fragment"))
-  ) |>
-  ggplot(aes(x = nchar, fill = sentence_type)) +
-  geom_histogram(binwidth = 30, colour = "white", linewidth = 0.2) +
-  facet_wrap(~sentence_type, ncol = 1, scales = "free_y") +
-  scale_fill_manual(values = c(complete = "#5cb85c", fragment = "#d9534f"), guide = "none") +
-  labs(
-    x        = "Quasi-sentence length (characters)",
-    y        = "Count",
-    title    = "Length distribution by quasi-sentence type",
-    subtitle = "Fragments are typically shorter than complete sentences"
-  ) +
-  theme_minimal()
-```
+`dv`` ``|>`` `` `[`mutate`](https://dplyr.tidyverse.org/reference/mutate.html)`(`` `` nchar ``=`` `[`nchar`](https://rdrr.io/r/base/nchar.html)`(``text``)``,`` `` sentence_type ``=`` `[`factor`](https://rdrr.io/r/base/factor.html)`(``sentence_type``, levels ``=`` `[`c`](https://rdrr.io/r/base/c.html)`(``"complete"``, ``"fragment"``)``)`` `` ``)`` ``|>`` `` `[`ggplot`](https://ggplot2.tidyverse.org/reference/ggplot.html)`(`[`aes`](https://ggplot2.tidyverse.org/reference/aes.html)`(``x ``=`` ``nchar``, fill ``=`` ``sentence_type``)``)`` ``+`` `` `[`geom_histogram`](https://ggplot2.tidyverse.org/reference/geom_histogram.html)`(``binwidth ``=`` ``30``, colour ``=`` ``"white"``, linewidth ``=`` ``0.2``)`` ``+`` `` `[`facet_wrap`](https://ggplot2.tidyverse.org/reference/facet_wrap.html)`(``~``sentence_type``, ncol ``=`` ``1``, scales ``=`` ``"free_y"``)`` ``+`` `` `[`scale_fill_manual`](https://ggplot2.tidyverse.org/reference/scale_manual.html)`(``values ``=`` `[`c`](https://rdrr.io/r/base/c.html)`(``complete ``=`` ``"#5cb85c"``, fragment ``=`` ``"#d9534f"``)``, guide ``=`` ``"none"``)`` ``+`` `` `[`labs`](https://ggplot2.tidyverse.org/reference/labs.html)`(`` `` x ``=`` ``"Quasi-sentence length (characters)"``,`` `` y ``=`` ``"Count"``,`` `` title ``=`` ``"Length distribution by quasi-sentence type"``,`` `` subtitle ``=`` ``"Fragments are typically shorter than complete sentences"`` `` ``)`` ``+`` `` `[`theme_minimal`](https://ggplot2.tidyverse.org/reference/ggtheme.html)`(``)`
 
 ![](example_quasi_sentences_test_files/figure-html/plot-lengths-1.png)
 
@@ -444,27 +354,12 @@ for context and the model’s cited reason for the split. These are the
 cases most worth human review: each fragment should represent a
 genuinely distinct political claim.
 
-``` r
-fragment_ids <- which(dv$sentence_type == "fragment")
-pred_ids     <- pmax(1L, fragment_ids - 1L)
-pair_rows    <- sort(unique(c(pred_ids, fragment_ids)))
-
-dv[pair_rows, ] |>
-  mutate(
-    role   = if_else(sentence_type == "fragment", "fragment", "predecessor"),
-    reason = if_else(sentence_type == "fragment", reason, "")
-  ) |>
-  select(segid, role, reason, text) |>
-  knitr::kable(
-    col.names = c("Seg.", "Role", "Reason", "Text"),
-    caption   = "Split decisions: fragments and the model's cited reason"
-  )
-```
+`fragment_ids`` ``<-`` `[`which`](https://rdrr.io/r/base/which.html)`(``dv``$``sentence_type`` ``==`` ``"fragment"``)`` ``pred_ids`` ``<-`` `[`pmax`](https://rdrr.io/r/base/Extremes.html)`(``1L``, ``fragment_ids`` ``-`` ``1L``)`` ``pair_rows`` ``<-`` `[`sort`](https://rdrr.io/r/base/sort.html)`(`[`unique`](https://rdrr.io/r/base/unique.html)`(`[`c`](https://rdrr.io/r/base/c.html)`(``pred_ids``, ``fragment_ids``)``)``)`` `` ``dv``[``pair_rows``, ``]`` ``|>`` `` `[`mutate`](https://dplyr.tidyverse.org/reference/mutate.html)`(`` `` role ``=`` `[`if_else`](https://dplyr.tidyverse.org/reference/if_else.html)`(``sentence_type`` ``==`` ``"fragment"``, ``"fragment"``, ``"predecessor"``)``,`` `` reason ``=`` `[`if_else`](https://dplyr.tidyverse.org/reference/if_else.html)`(``sentence_type`` ``==`` ``"fragment"``, ``reason``, ``""``)`` `` ``)`` ``|>`` `` `[`select`](https://dplyr.tidyverse.org/reference/select.html)`(``segid``, ``role``, ``reason``, ``text``)`` ``|>`` `` ``knitr``::`[`kable`](https://rdrr.io/pkg/knitr/man/kable.html)`(`` `` col.names ``=`` `[`c`](https://rdrr.io/r/base/c.html)`(``"Seg."``, ``"Role"``, ``"Reason"``, ``"Text"``)``,`` `` caption ``=`` ``"Split decisions: fragments and the model's cited reason"`` `` ``)`
 
 | Seg. | Role | Reason | Text |
 |------|------|--------|------|
 
-Split decisions: fragments and the model’s cited reason
+Split decisions: fragments and the model’s cited reason {.table}
 
 ### Coding decisions: near-cuts kept whole
 
@@ -475,25 +370,7 @@ items that look splittable at first glance but express a single
 argument. Here are a handful of representative cases where the model’s
 reason shows it considered and rejected a split:
 
-``` r
-near_cuts <- dv |>
-  filter(
-    sentence_type == "complete",
-    grepl("\\band\\b|\\bor\\b", text),
-    grepl(
-      "single|elaborat|same|one (argument|claim|message|statement)|not.+(split|separate|unique|warrant)",
-      reason, ignore.case = TRUE
-    )
-  ) |>
-  slice_head(n = 5)
-
-near_cuts |>
-  select(segid, reason, text) |>
-  knitr::kable(
-    col.names = c("Seg.", "Reason", "Text"),
-    caption   = "Near-cut decisions: sentences kept whole despite apparent complexity"
-  )
-```
+`near_cuts`` ``<-`` ``dv`` ``|>`` `` `[`filter`](https://dplyr.tidyverse.org/reference/filter.html)`(`` `` ``sentence_type`` ``==`` ``"complete"``,`` `` `[`grepl`](https://rdrr.io/r/base/grep.html)`(``"\\band\\b|\\bor\\b"``, ``text``)``,`` `` `[`grepl`](https://rdrr.io/r/base/grep.html)`(`` `` ``"single|elaborat|same|one (argument|claim|message|statement)|not.+(split|separate|unique|warrant)"``,`` `` ``reason``, ignore.case ``=`` ``TRUE`` `` ``)`` `` ``)`` ``|>`` `` `[`slice_head`](https://dplyr.tidyverse.org/reference/slice.html)`(``n ``=`` ``5``)`` `` ``near_cuts`` ``|>`` `` `[`select`](https://dplyr.tidyverse.org/reference/select.html)`(``segid``, ``reason``, ``text``)`` ``|>`` `` ``knitr``::`[`kable`](https://rdrr.io/pkg/knitr/man/kable.html)`(`` `` col.names ``=`` `[`c`](https://rdrr.io/r/base/c.html)`(``"Seg."``, ``"Reason"``, ``"Text"``)``,`` `` caption ``=`` ``"Near-cut decisions: sentences kept whole despite apparent complexity"`` `` ``)`
 
 | Seg. | Reason | Text |
 |---:|:---|:---|
@@ -504,6 +381,7 @@ near_cuts |>
 | 9 | Second clause elaborates consequences of rising unemployment; treated as one argument about unemployment. | Unemployment is still rising and there are now generations of school-leavers who no longer even hope for work. |
 
 Near-cut decisions: sentences kept whole despite apparent complexity
+{.table}
 
 ## Inter-coder reliability of segmentation
 
@@ -522,31 +400,7 @@ The `data_corpus_MPexamplesseg` object contains the Manifesto Project’s
 human-coded quasi-sentences for both example manifestos, already
 converted to a segmented corpus. We subset to the Liberal-SDP document.
 
-``` r
-data("data_corpus_MPexamplesseg")
-gold_corp <- corpus_subset(data_corpus_MPexamplesseg, docid == "Liberal_SDP_1983")
-gold_corp
-#> Corpus consisting of 107 documents and 7 docvars.
-#> Liberal_SDP_1983.1 :
-#> "‘Working together for Britain' The General Election on June ..."
-#> 
-#> Liberal_SDP_1983.2 :
-#> "It may be recalled as the fateful day when depression became..."
-#> 
-#> Liberal_SDP_1983.3 :
-#> "Alternatively it may be remembered as the turning point when..."
-#> 
-#> Liberal_SDP_1983.4 :
-#> "It is to offer real hope of a fresh start for Britain that t..."
-#> 
-#> Liberal_SDP_1983.5 :
-#> "What we have done is unique in the history of British parlia..."
-#> 
-#> Liberal_SDP_1983.6 :
-#> "Two parties, one with a proud history, and one born only two..."
-#> 
-#> [ reached max_ndoc ... 101 more documents ]
-```
+[`data`](https://rdrr.io/r/utils/data.html)`(``"data_corpus_MPexamplesseg"``)`` ``gold_corp`` ``<-`` `[`corpus_subset`](https://quanteda.io/reference/corpus_subset.html)`(``data_corpus_MPexamplesseg``, ``docid`` ``==`` ``"Liberal_SDP_1983"``)`` ``gold_corp`` ``#> Corpus consisting of 107 documents and 7 docvars.`` ``#> Liberal_SDP_1983.1 :`` ``#> "‘Working together for Britain' The General Election on June ..."`` ``#> `` ``#> Liberal_SDP_1983.2 :`` ``#> "It may be recalled as the fateful day when depression became..."`` ``#> `` ``#> Liberal_SDP_1983.3 :`` ``#> "Alternatively it may be remembered as the turning point when..."`` ``#> `` ``#> Liberal_SDP_1983.4 :`` ``#> "It is to offer real hope of a fresh start for Britain that t..."`` ``#> `` ``#> Liberal_SDP_1983.5 :`` ``#> "What we have done is unique in the history of British parlia..."`` ``#> `` ``#> Liberal_SDP_1983.6 :`` ``#> "Two parties, one with a proud history, and one born only two..."`` ``#> `` ``#> [ reached max_ndoc ... 101 more documents ]`
 
 ### Comparing the segmentations
 
@@ -559,19 +413,7 @@ it already carries the character-level positions and metadata that
 [`qlm_compare()`](https://quallmer.github.io/quallmer/reference/qlm_compare.md)
 needs.
 
-``` r
-qlm_compare(segs_manifesto, gold_corp)
-#> 
-#> ── Inter-rater reliability ──
-#> 
-#> Subjects: 1
-#> Raters: 2
-#> 
-#> ── (boundaries) (unitizing)
-#> Krippendorff's alpha (unitizing, binary) [Liberal_SDP_1983]  0.7419 
-#> Krippendorff's alpha (unitizing, binary) [(overall)]         0.7419
-#> 
-```
+[`qlm_compare`](https://quallmer.github.io/quallmer/reference/qlm_compare.md)`(``segs_manifesto``, ``gold_corp``)`` ``#> `` ``#> ── ``Inter-rater reliability`` ──`` ``#> `` ``#> Subjects: 1`` ``#> Raters: 2`` ``#> `` ``#> ── (boundaries) (unitizing)`` ``#> Krippendorff's alpha (unitizing, binary) [Liberal_SDP_1983] 0.7419 `` ``#> Krippendorff's alpha (unitizing, binary) [(overall)] 0.7419`` ``#> `
 
 ## Conclusion
 

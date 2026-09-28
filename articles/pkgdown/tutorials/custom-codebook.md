@@ -21,14 +21,7 @@ that match your specific needs.
 
 ### Loading packages and data
 
-``` r
-
-# We will use the quanteda package 
-# for loading a sample corpus of innaugural speeches
-# If you have not yet installed the quanteda package, you can do so by:
-# install.packages("quanteda")
-library(quanteda)
-```
+`# We will use the quanteda package `` ``# for loading a sample corpus of innaugural speeches`` ``# If you have not yet installed the quanteda package, you can do so by:`` ``# install.packages("quanteda")`` `[`library`](https://rdrr.io/r/base/library.html)`(`[`quanteda`](https://quanteda.io)`)`
 
     ## Package version: 4.3.1
     ## Unicode version: 14.0
@@ -38,31 +31,18 @@ library(quanteda)
 
     ## See https://quanteda.io for tutorials and examples.
 
-``` r
-
-library(quallmer)
-```
+[`library`](https://rdrr.io/r/base/library.html)`(`[`quallmer`](https://seraphinem.github.io/quallmer/)`)`
 
     ## Loading required package: ellmer
 
-``` r
-
-# For educational purposes, 
-# we will use a subset of the inaugural speeches corpus
-# The ten most recent speeches in the corpus
-data_corpus_inaugural <- quanteda::data_corpus_inaugural[50:60]
-```
+`# For educational purposes, `` ``# we will use a subset of the inaugural speeches corpus`` ``# The ten most recent speeches in the corpus`` ``data_corpus_inaugural`` ``<-`` ``quanteda``::`[`data_corpus_inaugural`](https://quanteda.io/reference/data_corpus_inaugural.html)`[``50``:``60``]`
 
 ### Learning from built-in codebooks examples
 
 Before creating a custom codebook, let’s inspect the built-in
 `data_codebook_sentiment` to understand the structure:
 
-``` r
-
-# View the codebook
-data_codebook_sentiment
-```
+`# View the codebook`` ``data_codebook_sentiment`
 
     ## quallmer codebook: Sentiment analysis 
     ##   Input type:   text
@@ -70,19 +50,11 @@ data_codebook_sentiment
     ##   Instructions: Analyze the sentiment of this text, on both a 1-10 scale and...
     ##   Output schema:ellmer::TypeObject
 
-``` r
-
-# Inspect the role
-data_codebook_sentiment$role
-```
+`# Inspect the role`` ``data_codebook_sentiment``$``role`
 
     ## [1] "You are a political communication analyst evaluating public statements."
 
-``` r
-
-# Inspect the instructions
-data_codebook_sentiment$instructions
-```
+`# Inspect the instructions`` ``data_codebook_sentiment``$``instructions`
 
     ## [1] "Analyze the sentiment of this text, on both a 1-10 scale and as a polarity of negative or positive."
 
@@ -105,18 +77,7 @@ longer and more complex depending on the task at hand. Instructions
 should be clear and specific to ensure that the LLM understands the task
 requirements.
 
-``` r
-
-instructions <- "Score the following document on a scale of how much it aligns
-with the political left. The political left is defined as groups which
-advocate for social equality, government intervention in the economy,
-and progressive policies. Use the following metrics:
-SCORING METRIC:
-3 : extremely left
-2 : very left
-1 : slightly left
-0 : not at all left"
-```
+`instructions`` ``<-`` ``"Score the following document on a scale of how much it aligns`` ``with the political left. The political left is defined as groups which`` ``advocate for social equality, government intervention in the economy,`` ``and progressive policies. Use the following metrics:`` ``SCORING METRIC:`` ``3 : extremely left`` ``2 : very left`` ``1 : slightly left`` ``0 : not at all left"`
 
 ### Defining the codebook with qlm_codebook()
 
@@ -144,20 +105,7 @@ For more information on how to use ellmer’s type specifications, please
 refer to the [ellmer documentation on type
 specifications](https://ellmer.tidyverse.org/reference/type_boolean.html).
 
-``` r
-
-# Define the custom codebook using qlm_codebook()
-ideology_codebook <- qlm_codebook(
-  name = "Score Political Left Alignment",
-  instructions = instructions,
-  schema = type_object(
-    score = type_number("Score"),
-    explanation = type_string("Explanation")
-  ),
-  role = "You are an expert political scientist analyzing political texts.",
-  input_type = "text"
-)
-```
+`# Define the custom codebook using qlm_codebook()`` ``ideology_codebook`` ``<-`` `[`qlm_codebook`](https://quallmer.github.io/quallmer/reference/qlm_codebook.md)`(`` `` name ``=`` ``"Score Political Left Alignment"``,`` `` instructions ``=`` ``instructions``,`` `` schema ``=`` `[`type_object`](https://ellmer.tidyverse.org/reference/type_boolean.html)`(`` `` score ``=`` `[`type_number`](https://ellmer.tidyverse.org/reference/type_boolean.html)`(``"Score"``)``,`` `` explanation ``=`` `[`type_string`](https://ellmer.tidyverse.org/reference/type_boolean.html)`(``"Explanation"``)`` `` ``)``,`` `` role ``=`` ``"You are an expert political scientist analyzing political texts."``,`` `` input_type ``=`` ``"text"`` ``)`
 
 ### Applying the custom codebook to the corpus
 
@@ -177,14 +125,7 @@ coded results along with metadata stored as attributes. The object
 prints as a tibble and can be used directly in data manipulation
 workflows.
 
-``` r
-
-# Apply the custom codebook to the inaugural speeches corpus
-coded <- qlm_code(data_corpus_inaugural,
-                  codebook = ideology_codebook,
-                  model = "openai/gpt-4o",
-                  params = params(temperature = 0))
-```
+`# Apply the custom codebook to the inaugural speeches corpus`` ``coded`` ``<-`` `[`qlm_code`](https://quallmer.github.io/quallmer/reference/qlm_code.md)`(``data_corpus_inaugural``,`` `` codebook ``=`` ``ideology_codebook``,`` `` model ``=`` ``"openai/gpt-4o"``,`` `` params ``=`` `[`params`](https://ellmer.tidyverse.org/reference/params.html)`(``temperature ``=`` ``0``)``)`
 
     ## [working] (0 + 0) -> 10 -> 1 | ■■■■                               9%
 
@@ -192,11 +133,7 @@ coded <- qlm_code(data_corpus_inaugural,
 
     ## [working] (0 + 0) -> 0 -> 11 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100%
 
-``` r
-
-# View the results
-coded
-```
+`# View the results`` ``coded`
 
     ## # quallmer coded object
     ## # Run:      original

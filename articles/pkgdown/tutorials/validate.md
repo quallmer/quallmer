@@ -15,10 +15,7 @@ tutorials](https://quallmer.github.io/quallmer/articles/pkgdown/tutorials/compar
 The quallmer app is available in the companion package `quallmer.app`.
 To install it:
 
-``` r
-# install.packages("pak")
-pak::pak("quallmer/quallmer.app")
-```
+`# install.packages("pak")`` ``pak``::`[`pak`](https://pak.r-lib.org/reference/pak.html)`(``"quallmer/quallmer.app"``)`
 
 ## Launching the quallmer app
 
@@ -27,10 +24,7 @@ To launch the quallmer app, load the `quallmer.app` package and call the
 function. This will open the quallmer app in a new window or tab in your
 web browser.
 
-``` r
-library(quallmer.app)
-qlm_app()
-```
+[`library`](https://rdrr.io/r/base/library.html)`(`[`quallmer.app`](https://github.com/quallmer/quallmer.app)`)`` `[`qlm_app`](https://rdrr.io/pkg/quallmer.app/man/qlm_app.html)`(``)`
 
 ## Using the quallmer app for manual coding
 

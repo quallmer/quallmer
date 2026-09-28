@@ -20,126 +20,29 @@ with regime type, with autocratic leaders using more illiberal language.
 
 ## Loading packages and data
 
-``` r
-library(quallmer)
-library(dplyr)
-library(ggplot2)
-```
+[`library`](https://rdrr.io/r/base/library.html)`(`[`quallmer`](https://quallmer.github.io/quallmer/)`)`` `[`library`](https://rdrr.io/r/base/library.html)`(`[`dplyr`](https://dplyr.tidyverse.org)`)`` `[`library`](https://rdrr.io/r/base/library.html)`(`[`ggplot2`](https://ggplot2.tidyverse.org)`)`
 
 We first load the full corpus of 4,740 speeches (a 100-speech sample is
 available in the package as `data_corpus_ms2020sample`):
 
-``` r
-# Load full corpus from examples folder
-data_speeches_ms2020 <- readRDS("data/data_speeches_ms2020.rds")
-
-# Full corpus
-dim(data_speeches_ms2020)
-#> [1] 4740    8
-
-# Speeches per speaker
-data_speeches_ms2020 %>%
-  count(speaker, regime) %>%
-  arrange(desc(n)) %>%
-  head(10)
-#>                 speaker    regime   n
-#> 1        Vladimir Putin Autocracy 504
-#> 2          Viktor Orbán Democracy 425
-#> 3          Ilham Aliyev Autocracy 392
-#> 4              Edi Rama Democracy 340
-#> 5            Ewa Kopacz Democracy 307
-#> 6            Enda Kenny Democracy 271
-#> 7    Mariano Rajoy Brey Democracy 254
-#> 8          Beata Szydlo Democracy 230
-#> 9    Mateusz Morawiecki Democracy 223
-#> 10 Recep Tayyip Erdogan Autocracy 189
-```
+`# Load full corpus from examples folder`` ``data_speeches_ms2020`` ``<-`` `[`readRDS`](https://rdrr.io/r/base/readRDS.html)`(``"data/data_speeches_ms2020.rds"``)`` `` ``# Full corpus`` `[`dim`](https://rdrr.io/r/base/dim.html)`(``data_speeches_ms2020``)`` ``#> [1] 4740 8`` `` ``# Speeches per speaker`` ``data_speeches_ms2020`` `[`%>%`](https://magrittr.tidyverse.org/reference/pipe.html)` `` `[`count`](https://dplyr.tidyverse.org/reference/count.html)`(``speaker``, ``regime``)`` `[`%>%`](https://magrittr.tidyverse.org/reference/pipe.html)` `` `[`arrange`](https://dplyr.tidyverse.org/reference/arrange.html)`(`[`desc`](https://dplyr.tidyverse.org/reference/desc.html)`(``n``)``)`` `[`%>%`](https://magrittr.tidyverse.org/reference/pipe.html)` `` `[`head`](https://rdrr.io/r/utils/head.html)`(``10``)`` ``#> speaker regime n`` ``#> 1 Vladimir Putin Autocracy 504`` ``#> 2 Viktor Orbán Democracy 425`` ``#> 3 Ilham Aliyev Autocracy 392`` ``#> 4 Edi Rama Democracy 340`` ``#> 5 Ewa Kopacz Democracy 307`` ``#> 6 Enda Kenny Democracy 271`` ``#> 7 Mariano Rajoy Brey Democracy 254`` ``#> 8 Beata Szydlo Democracy 230`` ``#> 9 Mateusz Morawiecki Democracy 223`` ``#> 10 Recep Tayyip Erdogan Autocracy 189`
 
 ## The codebook
 
 We create a codebook that operationalizes the liberal-illiberal concept
 from the original study:
 
-``` r
-codebook_ideology <- qlm_codebook(
-  name = "Liberal-illiberal rhetoric",
-  instructions = paste(
-    "Analyze the rhetorical style of this political speech.",
-    "",
-    "ILLIBERAL rhetoric (negative scores) includes:",
-    "- Nationalism and patriotic appeals",
-    "- Paternalism and appeals to tradition",
-    "- Emphasis on order, stability, and security",
-    "- In-group/out-group distinctions",
-    "- Rejection of pluralism",
-    "",
-    "LIBERAL rhetoric (positive scores) includes:",
-    "- Individual rights and freedoms",
-    "- Tolerance and pluralism",
-    "- Civil liberties and minority rights",
-    "- Democratic values and rule of law",
-    "- Open society principles",
-    "",
-    "A score of 0 indicates neutral or mixed rhetoric."
-  ),
-  schema = ellmer::type_object(
-    score = ellmer::type_integer(
-      description = "Rhetoric score from -10 (illiberal) to +10 (liberal)"
-    ),
-    explanation = ellmer::type_string(
-      description = "Brief explanation of the assigned score"
-    )
-  ),
-  role = "You are an expert political scientist analyzing political rhetoric.",
-  input_type = "text"
-)
-
-codebook_ideology
-#> quallmer codebook: Liberal-illiberal rhetoric 
-#>   Input type:   text
-#>   Role:         You are an expert political scientist analyzing political rh...
-#>   Instructions: Analyze the rhetorical style of this political speech.  ILLI...
-#>   Output schema:ellmer::TypeObject
-#>   Levels:
-#>     score: ordinal
-#>     explanation: nominal
-```
+`codebook_ideology`` ``<-`` `[`qlm_codebook`](https://quallmer.github.io/quallmer/reference/qlm_codebook.md)`(`` `` name ``=`` ``"Liberal-illiberal rhetoric"``,`` `` instructions ``=`` `[`paste`](https://rdrr.io/r/base/paste.html)`(`` `` ``"Analyze the rhetorical style of this political speech."``,`` `` ``""``,`` `` ``"ILLIBERAL rhetoric (negative scores) includes:"``,`` `` ``"- Nationalism and patriotic appeals"``,`` `` ``"- Paternalism and appeals to tradition"``,`` `` ``"- Emphasis on order, stability, and security"``,`` `` ``"- In-group/out-group distinctions"``,`` `` ``"- Rejection of pluralism"``,`` `` ``""``,`` `` ``"LIBERAL rhetoric (positive scores) includes:"``,`` `` ``"- Individual rights and freedoms"``,`` `` ``"- Tolerance and pluralism"``,`` `` ``"- Civil liberties and minority rights"``,`` `` ``"- Democratic values and rule of law"``,`` `` ``"- Open society principles"``,`` `` ``""``,`` `` ``"A score of 0 indicates neutral or mixed rhetoric."`` `` ``)``,`` `` schema ``=`` ``ellmer``::`[`type_object`](https://ellmer.tidyverse.org/reference/type_boolean.html)`(`` `` score ``=`` ``ellmer``::`[`type_integer`](https://ellmer.tidyverse.org/reference/type_boolean.html)`(`` `` description ``=`` ``"Rhetoric score from -10 (illiberal) to +10 (liberal)"`` `` ``)``,`` `` explanation ``=`` ``ellmer``::`[`type_string`](https://ellmer.tidyverse.org/reference/type_boolean.html)`(`` `` description ``=`` ``"Brief explanation of the assigned score"`` `` ``)`` `` ``)``,`` `` role ``=`` ``"You are an expert political scientist analyzing political rhetoric."``,`` `` input_type ``=`` ``"text"`` ``)`` `` ``codebook_ideology`` ``#> quallmer codebook: Liberal-illiberal rhetoric `` ``#> Input type: text`` ``#> Role: You are an expert political scientist analyzing political rh...`` ``#> Instructions: Analyze the rhetorical style of this political speech. ILLI...`` ``#> Output schema:ellmer::TypeObject`` ``#> Levels:`` ``#> score: ordinal`` ``#> explanation: nominal`
 
 ## Running the LLM analysis
 
 We code all 4,740 speeches using GPT-4o-mini:
 
-``` r
-coded_speeches <- qlm_code(
-  data_speeches_ms2020$text,
-  codebook = codebook_ideology,
-  model = "openai/gpt-4o-mini",
-  name = "gpt4o_mini_ideology",
-  notes = "LLM coding of 4,740 speeches for liberal-illiberal rhetoric"
-)
-
-# Save results
-saveRDS(coded_speeches, "data/coded_ideology_gpt4o.rds")
-```
+`coded_speeches`` ``<-`` `[`qlm_code`](https://quallmer.github.io/quallmer/reference/qlm_code.md)`(`` `` ``data_speeches_ms2020``$``text``,`` `` codebook ``=`` ``codebook_ideology``,`` `` model ``=`` ``"openai/gpt-4o-mini"``,`` `` name ``=`` ``"gpt4o_mini_ideology"``,`` `` notes ``=`` ``"LLM coding of 4,740 speeches for liberal-illiberal rhetoric"`` ``)`` `` ``# Save results`` `[`saveRDS`](https://rdrr.io/r/base/readRDS.html)`(``coded_speeches``, ``"data/coded_ideology_gpt4o.rds"``)`
 
 Here’s a random sample of 10 coded speeches with metadata:
 
-``` r
-set.seed(42)
-sample_ids <- sample(data_speeches_ms2020$.id, 10)
-
-data_speeches_ms2020 %>%
-  filter(.id %in% sample_ids) %>%
-  select(.id, speaker, country, regime) %>%
-  left_join(
-    as.data.frame(coded_speeches) %>% select(.id, llm_score = score, explanation),
-    by = ".id"
-  ) %>%
-  knitr::kable(
-    col.names = c("ID", "Speaker", "Country", "Regime", "Score", "Explanation"),
-    caption = "Random sample of 10 coded speeches"
-  )
-```
+[`set.seed`](https://rdrr.io/r/base/Random.html)`(``42``)`` ``sample_ids`` ``<-`` `[`sample`](https://rdrr.io/r/base/sample.html)`(``data_speeches_ms2020``$``.id``, ``10``)`` `` ``data_speeches_ms2020`` `[`%>%`](https://magrittr.tidyverse.org/reference/pipe.html)` `` `[`filter`](https://dplyr.tidyverse.org/reference/filter.html)`(``.id`` `[`%in%`](https://rdrr.io/r/base/match.html)` ``sample_ids``)`` `[`%>%`](https://magrittr.tidyverse.org/reference/pipe.html)` `` `[`select`](https://dplyr.tidyverse.org/reference/select.html)`(``.id``, ``speaker``, ``country``, ``regime``)`` `[`%>%`](https://magrittr.tidyverse.org/reference/pipe.html)` `` `[`left_join`](https://dplyr.tidyverse.org/reference/mutate-joins.html)`(`` `` `[`as.data.frame`](https://rdrr.io/r/base/as.data.frame.html)`(``coded_speeches``)`` `[`%>%`](https://magrittr.tidyverse.org/reference/pipe.html)` `[`select`](https://dplyr.tidyverse.org/reference/select.html)`(``.id``, llm_score ``=`` ``score``, ``explanation``)``,`` `` by ``=`` ``".id"`` `` ``)`` `[`%>%`](https://magrittr.tidyverse.org/reference/pipe.html)` `` ``knitr``::`[`kable`](https://rdrr.io/pkg/knitr/man/kable.html)`(`` `` col.names ``=`` `[`c`](https://rdrr.io/r/base/c.html)`(``"ID"``, ``"Speaker"``, ``"Country"``, ``"Regime"``, ``"Score"``, ``"Explanation"``)``,`` `` caption ``=`` ``"Random sample of 10 coded speeches"`` `` ``)`
 
 | ID | Speaker | Country | Regime | Score | Explanation |
 |---:|:---|:---|:---|---:|:---|
@@ -154,7 +57,7 @@ data_speeches_ms2020 %>%
 | 4069 | Vladimir Putin | Russia | Autocracy | -8 | The speech predominantly features illiberal rhetoric, emphasizing national security, military strength, and threats from international terrorism, reflecting a strong nationalist perspective. There are appeals to stability, order, and a paternalistic view of governance, with a clear distinction between ‘in-groups’ (the military and Russian citizens) and ‘out-groups’ (terrorists and foreign groups). The focus is on state security, military success, and a strong authoritarian leadership, which undermines individual rights and pluralism. |
 | 4261 | Vladimir Putin | Russia | Autocracy | -5 | The speech exhibits several characteristics of illiberal rhetoric: a strong emphasis on national pride, traditional values, and a focus on collective achievements over individual rights. The speaker praises cultural and scientific contributions in a manner that underscores patriotism and stability, while framing individual accomplishments within the context of national interest. There are notable in-group distinctions made by celebrating ‘laureates’ who advance Russia’s defense and cultural heritage, promoting a narrative of unity and traditional values which aligns with illiberal themes. |
 
-Random sample of 10 coded speeches
+Random sample of 10 coded speeches {.table}
 
 ## Aggregating to speaker level
 
@@ -170,43 +73,7 @@ where $`L`$ and $`I`$ are counts of liberal and illiberal dictionary
 terms, and $`a = 0.5`$ is a Jeffreys prior. Since the LLM uses a -10 to
 +10 scale, we standardize both to z-scores for comparison:
 
-``` r
-# Combine coded results with metadata
-coded_with_meta <- data_speeches_ms2020 %>%
-  select(.id, speaker, country, regime, dictionary_score = score) %>%
-  left_join(
-    as.data.frame(coded_speeches) %>% select(.id, llm_score = score),
-    by = ".id"
-  )
-
-# Aggregate to speaker level (mean score per speaker)
-speaker_scores <- coded_with_meta %>%
-  group_by(speaker, country, regime) %>%
-  summarise(
-    n_speeches = n(),
-    dictionary_score = mean(dictionary_score),
-    llm_score = mean(llm_score, na.rm = TRUE),
-    .groups = "drop"
-  ) %>%
-  # Standardize both scores to z-scores for comparison
-  mutate(
-    dictionary_z = scale(dictionary_score)[,1],
-    llm_z = scale(llm_score)[,1]
-  ) %>%
-  arrange(dictionary_score)
-
-head(speaker_scores)
-#> # A tibble: 6 × 8
-#>   speaker      country regime n_speeches dictionary_score llm_score dictionary_z
-#>   <chr>        <chr>   <chr>       <int>            <dbl>     <dbl>        <dbl>
-#> 1 Kim Jong Un  North … Autoc…         24            -2.44     -8.88        -3.02
-#> 2 King Salman  Saudi … Autoc…         28            -2.01     -4.57        -2.48
-#> 3 King Abdull… Saudi … Autoc…         34            -1.85     -2.68        -2.27
-#> 4 Sheikh Saba… Kuwait  Autoc…        128            -1.29     -1.27        -1.57
-#> 5 Mohammed b.… UAE     Autoc…         92            -1.16     -1.39        -1.40
-#> 6 Vladimir Pu… Russia  Autoc…        504            -1.10     -4.97        -1.33
-#> # ℹ 1 more variable: llm_z <dbl>
-```
+`# Combine coded results with metadata`` ``coded_with_meta`` ``<-`` ``data_speeches_ms2020`` `[`%>%`](https://magrittr.tidyverse.org/reference/pipe.html)` `` `[`select`](https://dplyr.tidyverse.org/reference/select.html)`(``.id``, ``speaker``, ``country``, ``regime``, dictionary_score ``=`` ``score``)`` `[`%>%`](https://magrittr.tidyverse.org/reference/pipe.html)` `` `[`left_join`](https://dplyr.tidyverse.org/reference/mutate-joins.html)`(`` `` `[`as.data.frame`](https://rdrr.io/r/base/as.data.frame.html)`(``coded_speeches``)`` `[`%>%`](https://magrittr.tidyverse.org/reference/pipe.html)` `[`select`](https://dplyr.tidyverse.org/reference/select.html)`(``.id``, llm_score ``=`` ``score``)``,`` `` by ``=`` ``".id"`` `` ``)`` `` ``# Aggregate to speaker level (mean score per speaker)`` ``speaker_scores`` ``<-`` ``coded_with_meta`` `[`%>%`](https://magrittr.tidyverse.org/reference/pipe.html)` `` `[`group_by`](https://dplyr.tidyverse.org/reference/group_by.html)`(``speaker``, ``country``, ``regime``)`` `[`%>%`](https://magrittr.tidyverse.org/reference/pipe.html)` `` `[`summarise`](https://dplyr.tidyverse.org/reference/summarise.html)`(`` `` n_speeches ``=`` `[`n`](https://dplyr.tidyverse.org/reference/context.html)`(``)``,`` `` dictionary_score ``=`` `[`mean`](https://rdrr.io/r/base/mean.html)`(``dictionary_score``)``,`` `` llm_score ``=`` `[`mean`](https://rdrr.io/r/base/mean.html)`(``llm_score``, na.rm ``=`` ``TRUE``)``,`` `` .groups ``=`` ``"drop"`` `` ``)`` `[`%>%`](https://magrittr.tidyverse.org/reference/pipe.html)` `` ``# Standardize both scores to z-scores for comparison`` `` `[`mutate`](https://dplyr.tidyverse.org/reference/mutate.html)`(`` `` dictionary_z ``=`` `[`scale`](https://rdrr.io/r/base/scale.html)`(``dictionary_score``)``[``,``1``]``,`` `` llm_z ``=`` `[`scale`](https://rdrr.io/r/base/scale.html)`(``llm_score``)``[``,``1``]`` `` ``)`` `[`%>%`](https://magrittr.tidyverse.org/reference/pipe.html)` `` `[`arrange`](https://dplyr.tidyverse.org/reference/arrange.html)`(``dictionary_score``)`` `` `[`head`](https://rdrr.io/r/utils/head.html)`(``speaker_scores``)`` ``#> ``# A tibble: 6 × 8`` ``#> speaker country regime n_speeches dictionary_score llm_score dictionary_z`` ``#> ``<chr>`` ``<chr>`` ``<chr>`` ``<int>`` ``<dbl>`` ``<dbl>`` ``<dbl>`` ``#> ``1`` Kim Jong Un North … Autoc… 24 -``2.44`` -``8.88`` -``3.02`` ``#> ``2`` King Salman Saudi … Autoc… 28 -``2.01`` -``4.57`` -``2.48`` ``#> ``3`` King Abdull… Saudi … Autoc… 34 -``1.85`` -``2.68`` -``2.27`` ``#> ``4`` Sheikh Saba… Kuwait Autoc… 128 -``1.29`` -``1.27`` -``1.57`` ``#> ``5`` Mohammed b.… UAE Autoc… 92 -``1.16`` -``1.39`` -``1.40`` ``#> ``6`` Vladimir Pu… Russia Autoc… 504 -``1.10`` -``4.97`` -``1.33`` ``#> ``# ℹ 1 more variable: llm_z <dbl>`
 
 ## Comparing dictionary and LLM approaches
 
@@ -215,37 +82,9 @@ We use
 to assess inter-rater reliability between the two approaches at the
 speaker level:
 
-``` r
-# Create qlm_coded objects for comparison (using z-scores)
-dictionary_coded <- as_qlm_coded(
-  speaker_scores %>% select(.id = speaker, score = dictionary_z),
-  name = "dictionary_ms2020"
-)
+`# Create qlm_coded objects for comparison (using z-scores)`` ``dictionary_coded`` ``<-`` `[`as_qlm_coded`](https://quallmer.github.io/quallmer/reference/as_qlm_coded.md)`(`` `` ``speaker_scores`` `[`%>%`](https://magrittr.tidyverse.org/reference/pipe.html)` `[`select`](https://dplyr.tidyverse.org/reference/select.html)`(``.id ``=`` ``speaker``, score ``=`` ``dictionary_z``)``,`` `` name ``=`` ``"dictionary_ms2020"`` ``)`` `` ``llm_coded`` ``<-`` `[`as_qlm_coded`](https://quallmer.github.io/quallmer/reference/as_qlm_coded.md)`(`` `` ``speaker_scores`` `[`%>%`](https://magrittr.tidyverse.org/reference/pipe.html)` `[`select`](https://dplyr.tidyverse.org/reference/select.html)`(``.id ``=`` ``speaker``, score ``=`` ``llm_z``)``,`` `` name ``=`` ``"gpt4o_mini_aggregated"`` ``)`
 
-llm_coded <- as_qlm_coded(
-  speaker_scores %>% select(.id = speaker, score = llm_z),
-  name = "gpt4o_mini_aggregated"
-)
-```
-
-``` r
-# Compare the two approaches
-# Set tolerance to 1 since the scales are different (z-scores) and we want to assess correlation rather than exact agreement (this affects the percent agreement metric)
-comparison <- qlm_compare(dictionary_coded, llm_coded, by = "score", level = "interval", tolerance = 1)
-comparison
-#> 
-#> ── Inter-rater reliability ──
-#> 
-#> Subjects: 40
-#> Raters: 2
-#> 
-#> ── score (interval)
-#> Percent agreement     0.9500 
-#> Krippendorff's alpha  0.8496 
-#> ICC                   0.8509 
-#> Pearson's r           0.8477
-#> 
-```
+`# Compare the two approaches`` ``# Set tolerance to 1 since the scales are different (z-scores) and we want to assess correlation rather than exact agreement (this affects the percent agreement metric)`` ``comparison`` ``<-`` `[`qlm_compare`](https://quallmer.github.io/quallmer/reference/qlm_compare.md)`(``dictionary_coded``, ``llm_coded``, by ``=`` ``"score"``, level ``=`` ``"interval"``, tolerance ``=`` ``1``)`` ``comparison`` ``#> `` ``#> ── ``Inter-rater reliability`` ──`` ``#> `` ``#> Subjects: 40`` ``#> Raters: 2`` ``#> `` ``#> ── score (interval)`` ``#> Percent agreement 0.9500 `` ``#> Krippendorff's alpha 0.8496 `` ``#> ICC 0.8509 `` ``#> Pearson's r 0.8477`` ``#> `
 
 The comparison reveals a strong positive correlation between the
 dictionary-based and LLM-based approaches. The Pearson’s *r* and ICC
@@ -267,49 +106,7 @@ Figure 1 from the original paper shows each leader’s position on the
 illiberal-liberal scale. We create a comparison showing both approaches
 using standardized scores:
 
-``` r
-# Prepare data for plotting (using z-scores for comparability)
-plot_data <- speaker_scores %>%
-  tidyr::pivot_longer(
-    cols = c(dictionary_z, llm_z),
-    names_to = "method",
-    values_to = "score"
-  ) %>%
-  mutate(
-    method = case_when(
-      method == "dictionary_z" ~ "Dictionary (original)",
-      method == "llm_z" ~ "LLM (GPT-4o-mini)"
-    )
-  )
-
-# Create comparison plot
-ggplot(plot_data, aes(x = reorder(speaker, score), y = score,
-                       color = regime, shape = method)) +
-  geom_line(aes(group = speaker), linewidth = 0.3, alpha = 0.5) +
-  geom_point(size = 3, alpha = 0.8) +
-  geom_hline(yintercept = 0, linetype = "dashed", alpha = 0.5) +
-  scale_color_manual(
-    name = "Regime type",
-    values = c("Autocracy" = "#FF3300", "Democracy" = "#00CC00")
-  ) +
-  scale_shape_manual(
-    name = "Method",
-    values = c("Dictionary (original)" = 16, "LLM (GPT-4o-mini)" = 17)
-  ) +
-  labs(
-    x = NULL,
-    y = "Illiberal ← → Liberal rhetoric (z-score)",
-    title = "Ideology scores by speaker: Dictionary vs. LLM",
-    subtitle = "Both scores standardized to z-scores for comparison"
-  ) +
-  coord_flip() +
-  theme_minimal() +
-  theme(
-    legend.position = "bottom",
-    legend.box = "vertical",
-    panel.grid.major.y = element_blank()
-  )
-```
+`# Prepare data for plotting (using z-scores for comparability)`` ``plot_data`` ``<-`` ``speaker_scores`` `[`%>%`](https://magrittr.tidyverse.org/reference/pipe.html)` `` ``tidyr``::`[`pivot_longer`](https://tidyr.tidyverse.org/reference/pivot_longer.html)`(`` `` cols ``=`` `[`c`](https://rdrr.io/r/base/c.html)`(``dictionary_z``, ``llm_z``)``,`` `` names_to ``=`` ``"method"``,`` `` values_to ``=`` ``"score"`` `` ``)`` `[`%>%`](https://magrittr.tidyverse.org/reference/pipe.html)` `` `[`mutate`](https://dplyr.tidyverse.org/reference/mutate.html)`(`` `` method ``=`` `[`case_when`](https://dplyr.tidyverse.org/reference/case-and-replace-when.html)`(`` `` ``method`` ``==`` ``"dictionary_z"`` ``~`` ``"Dictionary (original)"``,`` `` ``method`` ``==`` ``"llm_z"`` ``~`` ``"LLM (GPT-4o-mini)"`` `` ``)`` `` ``)`` `` ``# Create comparison plot`` `[`ggplot`](https://ggplot2.tidyverse.org/reference/ggplot.html)`(``plot_data``, `[`aes`](https://ggplot2.tidyverse.org/reference/aes.html)`(``x ``=`` `[`reorder`](https://rdrr.io/r/stats/reorder.factor.html)`(``speaker``, ``score``)``, y ``=`` ``score``,`` `` color ``=`` ``regime``, shape ``=`` ``method``)``)`` ``+`` `` `[`geom_line`](https://ggplot2.tidyverse.org/reference/geom_path.html)`(`[`aes`](https://ggplot2.tidyverse.org/reference/aes.html)`(``group ``=`` ``speaker``)``, linewidth ``=`` ``0.3``, alpha ``=`` ``0.5``)`` ``+`` `` `[`geom_point`](https://ggplot2.tidyverse.org/reference/geom_point.html)`(``size ``=`` ``3``, alpha ``=`` ``0.8``)`` ``+`` `` `[`geom_hline`](https://ggplot2.tidyverse.org/reference/geom_abline.html)`(``yintercept ``=`` ``0``, linetype ``=`` ``"dashed"``, alpha ``=`` ``0.5``)`` ``+`` `` `[`scale_color_manual`](https://ggplot2.tidyverse.org/reference/scale_manual.html)`(`` `` name ``=`` ``"Regime type"``,`` `` values ``=`` `[`c`](https://rdrr.io/r/base/c.html)`(``"Autocracy"`` ``=`` ``"#FF3300"``, ``"Democracy"`` ``=`` ``"#00CC00"``)`` `` ``)`` ``+`` `` `[`scale_shape_manual`](https://ggplot2.tidyverse.org/reference/scale_manual.html)`(`` `` name ``=`` ``"Method"``,`` `` values ``=`` `[`c`](https://rdrr.io/r/base/c.html)`(``"Dictionary (original)"`` ``=`` ``16``, ``"LLM (GPT-4o-mini)"`` ``=`` ``17``)`` `` ``)`` ``+`` `` `[`labs`](https://ggplot2.tidyverse.org/reference/labs.html)`(`` `` x ``=`` ``NULL``,`` `` y ``=`` ``"Illiberal ← → Liberal rhetoric (z-score)"``,`` `` title ``=`` ``"Ideology scores by speaker: Dictionary vs. LLM"``,`` `` subtitle ``=`` ``"Both scores standardized to z-scores for comparison"`` `` ``)`` ``+`` `` `[`coord_flip`](https://ggplot2.tidyverse.org/reference/coord_flip.html)`(``)`` ``+`` `` `[`theme_minimal`](https://ggplot2.tidyverse.org/reference/ggtheme.html)`(``)`` ``+`` `` `[`theme`](https://ggplot2.tidyverse.org/reference/theme.html)`(`` `` legend.position ``=`` ``"bottom"``,`` `` legend.box ``=`` ``"vertical"``,`` `` panel.grid.major.y ``=`` `[`element_blank`](https://ggplot2.tidyverse.org/reference/element.html)`(``)`` `` ``)`
 
 ![](example_illiberalism_files/figure-html/figure1-comparison-1.png)
 
@@ -323,25 +120,7 @@ paper](https://doi.org/10.1007/s11135-019-00885-7).
 A direct comparison of the two scoring methods using standardized
 scores:
 
-``` r
-ggplot(speaker_scores, aes(x = dictionary_z, y = llm_z, color = regime)) +
-  geom_point(size = 4, alpha = 0.8) +
-  geom_smooth(method = "lm", se = TRUE, color = "gray40", linetype = "dashed") +
-  geom_abline(slope = 1, intercept = 0, linetype = "dotted", alpha = 0.5) +
-  scale_color_manual(
-    name = "Regime type",
-    values = c("Autocracy" = "#FF3300", "Democracy" = "#00CC00")
-  ) +
-  labs(
-    x = "Dictionary score (z-score)",
-    y = "LLM score (z-score)",
-    title = "Dictionary vs. LLM ideology scores",
-    subtitle = "Both standardized; dotted = perfect agreement; dashed = linear fit"
-  ) +
-  theme_minimal() +
-  theme(legend.position = "bottom")
-#> `geom_smooth()` using formula = 'y ~ x'
-```
+[`ggplot`](https://ggplot2.tidyverse.org/reference/ggplot.html)`(``speaker_scores``, `[`aes`](https://ggplot2.tidyverse.org/reference/aes.html)`(``x ``=`` ``dictionary_z``, y ``=`` ``llm_z``, color ``=`` ``regime``)``)`` ``+`` `` `[`geom_point`](https://ggplot2.tidyverse.org/reference/geom_point.html)`(``size ``=`` ``4``, alpha ``=`` ``0.8``)`` ``+`` `` `[`geom_smooth`](https://ggplot2.tidyverse.org/reference/geom_smooth.html)`(``method ``=`` ``"lm"``, se ``=`` ``TRUE``, color ``=`` ``"gray40"``, linetype ``=`` ``"dashed"``)`` ``+`` `` `[`geom_abline`](https://ggplot2.tidyverse.org/reference/geom_abline.html)`(``slope ``=`` ``1``, intercept ``=`` ``0``, linetype ``=`` ``"dotted"``, alpha ``=`` ``0.5``)`` ``+`` `` `[`scale_color_manual`](https://ggplot2.tidyverse.org/reference/scale_manual.html)`(`` `` name ``=`` ``"Regime type"``,`` `` values ``=`` `[`c`](https://rdrr.io/r/base/c.html)`(``"Autocracy"`` ``=`` ``"#FF3300"``, ``"Democracy"`` ``=`` ``"#00CC00"``)`` `` ``)`` ``+`` `` `[`labs`](https://ggplot2.tidyverse.org/reference/labs.html)`(`` `` x ``=`` ``"Dictionary score (z-score)"``,`` `` y ``=`` ``"LLM score (z-score)"``,`` `` title ``=`` ``"Dictionary vs. LLM ideology scores"``,`` `` subtitle ``=`` ``"Both standardized; dotted = perfect agreement; dashed = linear fit"`` `` ``)`` ``+`` `` `[`theme_minimal`](https://ggplot2.tidyverse.org/reference/ggtheme.html)`(``)`` ``+`` `` `[`theme`](https://ggplot2.tidyverse.org/reference/theme.html)`(``legend.position ``=`` ``"bottom"``)`` ``` #> `geom_smooth()` using formula = 'y ~ x' ``
 
 ![](example_illiberalism_files/figure-html/scatter-1.png)
 
@@ -364,9 +143,7 @@ discrepancy.
 
 Document the complete analysis:
 
-``` r
-qlm_trail(coded_speeches, path = "ideology_replication")
-```
+[`qlm_trail`](https://quallmer.github.io/quallmer/reference/qlm_trail.md)`(``coded_speeches``, path ``=`` ``"ideology_replication"``)`
 
 This creates two files:
 

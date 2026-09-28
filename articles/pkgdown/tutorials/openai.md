@@ -61,11 +61,7 @@ file. This approach ensures that the environment variable persists
 across all your R sessions as the Shiny app runs in the background. Here
 is a set of commands to open the .Renviron file for modification:
 
-``` r
-
-require(usethis)
-edit_r_environ()
-```
+[`require`](https://rdrr.io/r/base/library.html)`(`[`usethis`](https://usethis.r-lib.org)`)`` `[`edit_r_environ`](https://usethis.r-lib.org/reference/edit.html)`(``)`
 
 Add the following line to .Renviron, replacing “APIKEY” with your actual
 API key: OPENAI_API_KEY=“APIKEY”. You need to restart your R session for
