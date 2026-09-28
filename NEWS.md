@@ -320,6 +320,12 @@ Everything in this section postdates quallmer 0.4.0, released on CRAN on
 
 ## Documentation
 
+* `qlm_backfill()` is no longer presented as part of the coding step of the
+  workflow. The README, the "Getting started" vignette, and "The quallmer
+  workflow" article now describe it in an optional section on completing an
+  incomplete run, and the reference index lists it with `qlm_failures()`
+  under a new "Completing incomplete runs" heading (#190, @SeraphineM).
+
 * The "Audio transcription and analysis" example article now shows both
   routes: transcription with Whisper followed by coding of the transcripts,
   and coding the recordings directly with `input_type = "audio"` on

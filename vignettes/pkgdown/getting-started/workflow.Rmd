@@ -13,7 +13,7 @@ This tutorial provides a quick overview of the quallmer workflow for LLM-assiste
 ## The workflow at a glance
 
 1. **Define** your codebook with `qlm_codebook()`
-2. **Code** your data with `qlm_code()`, and complete a run that came back with failures using `qlm_backfill()`
+2. **Code** your data with `qlm_code()`
 3. **Replicate** with different settings using `qlm_replicate()`
 4. **Compare** results with `qlm_compare()`
 5. **Document** everything with `qlm_trail()`
@@ -67,7 +67,50 @@ coded <- qlm_code(
 coded
 ```
 
-### When a run comes back incomplete
+> **Tip:** Did some units come back as failures? If a few timed out, were refused, or did not fit in the model's context window, `qlm_backfill()` re-codes just those units and merges them into the run. See [Completing an incomplete run](#completing-an-incomplete-run) below.
+
+## Step 3: Replicate with a different model
+
+Test reliability by coding again with a different model:
+
+```{r}
+coded2 <- qlm_replicate(
+  coded,
+  model = "openai/gpt-4o",
+  name = "gpt4o"
+)
+
+coded2
+```
+
+## Step 4: Compare results
+
+Assess inter-rater reliability between the two coding runs:
+
+```{r}
+comparison <- qlm_compare(coded, coded2)
+comparison
+```
+
+If you have gold standard human coding, you can also validate against it with `qlm_validate()`.
+
+## Step 5: Create an audit trail
+
+Document your complete workflow, including models, parameters, and results and a Quarto report with replication instructions:
+
+```{r}
+# View the trail
+trail <- qlm_trail(coded, coded2, comparison)
+trail
+
+# Save trail and generate report
+qlm_trail(coded, coded2, comparison, path = "my_analysis")
+# Creates: my_analysis.rds, my_analysis.qmd
+```
+
+This workflow provides a structured approach to leveraging LLMs for qualitative coding with transparency as well as full traceability and the ability to replicate and validate your analyses. 
+
+## Optional: completing an incomplete run {#completing-an-incomplete-run}
 
 A run over a real corpus rarely comes back complete. Requests time out or hit a rate limit, a provider refuses a text on one pass and codes it on the next, an endpoint accepts the schema and then returns something that does not fit it. The units that failed sit in the object as rows of `NA`, `print()` counts them, and `qlm_failures()` lists them with the reason.
 
@@ -114,44 +157,3 @@ The two are for different failures. Retries catch what a moment's wait fixes, in
 | Output was cut off at `max_tokens` | Backfill with a higher output limit | `qlm_backfill(..., params = ellmer::params(max_tokens = ))` |
 
 Two settings shape how much there is to backfill. The first is what a failure does to the rest of the run. By default `qlm_code()` runs with `on_error = "continue"` on both paths, so every unit is attempted and only the units that actually failed are left for a backfill, each with its reason in `.error`. Pass `on_error = "return"` to stop sending new requests after the first failure and return what there is, which is ellmer's own default. On the structured path that is the whole run: one timeout can then leave most of a corpus uncoded, and the units never sent carry no `.error`. On the JSON path it is one wave, since `json_retries` sends the units a wave did not reach in later waves, each stopped in turn at its first failure, and whatever is still unsent at the end does carry an `.error`; the run stops after the first wave only with `json_retries = 0`. The second is `qlm_code(backfill = 2)`, which runs the passes in the same call, if you would rather not make them a separate step. Either way, a replication made with `qlm_replicate()` replays the passes recorded on its parent, so both are complete on the same terms.
-
-## Step 3: Replicate with a different model
-
-Test reliability by coding again with a different model:
-
-```{r}
-coded2 <- qlm_replicate(
-  coded,
-  model = "openai/gpt-4o",
-  name = "gpt4o"
-)
-
-coded2
-```
-
-## Step 4: Compare results
-
-Assess inter-rater reliability between the two coding runs:
-
-```{r}
-comparison <- qlm_compare(coded, coded2)
-comparison
-```
-
-If you have gold standard human coding, you can also validate against it with `qlm_validate()`.
-
-## Step 5: Create an audit trail
-
-Document your complete workflow, including models, parameters, and results and a Quarto report with replication instructions:
-
-```{r}
-# View the trail
-trail <- qlm_trail(coded, coded2, comparison)
-trail
-
-# Save trail and generate report
-qlm_trail(coded, coded2, comparison, path = "my_analysis")
-# Creates: my_analysis.rds, my_analysis.qmd
-```
-
-This workflow provides a structured approach to leveraging LLMs for qualitative coding with transparency as well as full traceability and the ability to replicate and validate your analyses. 

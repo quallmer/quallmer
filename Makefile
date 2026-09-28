@@ -34,16 +34,24 @@ article:
 deploy-article: article
 	$(MAKE) deploy-articles
 
-# Deploy articles and workshop materials to gh-pages without touching other content
+# Deploy articles and workshop materials to gh-pages without touching other content.
+# Run it from main: whatever is in docs/articles goes live, and CI keeps it.
+# The commit is built on origin/gh-pages, not the local branch, which falls
+# behind every CI deploy and would make the push a rejected non-fast-forward.
+# The temporary worktree sits inside the package directory, so it is removed
+# whether or not the deploy succeeds; a leftover one would end up in the next
+# R CMD build.
 deploy-articles: readme
-	git worktree add --detach gh-pages-tmp gh-pages
-	cp -r docs/articles/* gh-pages-tmp/articles/
-	if [ -d docs/workshops ]; then mkdir -p gh-pages-tmp/workshops && cp -r docs/workshops/* gh-pages-tmp/workshops/; fi
-	cd gh-pages-tmp && \
+	git fetch origin gh-pages
+	git worktree remove --force gh-pages-tmp 2>/dev/null || true
+	git worktree add --detach gh-pages-tmp origin/gh-pages
+	( cp -r docs/articles/* gh-pages-tmp/articles/ && \
+		if [ -d docs/workshops ]; then mkdir -p gh-pages-tmp/workshops && cp -r docs/workshops/* gh-pages-tmp/workshops/; fi && \
+		cd gh-pages-tmp && \
 		git add -A && \
-		git commit -m "Update articles and workshop materials" && \
-		git push origin HEAD:gh-pages
-	git worktree remove gh-pages-tmp
+		if git diff --cached --quiet; then echo "No article changes to deploy."; \
+		else git commit -m "Update articles and workshop materials" && git push origin HEAD:gh-pages; fi ); \
+	status=$$?; git worktree remove --force gh-pages-tmp; exit $$status
 
 # Full local site build (with updated README)
 site: readme

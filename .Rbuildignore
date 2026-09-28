@@ -30,3 +30,4 @@
 ^sources$
 ^dev$
 ^\.git$
+^gh-pages-tmp$
