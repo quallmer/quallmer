@@ -11,7 +11,7 @@ that guide the LLM and the structured output schema."><meta property="og:image" 
 
     <a class="navbar-brand me-2" href="../index.html">quallmer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -26,9 +26,11 @@ that guide the LLM and the structured output schema."><meta property="og:image" 
     <li><a class="dropdown-item" href="../articles/pkgdown/getting-started/openai.html">Signing up for an OpenAI API key</a></li>
     <li><a class="dropdown-item" href="../articles/pkgdown/getting-started/ollama.html">Working with an open-source Ollama model</a></li>
   </ul></li>
+<li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-tutorials" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Tutorials</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-tutorials"><li><a class="dropdown-item" href="../articles/pkgdown/tutorials/trail.html">The quallmer audit trail</a></li>
+    <li><a class="dropdown-item" href="../articles/pkgdown/tutorials/tools.html">Coding with web-search tools</a></li>
     <li><a class="dropdown-item" href="../articles/pkgdown/tutorials/validate.html">Using the quallmer.app</a></li>
   </ul></li>
 <li class="nav-item dropdown">
@@ -40,7 +42,6 @@ that guide the LLM and the structured output schema."><meta property="og:image" 
     <li><a class="dropdown-item" href="../articles/pkgdown/examples/example_quasi_sentences.html">Quasi-sentence segmentation</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../articles/pkgdown/workshops.html">Workshops</a></li>
-<li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -70,8 +71,10 @@ that guide the LLM and the structured output schema.</p>
 <span>  <span class="va">instructions</span>,</span>
 <span>  <span class="va">schema</span>,</span>
 <span>  role <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  input_type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"text"</span>, <span class="st">"image"</span><span class="op">)</span>,</span>
-<span>  levels <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  input_type <span class="op">=</span> <span class="fu">input_types</span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  levels <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  image_file_resize <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  image_url_detail <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -89,7 +92,7 @@ that guide the LLM and the structured output schema.</p>
 
 <dt id="arg-schema">schema<a class="anchor" aria-label="anchor" href="#arg-schema"></a></dt>
 <dd><p>Structured output definition, e.g., created by
-<code><a href="https://ellmer.tidyverse.org/reference/type_boolean.html" class="external-link">ellmer::type_object()</a></code>, <code><a href="https://ellmer.tidyverse.org/reference/type_boolean.html" class="external-link">ellmer::type_array()</a></code>, or <code><a href="https://ellmer.tidyverse.org/reference/type_boolean.html" class="external-link">ellmer::type_enum()</a></code>.</p></dd>
+<code><a href="https://ellmer.tidyverse.org/reference/type_boolean.html" class="external-link">type_object()</a></code>, <code><a href="https://ellmer.tidyverse.org/reference/type_boolean.html" class="external-link">type_array()</a></code>, or <code><a href="https://ellmer.tidyverse.org/reference/type_boolean.html" class="external-link">type_enum()</a></code>.</p></dd>
 
 
 <dt id="arg-role">role<a class="anchor" aria-label="anchor" href="#arg-role"></a></dt>
@@ -99,7 +102,13 @@ creating the system prompt.</p></dd>
 
 
 <dt id="arg-input-type">input_type<a class="anchor" aria-label="anchor" href="#arg-input-type"></a></dt>
-<dd><p>Type of input data: <code>"text"</code> (default) or <code>"image"</code>.</p></dd>
+<dd><p>Type of input data: <code>"text"</code> (default), <code>"image"</code>,
+<code>"audio"</code> or <code>"video"</code>. For the other three the elements of <code>x</code> in
+<code><a href="qlm_code.html">qlm_code()</a></code> are file paths; for <code>"image"</code> they may also be URLs, and
+for <code>"video"</code> YouTube links or URLs of video files. See the sections
+"Image input", "Audio input" and "Video input" of <code><a href="qlm_code.html">qlm_code()</a></code> for how
+the files are handled and what is known about which providers accept
+them.</p></dd>
 
 
 <dt id="arg-levels">levels<a class="anchor" aria-label="anchor" href="#arg-levels"></a></dt>
@@ -108,7 +117,56 @@ variable in the schema. Names should match schema property names. Values
 should be one of <code>"nominal"</code>, <code>"ordinal"</code>, <code>"interval"</code>, or <code>"ratio"</code>.
 If <code>NULL</code> (default), levels are auto-detected from schema types using the
 following mapping: <code>type_boolean</code> and <code>type_enum</code> = nominal, <code>type_string</code>
-= nominal, <code>type_integer</code> = ordinal, <code>type_number</code> = interval.</p></dd>
+= nominal, <code>type_integer</code> = ordinal, <code>type_number</code> = interval.</p>
+<p>A <code><a href="https://ellmer.tidyverse.org/reference/type_boolean.html" class="external-link">type_enum()</a></code> is nominal unless declared <code>"ordinal"</code> here. For an
+ordinal enum the values, in the order they are written, are the scale
+order: <code>type_enum(c("low", "medium", "high"))</code> with
+<code>levels = list(severity = "ordinal")</code> ranks low below medium below high.
+<code><a href="qlm_code.html">qlm_code()</a></code> stores such a column as an ordered factor with those levels,
+and <code><a href="as_qlm_coded.html">as_qlm_coded()</a></code> does the same for human-coded data given this
+codebook, so <code><a href="qlm_compare.html">qlm_compare()</a></code> and <code><a href="qlm_validate.html">qlm_validate()</a></code> rank the categories by
+that order rather than alphabetically.</p>
+<p>Names may refer to properties at any depth of the schema, including those
+inside a nested <code><a href="https://ellmer.tidyverse.org/reference/type_boolean.html" class="external-link">type_object()</a></code> or the items of a <code><a href="https://ellmer.tidyverse.org/reference/type_boolean.html" class="external-link">type_array()</a></code>. A level
+declared for a nested variable describes that variable in a table
+unnested to one row per item. <code><a href="qlm_compare.html">qlm_compare()</a></code> and <code><a href="qlm_validate.html">qlm_validate()</a></code> merge
+on <code>.id</code>, so such a table needs an identifier that is unique per item
+(a document-item key, not the document's <code>.id</code> alone) and must be
+re-wrapped with <code><a href="as_qlm_coded.html">as_qlm_coded()</a></code>, passing this codebook as <code>codebook</code>,
+for the declared levels to be found. Because <code>levels</code> is a flat list, a
+name that occurs at more than one place in the schema cannot be declared
+and is an error; rename the properties to make them distinct.</p></dd>
+
+
+<dt id="arg-image-file-resize">image_file_resize<a class="anchor" aria-label="anchor" href="#arg-image-file-resize"></a></dt>
+<dd><p>How image files are resized before they are sent,
+for <code>input_type = "image"</code> only; setting it on any other codebook is an
+error. One of <code>"high"</code> (the default: fit within 2000x768 or 768x2000
+pixels, whichever suits the orientation), <code>"low"</code> (fit within 512x512),
+<code>"none"</code> (send the file as it is), or a <span class="pkg">magick</span> geometry string
+such as <code>"1024x1024&gt;"</code>. Anything other than <code>"none"</code> needs the
+<span class="pkg">magick</span> package, and <code><a href="qlm_code.html">qlm_code()</a></code> says so if it is missing. The
+value is stored on the codebook, so replications and backfills code at
+the same resolution and <code><a href="qlm_trail.html">qlm_trail()</a></code> records it. It applies to file
+paths only: an element of <code>x</code> that is a URL is fetched by the provider
+as it is. Codebooks saved before this field existed, including
+<code><a href="task.html">task()</a></code> objects, are read as <code>"low"</code>, the resolution they were coded
+at, rather than the current default. See <code><a href="https://ellmer.tidyverse.org/reference/content_image_url.html" class="external-link">ellmer::content_image_file()</a></code>.</p></dd>
+
+
+<dt id="arg-image-url-detail">image_url_detail<a class="anchor" aria-label="anchor" href="#arg-image-url-detail"></a></dt>
+<dd><p>How much detail the provider should read from an
+image given as a URL, for <code>input_type = "image"</code> only: <code>"auto"</code> (the
+default, the provider chooses), <code>"low"</code> or <code>"high"</code>. Passed to
+<code><a href="https://ellmer.tidyverse.org/reference/content_image_url.html" class="external-link">ellmer::content_image_url()</a></code> for every element of <code>x</code> that is a URL;
+files are governed by <code>image_file_resize</code> instead. OpenAI and
+OpenAI-compatible providers use it and other providers ignore it, and
+ellmer forwards it only from the version that includes
+<a href="https://github.com/tidyverse/ellmer/pull/1133" class="external-link">https://github.com/tidyverse/ellmer/pull/1133</a>; <code><a href="qlm_code.html">qlm_code()</a></code> says so
+before the run when a value other than <code>"auto"</code> cannot take effect.
+Stored on the codebook and recorded with the run like
+<code>image_file_resize</code>; codebooks saved before the field existed are read
+as <code>"auto"</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -164,14 +222,12 @@ backward compatibility.</p>
 <span class="r-in"><span>  levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>score <span class="op">=</span> <span class="st">"interval"</span>, explanation <span class="op">=</span> <span class="st">"nominal"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span><span class="co"># Use with qlm_code() (requires API key)</span></span></span>
 <span class="r-in"><span><span class="va">texts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"I love this!"</span>, <span class="st">"This is terrible."</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">coded</span> <span class="op">&lt;-</span> <span class="fu"><a href="qlm_code.html">qlm_code</a></span><span class="op">(</span><span class="va">texts</span>, <span class="va">my_codebook</span>, model <span class="op">=</span> <span class="st">"openai/gpt-4o-mini"</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in openai_key():</span> Can't find env var `OPENAI_API_KEY`.</span>
 <span class="r-in"><span><span class="va">coded</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'coded' not found</span>
-<span class="r-in"><span><span class="co"># }</span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

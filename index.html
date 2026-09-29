@@ -16,8 +16,8 @@
 <script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Qualitative Analysis with Large Language Models">
-<meta name="description" content="Tools for AI-assisted qualitative data coding using large language models (LLMs) via the ellmer package, supporting providers including OpenAI, Anthropic, Google, Azure, and local models via Ollama. Provides a codebook-based workflow for defining coding instructions and applying them to texts, images, and other data. Includes built-in codebooks for common applications such as sentiment analysis and policy coding, and functions for creating custom codebooks for specific research questions. Supports systematic replication across models and settings, computing inter-coder reliability statistics including Krippendorffs alpha (Krippendorff 2019, &lt;doi:10.4135/9781071878781&gt;) and Fleiss kappa (Fleiss 1971, &lt;doi:10.1037/h0031619&gt;), as well as gold-standard validation metrics including accuracy, precision, recall, and F1 scores following Sokolova and Lapalme (2009, &lt;doi:10.1016/j.ipm.2009.03.002&gt;). Provides audit trail functionality for documenting coding workflows following Lincoln and Guba's (1985, ISBN:0803924313) framework for establishing trustworthiness in qualitative research.">
-<meta property="og:description" content="Tools for AI-assisted qualitative data coding using large language models (LLMs) via the ellmer package, supporting providers including OpenAI, Anthropic, Google, Azure, and local models via Ollama. Provides a codebook-based workflow for defining coding instructions and applying them to texts, images, and other data. Includes built-in codebooks for common applications such as sentiment analysis and policy coding, and functions for creating custom codebooks for specific research questions. Supports systematic replication across models and settings, computing inter-coder reliability statistics including Krippendorffs alpha (Krippendorff 2019, &lt;doi:10.4135/9781071878781&gt;) and Fleiss kappa (Fleiss 1971, &lt;doi:10.1037/h0031619&gt;), as well as gold-standard validation metrics including accuracy, precision, recall, and F1 scores following Sokolova and Lapalme (2009, &lt;doi:10.1016/j.ipm.2009.03.002&gt;). Provides audit trail functionality for documenting coding workflows following Lincoln and Guba's (1985, ISBN:0803924313) framework for establishing trustworthiness in qualitative research.">
+<meta name="description" content="Tools for AI-assisted qualitative data coding using large language models (LLMs) via the ellmer package, supporting providers including OpenAI, Anthropic, Google, Azure, and local models via Ollama. Provides a codebook-based workflow for defining coding instructions and applying them to texts, images, audio recordings, and other data. Includes built-in codebooks for common applications such as sentiment analysis and policy coding, and functions for creating custom codebooks for specific research questions. Supports systematic replication across models and settings, computing inter-coder reliability statistics including Krippendorffs alpha (Krippendorff 2019, &lt;doi:10.4135/9781071878781&gt;) and Fleiss kappa (Fleiss 1971, &lt;doi:10.1037/h0031619&gt;), as well as gold-standard validation metrics including accuracy, precision, recall, and F1 scores following Sokolova and Lapalme (2009, &lt;doi:10.1016/j.ipm.2009.03.002&gt;). Provides audit trail functionality for documenting coding workflows following Lincoln and Guba's (1985, ISBN:0803924313) framework for establishing trustworthiness in qualitative research.">
+<meta property="og:description" content="Tools for AI-assisted qualitative data coding using large language models (LLMs) via the ellmer package, supporting providers including OpenAI, Anthropic, Google, Azure, and local models via Ollama. Provides a codebook-based workflow for defining coding instructions and applying them to texts, images, audio recordings, and other data. Includes built-in codebooks for common applications such as sentiment analysis and policy coding, and functions for creating custom codebooks for specific research questions. Supports systematic replication across models and settings, computing inter-coder reliability statistics including Krippendorffs alpha (Krippendorff 2019, &lt;doi:10.4135/9781071878781&gt;) and Fleiss kappa (Fleiss 1971, &lt;doi:10.1037/h0031619&gt;), as well as gold-standard validation metrics including accuracy, precision, recall, and F1 scores following Sokolova and Lapalme (2009, &lt;doi:10.1016/j.ipm.2009.03.002&gt;). Provides audit trail functionality for documenting coding workflows following Lincoln and Guba's (1985, ISBN:0803924313) framework for establishing trustworthiness in qualitative research.">
 <meta property="og:image" content="https://quallmer.github.io/quallmer/logo.png">
 </head>
 <body>
@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="index.html">quallmer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,10 +46,12 @@
     <li><a class="dropdown-item" href="articles/pkgdown/getting-started/ollama.html">Working with an open-source Ollama model</a></li>
   </ul>
 </li>
+<li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-tutorials" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Tutorials</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-tutorials">
 <li><a class="dropdown-item" href="articles/pkgdown/tutorials/trail.html">The quallmer audit trail</a></li>
+    <li><a class="dropdown-item" href="articles/pkgdown/tutorials/tools.html">Coding with web-search tools</a></li>
     <li><a class="dropdown-item" href="articles/pkgdown/tutorials/validate.html">Using the quallmer.app</a></li>
   </ul>
 </li>
@@ -64,7 +66,6 @@
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="articles/pkgdown/workshops.html">Workshops</a></li>
-<li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
@@ -142,6 +143,7 @@
 <ul>
 <li>Re-executes coding with optional overrides (different models, codebooks, or parameters).</li>
 <li>Tracks provenance chain for comparing results across different configurations.</li>
+<li>Replays any backfill the original run had, so a replication is complete on the same terms.</li>
 <li>Enables systematic assessment of coding reliability and sensitivity to model choices.</li>
 </ul>
 </div>
@@ -187,6 +189,21 @@
 </ul>
 </div>
 </div>
+<div class="section level3">
+<h3 id="optional-complete-an-incomplete-run">Optional: complete an incomplete run<a class="anchor" aria-label="anchor" href="#optional-complete-an-incomplete-run"></a>
+</h3>
+<div class="section level4">
+<h4 id="qlm_backfill">
+<code>qlm_backfill()</code><a class="anchor" aria-label="anchor" href="#qlm_backfill"></a>
+</h4>
+<ul>
+<li>Completes a run: <code><a href="reference/qlm_failures.html">qlm_failures()</a></code> lists the units a run failed on and why, and <code><a href="reference/qlm_backfill.html">qlm_backfill()</a></code> re-codes just those units and merges them back, so a few transient failures do not mean re-running the corpus.</li>
+<li>Uses the run’s own model and settings by default; a different model can be given for units the original consistently refuses or cannot fit, and the result then records which units came from which model.</li>
+<li>
+<code>qlm_code(backfill = 2)</code> does this in the same call.</li>
+</ul>
+</div>
+</div>
 </div>
 <div class="section level2">
 <h2 id="interactive-quallmer-app">Interactive quallmer app<a class="anchor" aria-label="anchor" href="#interactive-quallmer-app"></a>
@@ -214,7 +231,7 @@
 <div class="section level2">
 <h2 id="acknowledgments">Acknowledgments<a class="anchor" aria-label="anchor" href="#acknowledgments"></a>
 </h2>
-<p>Development of this package was assisted by <a href="https://claude.com/claude-code" class="external-link">Claude Code</a>, an AI coding assistant by Anthropic, for code refactoring, documentation updates, and package restructuring.</p>
+<p>Development of this package was assisted by <a href="https://claude.com/claude-code" class="external-link">Claude Code</a>, an AI coding assistant by Anthropic, for code refactoring, documentation updates, and package restructuring. We also found OpenAI’s <a href="https://github.com/openai/codex" class="external-link">Codex</a> good for planning solutions to issues and for reviewing pull requests.</p>
 </div>
 <div class="section level2">
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
@@ -263,7 +280,7 @@
 <h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
 <li><a href="https://CRAN.R-project.org/package=quallmer" class="external-link"><img src="https://www.r-pkg.org/badges/version/quallmer" alt="CRAN status"></a></li>
-<li><a href="https://github.com/quallmer/quallmer" class="external-link"><img src="https://img.shields.io/badge/devel%20version-0.4.0-royalblue.svg"></a></li>
+<li><a href="https://github.com/quallmer/quallmer" class="external-link"><img src="https://img.shields.io/badge/devel%20version-0.5.0-royalblue.svg"></a></li>
 <li><a href="https://github.com/quallmer/quallmer/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/quallmer/quallmer/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
 <li><a href="https://app.codecov.io/gh/quallmer/quallmer" class="external-link"><img src="https://codecov.io/gh/quallmer/quallmer/graph/badge.svg" alt="Codecov test coverage"></a></li>
 <li><a href="https://quallmer.github.io/quallmer/"><img src="https://img.shields.io/badge/pkgdown-site-blue" alt="pkgdown"></a></li>

@@ -11,7 +11,7 @@ metadata for reproducibility."><meta property="og:image" content="https://quallm
 
     <a class="navbar-brand me-2" href="../index.html">quallmer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -26,9 +26,11 @@ metadata for reproducibility."><meta property="og:image" content="https://quallm
     <li><a class="dropdown-item" href="../articles/pkgdown/getting-started/openai.html">Signing up for an OpenAI API key</a></li>
     <li><a class="dropdown-item" href="../articles/pkgdown/getting-started/ollama.html">Working with an open-source Ollama model</a></li>
   </ul></li>
+<li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-tutorials" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Tutorials</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-tutorials"><li><a class="dropdown-item" href="../articles/pkgdown/tutorials/trail.html">The quallmer audit trail</a></li>
+    <li><a class="dropdown-item" href="../articles/pkgdown/tutorials/tools.html">Coding with web-search tools</a></li>
     <li><a class="dropdown-item" href="../articles/pkgdown/tutorials/validate.html">Using the quallmer.app</a></li>
   </ul></li>
 <li class="nav-item dropdown">
@@ -40,7 +42,6 @@ metadata for reproducibility."><meta property="og:image" content="https://quallm
     <li><a class="dropdown-item" href="../articles/pkgdown/examples/example_quasi_sentences.html">Quasi-sentence segmentation</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../articles/pkgdown/workshops.html">Workshops</a></li>
-<li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -65,7 +66,21 @@ metadata for reproducibility.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">qlm_code</span><span class="op">(</span><span class="va">x</span>, <span class="va">codebook</span>, <span class="va">model</span>, <span class="va">...</span>, batch <span class="op">=</span> <span class="cn">FALSE</span>, name <span class="op">=</span> <span class="cn">NULL</span>, notes <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">qlm_code</span><span class="op">(</span></span>
+<span>  <span class="va">x</span>,</span>
+<span>  <span class="va">codebook</span>,</span>
+<span>  <span class="va">model</span>,</span>
+<span>  <span class="va">...</span>,</span>
+<span>  batch <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  tools <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  structured <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"auto"</span>, <span class="st">"structured"</span>, <span class="st">"json"</span><span class="op">)</span>,</span>
+<span>  json_retries <span class="op">=</span> <span class="fl">2L</span>,</span>
+<span>  on_error <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"continue"</span>, <span class="st">"return"</span>, <span class="st">"stop"</span><span class="op">)</span>,</span>
+<span>  backfill <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  prices <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  name <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  notes <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -73,20 +88,28 @@ metadata for reproducibility.</p>
 
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
-<dd><p>Input data: a character vector of texts (for text codebooks) or
-file paths to images (for image codebooks). Named vectors will use names
-as identifiers in the output; unnamed vectors will use sequential integers.</p></dd>
+<dd><p>character; the input data: texts for a text codebook, file
+paths or URLs for an image codebook (see the section on image input), or
+file paths for an audio codebook (see the section on audio input), or
+file paths, YouTube links and URLs of video files for a video codebook
+(see the section on video input).
+Named vectors will use names
+as identifiers in the output; unnamed vectors will use sequential integers.
+The identifiers become the <code>.id</code> column, on which every later operation
+keys, so names must be unique.</p></dd>
 
 
 <dt id="arg-codebook">codebook<a class="anchor" aria-label="anchor" href="#arg-codebook"></a></dt>
-<dd><p>A codebook object created with <code><a href="qlm_codebook.html">qlm_codebook()</a></code>. Also accepts
+<dd><p>qlm_codebook; a codebook created with <code><a href="qlm_codebook.html">qlm_codebook()</a></code>. Also accepts
 deprecated <code><a href="task.html">task()</a></code> objects for backward compatibility.</p></dd>
 
 
 <dt id="arg-model">model<a class="anchor" aria-label="anchor" href="#arg-model"></a></dt>
-<dd><p>Provider (and optionally model) name in the form
+<dd><p>character; the provider (and optionally model) name in the form
 <code>"provider/model"</code> or <code>"provider"</code> (which will use the default model for
-that provider). Passed to the <code>name</code> argument of <code><a href="https://ellmer.tidyverse.org/reference/chat-any.html" class="external-link">ellmer::chat()</a></code>.
+that provider). Native prefixes are passed to <code><a href="https://ellmer.tidyverse.org/reference/chat-any.html" class="external-link">ellmer::chat()</a></code>.
+Registered prefixes, such as <code>"dashscope/qwen-plus"</code>, resolve through
+<code><a href="qlm_register_provider.html">qlm_register_provider()</a></code> and require an explicit model name.
 Examples: <code>"openai/gpt-4o-mini"</code>, <code>"anthropic/claude-3-5-sonnet-20241022"</code>,
 <code>"ollama/llama3.2"</code>, <code>"openai"</code> (uses default OpenAI model).</p></dd>
 
@@ -101,18 +124,109 @@ Arguments recognized by <code><a href="https://ellmer.tidyverse.org/reference/pa
 
 
 <dt id="arg-batch">batch<a class="anchor" aria-label="anchor" href="#arg-batch"></a></dt>
-<dd><p>Logical. If <code>TRUE</code>, uses <code><a href="https://ellmer.tidyverse.org/reference/batch_chat.html" class="external-link">ellmer::batch_chat_structured()</a></code>
+<dd><p>logical; if <code>TRUE</code>, uses <code><a href="https://ellmer.tidyverse.org/reference/batch_chat.html" class="external-link">ellmer::batch_chat_structured()</a></code>
 instead of <code><a href="https://ellmer.tidyverse.org/reference/parallel_chat.html" class="external-link">ellmer::parallel_chat_structured()</a></code>. Batch processing is more
 cost-effective for large jobs but may have longer turnaround times.
 Default is <code>FALSE</code>. See <code><a href="https://ellmer.tidyverse.org/reference/batch_chat.html" class="external-link">ellmer::batch_chat_structured()</a></code> for details.</p></dd>
 
 
+<dt id="arg-tools">tools<a class="anchor" aria-label="anchor" href="#arg-tools"></a></dt>
+<dd><p>Optional list of <span class="pkg">ellmer</span> tool objects to register on the
+chat before coding: a provider's hosted web-search tool
+(<code><a href="https://ellmer.tidyverse.org/reference/openai_tool_web_search.html" class="external-link">ellmer::openai_tool_web_search()</a></code>, <code><a href="https://ellmer.tidyverse.org/reference/claude_tool_web_search.html" class="external-link">ellmer::claude_tool_web_search()</a></code>,
+<code><a href="https://ellmer.tidyverse.org/reference/google_tool_web_search.html" class="external-link">ellmer::google_tool_web_search()</a></code>) or a custom tool from <code><a href="https://ellmer.tidyverse.org/reference/tool.html" class="external-link">ellmer::tool()</a></code>.
+A single tool may be passed directly. Default is <code>NULL</code>, no tools.</p>
+<p>Tools change the instrument: with a hosted web search the model draws
+on live sources rather than its training data, so they are recorded on
+the object, disclosed by <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> and <code><a href="qlm_trail.html">qlm_trail()</a></code>, carried to backfill
+passes and to a replication on the same endpoint (a provider's hosted
+tool belongs to that provider), and kept in the trail as name, type,
+description and configuration rather than as objects.</p>
+<p>Three limits. A hosted tool takes effect on both coding paths, but a
+custom tool only on the JSON path: the structured transport sends a
+custom tool's definition and runs no tool-calling loop, so the model
+may request it and get no
+result. Tools cannot be used with <code>batch = TRUE</code>, which does not send
+them. And a hosted tool's calls are billed by the provider outside
+token pricing, so the run's cost is tokens only, as its cost note says.</p></dd>
+
+
+<dt id="arg-structured">structured<a class="anchor" aria-label="anchor" href="#arg-structured"></a></dt>
+<dd><p>character; how the output schema is obtained.
+<code>"structured"</code> sends it through the provider's structured-output
+mechanism. <code>"json"</code> asks for JSON, puts the schema in the system prompt,
+and re-prompts a unit whose response does not conform. <code>"auto"</code> (the
+default) attempts the structured call and falls back to <code>"json"</code> if it
+fails, or if no response it completed matched the schema. On either
+path every response is validated against the codebook locally before it
+is tabulated. The JSON path asks for JSON syntax in the field the
+transport takes: <code>text.format</code> for native OpenAI's Responses API and
+<code>response_format</code> for every provider ellmer reaches through Chat
+Completions, including registered and <code>openai_compatible/</code> endpoints.
+Providers with neither field, Anthropic among them, use prompted JSON
+with the same parsing, validation and repair. See Details for which to
+use.</p></dd>
+
+
+<dt id="arg-json-retries">json_retries<a class="anchor" aria-label="anchor" href="#arg-json-retries"></a></dt>
+<dd><p>Integer; the number of additional requests <span class="pkg">quallmer</span>
+may make for a unit on the JSON path after an unusable response. Default
+is 2, giving at most three JSON-path requests per unit. This is implemented
+by <span class="pkg">quallmer</span> and is not passed to <span class="pkg">ellmer</span>. Each request separately uses
+<span class="pkg">ellmer</span>'s transport retry policy, controlled by
+<code>options(ellmer_max_tries = )</code>. Applies on the JSON path only, so setting
+it alongside <code>structured = "structured"</code> is an error. What is still
+unusable after the run is left for <code>backfill</code>.</p></dd>
+
+
+<dt id="arg-on-error">on_error<a class="anchor" aria-label="anchor" href="#arg-on-error"></a></dt>
+<dd><p>character; what a failed request does to the rest of a
+parallel call, passed to <code><a href="https://ellmer.tidyverse.org/reference/parallel_chat.html" class="external-link">ellmer::parallel_chat_structured()</a></code> or, on the
+JSON path, <code><a href="https://ellmer.tidyverse.org/reference/parallel_chat.html" class="external-link">ellmer::parallel_chat()</a></code>. <code>"continue"</code> (the default) attempts
+every unit and records each failure in the <code>.error</code> column, for
+<code><a href="qlm_failures.html">qlm_failures()</a></code> to list and <code><a href="qlm_backfill.html">qlm_backfill()</a></code> to re-code. <code>"return"</code>
+stops submitting new requests after the first failure, waits for those in
+flight, and returns what the call has. On the structured path that call
+is the run: the units never sent are recorded in <code>.error</code> as not
+completed, for <code><a href="qlm_backfill.html">qlm_backfill()</a></code> to send. On
+the JSON path the call is one wave: a unit the wave did not reach counts
+as unanswered, so <code>json_retries</code> sends it again in a later wave, each
+stopped in turn at its first failure, and whatever is still unsent at the
+end is recorded in <code>.error</code>; <code>json_retries = 0</code> stops after the first
+wave. <code>"stop"</code> raises the first failure as an error. Applies to parallel
+runs only: the batch API has no equivalent, so it cannot be set with
+<code>batch = TRUE</code>.</p></dd>
+
+
+<dt id="arg-backfill">backfill<a class="anchor" aria-label="anchor" href="#arg-backfill"></a></dt>
+<dd><p>Logical, integer or <code>NULL</code>; whether to complete the run
+before it is returned, by re-coding the units still failed with
+<code><a href="qlm_backfill.html">qlm_backfill()</a></code>, using the same model and settings. <code>FALSE</code> or <code>0</code>
+(default) leaves the run as it came back; <code>TRUE</code> makes the default
+number of passes, currently two; a positive integer makes at most that
+many; <code>NULL</code> means <code>FALSE</code> here, since a fresh run has no parent whose
+passes could be replayed, which is what <code>NULL</code> asks <code><a href="qlm_replicate.html">qlm_replicate()</a></code>
+for. Each pass is recorded in the object's metadata, and a pass that
+recovers nothing ends the backfill early. See <code><a href="qlm_backfill.html">qlm_backfill()</a></code> for what
+is retried and what is left alone.</p></dd>
+
+
+<dt id="arg-prices">prices<a class="anchor" aria-label="anchor" href="#arg-prices"></a></dt>
+<dd><p>Optional. Rates for costing the run when ellmer cannot: a
+named numeric vector or list with <code>input</code> and <code>output</code>, and optionally
+<code>cached_input</code>, in US dollars per million tokens, for example
+<code>c(input = 0.435, output = 0.87, cached_input = 0.0036)</code>. Where ellmer
+prices the model itself its figure stands and these are not used. A
+<code>cached_input</code> rate that is not given is taken as the <code>input</code> rate. See
+the section on cost. Default is <code>NULL</code>.</p></dd>
+
+
 <dt id="arg-name">name<a class="anchor" aria-label="anchor" href="#arg-name"></a></dt>
-<dd><p>Character string identifying this coding run. Default is <code>NULL</code>.</p></dd>
+<dd><p>character or <code>NULL</code>; a name identifying this coding run. Default is <code>NULL</code>.</p></dd>
 
 
 <dt id="arg-notes">notes<a class="anchor" aria-label="anchor" href="#arg-notes"></a></dt>
-<dd><p>Optional character string with descriptive notes about this
+<dd><p>character or <code>NULL</code>; descriptive notes about this
 coding run. Useful for documenting the purpose or rationale when viewing
 results in <code><a href="qlm_trail.html">qlm_trail()</a></code>. Default is <code>NULL</code>.</p></dd>
 
@@ -120,7 +234,10 @@ results in <code><a href="qlm_trail.html">qlm_trail()</a></code>. Default is <co
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A <code>qlm_coded</code> object (a tibble with additional attributes):</p><dl><dt>Data columns</dt>
-<dd><p>The coded results with a <code>.id</code> column for identifiers.</p></dd>
+<dd><p>The coded results with a <code>.id</code> column for identifiers.
+A <code><a href="https://ellmer.tidyverse.org/reference/type_boolean.html" class="external-link">type_enum()</a></code> declared <code>"ordinal"</code> in the codebook is an ordered
+factor whose levels are the enum's values in the order written; see
+the <code>levels</code> argument of <code><a href="qlm_codebook.html">qlm_codebook()</a></code>.</p></dd>
 
 <dt>Attributes</dt>
 <dd><p><code>data</code>, <code>input_type</code>, and <code>run</code> (list containing name, batch, call, codebook, chat_args, execution_args, metadata, parent).</p></dd>
@@ -138,12 +255,370 @@ based on their names.</p>
 <p>Progress indicators and error handling are provided by the underlying
 <code><a href="https://ellmer.tidyverse.org/reference/parallel_chat.html" class="external-link">ellmer::parallel_chat_structured()</a></code> or <code><a href="https://ellmer.tidyverse.org/reference/batch_chat.html" class="external-link">ellmer::batch_chat_structured()</a></code>
 function. Set <code>verbose = TRUE</code> to see progress messages during coding.
-Retry logic for API failures should be configured through ellmer's options.</p>
+Retry logic for API failures should be configured through ellmer's options;
+what a failure does to the rest of a parallel run is <code>on_error</code>.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="image-input">Image input<a class="anchor" aria-label="anchor" href="#image-input"></a></h2>
+
+
+
+<p>An image codebook codes one image per element of <code>x</code>. A file path is read
+and sent inline, after being resized as the codebook's <code>image_file_resize</code>
+says: <code>"high"</code> by default, which fits the image within 2000x768 or 768x2000
+pixels, <code>"low"</code> for 512x512, <code>"none"</code> to send the file as it is, or a
+magick geometry string. Anything but <code>"none"</code> needs the <span class="pkg">magick</span>
+package, which is checked here before any request is sent. The resolution
+is part of the codebook because it is part of the measurement: a poster
+whose small print is legible at one size is not at another, and a
+replication should read the image the original run read. Codebooks saved
+before the setting existed are read as <code>"low"</code>, which is what they were
+coded at. See <code><a href="qlm_codebook.html">qlm_codebook()</a></code>.</p>
+<p>A URL is passed to the provider as it is, through
+<code><a href="https://ellmer.tidyverse.org/reference/content_image_url.html" class="external-link">ellmer::content_image_url()</a></code>, so <code>image_file_resize</code> does not apply to
+it; what the provider does with a remote image is its own affair, and not
+every provider fetches URLs. The codebook's <code>image_url_detail</code> asks the
+provider for <code>"low"</code> or <code>"high"</code> detail on such an image, where the
+provider reads that field: OpenAI and OpenAI-compatible providers do,
+others ignore it, and ellmer forwards it only from the version that
+includes <a href="https://github.com/tidyverse/ellmer/pull/1133" class="external-link">https://github.com/tidyverse/ellmer/pull/1133</a>. When a value
+other than <code>"auto"</code> cannot take effect, <code>qlm_code()</code> says so before the
+run rather than recording a setting that was not applied. A path that
+does not exist is refused before anything is sent, so a URL typed without
+its scheme fails here with the path named, not inside the request.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="provider-specific-parameters">Provider-specific parameters<a class="anchor" aria-label="anchor" href="#provider-specific-parameters"></a></h2>
+
+
+
+<p><code>params</code> and <code>api_args</code> are forwarded to <code><a href="https://ellmer.tidyverse.org/reference/chat-any.html" class="external-link">ellmer::chat()</a></code> unchanged.
+quallmer does not inspect or rewrite either, so which of the two a setting
+belongs in is determined by ellmer and the provider, not here.</p>
+<p>The distinction matters. <code><a href="https://ellmer.tidyverse.org/reference/params.html" class="external-link">ellmer::params()</a></code> carries provider-agnostic
+settings that ellmer translates per provider; <code>api_args</code> goes into the raw
+request body untouched. A setting placed in the wrong one is not
+necessarily rejected. For OpenAI-compatible providers ellmer maps <code>top_k</code>
+onto the OpenAI field <code>top_logprobs</code>, which asks for log-probabilities per
+token and has nothing to do with top-k sampling — so
+<code>params(top_k = 20)</code> is rejected by Alibaba Model Studio
+(<code>Range of top_logprobs should be [0, 5]</code>), while <code>params(top_k = 3)</code> is
+accepted and silently applies no sampling setting at all. Non-OpenAI
+sampling controls therefore belong in <code>api_args</code>:</p>
+<p></p><div class="sourceCode r"><pre><code><span><span class="co"># Qwen through Alibaba Model Studio</span></span>
+<span><span class="fu"><a href="../reference/qlm_code.html">qlm_code</a></span><span class="op">(</span></span>
+<span>  <span class="va">x</span>, <span class="va">codebook</span>,</span>
+<span>  model <span class="op">=</span> <span class="st">"openai_compatible/qwen3-max"</span>,</span>
+<span>  base_url <span class="op">=</span> <span class="st">"https://dashscope-intl.aliyuncs.com/compatible-mode/v1"</span>,</span>
+<span>  credentials <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Authorization <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Bearer"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"DASHSCOPE_API_KEY"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="op">}</span>,</span>
+<span>  params <span class="op">=</span> <span class="fu">ellmer</span><span class="fu">::</span><span class="fu"><a href="https://ellmer.tidyverse.org/reference/params.html" class="external-link">params</a></span><span class="op">(</span>temperature <span class="op">=</span> <span class="fl">0.6</span>, top_p <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span>,</span>
+<span>  api_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>top_k <span class="op">=</span> <span class="fl">20</span>, min_p <span class="op">=</span> <span class="fl">0</span>, enable_thinking <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Kimi K3 through Moonshot, whose temperature and top_p are fixed by the</span></span>
+<span><span class="co"># provider and documented as needing to be omitted rather than set</span></span>
+<span><span class="fu"><a href="../reference/qlm_code.html">qlm_code</a></span><span class="op">(</span></span>
+<span>  <span class="va">x</span>, <span class="va">codebook</span>,</span>
+<span>  model <span class="op">=</span> <span class="st">"openai_compatible/kimi-k3"</span>,</span>
+<span>  base_url <span class="op">=</span> <span class="st">"https://api.moonshot.ai/v1"</span>,</span>
+<span>  credentials <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Authorization <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Bearer"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"MOONSHOT_API_KEY"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="op">}</span>,</span>
+<span>  api_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>reasoning_effort <span class="op">=</span> <span class="st">"max"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre><p></p></div>
+<p>Passing a model parameter such as <code>temperature</code> or <code>max_tokens</code> at the top
+level does not work: those reach <code><a href="https://ellmer.tidyverse.org/reference/chat-any.html" class="external-link">ellmer::chat()</a></code>, which has no such
+argument. Use <code>params</code>.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="cost">Cost<a class="anchor" aria-label="anchor" href="#cost"></a></h2>
+
+
+
+<p><code>include_tokens = TRUE</code> and <code>include_cost = TRUE</code> are forwarded to ellmer,
+which adds per-unit token counts and a <code>cost</code> column in US dollars. ellmer
+prices from a table fixed at its release, matched exactly on provider and
+model, and returns <code>NA</code> on any miss. Some providers are absent from that
+table altogether, DeepSeek among them, so no model of theirs is ever priced;
+a model newer than the installed ellmer is missed on a provider it otherwise
+prices, which upgrading fixes; and local endpoints such as ollama have no
+per-token charge. In each case <code>qlm_code()</code> says so once before the run,
+and the reason is kept with the object and shown when it is printed. With
+<code>include_tokens = TRUE</code> the token counts are recorded, from which such a
+run can be costed at the provider's published rates.</p>
+<p><code>prices</code> does that costing, at rates you supply from the provider's
+published price list. Supplying them implies <code>include_tokens = TRUE</code> and
+<code>include_cost = TRUE</code>. Only rows ellmer left <code>NA</code> are filled, by the same
+sum ellmer applies to its own table: uncached input tokens at the <code>input</code>
+rate, cache hits at the <code>cached_input</code> rate, output at the <code>output</code> rate,
+each per million. Where ellmer priced every row itself the rates are not
+used, and you are told so. The rates are kept in the run's metadata, shown
+by <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> and in the trail report, and reused by <code><a href="qlm_replicate.html">qlm_replicate()</a></code> when
+the model, the endpoint, the batch setting and the service tier are
+unchanged, so a cost that rests on entered figures is always labelled as
+such. quallmer bundles no prices of its own.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="schema-enforcement-and-validation">Schema enforcement and validation<a class="anchor" aria-label="anchor" href="#schema-enforcement-and-validation"></a></h2>
+
+
+
+<p>Some providers accept a JSON Schema without enforcing it, so a response
+can come back parseable but non-conforming: a number as a string, a
+required property missing, an extra one added. Providers reached through
+ellmer's generic OpenAI-compatible request path are all in this position:
+<code>strict = TRUE</code> is sent and may simply be ignored. Converted straight to
+a table, such a response would arrive silently as <code>NA</code>, or as an empty
+list-column cell that a valid empty answer also produces.</p>
+<p>So every response is validated against <code>codebook$schema</code> before it is
+converted, on either path and whatever the provider: required properties
+present and not null, scalars of the declared type without coercion,
+enum values from the declared set, arrays and nested objects of the
+declared shape, no undeclared properties unless the schema allows them.
+A response that fails is a failed unit: its row is <code>NA</code>, its <code>.error</code>
+names the offending JSON path (<code>$.claims[2].score must be a number</code>), and
+<code><a href="qlm_failures.html">qlm_failures()</a></code> lists it for <code><a href="qlm_backfill.html">qlm_backfill()</a></code> to re-code. The other
+units keep their coded values. The response's usage is recorded with the
+failure, since the request was billed.</p>
+<p><code>structured</code> chooses how the schema reaches the model, and what to do
+when the provider ignores it:</p>
+<dl><dt><code>"structured"</code></dt>
+<dd><p>Send the schema through the provider's
+structured-output mechanism. Fails loudly if the call fails; a
+response that does not conform is a failed unit.</p></dd>
+
+<dt><code>"json"</code></dt>
+<dd><p>Ask for JSON, put the schema in the system prompt, and
+re-prompt with the specific validation error when a response does not
+conform, up to <code>json_retries</code> times. The reliable choice for an
+endpoint known not to enforce.</p></dd>
+
+<dt><code>"auto"</code></dt>
+<dd><p>Attempt the structured call; fall back to <code>"json"</code> for
+the whole run if it errors, or if every response the provider
+completed fails validation, which is what an endpoint that ignored
+the schema produces. Requests the provider refused, and responses it
+cut off or filtered, are left out of that judgement, since neither
+says anything about the schema. The fallback re-codes the units JSON
+mode can help: a response cut off at the output limit, or an input
+rejected as longer than the context window, fails the same way on
+any path, so those units keep the row, reason and usage the
+structured attempt gave them. A run in which some responses
+conform keeps them, and records the rest as failed units: the
+intermittent kind of non-enforcement is caught per unit, not by
+re-coding the corpus.</p></dd>
+
+
+</dl><p>Where every completed response fails validation and nothing can fall
+back, under <code>"structured"</code>, <code>batch = TRUE</code> or a file input, the run is
+returned with every unit failed and its reason recorded, and a warning
+says why: the failed rows, their reasons and their usage are what the run
+has, and <code><a href="qlm_backfill.html">qlm_backfill()</a></code> can retry them with another model.</p>
+<p>On either path, <code><a href="qlm_failures.html">qlm_failures()</a></code> lists the units that produced no usable
+coding, with the reason for each, and <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> reports how many there
+were. Most such failures are transient, and <code><a href="qlm_backfill.html">qlm_backfill()</a></code> re-codes
+just those units and merges them back; <code>backfill</code> does that before
+returning. Batch processing and file inputs (image and audio codebooks)
+are not supported on the JSON path, so <code>"auto"</code> will not fall back under
+<code>batch = TRUE</code> or for a file input: a failed structured call then stops
+with the provider's own error, and <code>structured = "json"</code> is refused up
+front. The path actually taken is recorded in the run metadata as
+<code>backend</code>, and a run validated this way carries <code>validation = "local"</code>.</p>
+<p>The schema itself must be a <code>type_object()</code> at the root, whose properties
+become the columns of the result, built from <code>type_string()</code>,
+<code>type_boolean()</code>, <code>type_integer()</code>, <code>type_number()</code>, <code>type_enum()</code>,
+<code>type_array()</code> and <code>type_object()</code>. Any other type is refused before a
+request is sent, since there would be nothing to validate a response
+against.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="audio-input">Audio input<a class="anchor" aria-label="anchor" href="#audio-input"></a></h2>
+
+
+
+<p>A codebook with <code>input_type = "audio"</code> codes recordings in one pass: each
+file in <code>x</code> is uploaded to the provider through ellmer's file upload,
+and the model receives a reference to it with the codebook's
+instructions, so the schema can ask for a transcript, a language, a
+summary or any coding of the content. Accepted formats are mp3, wav, ogg,
+m4a, flac and aac.</p>
+<p>Which providers accept audio this way is not checked in advance: the
+recordings are uploaded and the model is asked, and a provider that
+cannot take them refuses with its own message, to which <code>qlm_code()</code> adds
+what is known. As of this version only Google Gemini (<code>google_gemini/</code>)
+is known to accept an uploaded recording alongside a schema-constrained
+request; OpenAI's and Anthropic's endpoints refuse, and Vertex has no
+file upload. For those providers, transcribe the recordings first and
+code the transcripts with a text codebook.</p>
+<p>Every upload completes before the first coding request is sent, so either
+all the inputs are ready or nothing is spent; a failed upload stops the
+run with the provider's message, which says whether the failure was
+transient or the file itself. Uploads expire after 48 hours and storage
+is free, so <code><a href="qlm_replicate.html">qlm_replicate()</a></code> and <code><a href="qlm_backfill.html">qlm_backfill()</a></code> upload the files again
+from the paths in <code>x</code>. Before they do, they check the files against the
+SHA-256 hashes the run recorded for each unit, and refuse to continue if
+a path now points at different bytes. The hashes are taken before
+anything is uploaded, so they are of the bytes the model received even
+if a file is replaced while the requests run; they are kept in the run's
+metadata as <code>input_files</code> and reported by <code><a href="qlm_trail.html">qlm_trail()</a></code>. A backfill pass
+records its own hashes for the units it re-coded, so a run coded by an
+earlier version that recorded none gains them unit by unit; units still
+without one are reported as unverifiable, with a notice, rather than as
+changed.</p>
+<p><code>batch = TRUE</code> is not supported for audio: ellmer's batch cache is keyed
+on the prompts, and an upload gets a new reference every time, so a
+batch run could not be resumed.</p>
+<p>With <code>include_cost = TRUE</code>, or <code>prices</code>, the cost of an audio run is
+potentially underestimated: providers charge more per audio token than
+per text token, and the figure is computed at the text rate from the
+total. The run's cost note says so, in <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>, the trail, and any
+backfill pass.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="video-input">Video input<a class="anchor" aria-label="anchor" href="#video-input"></a></h2>
+
+
+
+<p>A codebook with <code>input_type = "video"</code> codes picture and sound in one
+pass. Each element of <code>x</code> is one of: the path of a local video file
+(<code>mp4</code>, <code>mov</code>, <code>avi</code>, <code>wmv</code> or <code>webm</code>), which is uploaded to the
+provider; a YouTube link, which the provider fetches itself, so nothing
+is uploaded; or the URL of a video file, which is downloaded here and then
+uploaded like a file, and must end in one of those extensions. The model
+receives a reference to each with the codebook's instructions, so the
+schema can ask for a transcript, a description of what is shown, or any
+coding of the content. A video carries its audio track, so speech and
+picture are coded together.</p>
+<p>As with audio, which providers accept video is not checked in advance; a
+provider that cannot take it refuses with its own message, and
+<code>qlm_code()</code> adds what is known. As of this version only Google Gemini
+(<code>google_gemini/</code>) accepts video, and all its chat models do. Gemini
+samples one frame a second and, at its default resolution, spends
+roughly 300 input tokens per second of video, so a ten-minute clip is
+about 175,000 tokens and a model with a million tokens of context takes
+about an hour of video per request. Before uploading, <code>qlm_code()</code> says
+how much it is about to send: the total duration and a token estimate
+when the <span class="pkg">av</span> package is installed, the total size otherwise. A file
+over 2 GB, the upload's limit, is refused. Video tokens are charged at
+the text rate, so a cost from <code>include_cost</code> or <code>prices</code> needs no
+qualification here, unlike audio. A YouTube video must be public; the
+free tier caps YouTube input at eight hours of video a day. Gemini's own
+video settings (frame rate, clip offsets, media resolution) are not
+exposed by ellmer, so whole clips are coded at the defaults.</p>
+<p>Provenance and replication work as for audio. The run records each
+file's size and SHA-256 hash; for a downloaded URL those are of the
+downloaded bytes, and for a YouTube link the URL alone is recorded, since
+nothing passed through this machine. <code><a href="qlm_replicate.html">qlm_replicate()</a></code> and
+<code><a href="qlm_backfill.html">qlm_backfill()</a></code> download and upload again, checking the hashes first,
+and <code>batch = TRUE</code> is refused as for audio.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="transcripts">Transcripts<a class="anchor" aria-label="anchor" href="#transcripts"></a></h2>
+
+
+
+<p>A <code>qlm_transcript</code> from <code><a href="qlm_transcribe.html">qlm_transcribe()</a></code> is coded as ordinary text with
+a text codebook, on any provider. The run records the provenance of every
+transcript, the recording's hash, the transcription model, language,
+prompt and usage, in its metadata as <code>transcription</code>, and <code><a href="qlm_trail.html">qlm_trail()</a></code>
+reports it, so the trail documents the transcription as part of the
+instrument rather than starting at the text. <code><a href="qlm_replicate.html">qlm_replicate()</a></code> and
+<code><a href="qlm_backfill.html">qlm_backfill()</a></code> code the stored transcripts again without another
+transcription request, and carry the record forward.</p>
+<p>A text unit that is <code>NA</code>, whether a transcription that failed or a
+missing value in any character vector, is never sent to the model. It is
+recorded as a failed unit with the reason, the transcription's own
+message where there is one, and <code><a href="qlm_backfill.html">qlm_backfill()</a></code> leaves it alone, since
+there is nothing to retry. Transcribe the recording again and assign the
+text at that position before coding.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="rejected-runs">Rejected runs<a class="anchor" aria-label="anchor" href="#rejected-runs"></a></h2>
+
+
+<p>When the provider rejects every request with a status that will not change
+on retry (400, 401, 403, 404 or 422), <code>qlm_code()</code> stops rather than
+returning a table of <code>NA</code>s. The most common cause is a model name the
+provider does not have, and providers rarely say so; many answer with a
+bare "HTTP 400 Bad Request". So before reporting, <code>qlm_code()</code> asks the
+provider for its model list, through ellmer's <code>models_&lt;provider&gt;()</code>, and
+says when the name is not on it, with the nearest names it does have. The
+lookup runs only after a run has failed, once per failed run, and only for
+providers whose listing is known to cover every name they will invoke
+(Bedrock, for one, invokes inference profiles its listing omits). Where
+it cannot run, or the name is on the list, the provider's own error is
+reported unchanged.</p>
+<p>Under the default <code>on_error = "continue"</code> the parallel call does not stop
+at the first refusal, so every unit is sent once before the run comes
+back and is diagnosed. Each such request is refused before anything is
+generated, so it is cheap, but on a large corpus there are many of them,
+paced by <code>rpm</code>. <code>on_error = "return"</code> stops the structured call after the
+first wave, at the cost described under that argument; on the JSON path,
+whose default has always been <code>"continue"</code>, <code>json_retries</code> sends the
+units a wave did not reach in later waves, so <code>"return"</code> stops after the
+first wave there only with <code>json_retries = 0</code>.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="incomplete-runs">Incomplete runs<a class="anchor" aria-label="anchor" href="#incomplete-runs"></a></h2>
+
+
+
+<p>A run over a corpus of any size rarely comes back complete, and an
+incomplete run is not an error. Under the default <code>on_error = "continue"</code>
+every unit is attempted, and a unit that produced no usable coding is
+returned as a row of <code>NA</code> with the reason in its <code>.error</code> column;
+<code>on_error</code> says what a failure does to the rest of the run.
+<code><a href="qlm_failures.html">qlm_failures()</a></code> lists the failed units with their reasons, and <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>
+counts them. Trying again happens in layers. ellmer retries each request
+at the transport level, on every path. On the JSON path, <code>json_retries</code>
+sends a unit again during the run when its response was unusable. After
+the run, <code>backfill</code>, or <code><a href="qlm_backfill.html">qlm_backfill()</a></code> on the returned object, re-codes
+what is still failed and merges it back, with the same model and
+settings. A backfill leaves alone the two failures that re-sending the
+same request cannot fix, a text rejected as longer than the context
+window and a response cut off at <code>max_tokens</code> (see below); those need a
+different <code>model</code> or a higher <code>params(max_tokens = )</code>. The section "When
+a run comes back incomplete" of the workflow guide
+(<a href="https://quallmer.github.io/quallmer/articles/pkgdown/getting-started/workflow.html">https://quallmer.github.io/quallmer/articles/pkgdown/getting-started/workflow.html</a>)
+walks through this on a run that ships with the package, and its table
+matches each kind of failure to the mechanism that handles it.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="truncated-responses">Truncated responses<a class="anchor" aria-label="anchor" href="#truncated-responses"></a></h2>
+
+
+
+<p>A response that runs into the provider's output limit (<code>max_tokens</code>) is cut
+off mid-JSON, and the request is billed in full. The affected units are
+systematically the longest and richest ones, and for a codebook where an
+empty answer is a legitimate outcome, a cut-off answer that reads as empty
+is the worst kind of silent failure.</p>
+<p>The provider's finish reason travels with every response, on either path,
+and is read before the response is parsed: a unit cut off this way is
+recorded in <code>.error</code> with the token count, whether or not the fragment
+happens to parse, is listed by <code><a href="qlm_failures.html">qlm_failures()</a></code>, and is not retried: a
+repair prompt cannot supply what the limit withheld, and would only press
+the model into a shorter answer. A backfill leaves it alone too; raise
+<code>params(max_tokens = )</code> and backfill again. A response the provider
+withheld under a content filter, or finished for a reason it did not
+recognise, is recorded the same way with that reason.</p>
 <p>When <code>batch = TRUE</code>, the function uses <code><a href="https://ellmer.tidyverse.org/reference/batch_chat.html" class="external-link">ellmer::batch_chat_structured()</a></code>
 which submits jobs to the provider's batch API. This is typically more
 cost-effective but has longer turnaround times. The <code>path</code> argument specifies
 where batch results are cached, <code>wait</code> controls whether to wait for completion,
-and <code>ignore_hash</code> can force reprocessing of cached results.</p>
+and <code>ignore_hash</code> can force reprocessing of cached results. <code>on_error</code> does
+not apply: the batch API has no equivalent.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="registered-providers">Registered providers<a class="anchor" aria-label="anchor" href="#registered-providers"></a></h2>
+
+
+<p>OpenAI-compatible endpoints can also be addressed by a registered prefix,
+for example <code>model = "dashscope/qwen-plus"</code>. See
+<code><a href="qlm_register_provider.html">qlm_register_provider()</a></code> for built-in endpoints, credential sources,
+and adding a private gateway. Native ellmer prefixes take precedence.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -164,6 +639,41 @@ coding runs, <code><a href="qlm_compare.html">qlm_compare()</a></code> and <code
 <span class="r-in"><span><span class="va">texts_named</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>review1 <span class="op">=</span> <span class="st">"Great service!"</span>, review2 <span class="op">=</span> <span class="st">"Very disappointing."</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">coded2</span> <span class="op">&lt;-</span> <span class="fu">qlm_code</span><span class="op">(</span><span class="va">texts_named</span>, <span class="va">data_codebook_sentiment</span>, model <span class="op">=</span> <span class="st">"openai/gpt-4o-mini"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">coded2</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Audio recordings, coded in one pass by a Gemini model; see the section</span></span></span>
+<span class="r-in"><span><span class="co"># "Audio input" for which providers accept audio. The model hears the</span></span></span>
+<span class="r-in"><span><span class="co"># recording, so the schema can ask for the transcript as well as the codes</span></span></span>
+<span class="r-in"><span><span class="va">speech_codebook</span> <span class="op">&lt;-</span> <span class="fu"><a href="qlm_codebook.html">qlm_codebook</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="st">"Speech"</span>, <span class="st">"Transcribe the recording, identify the language and summarise what is said."</span>,</span></span>
+<span class="r-in"><span>  <span class="fu">ellmer</span><span class="fu">::</span><span class="fu"><a href="https://ellmer.tidyverse.org/reference/type_boolean.html" class="external-link">type_object</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    transcript <span class="op">=</span> <span class="fu">ellmer</span><span class="fu">::</span><span class="fu"><a href="https://ellmer.tidyverse.org/reference/type_boolean.html" class="external-link">type_string</a></span><span class="op">(</span><span class="st">"Verbatim transcript, in the language spoken"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    language <span class="op">=</span> <span class="fu">ellmer</span><span class="fu">::</span><span class="fu"><a href="https://ellmer.tidyverse.org/reference/type_boolean.html" class="external-link">type_string</a></span><span class="op">(</span><span class="st">"Language spoken"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    summary <span class="op">=</span> <span class="fu">ellmer</span><span class="fu">::</span><span class="fu"><a href="https://ellmer.tidyverse.org/reference/type_boolean.html" class="external-link">type_string</a></span><span class="op">(</span><span class="st">"One-sentence summary in English"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span>,</span></span>
+<span class="r-in"><span>  input_type <span class="op">=</span> <span class="st">"audio"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">coded_audio</span> <span class="op">&lt;-</span> <span class="fu">qlm_code</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>interview1 <span class="op">=</span> <span class="st">"interview1.mp3"</span>, interview2 <span class="op">=</span> <span class="st">"interview2.wav"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  <span class="va">speech_codebook</span>, model <span class="op">=</span> <span class="st">"google_gemini/gemini-2.5-flash"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># A video codebook takes local files, YouTube links and URLs of video</span></span></span>
+<span class="r-in"><span><span class="co"># files in one vector; see "Video input" for what is uploaded and what</span></span></span>
+<span class="r-in"><span><span class="co"># the provider fetches itself</span></span></span>
+<span class="r-in"><span><span class="va">codebook_video</span> <span class="op">&lt;-</span> <span class="fu"><a href="qlm_codebook.html">qlm_codebook</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  name <span class="op">=</span> <span class="st">"Video description"</span>,</span></span>
+<span class="r-in"><span>  instructions <span class="op">=</span> <span class="st">"Describe what is shown and transcribe what is said."</span>,</span></span>
+<span class="r-in"><span>  schema <span class="op">=</span> <span class="fu">ellmer</span><span class="fu">::</span><span class="fu"><a href="https://ellmer.tidyverse.org/reference/type_boolean.html" class="external-link">type_object</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    transcript <span class="op">=</span> <span class="fu">ellmer</span><span class="fu">::</span><span class="fu"><a href="https://ellmer.tidyverse.org/reference/type_boolean.html" class="external-link">type_string</a></span><span class="op">(</span><span class="st">"Verbatim transcript of the speech"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    setting <span class="op">=</span> <span class="fu">ellmer</span><span class="fu">::</span><span class="fu"><a href="https://ellmer.tidyverse.org/reference/type_boolean.html" class="external-link">type_string</a></span><span class="op">(</span><span class="st">"Where the video is filmed, in a few words"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span>,</span></span>
+<span class="r-in"><span>  input_type <span class="op">=</span> <span class="st">"video"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">coded_video</span> <span class="op">&lt;-</span> <span class="fu">qlm_code</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>clip <span class="op">=</span> <span class="st">"clip.mp4"</span>, zoo <span class="op">=</span> <span class="st">"https://www.youtube.com/watch?v=jNQXAC9IVRw"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  codebook <span class="op">=</span> <span class="va">codebook_video</span>,</span></span>
+<span class="r-in"><span>  model <span class="op">=</span> <span class="st">"google_gemini/gemini-2.5-flash"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
