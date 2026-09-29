@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
 
 <!-- badges: start -->
 [![CRAN status](https://www.r-pkg.org/badges/version/quallmer)](https://CRAN.R-project.org/package=quallmer)
-`r badger::badge_devel("quallmer/quallmer", "royalblue")`
+`r badger::badge_custom("devel version", read.dcf("DESCRIPTION", "Version")[[1]], "royalblue", "https://github.com/quallmer/quallmer")`
 [![R-CMD-check](https://github.com/quallmer/quallmer/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/quallmer/quallmer/actions/workflows/R-CMD-check.yaml)
 [![Codecov test coverage](https://codecov.io/gh/quallmer/quallmer/graph/badge.svg)](https://app.codecov.io/gh/quallmer/quallmer)
 [![pkgdown](https://img.shields.io/badge/pkgdown-site-blue)](https://quallmer.github.io/quallmer/)

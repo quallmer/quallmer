@@ -1,14 +1,23 @@
+# Checks that README.md is what README.Rmd renders to. It cannot commit the
+# result itself: main only takes changes through pull requests, so a push
+# from the workflow is rejected. Knit locally with `make readme` instead.
 on:
   push:
     branches: [main, master]
     paths:
       - 'README.Rmd'
+      - 'README.md'
+      - 'DESCRIPTION'
+  pull_request:
+    paths:
+      - 'README.Rmd'
+      - 'README.md'
       - 'DESCRIPTION'
 
 name: render-readme.yaml
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   render-readme:
@@ -36,10 +45,9 @@ jobs:
         run: rmarkdown::render("README.Rmd", quiet = TRUE)
         shell: Rscript {0}
 
-      - name: Commit and push updated README.md
+      - name: Check README.md is up to date
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add README.md
-          git diff --staged --quiet || git commit -m "Auto-render README.md [skip ci]"
-          git push
+          if ! git diff --exit-code README.md; then
+            echo "::error file=README.md::README.md is out of date with README.Rmd. Run \`make readme\` and commit the result."
+            exit 1
+          fi
