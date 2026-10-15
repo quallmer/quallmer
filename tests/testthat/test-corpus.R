@@ -63,9 +63,10 @@ test_that("qlm_corpus methods delegate to quanteda when loaded", {
   # Our print method should detect quanteda and delegate to it
   output <- capture.output(print(data_corpus_LMRDsample[1:2]))
 
-  # quanteda's output includes specific formatting
-  expect_true(any(grepl("documents and.*docvars", output)) ||
-              any(grepl("Corpus consisting of.*document", output)))
+  # quanteda's summary line: "corpus of 2 documents (N characters) and 4 docvars."
+  # (quanteda >= 4.5.1) or "Corpus consisting of 2 documents and 4 docvars."
+  # (earlier versions)
+  expect_true(any(grepl("^[Cc]orpus (of|consisting of) 2 documents", output)))
 
   # Unload quanteda for other tests
   try(unloadNamespace("quanteda"), silent = TRUE)
