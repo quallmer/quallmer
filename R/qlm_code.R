@@ -616,6 +616,9 @@ qlm_code <- function(x, codebook, model, ...,
   # that failed or a missing value, is never sent: it is set aside here and
   # restored as a failed row, with its reason, once the others are coded.
   transcription <- if (inherits(x, "qlm_transcript")) transcription_record(x)
+  preprocessing <- if (is_qlm_preprocessed(x)) preprocessing_record(x)
+  absent_record <- if (inherits(x, "qlm_translation")) attr(x, "provenance") else transcription
+  absent_stage <- if (inherits(x, "qlm_translation")) "translation" else "transcript"
   x_all <- x
   absent <- if (codebook$input_type == "text") is.na(x) else rep(FALSE, length(x))
   if (codebook$input_type == "text") {
@@ -779,7 +782,7 @@ qlm_code <- function(x, codebook, model, ...,
     # failed row per unit, and no chat is built
     results <- tabulate_results(
       vector("list", length(x_all)),
-      lapply(absent_input_reasons(x_all, transcription), absent_input_error),
+      lapply(absent_input_reasons(x_all, absent_record, absent_stage), absent_input_error),
       NULL, codebook$schema
     )
     absent <- rep(FALSE, length(x_all))
@@ -934,10 +937,12 @@ qlm_code <- function(x, codebook, model, ...,
   # each as a failed row carrying its reason
   if (any(absent)) {
     results <- restore_absent_rows(
-      results, absent, absent_input_reasons(x_all, transcription)[absent]
+      results, absent, absent_input_reasons(x_all, absent_record, absent_stage)[absent]
     )
   }
-  x <- x_all
+  # Keep the translated inputs for replay, with their compact history in
+  # metadata; do not duplicate the original-language corpus in the run.
+  x <- if (inherits(x_all, "qlm_translation")) as.character(x_all) else x_all
 
   # Add ID column from input names or sequence
   results$id <- names(x) %||% seq_along(x)
@@ -996,6 +1001,9 @@ qlm_code <- function(x, codebook, model, ...,
   # How the text came to be, when it was transcribed by qlm_transcribe()
   if (!is.null(transcription)) {
     metadata$transcription <- transcription
+  }
+  if (!is.null(preprocessing)) {
+    metadata$preprocessing <- preprocessing
   }
   if (!is.null(prices)) {
     metadata$prices <- prices

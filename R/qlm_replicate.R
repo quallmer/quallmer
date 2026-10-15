@@ -161,6 +161,11 @@ qlm_replicate <- function(x, ..., codebook = NULL, model = NULL, batch = NULL,
   }
   attr(result, "meta") <- result_meta
 
+  if (is.null(result_meta$user$preprocessing) && !is.null(meta_attr$user$preprocessing)) {
+    result_meta$user$preprocessing <- meta_attr$user$preprocessing
+    attr(result, "meta") <- result_meta
+  }
+
   replay_backfill(result, parent = x, backfill = backfill)
 }
 

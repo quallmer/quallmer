@@ -168,6 +168,7 @@ qlm_trail <- function(..., path = NULL) {
       run$input_type <- meta_attr$object$input_type
       run$input_files <- meta_attr$user$input_files
       run$transcription <- meta_attr$user$transcription
+      run$preprocessing <- meta_attr$user$preprocessing
       run$metadata$n_units <- meta_attr$object$n_units
       run$metadata$ellmer_version <- meta_attr$system$ellmer_version
       # Passes that completed the run, and any other model they used: the
@@ -654,6 +655,9 @@ generate_trail_report <- function(trail, file) {
 
     # The recordings the text was transcribed from, and how (#178)
     lines <- c(lines, transcription_lines(run$transcription))
+    if (is.null(run$transcription)) {
+      lines <- c(lines, preprocessing_lines(run$preprocessing))
+    }
 
     # Call (materials relating to intentions)
     if (!is.null(run$call)) {

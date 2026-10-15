@@ -1,0 +1,144 @@
+---
+title: "Example: Translating before coding"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
+```
+
+`qlm_translate()` makes translation a recorded stage of a coding workflow.
+It returns ordinary text with identifiers and provenance attached: the source
+texts, hashes, model, instructions, context, segment boundaries, attempts and
+usage. Save this object once and reuse its translations across coding runs.
+
+## Storing a DeepL key
+
+On macOS, the `keyring` package uses Keychain. Enter your **API key** at the
+password prompt below. Nothing is printed after a successful save.
+
+```{r save-key}
+install.packages("keyring") # once, if needed
+keyring::key_set("deepl")  # once; enter the API key at the password prompt
+keyring::key_list("deepl") # lists the entry without showing the key
+```
+
+Retrieve the key directly when making a call, as below. quallmer does not
+retrieve keys from Keychain automatically or require the `keyring` package.
+Alternatively, put `DEEPL_API_KEY="your-key"` in your home `~/.Renviron` and
+restart R; the environment-variable route needs no explicit `api_key`.
+The file stores the key in plain text. Do not put it in a tracked project file.
+R started with `--vanilla` does not read `.Renviron`; pass a key explicitly or
+supply the environment variable from the launching process in that case.
+
+## Translate and code
+
+```{r translate}
+library(quallmer)
+
+texts <- c(
+  interview1 = "Nous utilisons quallmer.\n\nLes résultats sont utiles.",
+  interview2 = "Je ne suis pas satisfait de cette décision."
+)
+
+translated <- qlm_translate(
+  texts,
+  model = "deepl/quality_optimized",
+  source_lang = "fr",
+  target_lang = "en-GB",
+  protect = "quallmer",
+  instructions = "Preserve the original register.",
+  context = "Interviews about research software and organisational decisions.",
+  api_key = keyring::key_get("deepl")
+)
+saveRDS(translated, "translated.rds")
+translated
+attr(translated, "provenance")
+
+coded <- qlm_code(translated, codebook_sentiment, model = "openai/gpt-4o-mini")
+qlm_trail(coded, path = "translation_trail")
+```
+
+`qlm_code()` records the translation history without copying the original
+corpus into its metadata. Keep the saved translation object to retain the
+source texts for bilingual review. `qlm_replicate()` reuses the stored
+translated inputs and carries the history forward; it does not translate again.
+Transcription can precede translation in the same way:
+
+```{r translate-transcripts}
+transcripts <- qlm_transcribe(audio_files)
+translated <- qlm_translate(transcripts, model = "deepl/quality_optimized",
+  target_lang = "en-GB", api_key = keyring::key_get("deepl"))
+```
+
+## Use a chat model
+
+The generic adapter reaches chat models through ellmer, including endpoints
+registered with `qlm_register_provider()`. It accepts `ellmer::params()`;
+DeepL refuses non-empty `params` because those settings do not apply there.
+
+```{r chat-translation}
+translated <- qlm_translate(texts,
+  model = "openai/gpt-4o-mini", target_lang = "en",
+  params = ellmer::params(max_tokens = 2000),
+  glossary = c("décision" = "decision"))
+```
+
+Parameters are recorded as **requested** settings. ellmer warns and drops
+standard settings absent from its provider mapping, but a forwarded setting
+may still be rejected or ignored by a particular model. The translation
+record retains unsupported-parameter warnings. Chat models do not report
+detected source languages through this adapter, so those values remain `NA`.
+
+## Structure, failures and scope
+
+This conservative implementation sends one paragraph or smaller segment per
+prompt and retains blank-line separators locally. Long paragraphs are split
+at sentence ends, whitespace, or finally code points. Every non-first segment
+receives its preceding source segment as context, never text from another
+document. Protected spans are masked before splitting and restored after
+checking that every marker occurs exactly once. `protect` takes regular
+expressions; overlapping matches and expressions matching empty strings are
+rejected.
+
+DeepL uses XML tag handling to protect markers and packs up to 50 segments
+with identical context within a 128 KiB request body. This requires `xml2`.
+It currently translates paragraphs separately, so it does not use the proposed
+whole-document XML batching. Native DeepL glossaries and the Qwen-MT, Hy-MT2
+and TranslateGemma adapters are deferred. Recognised Qwen-MT model IDs produce
+an informative error until their adapter exists; an explicit `adapter =
+"generic"` permits experiments with an ordinary chat prompt.
+
+A failed document is `NA`, with its reason and all attempts in provenance.
+Successful segments are never returned as a partial document. Protection or
+response validation failures get one repair; a reported output-token limit
+gets at most two reductions. Provider input-limit errors retain the provider's
+message rather than being classified by a fragile text match.
+
+```{r retry-failed}
+failed <- is.na(translated)
+translated[failed] <- qlm_translate(texts[failed],
+  model = "deepl/quality_optimized", target_lang = "en-GB",
+  api_key = keyring::key_get("deepl"))
+```
+
+Subsetting, renaming, concatenation and replacement preserve aligned
+provenance. Assigning plain text records an edit and updates the output hash.
+`as.character()` deliberately drops provenance.
+
+## Evaluate the translation step
+
+No default model is selected. Compare candidate translators on representative
+texts, with bilingual review of fidelity, omissions, terminology and register.
+For a coding workflow, compare coding accuracy against original-language gold
+labels, including direct coding of the original texts as a baseline.
+Back-translation is a diagnostic, not the primary validation criterion.
+
+DeepL's model types express quality or latency goals rather than fixed model
+versions. Chat aliases can also change. Saving the translations preserves the
+actual instrument used even when a later API call produces different text.
+
+The opt-in live test exercises DeepL custom instructions together with XML
+protection and context. It runs only when `QUALLMER_LIVE_TESTS=true` and
+`DEEPL_API_KEY` is supplied. Routine unit tests use mocked responses and never
+retrieve secrets from Keychain.
