@@ -159,6 +159,13 @@ upgrade_meta <- function(x) {
 #' For `qlm_codebook` objects, user metadata includes `name` and `instructions`
 #' (the codebook instructions text), both of which can be modified.
 #'
+#' Translation corpora returned by [qlm_translate()] also support reading
+#' metadata with `qlm_meta()`. Their translation provenance is stored in
+#' `qlm_meta(x, "quallmer")$translation`, under corpus-level user metadata.
+#' Existing corpus user fields, system metadata and document variables are
+#' preserved. Use `quanteda::meta()` to edit their corpus user metadata when
+#' quanteda is available.
+#'
 #' **Modification via `qlm_meta<-()` (assignment):**
 #'
 #' Only user metadata can be modified. For `qlm_coded`, `qlm_comparison`, and

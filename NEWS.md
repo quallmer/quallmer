@@ -1,8 +1,9 @@
 # quallmer 0.5.1
 
 * `qlm_translate()` translates texts through DeepL or an ellmer chat model,
-  retaining paragraph separators, protected terms and translation provenance
-  for subsequent coding and audit trails (#196).
+  returning a quanteda-compatible corpus with original document variables and
+  system/user metadata. Translation provenance is retained in the corpus's
+  `quallmer` user metadata for subsequent coding and audit trails (#196).
 
 * Fixed a test that matched the summary line quanteda prints for corpus objects
   and failed with quanteda 4.5.1, which changed that format. The test now

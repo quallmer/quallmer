@@ -6,7 +6,7 @@ test_that("chat translation preserves structure, identifiers and provenance", {
   expect_s3_class(out, "qlm_translation")
   expect_s3_class(out, "qlm_preprocessed")
   expect_identical(as.character(out), c(a = "  Hello TERM\n \nHello encore  ", b = "Hello"))
-  prov <- attr(out, "provenance")
+  prov <- translation_provenance(out)
   expect_identical(prov$source_text, unname(x))
   expect_equal(prov$status, rep("ok", 2))
   expect_equal(prov$reported_model, rep("model-snapshot", 2))
@@ -31,7 +31,7 @@ test_that("DeepL translation runs with XML protection and no secret in provenanc
   body <- seen$requests[[1]]$body$data
   expect_equal(body$context, "Interview")
   expect_equal(body$ignore_tags, list("keep"))
-  prov <- attr(out, "provenance")
+  prov <- translation_provenance(out)
   expect_equal(prov$detected_language, c("FR", "FR"))
   expect_equal(prov$base_url, rep("https://api-free.deepl.com", 2))
   expect_true(all(vapply(prov$attempts, function(a) a[[1]]$usage$billed_characters > 0, logical(1))))
@@ -59,7 +59,7 @@ test_that("empty and missing sources need no translation requests", {
   expect_warning(out <- qlm_translate(c(empty = "", blank = " \n\n ", missing = NA_character_), "openai/test"), "1 of 3")
   expect_length(seen$prompts, 0)
   expect_equal(as.character(out), c(empty = "", blank = " \n\n ", missing = NA_character_))
-  expect_equal(attr(out, "provenance")$status, c("ok", "ok", "failed"))
+  expect_equal(translation_provenance(out)$status, c("ok", "ok", "failed"))
 })
 
 test_that("protection failures get one repair and never return partial translations", {
@@ -71,7 +71,7 @@ test_that("protection failures get one repair and never return partial translati
   out <- qlm_translate("TERM", "openai/test", protect = "TERM")
   expect_equal(unname(as.character(out)), "TERM")
   expect_equal(calls, 2)
-  expect_length(attr(out, "provenance")$attempts[[1]], 2)
+  expect_length(translation_provenance(out)$attempts[[1]], 2)
 })
 
 test_that("terminal validation failures obey each error policy", {
@@ -88,7 +88,7 @@ test_that("truncation is retried smaller with all attempts recorded", {
   })
   out <- qlm_translate("abcdefghij", "openai/test", chunk_size = 20)
   expect_equal(unname(as.character(out)), "abcdefghij")
-  attempts <- attr(out, "provenance")$attempts[[1]]
+  attempts <- translation_provenance(out)$attempts[[1]]
   expect_length(attempts, 3)
   expect_equal(vapply(attempts, `[[`, integer(1), "reduction"), c(0L, 1L, 1L))
   expect_match(attempts[[1]]$error, "token limit")
@@ -102,7 +102,7 @@ test_that("unsupported parameter warnings are deduplicated and recorded", {
   })
   expect_warning(out <- qlm_translate(c(a = "one", b = "two"), "openai/test",
     params = ellmer::params(reasoning_tokens = 10)), "Ignoring unsupported parameters")
-  prov <- attr(out, "provenance")
+  prov <- translation_provenance(out)
   expect_equal(prov$settings[[1]]$params$reasoning_tokens, 10)
   expect_equal(prov$attempts[[1]][[1]]$warnings, "Ignoring unsupported parameters: reasoning_tokens")
 })
@@ -112,7 +112,7 @@ test_that("transport failures and unsubmitted segments remain aligned", {
     if (text == "fail") simpleError("endpoint refused") else if (text == "unsent") NULL else text
   })
   expect_warning(out <- qlm_translate(c(a = "ok", b = "fail", c = "unsent"), "openai/test"), "1 of 3")
-  expect_equal(attr(out, "provenance")$status, c("ok", "failed", "unsubmitted"))
+  expect_equal(translation_provenance(out)$status, c("ok", "failed", "unsubmitted"))
   expect_equal(as.character(out), c(a = "ok", b = NA_character_, c = NA_character_))
 })
 
@@ -180,7 +180,7 @@ test_that("missing input stops new submissions under return and stop", {
   expect_warning(out <- qlm_translate(c(a = "good", b = NA_character_, c = "later"),
     "openai/test", on_error = "return"), "1 of 3")
   expect_length(seen$prompts, 1)
-  expect_equal(attr(out, "provenance")$status, c("ok", "failed", "unsubmitted"))
+  expect_equal(translation_provenance(out)$status, c("ok", "failed", "unsubmitted"))
   expect_error(qlm_translate(c("good", NA_character_), "openai/test", on_error = "stop"), "source text is missing")
   expect_length(seen$prompts, 1)
 })
@@ -197,6 +197,6 @@ test_that("malformed DeepL output is retried once and preserves attempted usage"
   })
   out <- qlm_translate("Bonjour", "deepl/quality_optimized", api_key = "test")
   expect_equal(unname(as.character(out)), "Bonjour")
-  expect_length(attr(out, "provenance")$attempts[[1]], 2)
+  expect_length(translation_provenance(out)$attempts[[1]], 2)
   expect_equal(calls, 2)
 })

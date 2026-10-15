@@ -26,8 +26,10 @@ qlm_translate(
 )
 }
 \arguments{
-\item{x}{Character vector of texts, optionally named. Names must be unique
-and non-empty. Missing inputs remain failed units without a request.}
+\item{x}{Character vector of texts, optionally named, or a quanteda corpus.
+Corpus document variables and system/user metadata are retained. Names
+must be unique and non-empty. Missing inputs remain failed units without
+a request. No installation or loading of quanteda is required.}
 
 \item{model}{Required provider/model identifier. DeepL accepts
 \code{"deepl/quality_optimized"}, \code{"deepl/latency_optimized"} and
@@ -84,16 +86,27 @@ host according to the key. Recorded with URL credentials redacted.}
 }
 \value{
 A named character vector of class \code{qlm_translation}, inheriting
-from \code{qlm_preprocessed}, with a \code{provenance} data frame. It includes
+from \code{qlm_preprocessed}, \code{qlm_corpus} and \code{corpus}. Its \code{meta} attribute
+follows quanteda's system/object/user structure. The provenance table is
+stored at \code{meta$user$quallmer$translation}, accessible as
+\code{qlm_meta(x, "quallmer")$translation} or, with quanteda loaded,
+\code{quanteda::meta(x, "quallmer")$translation}. It includes
 \code{.id}, \code{status}, \code{.error}, \code{source_text}, \code{source_hash}, \code{output_hash},
 requested and reported models, languages, adapter selection, endpoint,
 timestamp, and list columns for settings, segment attempts and prior
 preprocessing stages. Subsetting, renaming and concatenating keep the
-records aligned. Replacement by plain text records an edit.
+records aligned. Replacement by plain text records an edit and keeps the
+destination document variables. Existing corpus user fields are preserved;
+\code{quallmer} is a reserved list namespace for translation provenance. New
+corpora have no user document variables and record quallmer as their
+creating package in system metadata. Existing system metadata is retained
+exactly. Object-level summary caches are cleared after translation.
+Concatenation uses the first corpus's system/object metadata and requires
+compatible user metadata (excluding the translation records).
 }
 \description{
-Translates a named character vector and retains the source texts and a
-per-document provenance table. The result can be passed to \code{\link[=qlm_code]{qlm_code()}};
+Translates texts and returns a quanteda-compatible corpus, retaining source
+texts and per-document provenance in corpus user metadata. The result can be passed to \code{\link[=qlm_code]{qlm_code()}};
 \code{\link[=qlm_trail]{qlm_trail()}} then records translation as part of the coding instrument.
 }
 \details{

@@ -8,7 +8,7 @@ knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
 ```
 
 `qlm_translate()` makes translation a recorded stage of a coding workflow.
-It returns ordinary text with identifiers and provenance attached: the source
+It returns a quanteda-compatible corpus with identifiers and provenance: the source
 texts, hashes, model, instructions, context, segment boundaries, attempts and
 usage. Save this object once and reuse its translations across coding runs.
 
@@ -53,7 +53,7 @@ translated <- qlm_translate(
 )
 saveRDS(translated, "translated.rds")
 translated
-attr(translated, "provenance")
+qlm_meta(translated, "quallmer")$translation
 
 coded <- qlm_code(translated, codebook_sentiment, model = "openai/gpt-4o-mini")
 qlm_trail(coded, path = "translation_trail")
@@ -125,6 +125,37 @@ translated[failed] <- qlm_translate(texts[failed],
 Subsetting, renaming, concatenation and replacement preserve aligned
 provenance. Assigning plain text records an edit and updates the output hash.
 `as.character()` deliberately drops provenance.
+
+## Corpus input and metadata
+
+A quanteda corpus can be translated directly. Its document variables, user
+metadata and system metadata are retained, with translation provenance in a
+reserved `quallmer` user-metadata namespace. Plain character input receives
+the same corpus structure, with no user document variables or user metadata
+other than the translation record. Its system metadata records creation by
+quallmer; quanteda remains an optional dependency.
+
+```{r corpus-translation}
+source <- quanteda::corpus(texts,
+  docvars = data.frame(interviewer = c("Alice", "Bob")),
+  meta = list(project = "Interview study"))
+translated <- qlm_translate(source,
+  model = "deepl/quality_optimized", target_lang = "en-GB",
+  api_key = keyring::key_get("deepl"))
+quanteda::docvars(translated)
+quanteda::meta(translated, "project")
+quanteda::meta(translated, "quallmer")$translation
+selected <- quanteda::corpus_subset(translated, interviewer == "Alice")
+quanteda::tokens(selected)
+```
+
+Provenance lives in corpus-level user metadata, rather than document
+variables or quanteda's object metadata, so it survives normal quanteda
+corpus construction and tokenization. Quallmer's subset and rename methods
+align its rows with the documents. Derived quanteda objects may retain the
+full source provenance table; its `.id` values identify the source documents.
+For coding, original document variables and corpus metadata are also retained
+as `qlm_meta(coded, "corpus_docvars")` and `qlm_meta(coded, "corpus_meta")`.
 
 ## Evaluate the translation step
 

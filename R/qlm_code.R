@@ -617,15 +617,14 @@ qlm_code <- function(x, codebook, model, ...,
   # restored as a failed row, with its reason, once the others are coded.
   transcription <- if (inherits(x, "qlm_transcript")) transcription_record(x)
   preprocessing <- if (is_qlm_preprocessed(x)) preprocessing_record(x)
-  absent_record <- if (inherits(x, "qlm_translation")) attr(x, "provenance") else transcription
-  absent_stage <- if (inherits(x, "qlm_translation")) "translation" else "transcript"
+  absent_record <- if (is_qlm_translation(x)) translation_provenance(x) else transcription
+  absent_stage <- if (is_qlm_translation(x)) "translation" else "transcript"
   x_all <- x
   absent <- if (codebook$input_type == "text") is.na(x) else rep(FALSE, length(x))
   if (codebook$input_type == "text") {
-    # Plain text from here on, names kept: unclass() rather than
-    # as.character(), which drops the names of a bare vector
-    x <- unclass(x_all)
-    attr(x, "provenance") <- NULL
+    # Plain text from here on, names kept; corpus attributes and provenance
+    # have already been read and must not travel inside a model prompt.
+    x <- translation_texts(x_all)
     x <- x[!absent]
   }
   if (any(absent)) {
@@ -942,7 +941,7 @@ qlm_code <- function(x, codebook, model, ...,
   }
   # Keep the translated inputs for replay, with their compact history in
   # metadata; do not duplicate the original-language corpus in the run.
-  x <- if (inherits(x_all, "qlm_translation")) as.character(x_all) else x_all
+  x <- if (is_qlm_translation(x_all)) translation_texts(x_all) else x_all
 
   # Add ID column from input names or sequence
   results$id <- names(x) %||% seq_along(x)
@@ -1004,6 +1003,14 @@ qlm_code <- function(x, codebook, model, ...,
   }
   if (!is.null(preprocessing)) {
     metadata$preprocessing <- preprocessing
+  }
+  if (inherits(x_all, "corpus")) {
+    # Keep the corpus covariates available to downstream analysis without
+    # mixing them with model-generated coding columns or copying source text.
+    metadata$corpus_docvars <- attr(x_all, "docvars")
+    corpus_meta <- attr(x_all, "meta")
+    corpus_meta$user <- translation_user_metadata(corpus_meta)
+    metadata$corpus_meta <- corpus_meta
   }
   if (!is.null(prices)) {
     metadata$prices <- prices

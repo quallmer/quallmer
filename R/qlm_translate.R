@@ -1,11 +1,13 @@
 #' Translate texts before coding
 #'
-#' Translates a named character vector and retains the source texts and a
-#' per-document provenance table. The result can be passed to [qlm_code()];
+#' Translates texts and returns a quanteda-compatible corpus, retaining source
+#' texts and per-document provenance in corpus user metadata. The result can be passed to [qlm_code()];
 #' [qlm_trail()] then records translation as part of the coding instrument.
 #'
-#' @param x Character vector of texts, optionally named. Names must be unique
-#'   and non-empty. Missing inputs remain failed units without a request.
+#' @param x Character vector of texts, optionally named, or a quanteda corpus.
+#'   Corpus document variables and system/user metadata are retained. Names
+#'   must be unique and non-empty. Missing inputs remain failed units without
+#'   a request. No installation or loading of quanteda is required.
 #' @param model Required provider/model identifier. DeepL accepts
 #'   `"deepl/quality_optimized"`, `"deepl/latency_optimized"` and
 #'   `"deepl/prefer_quality_optimized"`. Other providers use [ellmer::chat()].
@@ -68,12 +70,23 @@
 #' with [saveRDS()] to retain the exact translations used for coding.
 #'
 #' @return A named character vector of class `qlm_translation`, inheriting
-#'   from `qlm_preprocessed`, with a `provenance` data frame. It includes
+#'   from `qlm_preprocessed`, `qlm_corpus` and `corpus`. Its `meta` attribute
+#'   follows quanteda's system/object/user structure. The provenance table is
+#'   stored at `meta$user$quallmer$translation`, accessible as
+#'   `qlm_meta(x, "quallmer")$translation` or, with quanteda loaded,
+#'   `quanteda::meta(x, "quallmer")$translation`. It includes
 #'   `.id`, `status`, `.error`, `source_text`, `source_hash`, `output_hash`,
 #'   requested and reported models, languages, adapter selection, endpoint,
 #'   timestamp, and list columns for settings, segment attempts and prior
 #'   preprocessing stages. Subsetting, renaming and concatenating keep the
-#'   records aligned. Replacement by plain text records an edit.
+#'   records aligned. Replacement by plain text records an edit and keeps the
+#'   destination document variables. Existing corpus user fields are preserved;
+#'   `quallmer` is a reserved list namespace for translation provenance. New
+#'   corpora have no user document variables and record quallmer as their
+#'   creating package in system metadata. Existing system metadata is retained
+#'   exactly. Object-level summary caches are cleared after translation.
+#'   Concatenation uses the first corpus's system/object metadata and requires
+#'   compatible user metadata (excluding the translation records).
 #' @examples
 #' \dontrun{
 #' # Reads DEEPL_API_KEY, or supply api_key = keyring::key_get("deepl")
@@ -128,11 +141,12 @@ qlm_translate <- function(x, model, target_lang = "en", source_lang = NULL,
   }
   ids <- names(x) %||% paste0("text", seq_along(x))
   check_ids(ids, what = "The names of {.arg x}")
+  corpus_attributes <- translation_corpus_attributes(x)
   history <- preprocessing_history(x)
   input_errors <- if (is_qlm_preprocessed(x)) {
-    attr(x, "provenance")$.error
+    if (is_qlm_translation(x)) translation_provenance(x)$.error else attr(x, "provenance")$.error
   } else rep(NA_character_, length(x))
-  source <- as.character(x)
+  source <- translation_texts(x)
   if (anyNA(source) && on_error == "stop") {
     cli::cli_abort("Translation failed: source text is missing.")
   }
@@ -186,7 +200,8 @@ qlm_translate <- function(x, model, target_lang = "en", source_lang = NULL,
   provenance$settings <- rep(list(settings), length(x))
   provenance$attempts <- result$attempts
   provenance$history <- history
-  out <- new_qlm_translation(result$text, provenance)
+  out <- new_qlm_translation(result$text, provenance,
+    docvars = corpus_attributes$docvars, meta = corpus_attributes$meta)
   failed <- provenance$status == "failed"
   if (any(failed)) {
     cli::cli_warn(c("{sum(failed)} of {length(x)} translation{?s} failed.",

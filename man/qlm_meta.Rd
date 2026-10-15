@@ -57,6 +57,13 @@ version information. Read-only. Fields: \code{timestamp}, \code{ellmer_version},
 For \code{qlm_codebook} objects, user metadata includes \code{name} and \code{instructions}
 (the codebook instructions text), both of which can be modified.
 
+Translation corpora returned by \code{\link[=qlm_translate]{qlm_translate()}} also support reading
+metadata with \code{qlm_meta()}. Their translation provenance is stored in
+\code{qlm_meta(x, "quallmer")$translation}, under corpus-level user metadata.
+Existing corpus user fields, system metadata and document variables are
+preserved. Use \code{quanteda::meta()} to edit their corpus user metadata when
+quanteda is available.
+
 \strong{Modification via \verb{qlm_meta<-()} (assignment):}
 
 Only user metadata can be modified. For \code{qlm_coded}, \code{qlm_comparison}, and
