@@ -1,5 +1,12 @@
 # quallmer 0.5.1
 
+* DeepL translations send whole documents when they fit within the request
+  size limit, preserving paragraph boundaries through XML. Requests are paced
+  and default to two concurrent calls to reduce rate-limit errors (#196).
+
+* Translated corpora print in quanteda's corpus format with a
+  `(qlm_translation)` tag, character and docvar counts, and text previews.
+
 * `qlm_translate()` translates texts through DeepL or an ellmer chat model,
   returning a quanteda-compatible corpus with original document variables and
   system/user metadata. Translation provenance is retained in the corpus's

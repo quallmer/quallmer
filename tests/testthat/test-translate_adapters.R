@@ -42,9 +42,42 @@ test_that("DeepL packs at most 50 texts and accounts for JSON bytes", {
   expect_equal(body$target_lang, "EN-GB")
   expect_equal(body$custom_instructions, list("Keep the register."))
   jobs[[2]]$context <- "preceding source"
-  expect_equal(lengths(translation_deepl_batches(jobs[1:3], setup)), c(1, 1, 1))
+  expect_equal(lengths(translation_deepl_batches(jobs[1:3], setup)), 3)
   setup$settings$context <- paste(rep("字", 50000), collapse = "")
-  expect_error(translation_deepl_batches(jobs[1], setup), "128 KiB")
+  expect_error(translation_deepl_batches(jobs[1], setup), "131 kB")
+})
+
+test_that("DeepL divides a document only when its encoded body exceeds the limit", {
+  adapter <- translation_adapter("deepl/quality_optimized", NULL, NULL, NULL)
+  setup <- translation_setup(adapter, list(target_lang = "en"), "test", NULL, 60)
+  jobs <- rep(list(list(text = strrep("字", 16000), marker_prefix = "QLMKEEP",
+                       document = 1L, context = NULL)), 4)
+  batches <- translation_deepl_batches(jobs, setup)
+  expect_identical(batches, list(1:2, 3:4))
+  for (idx in batches) {
+    body <- translation_deepl_body(jobs[idx], setup)
+    expect_length(body$text, 1)
+    expect_lte(translation_body_bytes(body), 131072)
+  }
+})
+
+test_that("DeepL document XML validates paragraph identities and accounts for usage once", {
+  jobs <- list(list(text = "one", marker_prefix = "QLMKEEP"),
+               list(text = "two", marker_prefix = "QLMKEEP"))
+  value <- list(text = translation_deepl_xml(jobs), billed_characters = 6,
+                detected_source_language = "EN")
+  result <- parse_deepl_document(value, 2)
+  expect_equal(vapply(result, `[[`, "", "text"), c("one", "two"))
+  expect_equal(result[[1]]$usage$billed_characters, 6)
+  expect_null(result[[2]]$usage$billed_characters)
+  for (xml in c('<qlm><p id="2">two</p><p id="1">one</p></qlm>',
+                '<qlm><p id="1">one</p></qlm>',
+                '<qlm>extra<p id="1">one</p><p id="2">two</p></qlm>',
+                '<qlm><p id="1"><other>one</other></p><p id="2">two</p></qlm>')) {
+    value$text <- xml
+    result <- parse_deepl_document(value, 2)
+    expect_true(any(vapply(result, function(x) !is.na(x$error), logical(1))))
+  }
 })
 
 test_that("DeepL requests authenticate through the header, not the body", {

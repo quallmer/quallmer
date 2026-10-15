@@ -1,5 +1,5 @@
 # High-level scheduling keeps each request associated with its source position.
-# Paragraphs are never joined inside a prompt in this conservative first pass.
+# Chat prompts use individual segments; DeepL combines them into document XML.
 run_translation_plans <- function(plans, setup, max_active, rpm, on_error) {
   jobs <- list()
   first_missing <- which(vapply(plans, is.null, logical(1)))[1]
@@ -12,7 +12,8 @@ run_translation_plans <- function(plans, setup, max_active, rpm, on_error) {
         piece <- paragraph$pieces[[s]]
         if (!nzchar(piece$text)) next
         jobs[[length(jobs) + 1L]] <- c(piece, list(document = d, paragraph = p,
-          segment = s, context = previous, marker_prefix = paragraph$marker_prefix,
+          segment = s, context = if (setup$adapter$name == "deepl") NULL else previous,
+          marker_prefix = paragraph$marker_prefix,
           markers = paragraph$markers))
         previous <- restore_translation_terms(piece$text, paragraph$markers)
       }

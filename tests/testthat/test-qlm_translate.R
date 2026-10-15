@@ -54,6 +54,34 @@ test_that("input and backend options are validated before requests", {
   expect_length(seen$requests, 0)
 })
 
+test_that("DeepL sends whole documents while retaining local whitespace and markers", {
+  seen <- mock_translation_deepl(function(text) gsub("Bonjour", "Hello", text, fixed = TRUE))
+  input <- c(a = "  Bonjour TERM\r\n \r\nBonjour TERM  ", b = "Bonjour\n\nencore")
+  out <- qlm_translate(input, "deepl/quality_optimized", protect = "TERM", api_key = "test")
+  expect_identical(as.character(out), gsub("Bonjour", "Hello", input, fixed = TRUE))
+  expect_length(seen$requests, 1)
+  expect_length(seen$requests[[1]]$body$data$text, 2)
+  xml <- xml2::read_xml(seen$requests[[1]]$body$data$text[[1]])
+  expect_length(xml2::xml_find_all(xml, ".//p"), 2)
+  expect_length(xml2::xml_find_all(xml, ".//keep"), 2)
+  attempts <- translation_provenance(out)$attempts[[1]]
+  expect_null(attempts[[1]]$neighbouring_context)
+  expect_null(attempts[[2]]$neighbouring_context)
+  expect_gt(attempts[[1]]$usage$billed_characters, 0)
+  expect_null(attempts[[2]]$usage$billed_characters)
+})
+
+test_that("many-paragraph documents fit in a single DeepL request", {
+  seen <- mock_translation_deepl()
+  input <- stats::setNames(rep(paste(rep("Bonjour à tous.", 82), collapse = "\n\n"), 3),
+                          c("French", "German", "Spanish"))
+  out <- qlm_translate(input, "deepl/quality_optimized", api_key = "test")
+  expect_identical(as.character(out), input)
+  expect_length(seen$requests, 1)
+  expect_length(seen$requests[[1]]$body$data$text, 3)
+  expect_equal(lengths(translation_provenance(out)$attempts), rep(82, 3))
+})
+
 test_that("empty and missing sources need no translation requests", {
   seen <- mock_translation_chat()
   expect_warning(out <- qlm_translate(c(empty = "", blank = " \n\n ", missing = NA_character_), "openai/test"), "1 of 3")

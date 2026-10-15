@@ -96,19 +96,20 @@ detected source languages through this adapter, so those values remain `NA`.
 
 ## Structure, failures and scope
 
-This conservative implementation sends one paragraph or smaller segment per
-prompt and retains blank-line separators locally. Long paragraphs are split
-at sentence ends, whitespace, or finally code points. Every non-first segment
-receives its preceding source segment as context, never text from another
-document. Protected spans are masked before splitting and restored after
+Chat models receive one paragraph or smaller segment per prompt, with the
+preceding source segment as context. Blank-line separators are retained
+locally. Long paragraphs are split at sentence ends, whitespace, or finally
+code points. Protected spans are masked before splitting and restored after
 checking that every marker occurs exactly once. `protect` takes regular
 expressions; overlapping matches and expressions matching empty strings are
 rejected.
 
-DeepL uses XML tag handling to protect markers and packs up to 50 segments
-with identical context within a 128 KiB request body. This requires `xml2`.
-It currently translates paragraphs separately, so it does not use the proposed
-whole-document XML batching. Native DeepL glossaries and the Qwen-MT, Hy-MT2
+DeepL sends whole documents with XML paragraph tags, packing up to 50 documents
+within a 131 kB (131,072 byte) request body. A document is divided across
+requests only when necessary to fit that limit, including context and settings.
+This requires `xml2`. DeepL defaults to two concurrent requests and paces calls
+evenly according to `rpm` to avoid an initial burst.
+Native DeepL glossaries and the Qwen-MT, Hy-MT2
 and TranslateGemma adapters are deferred. Recognised Qwen-MT model IDs produce
 an informative error until their adapter exists; an explicit `adapter =
 "generic"` permits experiments with an ordinary chat prompt.

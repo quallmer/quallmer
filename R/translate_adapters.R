@@ -143,16 +143,40 @@ translation_xml <- function(text, prefix) {
 
 translation_deepl_body <- function(jobs, setup) {
   settings <- setup$settings
-  context <- paste(c(settings$context, jobs[[1]]$context), collapse = "\n\n")
-  body <- list(text = lapply(jobs, function(job) translation_xml(job$text, job$marker_prefix)),
+  groups <- translation_deepl_groups(jobs)
+  body <- list(text = lapply(groups, function(idx) translation_deepl_xml(jobs[idx])),
     target_lang = toupper(settings$target_lang), model_type = setup$adapter$model_id,
     tag_handling = "xml", tag_handling_version = "v2", ignore_tags = list("keep"),
     split_sentences = "nonewlines", preserve_formatting = TRUE, show_billed_characters = TRUE)
   if (!is.null(settings$source_lang)) body$source_lang <- toupper(settings$source_lang)
-  if (nzchar(context)) body$context <- context
+  if (!is.null(settings$context) && nzchar(settings$context)) body$context <- settings$context
   if (length(settings$instructions)) body$custom_instructions <- as.list(settings$instructions)
   if (!is.null(settings$formality)) body$formality <- settings$formality
   body
+}
+
+# Each document is one DeepL text, with explicit XML paragraph boundaries.
+# This supplies document context without a separate request per paragraph.
+translation_deepl_groups <- function(jobs) {
+  documents <- vapply(seq_along(jobs), function(i) as.character(jobs[[i]]$document %||% i), "")
+  unname(split(seq_along(jobs), match(documents, unique(documents))))
+}
+
+translation_deepl_xml <- function(jobs) {
+  if (length(jobs) == 1L) return(translation_xml(jobs[[1]]$text, jobs[[1]]$marker_prefix))
+  root <- xml2::xml_new_root("qlm")
+  for (i in seq_along(jobs)) {
+    paragraph <- xml2::xml_add_child(root, "p", id = as.character(i))
+    xml2::xml_set_text(paragraph, jobs[[i]]$text)
+  }
+  encoded <- as.character(root)
+  markers <- unique(unlist(lapply(jobs, function(job) {
+    translation_markers(job$text, job$marker_prefix)
+  })))
+  for (marker in markers) {
+    encoded <- gsub(marker, paste0("<keep>", marker, "</keep>"), encoded, fixed = TRUE)
+  }
+  encoded
 }
 
 translation_body_bytes <- function(body) {
@@ -162,22 +186,40 @@ translation_body_bytes <- function(body) {
 translation_deepl_batches <- function(jobs, setup) {
   batches <- list()
   current <- integer()
-  for (i in seq_along(jobs)) {
-    proposed <- c(current, i)
-    same_context <- !length(current) || identical(jobs[[i]]$context, jobs[[current[1]]]$context)
-    fits <- same_context && length(proposed) <= 50L &&
-      translation_body_bytes(translation_deepl_body(jobs[proposed], setup)) <= 128L * 1024L
-    if (!fits && length(current)) {
+  for (group in translation_deepl_groups(jobs)) {
+    proposed <- c(current, group)
+    if (translation_deepl_fits(jobs[proposed], setup)) {
+      current <- proposed
+      next
+    }
+    if (length(current)) {
       batches[[length(batches) + 1L]] <- current
       current <- integer()
     }
-    current <- c(current, i)
-    if (translation_body_bytes(translation_deepl_body(jobs[current], setup)) > 128L * 1024L) {
-      cli::cli_abort("A DeepL segment and its context exceed 128 KiB; reduce {.arg chunk_size} or {.arg context}.")
+    if (translation_deepl_fits(jobs[group], setup)) {
+      current <- group
+      next
+    }
+    # Only a document too large for a request is divided across requests.
+    for (i in group) {
+      proposed <- c(current, i)
+      if (!translation_deepl_fits(jobs[proposed], setup) && length(current)) {
+        batches[[length(batches) + 1L]] <- current
+        current <- integer()
+      }
+      current <- c(current, i)
+      if (!translation_deepl_fits(jobs[current], setup)) {
+        cli::cli_abort("A DeepL segment and its context exceed 131 kB; reduce {.arg chunk_size} or {.arg context}.")
+      }
     }
   }
   if (length(current)) batches[[length(batches) + 1L]] <- current
   batches
+}
+
+translation_deepl_fits <- function(jobs, setup) {
+  length(translation_deepl_groups(jobs)) <= 50L &&
+    translation_body_bytes(translation_deepl_body(jobs, setup)) <= 128L * 1024L
 }
 
 translation_deepl_request <- function(jobs, setup) {
@@ -187,8 +229,8 @@ translation_deepl_request <- function(jobs, setup) {
   req <- httr2::req_body_json(req, translation_deepl_body(jobs, setup), auto_unbox = TRUE)
   req <- httr2::req_error(req, body = translation_deepl_error)
   req <- httr2::req_retry(req, max_tries = 3)
-  httr2::req_throttle(req, capacity = setup$rpm, fill_time_s = 60,
-                     realm = paste0("quallmer-deepl-", translation_hash(setup$base_url)))
+  httr2::req_throttle(req, capacity = 1, fill_time_s = 60 / setup$rpm,
+                     realm = paste0("quallmer-deepl-paced-", translation_hash(setup$base_url)))
 }
 
 translation_deepl_error <- function(resp) {
@@ -208,6 +250,7 @@ translation_deepl_jobs <- function(jobs, setup, max_active, rpm, on_error) {
   out <- vector("list", length(jobs))
   for (i in seq_along(batches)) {
     idx <- batches[[i]]
+    groups <- translation_deepl_groups(jobs[idx])
     resp <- responses[[i]]
     if (is.null(resp)) next
     if (inherits(resp, "error")) {
@@ -218,14 +261,42 @@ translation_deepl_jobs <- function(jobs, setup, max_active, rpm, on_error) {
       next
     }
     body <- tryCatch(httr2::resp_body_json(resp, simplifyVector = FALSE), error = function(e) NULL)
-    if (!is.list(body$translations) || length(body$translations) != length(idx)) {
+    if (!is.list(body$translations) || length(body$translations) != length(groups)) {
       out[idx] <- rep(list(list(text = NA_character_, error = "DeepL returned the wrong number of translations",
         usage = NULL, finish = NA_character_, stage = "content")), length(idx))
       next
     }
-    out[idx] <- lapply(body$translations, parse_deepl_translation)
+    for (g in seq_along(groups)) {
+      positions <- idx[groups[[g]]]
+      out[positions] <- parse_deepl_document(body$translations[[g]], length(positions))
+    }
   }
   out
+}
+
+parse_deepl_document <- function(value, n) {
+  if (n == 1L) return(list(parse_deepl_translation(value)))
+  paragraphs <- tryCatch({
+    root <- xml2::read_xml(value$text, options = "NONET")
+    nodes <- xml2::xml_children(root)
+    if (xml2::xml_name(root) != "qlm" || length(nodes) != n ||
+        any(xml2::xml_name(nodes) != "p") ||
+        !identical(xml2::xml_attr(nodes, "id"), as.character(seq_len(n))) ||
+        any(nzchar(trimws(xml2::xml_text(xml2::xml_find_all(root, "./text()")))))) {
+      stop("unexpected document XML structure")
+    }
+    lapply(nodes, function(node) {
+      xml2::xml_set_name(node, "qlm")
+      as.character(node)
+    })
+  }, error = function(e) NULL)
+  lapply(seq_len(n), function(i) {
+    part <- value
+    part$text <- if (is.null(paragraphs)) NA_character_ else paragraphs[[i]]
+    # DeepL bills the complete document once, not once per paragraph.
+    if (i > 1L) part$billed_characters <- NULL
+    parse_deepl_translation(part)
+  })
 }
 
 parse_deepl_translation <- function(value) {

@@ -2,7 +2,7 @@
 % Please edit documentation in R/qlm_translate.R
 \name{qlm_translate}
 \alias{qlm_translate}
-\title{Translate texts before coding}
+\title{Translate texts}
 \usage{
 qlm_translate(
   x,
@@ -78,9 +78,11 @@ recorded or copied into the environment by this function.}
 \item{base_url}{Optional API base URL. DeepL defaults to its Free or Pro
 host according to the key. Recorded with URL credentials redacted.}
 
-\item{max_active}{Maximum concurrent requests.}
+\item{max_active}{Maximum concurrent requests. Defaults to 2 for DeepL
+and 10 for chat models.}
 
-\item{rpm}{Maximum requests per minute.}
+\item{rpm}{Maximum requests per minute. DeepL requests are paced evenly
+rather than allowing an initial burst.}
 
 \item{on_error}{Failure policy: \code{"continue"} attempts all units,
 \code{"return"} stops new submissions after a failure, and \code{"stop"} raises it.}
@@ -108,18 +110,22 @@ Concatenation uses the first corpus's system/object metadata and requires
 compatible user metadata (excluding the translation records).
 }
 \description{
-Translates texts and returns a quanteda-compatible corpus, retaining source
-texts and per-document provenance in corpus user metadata. The result can be passed to \code{\link[=qlm_code]{qlm_code()}};
-\code{\link[=qlm_trail]{qlm_trail()}} then records translation as part of the coding instrument.
+Translates texts and returns a \pkg{quanteda}-compatible corpus, retaining
+source texts and per-document provenance in corpus user metadata. The result
+can be passed to \code{\link[=qlm_code]{qlm_code()}}; \code{\link[=qlm_trail]{qlm_trail()}} then records translation as part
+of the coding instrument.
 }
 \details{
-This initial implementation translates one paragraph or smaller segment
-per prompt. DeepL packs segments sharing context into requests of at most
-50 texts and 128 KiB. Blank-line paragraph separators and whitespace at
-segment edges are kept locally and restored verbatim. Sentences, then
-whitespace, then code points delimit oversized paragraphs. Hard cuts can
-split grapheme clusters. Every segment receives the preceding source
-segment within its document as separate context; documents never share it.
+Chat models translate one paragraph or smaller segment per prompt. DeepL
+receives whole documents, with XML tags preserving paragraph boundaries;
+up to 50 documents share a request within its 131 kB (131,072 byte) limit.
+A document is divided across requests only when its encoded body, including
+context and settings, exceeds that limit. Blank-line paragraph separators
+and whitespace at segment edges are kept locally and restored verbatim.
+Sentences, then whitespace, then code points delimit oversized paragraphs.
+Hard cuts can split grapheme clusters. Chat segments receive the preceding
+source segment within their document as context. DeepL receives the
+call-wide context and the document's paragraphs together in each text.
 
 Protection failures and malformed or blank responses are retried once.
 A chat response reported as truncated is retried as smaller segments, with
@@ -132,7 +138,9 @@ retries are withheld after the first terminal failure.
 The provenance records requested settings, not a guarantee that the
 provider applied them. Unsupported-parameter warnings from ellmer are
 recorded and emitted once each. The detected language for chat models is
-unreported (\code{NA}); DeepL reports it per segment. DeepL model types express
+unreported (\code{NA}); DeepL reports it per document or oversized document part.
+DeepL usage is recorded once per submitted document or part, in its first
+segment attempt. DeepL model types express
 quality/latency goals, not pinned model versions. Save the returned object
 with \code{\link[=saveRDS]{saveRDS()}} to retain the exact translations used for coding.
 }

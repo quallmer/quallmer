@@ -101,20 +101,54 @@ as.character.qlm_translation <- function(x, ...) {
 }
 
 #' @export
-print.qlm_translation <- function(x, n = 10, width = getOption("width", 80), ...) {
-  provenance <- translation_provenance(x)
-  cat(sprintf("<qlm_translation: %d texts; %d failed; %s>\n", length(x),
-    sum(provenance$status %in% c("failed", "unsubmitted")),
-    paste(unique(provenance$model), collapse = ", ")))
-  shown <- seq_len(min(n, length(x)))
-  for (i in shown) {
-    value <- if (is.na(x[[i]])) paste0("<NA: ", provenance$.error[i], ">") else x[[i]]
-    line <- paste0(names(x)[i], ": ", sub("[\r\n].*$", "", value))
-    if (nchar(line) > width) line <- paste0(substr(line, 1L, max(1L, width - 3L)), "...")
-    cat(line, "\n", sep = "")
+print.qlm_translation <- function(x, max_ndoc = 6L, max_nchar = 60L,
+                                  show_summary = TRUE, ...) {
+  rlang::check_dots_empty()
+  if (!is_count(max_ndoc, -1L)) {
+    cli::cli_abort("{.arg max_ndoc} must be a whole number of at least -1.")
   }
-  if (length(x) > length(shown)) cat("# ... with", length(x) - length(shown), "more\n")
+  if (!is_count(max_nchar, -1L)) {
+    cli::cli_abort("{.arg max_nchar} must be a whole number of at least -1.")
+  }
+  if (!is.logical(show_summary) || length(show_summary) != 1L || is.na(show_summary)) {
+    cli::cli_abort("{.arg show_summary} must be TRUE or FALSE.")
+  }
+  text <- as.character(x)
+  ndoc <- length(text)
+  if (show_summary) {
+    nchars <- sum(nchar(text, type = "chars"), na.rm = TRUE)
+    ndocvars <- length(setdiff(names(attr(x, "docvars")),
+                              c("docname_", "docid_", "segid_")))
+    header <- paste0("corpus (qlm_translation) of ", translation_print_count(ndoc),
+      " document", if (ndoc != 1L) "s", " (", translation_print_count(nchars),
+      " character", if (nchars != 1L) "s", ")")
+    if (ndocvars > 0L) {
+      header <- paste0(header, " and ", translation_print_count(ndocvars),
+                       " docvar", if (ndocvars != 1L) "s")
+    }
+    cat(header, ".\n", sep = "")
+  }
+  if (max_ndoc < 0L) max_ndoc <- ndoc
+  shown <- seq_len(min(max_ndoc, ndoc))
+  provenance <- translation_provenance(x)
+  for (i in shown) {
+    value <- if (is.na(text[i])) paste0("<NA: ", provenance$.error[i], ">") else text[i]
+    value <- gsub("[\\p{C}]+", " ", value, perl = TRUE)
+    if (max_nchar >= 0L && nchar(value, type = "chars") > max_nchar) {
+      value <- paste0(substr(value, 1L, max_nchar), "...")
+    }
+    cat(names(text)[i], " :\n\"", value, "\"\n\n", sep = "")
+  }
+  if (max_ndoc > 0L && ndoc > length(shown)) {
+    remaining <- ndoc - length(shown)
+    cat("[ reached max_ndoc ... ", remaining, " more document",
+        if (remaining != 1L) "s", " ]\n", sep = "")
+  }
   invisible(x)
+}
+
+translation_print_count <- function(x) {
+  format(x, big.mark = ",", scientific = FALSE, trim = TRUE)
 }
 
 # Histories are per document so that subsetting, concatenation and retries

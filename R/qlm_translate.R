@@ -1,8 +1,9 @@
-#' Translate texts before coding
+#' Translate texts
 #'
-#' Translates texts and returns a quanteda-compatible corpus, retaining source
-#' texts and per-document provenance in corpus user metadata. The result can be passed to [qlm_code()];
-#' [qlm_trail()] then records translation as part of the coding instrument.
+#' Translates texts and returns a \pkg{quanteda}-compatible corpus, retaining
+#' source texts and per-document provenance in corpus user metadata. The result
+#' can be passed to [qlm_code()]; [qlm_trail()] then records translation as part
+#' of the coding instrument.
 #'
 #' @param x Character vector of texts, optionally named, or a quanteda corpus.
 #'   Corpus document variables and system/user metadata are retained. Names
@@ -42,20 +43,25 @@
 #'   recorded or copied into the environment by this function.
 #' @param base_url Optional API base URL. DeepL defaults to its Free or Pro
 #'   host according to the key. Recorded with URL credentials redacted.
-#' @param max_active Maximum concurrent requests.
-#' @param rpm Maximum requests per minute.
+#' @param max_active Maximum concurrent requests. Defaults to 2 for DeepL
+#'   and 10 for chat models.
+#' @param rpm Maximum requests per minute. DeepL requests are paced evenly
+#'   rather than allowing an initial burst.
 #' @param on_error Failure policy: `"continue"` attempts all units,
 #'   `"return"` stops new submissions after a failure, and `"stop"` raises it.
 #' @param ... Reserved; must be empty.
 #'
 #' @details
-#' This initial implementation translates one paragraph or smaller segment
-#' per prompt. DeepL packs segments sharing context into requests of at most
-#' 50 texts and 128 KiB. Blank-line paragraph separators and whitespace at
-#' segment edges are kept locally and restored verbatim. Sentences, then
-#' whitespace, then code points delimit oversized paragraphs. Hard cuts can
-#' split grapheme clusters. Every segment receives the preceding source
-#' segment within its document as separate context; documents never share it.
+#' Chat models translate one paragraph or smaller segment per prompt. DeepL
+#' receives whole documents, with XML tags preserving paragraph boundaries;
+#' up to 50 documents share a request within its 131 kB (131,072 byte) limit.
+#' A document is divided across requests only when its encoded body, including
+#' context and settings, exceeds that limit. Blank-line paragraph separators
+#' and whitespace at segment edges are kept locally and restored verbatim.
+#' Sentences, then whitespace, then code points delimit oversized paragraphs.
+#' Hard cuts can split grapheme clusters. Chat segments receive the preceding
+#' source segment within their document as context. DeepL receives the
+#' call-wide context and the document's paragraphs together in each text.
 #'
 #' Protection failures and malformed or blank responses are retried once.
 #' A chat response reported as truncated is retried as smaller segments, with
@@ -68,7 +74,9 @@
 #' The provenance records requested settings, not a guarantee that the
 #' provider applied them. Unsupported-parameter warnings from ellmer are
 #' recorded and emitted once each. The detected language for chat models is
-#' unreported (`NA`); DeepL reports it per segment. DeepL model types express
+#' unreported (`NA`); DeepL reports it per document or oversized document part.
+#' DeepL usage is recorded once per submitted document or part, in its first
+#' segment attempt. DeepL model types express
 #' quality/latency goals, not pinned model versions. Save the returned object
 #' with [saveRDS()] to retain the exact translations used for coding.
 #'
@@ -154,6 +162,7 @@ qlm_translate <- function(x, model, target_lang = "en", source_lang = NULL,
     cli::cli_abort("Translation failed: source text is missing.")
   }
   selected <- translation_adapter(model, adapter, base_url, api_key)
+  if (missing(max_active) && selected$name == "deepl") max_active <- 2L
   if (selected$name == "deepl") {
     if (length(params)) cli::cli_abort("{.arg params} is not supported by DeepL.")
     if (!is.null(glossary)) {
@@ -178,7 +187,8 @@ qlm_translate <- function(x, model, target_lang = "en", source_lang = NULL,
   settings <- list(target_lang = target_lang, source_lang = source_lang,
                    instructions = instructions, context = context, protect = protect,
                    glossary = glossary, formality = formality, params = params,
-                   chunk_size = size, template_version = 1L,
+                   chunk_size = size, template_version = 2L,
+                   text_unit = if (selected$name == "deepl") "document" else "segment",
                    ellmer_version = as.character(utils::packageVersion("ellmer")))
   # All local splitting/protection validation finishes before building a key-
   # bearing request. Missing input is carried into the output without a call.
