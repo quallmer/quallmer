@@ -23,13 +23,18 @@ keyring::key_set("deepl")  # once; enter the API key at the password prompt
 keyring::key_list("deepl") # lists the entry without showing the key
 ```
 
-Retrieve the key directly when making a call, as below. quallmer does not
-retrieve keys from Keychain automatically or require the `keyring` package.
+After saving the key, no additional configuration is needed. For DeepL,
+`qlm_translate()` first uses an explicit `api_key`, then `DEEPL_API_KEY`, then
+`keyring::key_get("deepl")` if keyring is installed. Accessing the keyring may
+prompt to unlock it. The retrieved key stays local to the request and is
+never copied into the environment or translation metadata. The keyring
+package is optional.
+
 Alternatively, put `DEEPL_API_KEY="your-key"` in your home `~/.Renviron` and
-restart R; the environment-variable route needs no explicit `api_key`.
+restart R; the environment-variable route takes precedence over keyring.
 The file stores the key in plain text. Do not put it in a tracked project file.
-R started with `--vanilla` does not read `.Renviron`; pass a key explicitly or
-supply the environment variable from the launching process in that case.
+R started with `--vanilla` does not read `.Renviron`; the keyring fallback
+still works, or supply a key explicitly or through the launching process.
 
 ## Translate and code
 
@@ -48,8 +53,7 @@ translated <- qlm_translate(
   target_lang = "en-GB",
   protect = "quallmer",
   instructions = "Preserve the original register.",
-  context = "Interviews about research software and organisational decisions.",
-  api_key = keyring::key_get("deepl")
+  context = "Interviews about research software and organisational decisions."
 )
 saveRDS(translated, "translated.rds")
 translated

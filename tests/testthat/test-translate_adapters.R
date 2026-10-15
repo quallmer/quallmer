@@ -56,3 +56,54 @@ test_that("DeepL requests authenticate through the header, not the body", {
   expect_false(grepl("test-key", jsonlite::toJSON(req$body$data), fixed = TRUE))
   expect_equal(req$policies$retry_max_tries, 3)
 })
+
+test_that("explicit and environment keys take precedence over keyring", {
+  withr::local_envvar(c(DEEPL_API_KEY = "environment-key"))
+  testthat::local_mocked_bindings(deepl_keyring_key = function() {
+    stop("keyring must not be accessed")
+  })
+  expect_identical(deepl_api_key("explicit-key"), "explicit-key")
+  expect_identical(deepl_api_key(), "environment-key")
+  expect_error(deepl_api_key(""), "No DeepL API key")
+})
+
+test_that("missing or empty environment keys fall back to the saved deepl key", {
+  calls <- 0L
+  testthat::local_mocked_bindings(deepl_keyring_key = function() {
+    calls <<- calls + 1L
+    "saved-key:fx"
+  })
+  withr::local_envvar(c(DEEPL_API_KEY = NA_character_))
+  expect_identical(deepl_api_key(), "saved-key:fx")
+  Sys.setenv(DEEPL_API_KEY = "")
+  adapter <- translation_adapter("deepl/quality_optimized", NULL, NULL, NULL)
+  setup <- translation_setup(adapter, list(target_lang = "en"), NULL, NULL, 60)
+  expect_equal(setup$base_url, "https://api-free.deepl.com")
+  expect_identical(setup$api_key, "saved-key:fx")
+  expect_identical(Sys.getenv("DEEPL_API_KEY"), "")
+  expect_equal(calls, 2L)
+})
+
+test_that("keyring remains optional and unavailable credentials give useful errors", {
+  withr::local_envvar(c(DEEPL_API_KEY = NA_character_))
+  lookup <- deepl_keyring_key
+  mockery::stub(lookup, "requireNamespace", function(...) FALSE)
+  expect_null(lookup())
+  testthat::local_mocked_bindings(deepl_keyring_key = function() NULL)
+  expect_error(deepl_api_key(), "DEEPL_API_KEY")
+  expect_error(deepl_api_key(), "keyring::key_set")
+})
+
+test_that("keyring lookup uses the deepl service and contains backend failures", {
+  # Stubbing both calls prevents loading keyring or touching a real store,
+  # including when the suggested package is absent from the test machine.
+  lookup <- deepl_keyring_key
+  mockery::stub(lookup, "requireNamespace", function(...) TRUE)
+  mockery::stub(lookup, "keyring::key_get", function(service) {
+    expect_identical(service, "deepl")
+    "saved-key"
+  })
+  expect_identical(lookup(), "saved-key")
+  mockery::stub(lookup, "keyring::key_get", function(...) stop("locked store: sensitive details"))
+  expect_null(lookup())
+})

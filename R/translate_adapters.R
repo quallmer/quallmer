@@ -35,10 +35,7 @@ translation_adapter <- function(model, adapter, base_url, api_key) {
 
 translation_setup <- function(adapter, settings, api_key, base_url, rpm) {
   if (adapter$name == "deepl") {
-    key <- api_key %||% Sys.getenv("DEEPL_API_KEY")
-    if (!nzchar(key)) {
-      cli::cli_abort("Set {.envvar DEEPL_API_KEY} or supply {.arg api_key} for DeepL.")
-    }
+    key <- deepl_api_key(api_key)
     host <- base_url %||% if (endsWith(key, ":fx")) {
       "https://api-free.deepl.com"
     } else "https://api.deepl.com"
@@ -51,6 +48,34 @@ translation_setup <- function(adapter, settings, api_key, base_url, rpm) {
     system_prompt = translation_instruction(settings), params = settings$params), adapter$args))
   list(adapter = adapter, settings = settings, chat = chat,
        recorded_base_url = if (!is.null(adapter$args$base_url)) redact_url(adapter$args$base_url))
+}
+
+# Explicit credentials and the environment take precedence over the optional
+# system credential store. The retrieved value stays local to the request;
+# neither it nor a keyring error is copied to provenance or the environment.
+deepl_api_key <- function(api_key = NULL) {
+  if (!is.null(api_key)) {
+    key <- api_key
+  } else {
+    key <- Sys.getenv("DEEPL_API_KEY")
+    if (!nzchar(key)) key <- deepl_keyring_key()
+  }
+  if (!rlang::is_string(key) || !nzchar(trimws(key))) {
+    cli::cli_abort(c(
+      "No DeepL API key is available.",
+      "i" = "Supply {.arg api_key} or set {.envvar DEEPL_API_KEY}.",
+      "i" = "Alternatively, install {.pkg keyring}, save a key with {.code keyring::key_set(\"deepl\")}, and ensure the keyring is accessible."
+    ))
+  }
+  key
+}
+
+deepl_keyring_key <- function() {
+  if (!requireNamespace("keyring", quietly = TRUE)) return(NULL)
+  # Missing entries, locked stores and unavailable OS backends all leave
+  # the caller free to supply credentials explicitly. Do not surface an
+  # arbitrary backend message that could disclose credential details.
+  suppressWarnings(tryCatch(keyring::key_get("deepl"), error = function(e) NULL))
 }
 
 translation_instruction <- function(settings) {

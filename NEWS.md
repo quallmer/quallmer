@@ -5,6 +5,9 @@
   system/user metadata. Translation provenance is retained in the corpus's
   `quallmer` user metadata for subsequent coding and audit trails (#196).
 
+* `qlm_translate()` can retrieve a saved `"deepl"` key through the optional
+  keyring package when neither `api_key` nor `DEEPL_API_KEY` is supplied.
+
 * Fixed a test that matched the summary line quanteda prints for corpus objects
   and failed with quanteda 4.5.1, which changed that format. The test now
   accepts both formats. There are no changes to the package code.

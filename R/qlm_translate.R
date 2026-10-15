@@ -34,9 +34,12 @@
 #'   16000 for DeepL, reduced by a supplied `params$max_tokens` on chat.
 #'   Character counts cannot guarantee token limits.
 #' @param api_key API key, or `NULL` to use the provider's environment variable
-#'   (`DEEPL_API_KEY` for DeepL). For macOS Keychain, save a key interactively
-#'   with `keyring::key_set("deepl")`, then pass
-#'   `api_key = keyring::key_get("deepl")`. Keys are never recorded.
+#'   (`DEEPL_API_KEY` for DeepL). If that variable is unset or empty, DeepL
+#'   falls back to `keyring::key_get("deepl")` when the optional \pkg{keyring}
+#'   package is installed. Save a key interactively once with
+#'   `keyring::key_set("deepl")`. An explicit key overrides both other sources.
+#'   Keyring lookup may prompt to unlock the system store. Keys are never
+#'   recorded or copied into the environment by this function.
 #' @param base_url Optional API base URL. DeepL defaults to its Free or Pro
 #'   host according to the key. Recorded with URL credentials redacted.
 #' @param max_active Maximum concurrent requests.

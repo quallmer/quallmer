@@ -54,6 +54,7 @@ Suggests:
     av,
     ggplot2,
     janitor,
+    keyring,
     knitr,
     magick,
     rmarkdown,

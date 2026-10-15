@@ -68,9 +68,12 @@ segment, including protection markers. Defaults to 4000 for chat and
 Character counts cannot guarantee token limits.}
 
 \item{api_key}{API key, or \code{NULL} to use the provider's environment variable
-(\code{DEEPL_API_KEY} for DeepL). For macOS Keychain, save a key interactively
-with \code{keyring::key_set("deepl")}, then pass
-\code{api_key = keyring::key_get("deepl")}. Keys are never recorded.}
+(\code{DEEPL_API_KEY} for DeepL). If that variable is unset or empty, DeepL
+falls back to \code{keyring::key_get("deepl")} when the optional \pkg{keyring}
+package is installed. Save a key interactively once with
+\code{keyring::key_set("deepl")}. An explicit key overrides both other sources.
+Keyring lookup may prompt to unlock the system store. Keys are never
+recorded or copied into the environment by this function.}
 
 \item{base_url}{Optional API base URL. DeepL defaults to its Free or Pro
 host according to the key. Recorded with URL credentials redacted.}

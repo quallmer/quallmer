@@ -200,3 +200,14 @@ test_that("malformed DeepL output is retried once and preserves attempted usage"
   expect_length(translation_provenance(out)$attempts[[1]], 2)
   expect_equal(calls, 2)
 })
+
+test_that("automatic keyring authentication leaves no key in translation metadata", {
+  withr::local_envvar(c(DEEPL_API_KEY = NA_character_))
+  testthat::local_mocked_bindings(deepl_keyring_key = function() "keyring-secret:fx")
+  seen <- mock_translation_deepl()
+  out <- qlm_translate("Bonjour", "deepl/quality_optimized")
+  expect_equal(unname(as.character(out)), "Bonjour")
+  expect_identical(bearer_of(seen$requests[[1]]), "DeepL-Auth-Key keyring-secret:fx")
+  expect_false(grepl("keyring-secret", paste(capture.output(dput(attributes(out))), collapse = ""), fixed = TRUE))
+  expect_identical(Sys.getenv("DEEPL_API_KEY", unset = NA_character_), NA_character_)
+})
