@@ -1,28 +1,22 @@
-# quallmer 0.5.0 submission notes
+# quallmer 0.5.1 submission notes
 
 ## Purpose
 
-Feature release. The main changes:
+Patch release. It changes only a test: `test-corpus.R` matched the summary line
+quanteda prints for corpus objects ("Corpus consisting of ..."), which the
+forthcoming quanteda 4.5.1 changes to "corpus of ... documents (... characters)
+and ... docvars". With quanteda 4.5.1, the 0.5.0 test fails. The test now
+accepts both formats, so 0.5.1 passes with the current CRAN quanteda (4.5.0) and
+with 4.5.1. There are no changes to the package code.
 
-* `qlm_code()` validates every structured response against the codebook
-  schema and records a non-conforming one as a failed unit, and new
-  `qlm_failures()` and `qlm_backfill()` list and re-code the units a run
-  failed on.
-* Audio and video input to `qlm_code()`, and new `qlm_transcribe()` for
-  transcribing audio recordings.
-* All reliability and classification statistics are now implemented
-  natively, so the package no longer imports 'irr' or 'yardstick'.
-
-The breaking changes are listed in NEWS.md.
+Releasing this first avoids a reverse dependency failure when quanteda 4.5.1 is
+submitted.
 
 ## R CMD check results
 
-Checked on:
-* local macOS (aarch64), R 4.6.1, `R CMD check --as-cran`
-
-0 errors | 0 warnings | 0 notes
+TODO: fill in after running `R CMD check --as-cran`.
 
 ## Reverse dependency and other package conflicts
 
-The one reverse dependency, 'quallmer.app' 0.1.0, passes `R CMD check`
-against this version.
+The one reverse dependency, 'quallmer.app' 0.1.0, is unaffected by this
+change, which touches only a test.
