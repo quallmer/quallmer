@@ -1,14 +1,14 @@
-# quallmer 0.5.1 submission notes
+# quallmer 0.6.0 submission notes
 
 ## Purpose
 
-Minor release with one fix and one new feature.
+Release with one fix and one new feature.
 
 * Fixes a test: `test-corpus.R` matched the summary line quanteda prints for
   corpus objects ("Corpus consisting of ..."), which the forthcoming quanteda
   4.5.1 changes to "corpus of ... documents (... characters) and ... docvars".
   With quanteda 4.5.1, the 0.5.0 test fails. The test now accepts both
-  formats, so 0.5.1 passes with the current CRAN quanteda (4.5.0) and with
+  formats, so 0.6.0 passes with the current CRAN quanteda (4.5.0) and with
   4.5.1. Releasing this first avoids a reverse dependency failure when
   quanteda 4.5.1 is submitted.
 

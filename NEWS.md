@@ -1,4 +1,7 @@
-# quallmer 0.5.1
+# quallmer 0.5.0.9000 (development version)
+
+Everything in this section postdates quallmer 0.5.0 and will be released as
+quallmer 0.6.0.
 
 * New experimental `qlm_translate()` translates texts or a quanteda corpus
   before coding, using DeepL, Qwen-MT, Google's Translation LLM or an ellmer
