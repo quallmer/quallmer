@@ -1,11 +1,12 @@
-test_that("character input produces a corpus with empty user docvars and namespaced provenance", {
+test_that("character input converts to a corpus with namespaced provenance", {
+  skip_if_not_installed("quanteda")
   mock_translation_chat()
-  out <- qlm_translate(c(a = "one", b = "two"), "openai/test")
+  out <- quanteda::corpus(qlm_translate(c(a = "one", b = "two"), "openai/test"))
   expect_s3_class(out, "corpus")
   expect_null(attr(out, "provenance", exact = TRUE))
   metadata <- qlm_meta(out, type = "all")
   expect_named(metadata$user, "quallmer")
-  expect_named(metadata$user$quallmer, "translation")
+  expect_named(metadata$user$quallmer, c("coding", "translation"))
   expect_null(metadata$object$translation)
   expect_identical(metadata$user$quallmer$translation, translation_provenance(out))
   expect_identical(metadata$system$package, "quallmer")
@@ -28,12 +29,13 @@ test_that("corpus input retains docvars and existing metadata exactly", {
   metadata <- attr(input, "meta")
   metadata$object$summary <- list(hash = "old text", data = data.frame(old = 1))
   attr(input, "meta") <- metadata
-  out <- qlm_translate(input, "openai/test")
+  out <- quanteda::corpus(qlm_translate(input, "openai/test"))
   expect_identical(as.character(out), c(a = "translated one", b = "translated two"))
   expect_identical(attr(out, "docvars"), attr(input, "docvars"))
   expect_identical(quanteda::docvars(out), quanteda::docvars(input))
   expect_identical(quanteda::meta(out, type = "system"), metadata$system)
-  expect_identical(translation_user_metadata(attr(out, "meta")), metadata$user)
+  user <- translation_user_metadata(attr(out, "meta"))
+  expect_identical(user, metadata$user)
   expect_identical(quanteda::meta(out, "quallmer")$custom, "preserve me")
   expect_identical(attr(out, "meta")$object$unit, metadata$object$unit)
   expect_identical(attr(out, "meta")$object$summary, list(hash = character(), data = NULL))
@@ -45,7 +47,7 @@ test_that("quanteda subsetting, renaming, corpus construction and tokenization i
   mock_translation_chat()
   input <- quanteda::corpus(c(a = "one text", b = "two texts"),
     docvars = data.frame(group = c("A", "B")), meta = list(project = "Study"))
-  out <- qlm_translate(input, "openai/test")
+  out <- quanteda::corpus(qlm_translate(input, "openai/test"))
   subset <- quanteda::corpus_subset(out, group == "B")
   expect_identical(names(subset), "b")
   expect_equal(translation_provenance(subset)$.id, "b")
@@ -65,7 +67,7 @@ test_that("quanteda subsetting, renaming, corpus construction and tokenization i
   # supplies the history when the result is translated or coded again.
   again <- qlm_translate(rebuilt["b"], "openai/test")
   expect_length(preprocessing_record(again)$b, 2)
-  expect_equal(quanteda::docvars(again)$group, "B")
+  expect_equal(quanteda::docvars(quanteda::corpus(again))$group, "B")
 })
 
 test_that("corpus variables survive coding and replication without copying source provenance twice", {
@@ -76,6 +78,9 @@ test_that("corpus variables survive coding and replication without copying sourc
   translated <- qlm_translate(input, "openai/test")
   runner <- text_runner(tibble::tibble(score = c(1, 2)))
   coded <- runner(translated, score_codebook(), model = "openai/gpt-4o-mini")
+  converted <- runner(quanteda::corpus(translated), score_codebook(), model = "openai/gpt-4o-mini")
+  expect_identical(qlm_meta(converted, "preprocessing"), qlm_meta(coded, "preprocessing"))
+  expect_identical(qlm_meta(converted, "corpus_meta")$user, list(project = "Study"))
   expect_identical(qlm_meta(coded, "corpus_docvars"), attr(input, "docvars"))
   expect_identical(qlm_meta(coded, "corpus_meta")$user, list(project = "Study"))
   expect_null(attr(inputs(coded), "meta", exact = TRUE))
@@ -91,13 +96,13 @@ test_that("replacement preserves destination docvars and metadata", {
   mock_translation_chat()
   input <- quanteda::corpus(c(a = "one", b = "two"),
     docvars = data.frame(group = c("A", "B")), meta = list(project = "Study"))
-  out <- qlm_translate(input, "openai/test")
-  replacement <- qlm_translate(c(retry = "retranslated"), "openai/test")
+  out <- quanteda::corpus(qlm_translate(input, "openai/test"))
+  replacement <- quanteda::corpus(qlm_translate(c(retry = "retranslated"), "openai/test"))
   out["b"] <- replacement
   expect_equal(as.character(out)["b"], c(b = "retranslated"))
   expect_identical(quanteda::docvars(out), quanteda::docvars(input))
   expect_equal(translation_provenance(out)$.id, c("a", "b"))
-  expect_identical(translation_user_metadata(attr(out, "meta")), quanteda::meta(input))
+  expect_identical(quanteda::meta(out, "project"), quanteda::meta(input, "project"))
   combined <- c(out["a"], out["b"])
   expect_identical(quanteda::docvars(combined), quanteda::docvars(input))
   quanteda::meta(out, "project") <- "Other study"

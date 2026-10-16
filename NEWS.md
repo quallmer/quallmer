@@ -1,5 +1,21 @@
 # quallmer 0.5.1
 
+* `qlm_translate()` now returns a `qlm_translation` table inheriting from
+  `qlm_coded`, with retained inputs and provenance. `quanteda::corpus()` converts
+  coded text fields to corpora and restores original corpus metadata (#196).
+
+* `qlm_translate()` is marked experimental and documents provider API-key setup,
+  with examples for DeepL, Qwen-MT and Google Translation LLM.
+
+* `qlm_translate()` supports Google Translation LLM with whole-document requests,
+  source-language detection, `GOOGLE_TRANSLATE_API_KEY` credentials and optional
+  `"google-translate"` keyring fallback (#196).
+
+* `qlm_translate()` supports Qwen-MT plus, flash and lite through registered
+  OpenAI-compatible providers. It groups adjacent paragraphs with protected
+  boundaries, tolerates formatting changes within paragraphs, reduces rejected
+  groups to fit model limits, and preserves corpus metadata and provenance (#196).
+
 * DeepL translations send whole documents when they fit within the request
   size limit, preserving paragraph boundaries through XML. Requests are paced
   and default to two concurrent calls to reduce rate-limit errors (#196).

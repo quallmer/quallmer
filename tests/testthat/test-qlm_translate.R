@@ -4,7 +4,7 @@ test_that("chat translation preserves structure, identifiers and provenance", {
   out <- qlm_translate(x, model = "openai/test", protect = "TERM", context = "Interview",
                         instructions = "Keep the register.", params = ellmer::params(max_tokens = 100))
   expect_s3_class(out, "qlm_translation")
-  expect_s3_class(out, "qlm_preprocessed")
+  expect_s3_class(out, "qlm_coded")
   expect_identical(as.character(out), c(a = "  Hello TERM\n \nHello encore  ", b = "Hello"))
   prov <- translation_provenance(out)
   expect_identical(prov$source_text, unname(x))
@@ -105,7 +105,7 @@ test_that("protection failures get one repair and never return partial translati
 test_that("terminal validation failures obey each error policy", {
   seen <- mock_translation_chat(function(text) "a\n\nb")
   expect_warning(out <- qlm_translate(c(a = "one", b = "two"), "openai/test", on_error = "return"), "2 of 2")
-  expect_true(all(is.na(out)))
+  expect_true(all(is.na(out$translation)))
   expect_length(seen$prompts, 3) # two initial calls, only the first repaired
   expect_error(suppressWarnings(qlm_translate("one", "openai/test", on_error = "stop")), "Translation failed")
 })

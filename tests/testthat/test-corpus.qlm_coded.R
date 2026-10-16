@@ -1,0 +1,53 @@
+test_that("translation conversion preserves original corpus metadata and aligns subsets", {
+  skip_if_not_installed("quanteda")
+  mock_translation_chat(function(text) paste("translated", text))
+  input <- quanteda::corpus(c(a = "one", b = "two"),
+    docvars = data.frame(group = factor(c("A", "B")), date = as.Date(c("2020-01-01", "2020-01-02"))),
+    meta = list(project = "Study"))
+  original <- attr(input, "meta")
+  original$object$summary <- list(hash = "old", data = 1)
+  attr(input, "meta") <- original
+  out <- qlm_translate(input, "openai/test")
+  expect_identical(inputs(out), input)
+  corpus <- quanteda::corpus(out)
+  expect_identical(as.character(corpus), c(a = "translated one", b = "translated two"))
+  expect_identical(attr(corpus, "docvars"), attr(input, "docvars"))
+  expect_identical(quanteda::meta(corpus, type = "system"), original$system)
+  expect_identical(quanteda::meta(corpus, "project"), "Study")
+  expect_identical(attr(corpus, "meta")$object$unit, original$object$unit)
+  expect_identical(attr(corpus, "meta")$object$summary, list(hash = character(), data = NULL))
+  expect_identical(quanteda::meta(corpus, "quallmer")$translation, translation_provenance(out))
+  expect_identical(quanteda::meta(corpus, "quallmer")$coding$codebook, codebook(out))
+  subset <- quanteda::corpus(out[c(2, 1), ])
+  expect_equal(quanteda::docnames(subset), c("b", "a"))
+  expect_equal(as.character(quanteda::docvars(subset)$group), c("B", "A"))
+  expect_identical(as.character(inputs(out[c(2, 1), ])), as.character(input)[c(2, 1)])
+  expect_identical(attr(inputs(out[c(2, 1), ]), "meta"), original)
+  expect_identical(quanteda::docvars(quanteda::tokens(corpus)), quanteda::docvars(input))
+  out$.id <- c("x", "y")
+  expect_equal(quanteda::docnames(quanteda::corpus(out)), c("x", "y"))
+  expect_equal(quanteda::docnames(inputs(out)), c("x", "y"))
+})
+
+test_that("ordinary coded objects convert a selected text field with original metadata", {
+  skip_if_not_installed("quanteda")
+  input <- quanteda::corpus(c(a = "one", b = "two"),
+    docvars = data.frame(group = c("A", "B")), meta = list(project = "Study"))
+  book <- qlm_codebook("Summaries", "Summarise", ellmer::type_object(
+    summary = ellmer::type_string(), alternative = ellmer::type_string()))
+  runner <- text_runner(tibble::tibble(summary = c("first", "second"), alternative = c("x", "y")))
+  out <- runner(input, book, model = "openai/test")
+  expect_error(quanteda::corpus(out), "text_field")
+  corpus <- quanteda::corpus(out[2:1, ], text_field = "summary")
+  expect_identical(as.character(corpus), c(b = "second", a = "first"))
+  expect_equal(quanteda::docvars(corpus)$group, c("B", "A"))
+  expect_identical(quanteda::meta(corpus, type = "system"), quanteda::meta(input, type = "system"))
+  expect_identical(quanteda::meta(corpus, "project"), "Study")
+  expect_equal(quanteda::meta(corpus, "quallmer")$coding$text_field, "summary")
+  expect_equal(quanteda::meta(corpus, "quallmer")$coding$other_outputs$alternative, c("y", "x"))
+  expect_error(quanteda::corpus(out, text_field = ".id"), "character output")
+  expect_error(quanteda::corpus(out, text_field = "unknown"), "character output")
+  expect_error(quanteda::corpus(out, text_field = "summary", unused = TRUE), "empty")
+  only <- out[c(".id", "summary")]
+  expect_identical(as.character(quanteda::corpus(only)), c(a = "first", b = "second"))
+})

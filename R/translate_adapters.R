@@ -1,6 +1,16 @@
 # Adapter selection is independent of the host: a registered prefix may
 # expose either an ordinary chat model or a specialised translation model.
 translation_adapter <- function(model, adapter, base_url, api_key) {
+  google <- identical(model_provider(model), "google-translate")
+  if (google || identical(adapter, "google-translate")) {
+    if (!google || !model %in% c("google-translate/translation-llm",
+        "google-translate/general/translation-llm") ||
+        (!is.null(adapter) && adapter != "google-translate")) {
+      cli::cli_abort("The Google Translation adapter requires {.val google-translate/translation-llm}.")
+    }
+    return(list(name = "google-translate", model_id = "general/translation-llm",
+                model = model, args = list()))
+  }
   deepl <- identical(model_provider(model), "deepl")
   if (!is.null(adapter) && !adapter %in% c("generic", "deepl", "qwen-mt", "hy-mt2", "translategemma")) {
     cli::cli_abort("Unknown translation {.arg adapter}: {.val {adapter}}.")
@@ -23,17 +33,24 @@ translation_adapter <- function(model, adapter, base_url, api_key) {
   chosen <- adapter %||% if (id %in% c("qwen-mt-plus", "qwen-mt-flash", "qwen-mt-lite")) {
     "qwen-mt"
   } else "generic"
-  if (chosen != "generic") {
+  if (chosen == "qwen-mt" && !startsWith(id, "qwen-mt-")) {
+    cli::cli_abort("The Qwen-MT adapter requires a Qwen-MT model identifier.")
+  }
+  if (!chosen %in% c("generic", "qwen-mt")) {
     cli::cli_abort(c(
       "The {.val {chosen}} translation adapter is not implemented yet.",
       "i" = "Use another model, or explicitly set {.code adapter = \"generic\"} to try a generic prompt."
     ))
   }
-  list(name = chosen, model = resolved$model, args = resolved$args,
+  list(name = chosen, model = resolved$model, model_id = id, args = resolved$args,
        resolution = resolved$resolution)
 }
 
 translation_setup <- function(adapter, settings, api_key, base_url, rpm) {
+  if (adapter$name == "google-translate") {
+    return(translation_google_setup(adapter, settings, api_key, base_url, rpm))
+  }
+  if (adapter$name == "qwen-mt") return(translation_qwen_setup(adapter, settings, rpm))
   if (adapter$name == "deepl") {
     key <- deepl_api_key(api_key)
     host <- base_url %||% if (endsWith(key, ":fx")) {

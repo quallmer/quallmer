@@ -2,6 +2,7 @@
 # Makes real DeepL calls (about 6,000 source characters). Uses DEEPL_API_KEY,
 # falling back automatically to keyring::key_get("deepl"). No key is saved.
 pkgload::load_all(".")
+library(quanteda)
 stopifnot(requireNamespace("quanteda", quietly = TRUE))
 
 french_texts <- c(
@@ -35,13 +36,14 @@ english <- qlm_translate(
   context = "Public policy and social science research texts.",
   on_error = "stop"
 )
+english_corpus <- quanteda::corpus(english)
 english_provenance <- qlm_meta(english, "quallmer")$translation
 stopifnot(
-  inherits(english, "corpus"),
-  identical(names(english), names(french_texts)),
+  inherits(english, "qlm_coded"),
+  identical(english$.id, names(french_texts)),
   all(english_provenance$status == "ok"),
   identical(english_provenance$source_text, unname(french_texts)),
-  ncol(quanteda::docvars(english)) == 0L,
+  ncol(quanteda::docvars(english_corpus)) == 0L,
   grepl("quanteda", as.character(english)["research"], fixed = TRUE),
   grepl("quallmer", as.character(english)["research"], fixed = TRUE),
   identical(
@@ -62,15 +64,17 @@ french <- qlm_translate(
   context = "Historical inaugural addresses by presidents of the United States.",
   on_error = "stop"
 )
-french_provenance <- quanteda::meta(french, "quallmer")$translation
+french_corpus <- quanteda::corpus(french)
+french_provenance <- quanteda::meta(french_corpus, "quallmer")$translation
 original_meta <- quanteda::meta(speeches, type = "user")
-translated_meta <- quanteda::meta(french, type = "user")
+translated_meta <- quanteda::meta(french_corpus, type = "user")
 translated_meta$quallmer$translation <- NULL
+translated_meta$quallmer$coding <- NULL
 stopifnot(
   all(french_provenance$status == "ok"),
-  identical(names(french), names(speeches)),
-  identical(attr(french, "docvars"), attr(speeches, "docvars")),
-  identical(quanteda::meta(french, type = "system"),
+  identical(french$.id, names(speeches)),
+  identical(attr(french_corpus, "docvars"), attr(speeches, "docvars")),
+  identical(quanteda::meta(french_corpus, type = "system"),
             quanteda::meta(speeches, type = "system")),
   identical(translated_meta, original_meta),
   identical(french_provenance$source_text, unname(as.character(speeches))),
@@ -80,8 +84,8 @@ stopifnot(
   )
 )
 
-french_tokens <- quanteda::tokens(french, remove_punct = TRUE)
-lincoln <- quanteda::corpus_subset(french, President == "Lincoln")
+french_tokens <- quanteda::tokens(french_corpus, remove_punct = TRUE)
+lincoln <- quanteda::corpus_subset(french_corpus, President == "Lincoln")
 stopifnot(
   quanteda::ndoc(french_tokens) == 2L,
   all(quanteda::ntoken(french_tokens) > 0L),
@@ -96,7 +100,7 @@ stopifnot(
 # Keep these objects in the interactive session for inspection.
 print(as.character(english))
 print(as.character(french))
-print(quanteda::docvars(french))
+print(quanteda::docvars(french_corpus))
 print(english_provenance[c(".id", "status", "reported_model",
                            "detected_language")])
 print(french_provenance[c(".id", "status", "reported_model",

@@ -3,6 +3,7 @@
 # Makes real DeepL calls. Uses DEEPL_API_KEY or the saved "deepl" keyring key.
 # quanteda.corpora is needed only for this manual example, not by quallmer.
 pkgload::load_all(".")
+library(quanteda)
 stopifnot(
   requireNamespace("quanteda", quietly = TRUE),
   requireNamespace("quanteda.corpora", quietly = TRUE)
@@ -26,6 +27,7 @@ udhr_english <- qlm_translate(
   on_error = "stop"
 )
 udhr_provenance <- qlm_meta(udhr_english, "quallmer")$translation
+udhr_corpus <- quanteda::corpus(udhr_english)
 print(data.frame(
   document = udhr_ids,
   language = quanteda::docvars(udhr_sample)$Name,
@@ -34,17 +36,17 @@ print(data.frame(
   status = udhr_provenance$status,
   row.names = NULL
 ))
-translated_user_meta <- quanteda::meta(udhr_english, type = "user")
+translated_user_meta <- quanteda::meta(udhr_corpus, type = "user")
 translated_user_meta$quallmer <- NULL
 stopifnot(
-  identical(names(udhr_english), udhr_ids),
+  identical(udhr_english$.id, udhr_ids),
   all(udhr_provenance$status == "ok"),
   all(is.na(udhr_provenance$source_lang)),
   identical(unname(udhr_provenance$detected_language), expected_languages),
   identical(udhr_provenance$source_text, unname(udhr_texts)),
   all(nzchar(as.character(udhr_english))),
-  identical(attr(udhr_english, "docvars"), attr(udhr_sample, "docvars")),
-  identical(quanteda::meta(udhr_english, type = "system"),
+  identical(attr(udhr_corpus, "docvars"), attr(udhr_sample, "docvars")),
+  identical(quanteda::meta(udhr_corpus, type = "system"),
             quanteda::meta(udhr_sample, type = "system")),
   identical(translated_user_meta, quanteda::meta(udhr_sample, type = "user")),
   identical(
@@ -52,7 +54,7 @@ stopifnot(
     stringi::stri_count_fixed(udhr_texts, "\n\n")
   )
 )
-udhr_tokens <- quanteda::tokens(udhr_english)
+udhr_tokens <- quanteda::tokens(udhr_corpus)
 stopifnot(
   all(quanteda::ntoken(udhr_tokens) > 0L),
   identical(quanteda::docvars(udhr_tokens), quanteda::docvars(udhr_sample))

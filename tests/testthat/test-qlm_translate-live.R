@@ -9,8 +9,8 @@ test_that("DeepL combines custom instructions, context and XML protection", {
     model = "deepl/quality_optimized", source_lang = "fr", target_lang = "en-GB",
     protect = "quallmer", instructions = "Preserve the original register.",
     context = "A short greeting from a research software project.", on_error = "stop")
-  expect_match(out[[1]], "quallmer", fixed = TRUE)
-  expect_match(out[[1]], "\n\n", fixed = TRUE)
+  expect_match(out$translation[1], "quallmer", fixed = TRUE)
+  expect_match(out$translation[1], "\n\n", fixed = TRUE)
   provenance <- translation_provenance(out)
   expect_equal(provenance$status, "ok")
   expect_equal(provenance$detected_language, "FR")

@@ -12,9 +12,10 @@ run_translation_plans <- function(plans, setup, max_active, rpm, on_error) {
         piece <- paragraph$pieces[[s]]
         if (!nzchar(piece$text)) next
         jobs[[length(jobs) + 1L]] <- c(piece, list(document = d, paragraph = p,
-          segment = s, context = if (setup$adapter$name == "deepl") NULL else previous,
+          segment = s, context = if (setup$adapter$name == "generic") previous else NULL,
           marker_prefix = paragraph$marker_prefix,
-          markers = paragraph$markers))
+          markers = paragraph$markers,
+          document_text = identical(setup$adapter$name, "google-translate")))
         previous <- restore_translation_terms(piece$text, paragraph$markers)
       }
     }
@@ -44,7 +45,11 @@ run_translation_plans <- function(plans, setup, max_active, rpm, on_error) {
     if (!is.na(checked$error)) {
       errors[d] <- paste(unique(c(if (!is.na(errors[d])) errors[d], checked$error)), collapse = "; ")
       status[d] <- if (is.null(outcome) && status[d] != "failed") "unsubmitted" else "failed"
-      if (on_error == "stop") cli::cli_abort("Translation failed: {checked$error}")
+      if (on_error == "stop") {
+        id <- names(plans)[d] %||% paste0("text", d)
+        cli::cli_abort("Translation failed for {.val {id}}: {checked$error}",
+          translation_id = id, translation_attempts = attempts[[d]])
+      }
       if (on_error == "return") stopped <- TRUE
     }
   }
@@ -82,6 +87,10 @@ run_translation_plans <- function(plans, setup, max_active, rpm, on_error) {
 translation_jobs <- function(jobs, setup, max_active, rpm, on_error) {
   if (setup$adapter$name == "deepl") {
     translation_deepl_jobs(jobs, setup, max_active, rpm, on_error)
+  } else if (setup$adapter$name == "google-translate") {
+    translation_google_jobs(jobs, setup, max_active, on_error)
+  } else if (setup$adapter$name == "qwen-mt") {
+    translation_qwen_jobs(jobs, setup, max_active, rpm, on_error)
   } else translation_chat_jobs(jobs, setup, max_active, rpm, on_error)
 }
 
@@ -93,6 +102,7 @@ finish_translation_job <- function(job, outcome, setup, max_active, rpm,
   }
   reason <- outcome$error %||% NA_character_
   truncated <- identical(outcome$finish, "max_tokens")
+  input_too_long <- isTRUE(outcome$input_too_long)
   if (truncated) reason <- "the model reached its output token limit"
   if (is.na(reason) && !is.null(outcome$finish) && !is.na(outcome$finish) &&
       !identical(outcome$finish, "success")) {
@@ -100,24 +110,26 @@ finish_translation_job <- function(job, outcome, setup, max_active, rpm,
   }
   if (is.na(reason)) reason <- validate_translation_text(outcome$text, job) %||% NA_character_
   attempt <- translation_attempt(job, outcome, reason, depth)
+  attempts <- c(outcome$prior_attempts %||% list(), list(attempt))
   if (is.na(reason)) {
     return(list(text = restore_translation_terms(trimws(outcome$text), job$markers),
-                error = NA_character_, attempts = list(attempt)))
+                error = NA_character_, attempts = attempts))
   }
   # Transport errors already receive transport retries. Content failures get
-  # one repair; truncation gets at most two halvings. No semantic guess is
-  # made from provider-specific input-limit error messages.
+  # one repair; chat truncation gets at most two halvings. Qwen-MT also
+  # recognises its explicit native input-length rejection, with eight levels.
   transport_ok <- is.na(outcome$error %||% NA_character_) || identical(outcome$stage, "content")
-  can_reduce <- truncated && depth < 2L && nchar(job$text) > 1L
-  can_retry <- !truncated && transport_ok && depth == 0L
+  limit <- if (setup$adapter$name == "qwen-mt") 8L else 2L
+  can_reduce <- (truncated || input_too_long) && depth < limit && nchar(job$text) > 1L
+  can_retry <- !truncated && !input_too_long && transport_ok && depth == 0L
   if (!repair || (!can_reduce && !can_retry)) {
-    return(list(text = NA_character_, error = reason, attempts = list(attempt)))
+    return(list(text = NA_character_, error = reason, attempts = attempts))
   }
   if (can_reduce) {
     pieces <- tryCatch(split_translation_segment(job$text,
       max(1L, floor(nchar(job$text) / 2L)), job$marker_prefix), error = function(e) NULL)
     if (is.null(pieces) || length(pieces) < 2L) {
-      return(list(text = NA_character_, error = reason, attempts = list(attempt)))
+      return(list(text = NA_character_, error = reason, attempts = attempts))
     }
     reduced <- lapply(pieces, function(piece) {
       child <- job
@@ -131,7 +143,6 @@ finish_translation_job <- function(job, outcome, setup, max_active, rpm,
     reduced <- list(job)
   }
   outputs <- character(length(reduced))
-  attempts <- list(attempt)
   for (i in seq_along(reduced)) {
     if (!nzchar(reduced[[i]]$text)) {
       outputs[i] <- paste0(pieces[[i]]$before, pieces[[i]]$after)
@@ -156,5 +167,8 @@ translation_attempt <- function(job, outcome, error, reduction) {
     timestamp = Sys.time(), reduction = reduction, finish = outcome$finish,
     reported_model = outcome$reported_model, detected_language = outcome$detected_language,
     usage = outcome$usage, warnings = outcome$warnings, error = error,
+    request_id = outcome$request_id, group_size = outcome$group_size,
+    boundary_prefix = outcome$boundary_prefix,
+    group_reduction = outcome$group_reduction,
     protection_ok = is.na(error))
 }

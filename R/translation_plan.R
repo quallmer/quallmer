@@ -111,7 +111,7 @@ validate_translation_text <- function(text, job) {
   if (!rlang::is_string(text) || !nzchar(trimws(text))) {
     return("the model returned no translation text")
   }
-  if (grepl(translation_paragraph_pattern(), text, perl = TRUE)) {
+  if (!isTRUE(job$document_text) && grepl(translation_paragraph_pattern(), text, perl = TRUE)) {
     return("the model introduced a paragraph separator inside a segment")
   }
   expected <- sort(translation_markers(job$text, job$marker_prefix))

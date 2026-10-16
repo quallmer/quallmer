@@ -82,6 +82,7 @@ reference:
       - qlm_segment
       - qlm_transcribe
       - qlm_translate
+      - corpus.qlm_coded
 
   - title: Completing incomplete runs
     desc: Optional functions for finding and re-coding the units a run failed on

@@ -8,9 +8,9 @@ knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
 ```
 
 `qlm_translate()` makes translation a recorded stage of a coding workflow.
-It returns a quanteda-compatible corpus with identifiers and provenance: the source
-texts, hashes, model, instructions, context, segment boundaries, attempts and
-usage. Save this object once and reuse its translations across coding runs.
+It returns a `qlm_translation` table inheriting from `qlm_coded`, with columns
+`.id`, `translation` and `.error`. The original inputs, model, instructions,
+context, segment boundaries, attempts and usage are retained as provenance. Save this object once and reuse its translations across coding runs.
 
 ## Storing a DeepL key
 
@@ -109,10 +109,57 @@ within a 131 kB (131,072 byte) request body. A document is divided across
 requests only when necessary to fit that limit, including context and settings.
 This requires `xml2`. DeepL defaults to two concurrent requests and paces calls
 evenly according to `rpm` to avoid an initial burst.
-Native DeepL glossaries and the Qwen-MT, Hy-MT2
-and TranslateGemma adapters are deferred. Recognised Qwen-MT model IDs produce
-an informative error until their adapter exists; an explicit `adapter =
-"generic"` permits experiments with an ordinary chat prompt.
+Qwen-MT uses native translation options and combines adjacent paragraphs from
+one document into each request. Groups target 4000 characters and approximately
+6000 serialized UTF-8 bytes, a conservative heuristic rather than a token count.
+Input-length rejections, truncated outputs or lost boundary markers trigger
+smaller groups; a single oversized paragraph is split at natural boundaries
+when possible. Opaque boundary markers are protected using native terminology
+entries, so changes to blank lines do not determine alignment. Extra blank
+lines within a translated source paragraph become single line breaks, and
+original paragraph separators are restored locally. Qwen-MT
+does not report detected source languages, so their provenance values are `NA`.
+
+```{r qwen-translation, eval=FALSE}
+# Uses DASHSCOPE_API_KEY with the built-in Singapore endpoint.
+translated_qwen <- qlm_translate(
+  texts,
+  model = "dashscope/qwen-mt-plus",
+  target_lang = "en-GB",
+  params = ellmer::params(temperature = 0.1)
+)
+```
+
+## Google Translation LLM
+
+Google's specialised Translation LLM uses a Cloud Translation API key and a
+Google Cloud project with billing and the Cloud Translation API enabled. A
+separate key restricted to Cloud Translation avoids restrictions on Gemini keys.
+Save the key once using `keyring::key_set("google-translate")`, or set
+`GOOGLE_TRANSLATE_API_KEY`. Credentials are resolved in this order: explicit
+`api_key`, environment variable, then optional keyring lookup. No Gemini key
+variable is used automatically.
+
+```{r google-translation, eval=FALSE}
+Sys.setenv(GOOGLE_CLOUD_PROJECT = "your-project-id")
+translated_google <- qlm_translate(
+  texts,
+  model = "google-translate/translation-llm",
+  target_lang = "en-GB"
+)
+qlm_meta(translated_google, "quallmer")$translation
+```
+
+Alternatively, supply `project_id` directly. The model location defaults to
+`region = "us-central1"`; the Basic API endpoint is global and does not guarantee
+data residency. Each document is sent whole when it fits within 30,000 characters
+and a 100 kB JSON request body. Larger documents are split at sentence or whitespace
+boundaries where possible. Google handles paragraph formatting, so exact original
+blank-line separators are not guaranteed. Source-language detection is recorded
+when `source_lang` is omitted. This API does not support `context`, `instructions`,
+`glossary`, `formality` or non-empty `params`; supplying them raises an error.
+
+Native DeepL glossaries and the Hy-MT2 and TranslateGemma adapters are deferred.
 
 A failed document is `NA`, with its reason and all attempts in provenance.
 Successful segments are never returned as a partial document. Protection or
@@ -121,24 +168,24 @@ gets at most two reductions. Provider input-limit errors retain the provider's
 message rather than being classified by a fragile text match.
 
 ```{r retry-failed}
-failed <- is.na(translated)
-translated[failed] <- qlm_translate(texts[failed],
+failed <- is.na(translated$translation)
+translated[failed, ] <- qlm_translate(texts[failed],
   model = "deepl/quality_optimized", target_lang = "en-GB",
   api_key = keyring::key_get("deepl"))
 ```
 
-Subsetting, renaming, concatenation and replacement preserve aligned
-provenance. Assigning plain text records an edit and updates the output hash.
-`as.character()` deliberately drops provenance.
+Use data-frame row subsetting (`translated[rows, ]`), edit identifiers in
+`translated$.id`, and combine compatible runs with `rbind()`. Inputs and provenance
+remain aligned. Editing `translated$translation` records an edit and updates the
+output hash. `as.character()` extracts the named translations and drops provenance.
 
 ## Corpus input and metadata
 
-A quanteda corpus can be translated directly. Its document variables, user
-metadata and system metadata are retained, with translation provenance in a
-reserved `quallmer` user-metadata namespace. Plain character input receives
-the same corpus structure, with no user document variables or user metadata
-other than the translation record. Its system metadata records creation by
-quallmer; quanteda remains an optional dependency.
+A quanteda corpus can be translated directly. `inputs(translated)` retains the
+original corpus, while `qlm_meta(translated, "quallmer")$translation` exposes the
+translation record. Convert the output table with `quanteda::corpus(translated)`
+to restore the original docvars and corpus metadata. Quanteda remains optional;
+it is not needed to produce or work with the translation table.
 
 ```{r corpus-translation}
 source <- quanteda::corpus(texts,
@@ -147,20 +194,29 @@ source <- quanteda::corpus(texts,
 translated <- qlm_translate(source,
   model = "deepl/quality_optimized", target_lang = "en-GB",
   api_key = keyring::key_get("deepl"))
-quanteda::docvars(translated)
-quanteda::meta(translated, "project")
-quanteda::meta(translated, "quallmer")$translation
-selected <- quanteda::corpus_subset(translated, interviewer == "Alice")
+inputs(translated)
+translated_corpus <- quanteda::corpus(translated)
+quanteda::docvars(translated_corpus)
+quanteda::meta(translated_corpus, "project")
+quanteda::meta(translated_corpus, "quallmer")$translation
+selected <- quanteda::corpus_subset(translated_corpus, interviewer == "Alice")
 quanteda::tokens(selected)
 ```
 
-Provenance lives in corpus-level user metadata, rather than document
-variables or quanteda's object metadata, so it survives normal quanteda
-corpus construction and tokenization. Quallmer's subset and rename methods
-align its rows with the documents. Derived quanteda objects may retain the
-full source provenance table; its `.id` values identify the source documents.
-For coding, original document variables and corpus metadata are also retained
-as `qlm_meta(coded, "corpus_docvars")` and `qlm_meta(coded, "corpus_meta")`.
+The corpus uses `.id` as document names and restores the source corpus's system,
+user and object metadata, clearing text summary caches. Translation provenance
+is stored under `meta$user$quallmer$translation`; coding metadata and its schema
+are under `meta$user$quallmer$coding`. Character input produces a corpus with no
+user docvars. The same conversion works for any `qlm_coded` object with a text
+output field, selected explicitly when there is more than one:
+
+```{r coded-corpus}
+summary_corpus <- quanteda::corpus(coded_summaries, text_field = "summary")
+```
+
+For subsequent coding, original document variables and corpus metadata are also
+retained as `qlm_meta(coded, "corpus_docvars")` and `qlm_meta(coded, "corpus_meta")`.
+Text-similarity comparison is not implemented by this conversion.
 
 ## Evaluate the translation step
 

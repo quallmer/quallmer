@@ -1,57 +1,106 @@
 #' Translate texts
 #'
-#' Translates texts and returns a \pkg{quanteda}-compatible corpus, retaining
-#' source texts and per-document provenance in corpus user metadata. The result
+#' `r lifecycle::badge("experimental")`
+#'
+#' Translates texts and returns a `qlm_coded` table, retaining original inputs
+#' and per-document translation provenance. The result
 #' can be passed to [qlm_code()]; [qlm_trail()] then records translation as part
 #' of the coding instrument.
 #'
 #' @param x Character vector of texts, optionally named, or a quanteda corpus.
-#'   Corpus document variables and system/user metadata are retained. Names
+#'   A previous `qlm_translation` can also be translated again. Original corpus
+#'   document variables and metadata are retained for corpus conversion. Names
 #'   must be unique and non-empty. Missing inputs remain failed units without
 #'   a request. No installation or loading of quanteda is required.
 #' @param model Required provider/model identifier. DeepL accepts
 #'   `"deepl/quality_optimized"`, `"deepl/latency_optimized"` and
-#'   `"deepl/prefer_quality_optimized"`. Other providers use [ellmer::chat()].
+#'   `"deepl/prefer_quality_optimized"`. Qwen-MT accepts, for example,
+#'   `"dashscope/qwen-mt-plus"`, `"dashscope/qwen-mt-flash"` and
+#'   `"dashscope/qwen-mt-lite"`. Google Translation LLM uses
+#'   `"google-translate/translation-llm"`. Other models use [ellmer::chat()].
 #' @param target_lang Target language code, such as `"en"` or `"en-GB"`.
 #' @param source_lang Source language code, or `NULL` for automatic detection.
 #' @param instructions Character vector of translation directives. DeepL
-#'   accepts at most 10 directives of at most 300 characters each.
+#'   accepts at most 10 directives of at most 300 characters each. Qwen-MT
+#'   receives these together with `context` as its native domain prompt.
 #' @param context One string of background information, not text to translate.
 #' @param protect Character vector of regular expressions matching text to
 #'   preserve exactly. Matches must not overlap or be empty. Matched text is
 #'   masked before splitting and restored only after marker validation.
 #' @param glossary Named character vector of source terms and their desired
-#'   translations. Supported as instructions by the generic adapter. Native
+#'   translations. Qwen-MT uses native terminology options; the generic
+#'   adapter uses instructions. Native
 #'   DeepL glossaries are not implemented in this initial version.
 #' @param formality DeepL formality setting (`"default"`, `"more"`, `"less"`,
 #'   `"prefer_more"`, `"prefer_less"`); an instruction for generic chat.
-#' @param adapter `NULL` for automatic selection, or `"generic"` or `"deepl"`.
-#'   Recognised Qwen-MT IDs require an adapter not yet implemented; explicitly
-#'   selecting `"generic"` permits an experimental generic request.
+#'   Not supported by Qwen-MT; use `instructions` instead.
+#' @param adapter `NULL` for automatic selection, or `"generic"`, `"deepl"`,
+#'   or `"qwen-mt"`. Exact Qwen-MT plus, flash and lite model IDs select the
+#'   native adapter automatically. Google Translation LLM selects
+#'   `"google-translate"` automatically; this can also be supplied explicitly.
 #' @param params Settings created with [ellmer::params()], passed through on
-#'   the chat route. Non-empty settings are refused on the DeepL route.
+#'   the chat route. Qwen-MT supports `temperature`, `top_p`, `top_k`, `seed`
+#'   and `max_tokens`, rejecting unsupported settings. Non-empty settings are
+#'   refused on the DeepL and Google Translation routes.
 #' @param chunk_size Positive integer; estimated maximum characters per
-#'   segment, including protection markers. Defaults to 4000 for chat and
+#'   segment (or Qwen-MT paragraph group), including protection markers.
+#'   Defaults to 4000 for chat and Qwen-MT and
 #'   16000 for DeepL, reduced by a supplied `params$max_tokens` on chat.
-#'   Character counts cannot guarantee token limits.
+#'   Google defaults to 30000 characters, capped at its model limit; complete
+#'   documents are sent when they fit. Character counts cannot guarantee token limits.
 #' @param api_key API key, or `NULL` to use the provider's environment variable
-#'   (`DEEPL_API_KEY` for DeepL). If that variable is unset or empty, DeepL
+#'   (`DEEPL_API_KEY` for DeepL, `DASHSCOPE_API_KEY` for DashScope). If that
+#'   variable is unset or empty, DeepL
 #'   falls back to `keyring::key_get("deepl")` when the optional \pkg{keyring}
 #'   package is installed. Save a key interactively once with
 #'   `keyring::key_set("deepl")`. An explicit key overrides both other sources.
 #'   Keyring lookup may prompt to unlock the system store. Keys are never
-#'   recorded or copied into the environment by this function.
+#'   recorded or copied into the environment by this function. Google Translation
+#'   uses `GOOGLE_TRANSLATE_API_KEY`, falling back to
+#'   `keyring::key_get("google-translate")`; explicit keys take precedence.
 #' @param base_url Optional API base URL. DeepL defaults to its Free or Pro
 #'   host according to the key. Recorded with URL credentials redacted.
-#' @param max_active Maximum concurrent requests. Defaults to 2 for DeepL
+#' @param project_id Google Cloud project ID or number, used by Google Translation
+#'   LLM. Defaults to the `GOOGLE_CLOUD_PROJECT` environment variable.
+#' @param region Google Translation model location; defaults to `"us-central1"`.
+#'   The Basic API uses a global endpoint; this does not guarantee data residency.
+#' @param max_active Maximum concurrent requests. Defaults to 2 for DeepL, Google
+#'   Translation and Qwen-MT
 #'   and 10 for chat models.
-#' @param rpm Maximum requests per minute. DeepL requests are paced evenly
+#' @param rpm Maximum requests per minute. Native translation requests are paced evenly
 #'   rather than allowing an initial burst.
 #' @param on_error Failure policy: `"continue"` attempts all units,
 #'   `"return"` stops new submissions after a failure, and `"stop"` raises it.
 #' @param ... Reserved; must be empty.
 #'
 #' @details
+#' ## API setup and keys
+#'
+#' Obtain credentials using the provider's setup instructions:
+#'
+#' * [DeepL: access and authentication](https://developers.deepl.com/docs/getting-started/auth).
+#'   Set `DEEPL_API_KEY` or save the key with `keyring::key_set("deepl")`.
+#' * [Alibaba Cloud Model Studio: obtain an API key](https://www.alibabacloud.com/help/en/model-studio/get-api-key)
+#'   for Qwen-MT. Set `DASHSCOPE_API_KEY`; the key must match the endpoint's region.
+#' * [Google Cloud Translation: setup](https://docs.cloud.google.com/translate/docs/setup).
+#'   Enable billing and Cloud Translation for the project, and create an API key
+#'   that permits Cloud Translation. Set `GOOGLE_TRANSLATE_API_KEY` or save it
+#'   with `keyring::key_set("google-translate")`. Supply `project_id` or set
+#'   `GOOGLE_CLOUD_PROJECT`.
+#'
+#' For other chat providers, follow the credential instructions in the
+#' corresponding [ellmer provider documentation](https://ellmer.tidyverse.org/reference/index.html).
+#'
+#' ## Requests and provenance
+#'
+#' Google Translation LLM uses the Cloud Translation Basic API with one complete
+#' document per request, splitting only to meet 30000-character and 100 kB body
+#' limits or a smaller `chunk_size`. Paragraph formatting is handled by Google;
+#' exact paragraph separator preservation is not guaranteed. Detected source
+#' languages are recorded when `source_lang` is omitted. The Basic API does not
+#' accept `context`, `instructions`, `glossary`, `formality` or non-empty `params`;
+#' these arguments raise an error rather than being silently ignored.
+#'
 #' Chat models translate one paragraph or smaller segment per prompt. DeepL
 #' receives whole documents, with XML tags preserving paragraph boundaries;
 #' up to 50 documents share a request within its 131 kB (131,072 byte) limit.
@@ -62,6 +111,21 @@
 #' Hard cuts can split grapheme clusters. Chat segments receive the preceding
 #' source segment within their document as context. DeepL receives the
 #' call-wide context and the document's paragraphs together in each text.
+#'
+#' Qwen-MT groups adjacent paragraphs from the same document, using native
+#' language, terminology and domain options in a non-streaming request. Groups
+#' target at most `chunk_size` characters and approximately 6000 serialized
+#' UTF-8 request bytes. This is a packing heuristic, not a token count; an
+#' individual segment can exceed that soft byte target. Input-length
+#' rejections, output truncation and lost or reordered boundary markers reduce
+#' groups at paragraph boundaries, with at most eight group reductions. An oversized
+#' individual paragraph is reduced at sentence, whitespace or code-point
+#' boundaries with at most eight reductions. Original paragraph separators
+#' are restored locally. Group boundaries use opaque markers with native
+#' terminology entries mapping each marker to itself. Extra blank lines
+#' inside one translated source paragraph become single line breaks rather
+#' than causing a validation failure. Qwen-MT does not report its detected
+#' source language.
 #'
 #' Protection failures and malformed or blank responses are retried once.
 #' A chat response reported as truncated is retried as smaller segments, with
@@ -75,29 +139,34 @@
 #' provider applied them. Unsupported-parameter warnings from ellmer are
 #' recorded and emitted once each. The detected language for chat models is
 #' unreported (`NA`); DeepL reports it per document or oversized document part.
+#' Qwen-MT usage is recorded once per group, in its first segment attempt.
 #' DeepL usage is recorded once per submitted document or part, in its first
 #' segment attempt. DeepL model types express
 #' quality/latency goals, not pinned model versions. Save the returned object
 #' with [saveRDS()] to retain the exact translations used for coding.
 #'
-#' @return A named character vector of class `qlm_translation`, inheriting
-#'   from `qlm_preprocessed`, `qlm_corpus` and `corpus`. Its `meta` attribute
-#'   follows quanteda's system/object/user structure. The provenance table is
-#'   stored at `meta$user$quallmer$translation`, accessible as
-#'   `qlm_meta(x, "quallmer")$translation` or, with quanteda loaded,
-#'   `quanteda::meta(x, "quallmer")$translation`. It includes
-#'   `.id`, `status`, `.error`, `source_text`, `source_hash`, `output_hash`,
-#'   requested and reported models, languages, adapter selection, endpoint,
-#'   timestamp, and list columns for settings, segment attempts and prior
-#'   preprocessing stages. Subsetting, renaming and concatenating keep the
-#'   records aligned. Replacement by plain text records an edit and keeps the
-#'   destination document variables. Existing corpus user fields are preserved;
-#'   `quallmer` is a reserved list namespace for translation provenance. New
-#'   corpora have no user document variables and record quallmer as their
-#'   creating package in system metadata. Existing system metadata is retained
-#'   exactly. Object-level summary caches are cleared after translation.
-#'   Concatenation uses the first corpus's system/object metadata and requires
-#'   compatible user metadata (excluding the translation records).
+#' @return A tibble of class `qlm_translation`, inheriting from `qlm_coded`,
+#'   with columns `.id`, `translation` (character), and `.error` (a list of
+#'   conditions or `NULL`). Failed or unsubmitted translations are `NA`.
+#'   [inputs()] returns the original input and [codebook()] describes the text
+#'   output field. Translation provenance is accessible using
+#'   `qlm_meta(x, "quallmer")$translation`. It includes source texts and hashes,
+#'   requested and reported models, settings and instructions, languages,
+#'   statuses, errors, timestamps, attempts and preprocessing history.
+#'
+#'   Row subsetting uses data-frame syntax, e.g. `x[c(2, 1), ]`, retaining
+#'   aligned inputs and provenance. Identifiers are in `x$.id`; `names(x)` are
+#'   column names. Editing translated text records an edit and updates its
+#'   hash. Use `rbind()` to combine compatible translation tables.
+#'   `as.character(x)` extracts named translated texts, dropping provenance.
+#'
+#'   Convert with `quanteda::corpus(x)` (see [corpus.qlm_coded()]). The corpus
+#'   uses translated texts and restores the original corpus document variables,
+#'   system and user metadata. Object summary caches are cleared. Translation
+#'   provenance is retained in `meta$user$quallmer$translation`, and coding
+#'   metadata in `meta$user$quallmer$coding`. Character input converts to a
+#'   corpus with no user docvars and system metadata recording its creation by
+#'   quallmer. Quanteda remains optional and is not needed for translation.
 #' @examples
 #' \dontrun{
 #' # Reads DEEPL_API_KEY, or supply api_key = keyring::key_get("deepl")
@@ -106,6 +175,26 @@
 #' coded <- qlm_code(translated, codebook_sentiment,
 #'   model = "openai/gpt-4o-mini")
 #' qlm_trail(coded, path = "translation_trail")
+#'
+#' texts <- c(fr = "Bonjour tout le monde.", de = "Guten Morgen.")
+#'
+#' # Qwen-MT: reads DASHSCOPE_API_KEY for the Singapore endpoint
+#' translated_qwen <- qlm_translate(texts,
+#'   model = "dashscope/qwen-mt-plus", target_lang = "en-GB",
+#'   context = "Greetings in everyday conversation.",
+#'   params = ellmer::params(temperature = 0.1))
+#' translated_qwen$translation
+#'
+#' # Google: reads GOOGLE_TRANSLATE_API_KEY, falling back to the optional
+#' # keyring entry saved with keyring::key_set("google-translate")
+#' translated_google <- qlm_translate(texts,
+#'   model = "google-translate/translation-llm", target_lang = "en-GB",
+#'   project_id = "your-google-cloud-project-id")
+#' # Alternatively, set GOOGLE_CLOUD_PROJECT and omit project_id.
+#' qlm_meta(translated_google, "quallmer")$translation
+#'
+#' # Convert the translated text field to a corpus, if quanteda is installed
+#' quanteda::corpus(translated_google)
 #' }
 #' @export
 qlm_translate <- function(x, model, target_lang = "en", source_lang = NULL,
@@ -113,17 +202,18 @@ qlm_translate <- function(x, model, target_lang = "en", source_lang = NULL,
                           glossary = NULL, formality = NULL, adapter = NULL,
                           params = NULL, chunk_size = NULL, api_key = NULL,
                           base_url = NULL, max_active = 10, rpm = 60,
-                          on_error = c("continue", "return", "stop"), ...) {
+                          on_error = c("continue", "return", "stop"),
+                          project_id = NULL, region = "us-central1", ...) {
   rlang::check_dots_empty()
   on_error <- rlang::arg_match(on_error)
-  if (!is.character(x) || !length(x)) {
+  if ((!is.character(x) && !inherits(x, "qlm_translation")) || !length(translation_texts(x))) {
     cli::cli_abort("{.arg x} must be a non-empty character vector of texts.")
   }
   if (missing(model) || !rlang::is_string(model) || !nzchar(model)) {
     cli::cli_abort("Supply {.arg model} as a single provider/model string.")
   }
   for (arg in c("target_lang", "source_lang", "context", "formality",
-                "adapter", "api_key", "base_url")) {
+                "adapter", "api_key", "base_url", "project_id", "region")) {
     check_optional_string(get(arg), arg)
   }
   if (is.null(target_lang) || !nzchar(target_lang)) {
@@ -150,19 +240,19 @@ qlm_translate <- function(x, model, target_lang = "en", source_lang = NULL,
   if (!is.null(chunk_size) && !is_count(chunk_size, 1L)) {
     cli::cli_abort("{.arg chunk_size} must be a positive whole number.")
   }
-  ids <- names(x) %||% paste0("text", seq_along(x))
+  ids <- translation_ids(x) %||% paste0("text", seq_along(translation_texts(x)))
   check_ids(ids, what = "The names of {.arg x}")
   corpus_attributes <- translation_corpus_attributes(x)
   history <- preprocessing_history(x)
   input_errors <- if (is_qlm_preprocessed(x)) {
     if (is_qlm_translation(x)) translation_provenance(x)$.error else attr(x, "provenance")$.error
-  } else rep(NA_character_, length(x))
+  } else rep(NA_character_, length(translation_texts(x)))
   source <- translation_texts(x)
   if (anyNA(source) && on_error == "stop") {
     cli::cli_abort("Translation failed: source text is missing.")
   }
   selected <- translation_adapter(model, adapter, base_url, api_key)
-  if (missing(max_active) && selected$name == "deepl") max_active <- 2L
+  if (missing(max_active) && selected$name %in% c("deepl", "qwen-mt", "google-translate")) max_active <- 2L
   if (selected$name == "deepl") {
     if (length(params)) cli::cli_abort("{.arg params} is not supported by DeepL.")
     if (!is.null(glossary)) {
@@ -177,7 +267,8 @@ qlm_translate <- function(x, model, target_lang = "en", source_lang = NULL,
       ))
     }
   }
-  size <- chunk_size %||% if (selected$name == "deepl") 16000L else 4000L
+  size <- chunk_size %||% switch(selected$name, deepl = 16000L,
+                                `google-translate` = 30000L, 4000L)
   if (selected$name == "generic" && !is.null(params$max_tokens)) {
     if (!is_count(params$max_tokens, 1L)) {
       cli::cli_abort("{.arg params$max_tokens} must be a positive whole number.")
@@ -188,11 +279,23 @@ qlm_translate <- function(x, model, target_lang = "en", source_lang = NULL,
                    instructions = instructions, context = context, protect = protect,
                    glossary = glossary, formality = formality, params = params,
                    chunk_size = size, template_version = 2L,
-                   text_unit = if (selected$name == "deepl") "document" else "segment",
+                   text_unit = switch(selected$name, deepl = "document",
+                                      `qwen-mt` = "paragraph_group", "segment"),
                    ellmer_version = as.character(utils::packageVersion("ellmer")))
+  if (selected$name == "qwen-mt") {
+    settings$group_max_bytes <- 6000L
+    settings$paragraph_alignment <- "boundary_markers"
+    settings$template_version <- 3L
+  }
+  if (selected$name == "google-translate") {
+    settings <- translation_google_settings(settings, project_id, region)
+    size <- settings$chunk_size
+  }
   # All local splitting/protection validation finishes before building a key-
   # bearing request. Missing input is carried into the output without a call.
-  plans <- lapply(source, translation_plan, size = size, protect = protect)
+  plans <- if (selected$name == "google-translate") {
+    lapply(source, translation_google_plan, settings = settings)
+  } else lapply(source, translation_plan, size = size, protect = protect)
   setup <- translation_setup(selected, settings, api_key, base_url, rpm)
   result <- run_translation_plans(plans, setup, max_active, rpm, on_error)
   provenance <- data.frame(
@@ -210,14 +313,15 @@ qlm_translate <- function(x, model, target_lang = "en", source_lang = NULL,
   provenance$.error[missing_input] <- ifelse(
     is.na(input_errors[missing_input]), "source text is missing", input_errors[missing_input]
   )
-  provenance$settings <- rep(list(settings), length(x))
+  provenance$settings <- rep(list(settings), length(source))
   provenance$attempts <- result$attempts
   provenance$history <- history
   out <- new_qlm_translation(result$text, provenance,
-    docvars = corpus_attributes$docvars, meta = corpus_attributes$meta)
+    docvars = corpus_attributes$docvars, meta = corpus_attributes$meta,
+    data = x, call = match.call())
   failed <- provenance$status == "failed"
   if (any(failed)) {
-    cli::cli_warn(c("{sum(failed)} of {length(x)} translation{?s} failed.",
+    cli::cli_warn(c("{sum(failed)} of {length(source)} translation{?s} failed.",
                    set_bullets(unique(provenance$.error[failed]))))
   }
   out

@@ -4,7 +4,7 @@ test_that("adapter selection uses exact model IDs and explicit overrides", {
   expect_error(translation_adapter("deepl/quality_optimized", "generic", NULL, NULL), "incompatible")
   expect_error(translation_adapter("ollama/anything", "deepl", NULL, NULL), "incompatible")
   for (id in c("qwen-mt-plus", "qwen-mt-flash", "qwen-mt-lite")) {
-    expect_error(translation_adapter(paste0("dashscope/", id), NULL, NULL, NULL), "not implemented")
+    expect_equal(translation_adapter(paste0("dashscope/", id), NULL, NULL, NULL)$name, "qwen-mt")
     expect_equal(translation_adapter(paste0("dashscope/", id), "generic", NULL, NULL)$name, "generic")
   }
   expect_equal(translation_adapter("dashscope/qwen-mt-future", NULL, NULL, NULL)$name, "generic")

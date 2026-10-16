@@ -585,6 +585,9 @@ qlm_code <- function(x, codebook, model, ...,
   }
 
   # Input validation
+  if (is.data.frame(x) && inherits(x, "qlm_translation")) {
+    x <- translation_as_corpus(x)
+  }
   if (codebook$input_type == "text" && !is.character(x)) {
     cli::cli_abort("This codebook expects text input (a character vector).")
   }
