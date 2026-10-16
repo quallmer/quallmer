@@ -13,7 +13,7 @@ test_that("adapter selection uses exact model IDs and explicit overrides", {
 
 test_that("DeepL XML escapes source markup and protects opaque markers", {
   masked <- mask_translation_terms("A < B & TERM", "TERM")
-  xml <- translation_xml(masked$text, masked$prefix)
+  xml <- translation_deepl_text(list(list(text = masked$text, marker_prefix = masked$prefix)))
   expect_match(xml, "&lt;")
   expect_match(xml, "&amp;")
   expect_match(xml, "<keep>")
@@ -35,7 +35,7 @@ test_that("DeepL packs at most 50 texts and accounts for JSON bytes", {
   jobs <- rep(list(list(text = "Hallo", marker_prefix = "QLMKEEP", context = NULL)), 51)
   batches <- translation_deepl_batches(jobs, setup)
   expect_equal(lengths(batches), c(50, 1))
-  body <- translation_deepl_body(jobs[1], setup)
+  body <- translation_deepl_body(jobs, list(1L), setup)
   expect_type(body$text, "list")
   expect_equal(body$context, "background")
   expect_equal(body$source_lang, "DE")
@@ -44,7 +44,7 @@ test_that("DeepL packs at most 50 texts and accounts for JSON bytes", {
   jobs[[2]]$context <- "preceding source"
   expect_equal(lengths(translation_deepl_batches(jobs[1:3], setup)), 3)
   setup$settings$context <- paste(rep("字", 50000), collapse = "")
-  expect_error(translation_deepl_batches(jobs[1], setup), "131 kB")
+  expect_error(translation_deepl_batches(jobs[1], setup), "128 KiB")
 })
 
 test_that("DeepL divides a document only when its encoded body exceeds the limit", {
@@ -53,18 +53,52 @@ test_that("DeepL divides a document only when its encoded body exceeds the limit
   jobs <- rep(list(list(text = strrep("字", 16000), marker_prefix = "QLMKEEP",
                        document = 1L, context = NULL)), 4)
   batches <- translation_deepl_batches(jobs, setup)
-  expect_identical(batches, list(1:2, 3:4))
-  for (idx in batches) {
-    body <- translation_deepl_body(jobs[idx], setup)
+  expect_identical(batches, list(list(1:2), list(3:4)))
+  for (batch in batches) {
+    body <- translation_deepl_body(jobs, batch, setup)
     expect_length(body$text, 1)
     expect_lte(translation_body_bytes(body), 131072)
+  }
+})
+
+test_that("DeepL request sizes are computed exactly without re-encoding", {
+  adapter <- translation_adapter("deepl/quality_optimized", NULL, NULL, NULL)
+  setup <- translation_setup(adapter, list(target_lang = "en", context = "Ctx \"quoted\""), "test", NULL, 60)
+  masked <- mask_translation_terms("Größe & <Maß> TERM \"zitiert\"\r\nnext\ttab\001", "TERM")
+  job <- list(text = masked$text, marker_prefix = masked$prefix)
+  jobs <- c(rep(list(job), 12), list(list(text = "字", marker_prefix = "QLMKEEP")))
+  inner <- vapply(jobs, function(job) translation_json_bytes(translation_deepl_inner(job)), 0)
+  base <- translation_body_bytes(translation_deepl_body(jobs, list(), setup))
+  for (items in list(list(1L), list(1:2), list(1:12), list(1L, 2:3, 4:13))) {
+    expected <- base + sum(vapply(items, function(i) translation_deepl_item_bytes(inner[i]), 0)) +
+      length(items) - 1
+    expect_equal(translation_body_bytes(translation_deepl_body(jobs, items, setup)), expected)
+  }
+  xml <- translation_deepl_text(jobs[1:2])
+  parsed <- xml2::read_xml(xml)
+  expect_identical(xml2::xml_text(xml2::xml_find_all(parsed, "./p"))[1], masked$text |>
+    sub(pattern = "\001", replacement = "\uFFFD", fixed = TRUE))
+  expect_length(xml2::xml_find_all(parsed, ".//keep"), 2)
+})
+
+test_that("DeepL packing of a long document is linear", {
+  adapter <- translation_adapter("deepl/quality_optimized", NULL, NULL, NULL)
+  setup <- translation_setup(adapter, list(target_lang = "en"), "test", NULL, 60)
+  jobs <- lapply(seq_len(3000), function(i) list(text = strrep("Le conseil municipal. ", 4),
+    marker_prefix = "QLMKEEP", document = 1L))
+  elapsed <- system.time(batches <- translation_deepl_batches(jobs, setup))[["elapsed"]]
+  expect_lt(elapsed, 10)
+  expect_identical(unlist(batches), seq_len(3000))
+  for (batch in batches) {
+    expect_length(batch, 1)
+    expect_lte(translation_body_bytes(translation_deepl_body(jobs, batch, setup)), 131072)
   }
 })
 
 test_that("DeepL document XML validates paragraph identities and accounts for usage once", {
   jobs <- list(list(text = "one", marker_prefix = "QLMKEEP"),
                list(text = "two", marker_prefix = "QLMKEEP"))
-  value <- list(text = translation_deepl_xml(jobs), billed_characters = 6,
+  value <- list(text = translation_deepl_text(jobs), billed_characters = 6,
                 detected_source_language = "EN")
   result <- parse_deepl_document(value, 2)
   expect_equal(vapply(result, `[[`, "", "text"), c("one", "two"))
@@ -83,7 +117,8 @@ test_that("DeepL document XML validates paragraph identities and accounts for us
 test_that("DeepL requests authenticate through the header, not the body", {
   adapter <- translation_adapter("deepl/quality_optimized", NULL, NULL, NULL)
   setup <- translation_setup(adapter, list(target_lang = "en"), "test-key", NULL, 60)
-  req <- translation_deepl_request(list(list(text = "Hallo", marker_prefix = "QLMKEEP", context = NULL)), setup)
+  req <- translation_deepl_request(list(list(text = "Hallo", marker_prefix = "QLMKEEP", context = NULL)),
+                                   list(1L), setup)
   expect_equal(req$url, "https://api.deepl.com/v2/translate")
   expect_equal(bearer_of(req), "DeepL-Auth-Key test-key")
   expect_false(grepl("test-key", jsonlite::toJSON(req$body$data), fixed = TRUE))

@@ -26,6 +26,26 @@ run_translation_plans <- function(plans, setup, max_active, rpm, on_error) {
     translation_deepl_batches(jobs, setup)
   }
   outcomes <- if (length(jobs)) translation_jobs(jobs, setup, max_active, rpm, on_error) else list()
+  depths <- integer(length(jobs))
+  if (on_error == "continue" && length(jobs)) {
+    # Content repairs go out together, so they run in parallel and DeepL
+    # packs the paragraphs of one document into one text again. The other
+    # policies stop at the first failure, so they repair in order below.
+    checks <- lapply(seq_along(jobs), function(i) {
+      if (!is.null(outcomes[[i]])) check_translation_outcome(jobs[[i]], outcomes[[i]], setup, 0L)
+    })
+    retry <- which(vapply(checks, function(check) isTRUE(check$can_retry), logical(1)))
+    if (length(retry)) {
+      retried <- translation_jobs(jobs[retry], setup, max_active, rpm, on_error)
+      for (k in seq_along(retry)) {
+        i <- retry[k]
+        if (is.null(retried[[k]])) next
+        retried[[k]]$prior_attempts <- c(checks[[i]]$attempts, retried[[k]]$prior_attempts)
+        outcomes[[i]] <- retried[[k]]
+        depths[i] <- 1L
+      }
+    }
+  }
   attempts <- rep(list(list()), length(plans))
   text <- rep(NA_character_, length(plans))
   errors <- rep(NA_character_, length(plans))
@@ -39,7 +59,7 @@ run_translation_plans <- function(plans, setup, max_active, rpm, on_error) {
     # All pool outcomes have already arrived. Only further repair requests
     # are withheld once a terminal failure triggers return.
     checked <- finish_translation_job(job, outcome, setup, max_active, rpm,
-      on_error, repair = !stopped)
+      on_error, repair = !stopped, depth = depths[i])
     attempts[[d]] <- c(attempts[[d]], checked$attempts)
     values[[d]][[paste(job$paragraph, job$segment, sep = ":")]] <- checked$text
     if (!is.na(checked$error)) {
@@ -100,29 +120,15 @@ finish_translation_job <- function(job, outcome, setup, max_active, rpm,
     return(list(text = NA_character_, error = "not submitted after an earlier translation failed",
                 attempts = list()))
   }
-  reason <- outcome$error %||% NA_character_
-  truncated <- identical(outcome$finish, "max_tokens")
-  input_too_long <- isTRUE(outcome$input_too_long)
-  if (truncated) reason <- "the model reached its output token limit"
-  if (is.na(reason) && !is.null(outcome$finish) && !is.na(outcome$finish) &&
-      !identical(outcome$finish, "success")) {
-    reason <- paste0("the model did not complete its response: ", outcome$finish)
-  }
-  if (is.na(reason)) reason <- validate_translation_text(outcome$text, job) %||% NA_character_
-  attempt <- translation_attempt(job, outcome, reason, depth)
-  attempts <- c(outcome$prior_attempts %||% list(), list(attempt))
+  check <- check_translation_outcome(job, outcome, setup, depth)
+  reason <- check$reason
+  attempts <- check$attempts
   if (is.na(reason)) {
     return(list(text = restore_translation_terms(trimws(outcome$text), job$markers),
                 error = NA_character_, attempts = attempts))
   }
-  # Transport errors already receive transport retries. Content failures get
-  # one repair; chat truncation gets at most two halvings. Qwen-MT also
-  # recognises its explicit native input-length rejection, with eight levels.
-  transport_ok <- is.na(outcome$error %||% NA_character_) || identical(outcome$stage, "content")
-  limit <- if (setup$adapter$name == "qwen-mt") 8L else 2L
-  can_reduce <- (truncated || input_too_long) && depth < limit && nchar(job$text) > 1L
-  can_retry <- !truncated && !input_too_long && transport_ok && depth == 0L
-  if (!repair || (!can_reduce && !can_retry)) {
+  can_reduce <- check$can_reduce
+  if (!repair || (!can_reduce && !check$can_retry)) {
     return(list(text = NA_character_, error = reason, attempts = attempts))
   }
   if (can_reduce) {
@@ -158,6 +164,32 @@ finish_translation_job <- function(job, outcome, setup, max_active, rpm,
     outputs[i] <- paste0(pieces[[i]]$before, checked$text, pieces[[i]]$after)
   }
   list(text = paste0(outputs, collapse = ""), error = NA_character_, attempts = attempts)
+}
+
+# What went wrong with an outcome, if anything, and which repair it allows.
+# Transport errors already receive transport retries. Content failures get
+# one repair; chat truncation gets at most two halvings. Qwen-MT also
+# recognises its explicit native input-length rejection, with eight levels.
+# A DeepL document whose paragraph structure changed was already repaired by
+# halving and gets no further retry.
+check_translation_outcome <- function(job, outcome, setup, depth) {
+  reason <- outcome$error %||% NA_character_
+  truncated <- identical(outcome$finish, "max_tokens")
+  input_too_long <- isTRUE(outcome$input_too_long)
+  if (truncated) reason <- "the model reached its output token limit"
+  if (is.na(reason) && !is.null(outcome$finish) && !is.na(outcome$finish) &&
+      !identical(outcome$finish, "success")) {
+    reason <- paste0("the model did not complete its response: ", outcome$finish)
+  }
+  if (is.na(reason)) reason <- validate_translation_text(outcome$text, job) %||% NA_character_
+  attempt <- translation_attempt(job, outcome, reason, depth)
+  transport_ok <- is.na(outcome$error %||% NA_character_) || identical(outcome$stage, "content")
+  limit <- if (setup$adapter$name == "qwen-mt") 8L else 2L
+  list(reason = reason,
+       attempts = c(outcome$prior_attempts %||% list(), list(attempt)),
+       can_reduce = (truncated || input_too_long) && depth < limit && nchar(job$text) > 1L,
+       can_retry = !is.na(reason) && !truncated && !input_too_long && transport_ok &&
+         depth == 0L && !isTRUE(outcome$structure_failure))
 }
 
 translation_attempt <- function(job, outcome, error, reduction) {

@@ -102,6 +102,65 @@ test_that("protection failures get one repair and never return partial translati
   expect_length(translation_provenance(out)$attempts[[1]], 2)
 })
 
+test_that("content repairs are sent together rather than one at a time", {
+  attempts <- new.env()
+  seen <- mock_translation_chat(function(text) {
+    attempts[[text]] <- (attempts[[text]] %||% 0L) + 1L
+    if (attempts[[text]] == 1L) "lost the marker" else text
+  })
+  out <- qlm_translate(c(a = "TERM one", b = "TERM two", c = "TERM three"), "openai/test",
+                       protect = "TERM")
+  expect_identical(as.character(out), c(a = "TERM one", b = "TERM two", c = "TERM three"))
+  expect_equal(seen$calls, 2)
+  expect_length(seen$prompts, 6)
+  expect_equal(lengths(attr(out, "provenance")$attempts), c(2, 2, 2))
+})
+
+test_that("a DeepL document with a changed structure is halved to isolate the problem", {
+  requests <- 0L
+  httr2::local_mocked_responses(function(req) {
+    requests <<- requests + 1L
+    httr2::response_json(body = list(translations = lapply(req$body$data$text, function(text) {
+      # A document containing "poison" among other paragraphs loses one.
+      if (grepl("<p ", text, fixed = TRUE) && grepl("poison", text, fixed = TRUE)) {
+        text <- sub('<p id="1">[^<]*</p>', "", text)
+      }
+      list(text = text, billed_characters = nchar(text), detected_source_language = "FR")
+    })))
+  })
+  paragraphs <- sprintf("Paragraphe %d.", 1:20)
+  paragraphs[7] <- "poison"
+  doc <- paste(paragraphs, collapse = "\n\n")
+  out <- qlm_translate(c(a = doc, b = "Bonjour\n\nencore"), "deepl/quality_optimized", api_key = "k")
+  expect_identical(as.character(out), c(a = doc, b = "Bonjour\n\nencore"))
+  expect_equal(requests, 5)
+  # Each paragraph records every failed part that contained it: paragraph 1
+  # the whole document and its first half, paragraph 7 each part down to
+  # the pair it shared with paragraph 6.
+  attempts <- attr(out, "provenance")$attempts[[1]]
+  failures <- vapply(attempts, function(a) !is.na(a$error), logical(1))
+  paragraph <- vapply(attempts, `[[`, integer(1), "paragraph")
+  expect_equal(sum(failures & paragraph == 1L), 2)
+  expect_equal(sum(failures & paragraph == 11L), 1)
+  expect_equal(sum(failures & paragraph == 7L), 4)
+  expect_equal(sum(!failures), 20)
+  expect_equal(max(vapply(attempts, function(a) a$group_reduction %||% 0L, integer(1))), 4)
+})
+
+test_that("a DeepL structure failure in both halves is not split further or retried", {
+  requests <- 0L
+  httr2::local_mocked_responses(function(req) {
+    requests <<- requests + 1L
+    httr2::response_json(body = list(translations = lapply(req$body$data$text, function(text) {
+      list(text = sub('<p id="1">[^<]*</p>', "", text), billed_characters = 1)
+    })))
+  })
+  doc <- paste(sprintf("Paragraphe %d.", 1:8), collapse = "\n\n")
+  expect_warning(out <- qlm_translate(c(a = doc), "deepl/quality_optimized", api_key = "k"), "1 of 1")
+  expect_true(is.na(out))
+  expect_equal(requests, 2)
+})
+
 test_that("terminal validation failures obey each error policy", {
   seen <- mock_translation_chat(function(text) "a\n\nb")
   expect_warning(out <- qlm_translate(c(a = "one", b = "two"), "openai/test", on_error = "return"), "2 of 2")

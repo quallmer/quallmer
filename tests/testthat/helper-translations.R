@@ -2,7 +2,9 @@ mock_translation_chat <- function(responder = function(text) text, env = parent.
   withr::local_envvar(c(OPENAI_API_KEY = "test-key"), .local_envir = env)
   seen <- new.env(parent = emptyenv())
   seen$prompts <- list()
+  seen$calls <- 0L
   testthat::local_mocked_bindings(parallel_chat = function(chat, prompts, max_active, rpm, on_error) {
+    seen$calls <- seen$calls + 1L
     seen$prompts <- c(seen$prompts, prompts)
     lapply(prompts, function(prompt) {
       input <- jsonlite::fromJSON(prompt)
