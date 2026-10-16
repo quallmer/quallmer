@@ -1,42 +1,12 @@
 # quallmer 0.5.1
 
-* Added a Google Translation LLM article using six complete UDHR documents,
-  covering credentials, provenance, retries and corpus conversion, with an
-  opt-in live render that validates the article against Google.
-
-* Both translation articles display saved live UDHR translations and validate
-  local workflows during site builds without API calls.
-
-* `qlm_translate()` now returns a `qlm_translation` table inheriting from
-  `qlm_coded`, with retained inputs and provenance. `quanteda::corpus()` converts
-  coded text fields to corpora and restores original corpus metadata (#196).
-
-* `qlm_translate()` is marked experimental and documents provider API-key setup,
-  with examples for DeepL, Qwen-MT and Google Translation LLM.
-
-* `qlm_translate()` supports Google Translation LLM with whole-document requests,
-  source-language detection, `GOOGLE_TRANSLATE_API_KEY` credentials and optional
-  `"google-translate"` keyring fallback (#196).
-
-* `qlm_translate()` supports Qwen-MT plus, flash and lite through registered
-  OpenAI-compatible providers. It groups adjacent paragraphs with protected
-  boundaries, tolerates formatting changes within paragraphs, reduces rejected
-  groups to fit model limits, and preserves corpus metadata and provenance (#196).
-
-* DeepL translations send whole documents when they fit within the request
-  size limit, preserving paragraph boundaries through XML. Requests are paced
-  and default to two concurrent calls to reduce rate-limit errors (#196).
-
-* Translated corpora print in quanteda's corpus format with a
-  `(qlm_translation)` tag, character and docvar counts, and text previews.
-
-* `qlm_translate()` translates texts through DeepL or an ellmer chat model,
-  returning a quanteda-compatible corpus with original document variables and
-  system/user metadata. Translation provenance is retained in the corpus's
-  `quallmer` user metadata for subsequent coding and audit trails (#196).
-
-* `qlm_translate()` can retrieve a saved `"deepl"` key through the optional
-  keyring package when neither `api_key` nor `DEEPL_API_KEY` is supplied.
+* Added experimental `qlm_translate()` for DeepL, Qwen-MT, Google Translation LLM and ellmer 
+  chat models. Results are `qlm_translation` tables inheriting from `qlm_coded`, retaining 
+  original inputs and translation provenance for subsequent coding. 
+  Conversion with `quanteda::corpus()` preserves original corpus metadata and document 
+  variables. Includes optional keyring support for DeepL and Google credentials, 
+  plus workflow and setup articles with saved live UDHR examples that build without 
+  API calls (#196).
 
 * Fixed a test that matched the summary line quanteda prints for corpus objects
   and failed with quanteda 4.5.1, which changed that format. The test now
