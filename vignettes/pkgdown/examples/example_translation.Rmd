@@ -4,233 +4,221 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
-```
-
-`qlm_translate()` makes translation a recorded stage of a coding workflow.
-It returns a `qlm_translation` table inheriting from `qlm_coded`, with columns
-`.id`, `translation` and `.error`. The original inputs, model, instructions,
-context, segment boundaries, attempts and usage are retained as provenance. Save this object once and reuse its translations across coding runs.
-
-## Storing a DeepL key
-
-On macOS, the `keyring` package uses Keychain. Enter your **API key** at the
-password prompt below. Nothing is printed after a successful save.
-
-```{r save-key}
-install.packages("keyring") # once, if needed
-keyring::key_set("deepl")  # once; enter the API key at the password prompt
-keyring::key_list("deepl") # lists the entry without showing the key
-```
-
-After saving the key, no additional configuration is needed. For DeepL,
-`qlm_translate()` first uses an explicit `api_key`, then `DEEPL_API_KEY`, then
-`keyring::key_get("deepl")` if keyring is installed. Accessing the keyring may
-prompt to unlock it. The retrieved key stays local to the request and is
-never copied into the environment or translation metadata. The keyring
-package is optional.
-
-Alternatively, put `DEEPL_API_KEY="your-key"` in your home `~/.Renviron` and
-restart R; the environment-variable route takes precedence over keyring.
-The file stores the key in plain text. Do not put it in a tracked project file.
-R started with `--vanilla` does not read `.Renviron`; the keyring fallback
-still works, or supply a key explicitly or through the launching process.
-
-## Translate and code
-
-```{r translate}
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE, error = FALSE)
 library(quallmer)
+```
 
-texts <- c(
-  interview1 = "Nous utilisons quallmer.\n\nLes résultats sont utiles.",
-  interview2 = "Je ne suis pas satisfait de cette décision."
-)
+`qlm_translate()` makes translation a recorded stage of a coding workflow. It
+returns a `qlm_translation` table inheriting from `qlm_coded`, with translated
+texts, retained inputs and provenance. Translate once, review and save the result,
+then reuse it across coding runs.
 
+This article explains the workflow shared by translation providers. For Google
+Cloud setup, credential storage and a complete six-language UDHR example, see
+[Google translation of a multilingual corpus](example_translation_google.html).
+The output below uses two documents from the saved Google run described in that
+article. Site builds execute the local inspection, saving and conversion steps;
+API calls are shown for interactive use and are never evaluated during builds.
+The saved fixture contains actual translations, with project identifiers replaced
+by placeholders.
+
+## Choose a translation model
+
+Supply a model explicitly. The same output structure is used by the native
+translation adapters and ordinary chat models:
+
+| Route | Example model | Default API-key source |
+|:--|:--|:--|
+| DeepL | `deepl/quality_optimized` | `DEEPL_API_KEY`, then the optional `deepl` keyring entry |
+| Qwen-MT | `dashscope/qwen-mt-plus` | `DASHSCOPE_API_KEY` |
+| Google Translation LLM | `google-translate/translation-llm` | `GOOGLE_TRANSLATE_API_KEY`, then the optional `google-translate` keyring entry |
+| Chat model | `openai/gpt-4o-mini` | The provider's credentials, resolved through ellmer |
+
+An explicit `api_key` takes precedence over automatic lookup. Google also needs
+`project_id` or `GOOGLE_CLOUD_PROJECT`. Provider setup links and supported options
+are documented in `?qlm_translate`; see the dedicated Google article for its setup
+walkthrough.
+
+## Translate and inspect
+
+Load the saved French and Spanish translations from the article's companion
+data file. The records retain both complete source documents and their English
+translations; the tables below show excerpts for readability.
+
+```{r load-translations}
+translated <- readRDS("data/translated_udhr_google.rds")[c(2, 3), ]
+texts <- inputs(translated)
+translation_model <- "google-translate/translation-llm"
+```
+
+To create this kind of result with your own inputs, run the following after
+setting up your chosen provider's credentials:
+
+```{r translate, eval=FALSE}
 translated <- qlm_translate(
   texts,
-  model = "deepl/quality_optimized",
-  source_lang = "fr",
+  model = translation_model,
   target_lang = "en-GB",
-  protect = "quallmer",
-  instructions = "Preserve the original register.",
-  context = "Interviews about research software and organisational decisions."
+  on_error = "continue"
 )
-saveRDS(translated, "translated.rds")
-translated
-qlm_meta(translated, "quallmer")$translation
+```
 
+The saved result has the same table structure. Subsetting below only shortens the
+printed view; `translated` retains the complete texts and metadata.
+
+```{r translation-preview}
+knitr::kable(data.frame(
+  .id = translated$.id,
+  translation = substr(translated$translation, 1, 160)
+))
+```
+
+Input names become `.id`. The `translation` column contains the translated text;
+`.error` is a list-column containing `NULL` for successful rows or conditions for
+failures. Extract the original inputs and inspect the translation record before
+using the output:
+
+```{r inspect}
+original <- inputs(translated)
+knitr::kable(data.frame(
+  .id = translated$.id,
+  source = substr(as.character(original), 1, 160)
+))
+provenance <- qlm_meta(translated, "quallmer")$translation
+knitr::kable(provenance[c(
+  ".id", "status", "model", "reported_model", "detected_language"
+)])
+```
+
+Provenance retains source texts and hashes, requested settings and instructions,
+model responses and attempts. Providers differ in whether they report detected
+source languages. For a multilingual input, leave `source_lang` unset; set it
+explicitly only when one source-language setting applies to the whole call.
+
+`context`, `instructions`, `protect`, `glossary`, `formality` and `params` let you
+request additional control where the selected adapter supports it. Unsupported
+native options raise an error. On the chat route, `ellmer::params()` settings are
+recorded as requested; ellmer may warn about unsupported settings. Consult the
+function reference for the provider-specific behaviour.
+
+## Review, retry and save
+
+Review fidelity, omissions, terminology and register with someone who knows the
+source language. Source-language detection and successful API responses do not
+establish translation quality. For coding research, assess downstream coding
+against original-language gold labels as well.
+
+With `on_error = "continue"`, a failed document has `NA` in its `translation`
+column while successful translations remain available. Inspect failures and
+retry only the affected inputs:
+
+```{r failures}
+qlm_failures(translated)
+```
+
+The saved run has no failures. This retry code makes API calls only when needed
+and is shown without execution:
+
+```{r retry-failed, eval=FALSE}
+failed <- is.na(translated$translation)
+if (any(failed)) {
+  retried <- qlm_translate(
+    inputs(translated)[failed],
+    model = translation_model,
+    target_lang = "en-GB",
+    on_error = "continue"
+  )
+  translated[failed, ] <- retried
+}
+```
+
+Save the complete object and reload it without contacting the provider:
+
+```{r save-translations}
+saved_path <- file.path(tempdir(), "translated.rds")
+saveRDS(translated, saved_path)
+restored <- readRDS(saved_path)
+isTRUE(all.equal(restored, translated))
+```
+
+Use a permanent path for your own analysis; this article uses a temporary file.
+
+Row subsetting uses table syntax (`translated[rows, ]`); identifiers are in
+`translated$.id`. Editing `translated$translation` records an edit and updates
+its hash. `as.character(translated)` extracts named texts and drops provenance.
+Saving the whole object retains the exact texts used, even if a model alias later
+produces different wording.
+
+## Code the translated texts
+
+Pass the translation table directly to `qlm_code()`, choosing a codebook suited
+to your research question. This illustrative sentiment-coding call is not run
+when building the article; no coding output is claimed for the saved translations:
+
+```{r code-translations, eval=FALSE}
 coded <- qlm_code(translated, codebook_sentiment, model = "openai/gpt-4o-mini")
 qlm_trail(coded, path = "translation_trail")
 ```
 
-`qlm_code()` records the translation history without copying the original
-corpus into its metadata. Keep the saved translation object to retain the
-source texts for bilingual review. `qlm_replicate()` reuses the stored
-translated inputs and carries the history forward; it does not translate again.
-Transcription can precede translation in the same way:
+The coding run retains the translated inputs and compact translation history.
+Keep the saved translation object for bilingual review of the complete source
+texts. `qlm_replicate(coded, ...)` reuses the stored translated inputs and carries
+that history forward; it does not translate again.
 
-```{r translate-transcripts}
+Transcription can precede translation in the same workflow:
+
+```{r translate-transcripts, eval=FALSE}
 transcripts <- qlm_transcribe(audio_files)
-translated <- qlm_translate(transcripts, model = "deepl/quality_optimized",
-  target_lang = "en-GB", api_key = keyring::key_get("deepl"))
+translated <- qlm_translate(transcripts, model = translation_model,
+  target_lang = "en-GB")
 ```
 
-## Use a chat model
+## Work with a corpus
 
-The generic adapter reaches chat models through ellmer, including endpoints
-registered with `qlm_register_provider()`. It accepts `ellmer::params()`;
-DeepL refuses non-empty `params` because those settings do not apply there.
+A quanteda corpus can be supplied as input. `inputs(translated)` then retains the
+original corpus. Convert the output table when you need quanteda operations:
 
-```{r chat-translation}
-translated <- qlm_translate(texts,
-  model = "openai/gpt-4o-mini", target_lang = "en",
-  params = ellmer::params(max_tokens = 2000),
-  glossary = c("décision" = "decision"))
-```
-
-Parameters are recorded as **requested** settings. ellmer warns and drops
-standard settings absent from its provider mapping, but a forwarded setting
-may still be rejected or ignored by a particular model. The translation
-record retains unsupported-parameter warnings. Chat models do not report
-detected source languages through this adapter, so those values remain `NA`.
-
-## Structure, failures and scope
-
-Chat models receive one paragraph or smaller segment per prompt, with the
-preceding source segment as context. Blank-line separators are retained
-locally. Long paragraphs are split at sentence ends, whitespace, or finally
-code points. Protected spans are masked before splitting and restored after
-checking that every marker occurs exactly once. `protect` takes regular
-expressions; overlapping matches and expressions matching empty strings are
-rejected.
-
-DeepL sends whole documents with XML paragraph tags, packing up to 50 documents
-within a 131 kB (131,072 byte) request body. A document is divided across
-requests only when necessary to fit that limit, including context and settings.
-This requires `xml2`. DeepL defaults to two concurrent requests and paces calls
-evenly according to `rpm` to avoid an initial burst.
-Qwen-MT uses native translation options and combines adjacent paragraphs from
-one document into each request. Groups target 4000 characters and approximately
-6000 serialized UTF-8 bytes, a conservative heuristic rather than a token count.
-Input-length rejections, truncated outputs or lost boundary markers trigger
-smaller groups; a single oversized paragraph is split at natural boundaries
-when possible. Opaque boundary markers are protected using native terminology
-entries, so changes to blank lines do not determine alignment. Extra blank
-lines within a translated source paragraph become single line breaks, and
-original paragraph separators are restored locally. Qwen-MT
-does not report detected source languages, so their provenance values are `NA`.
-
-```{r qwen-translation, eval=FALSE}
-# Uses DASHSCOPE_API_KEY with the built-in Singapore endpoint.
-translated_qwen <- qlm_translate(
-  texts,
-  model = "dashscope/qwen-mt-plus",
-  target_lang = "en-GB",
-  params = ellmer::params(temperature = 0.1)
-)
-```
-
-## Google Translation LLM
-
-Google's specialised Translation LLM uses a Cloud Translation API key and a
-Google Cloud project with billing and the Cloud Translation API enabled. A
-separate key restricted to Cloud Translation avoids restrictions on Gemini keys.
-Save the key once using `keyring::key_set("google-translate")`, or set
-`GOOGLE_TRANSLATE_API_KEY`. Credentials are resolved in this order: explicit
-`api_key`, environment variable, then optional keyring lookup. No Gemini key
-variable is used automatically.
-
-```{r google-translation, eval=FALSE}
-Sys.setenv(GOOGLE_CLOUD_PROJECT = "your-project-id")
-translated_google <- qlm_translate(
-  texts,
-  model = "google-translate/translation-llm",
-  target_lang = "en-GB"
-)
-qlm_meta(translated_google, "quallmer")$translation
-```
-
-Alternatively, supply `project_id` directly. The model location defaults to
-`region = "us-central1"`; the Basic API endpoint is global and does not guarantee
-data residency. Each document is sent whole when it fits within 30,000 characters
-and a 100 kB JSON request body. Larger documents are split at sentence or whitespace
-boundaries where possible. Google handles paragraph formatting, so exact original
-blank-line separators are not guaranteed. Source-language detection is recorded
-when `source_lang` is omitted. This API does not support `context`, `instructions`,
-`glossary`, `formality` or non-empty `params`; supplying them raises an error.
-
-Native DeepL glossaries and the Hy-MT2 and TranslateGemma adapters are deferred.
-
-A failed document is `NA`, with its reason and all attempts in provenance.
-Successful segments are never returned as a partial document. Protection or
-response validation failures get one repair; a reported output-token limit
-gets at most two reductions. Provider input-limit errors retain the provider's
-message rather than being classified by a fragile text match.
-
-```{r retry-failed}
-failed <- is.na(translated$translation)
-translated[failed, ] <- qlm_translate(texts[failed],
-  model = "deepl/quality_optimized", target_lang = "en-GB",
-  api_key = keyring::key_get("deepl"))
-```
-
-Use data-frame row subsetting (`translated[rows, ]`), edit identifiers in
-`translated$.id`, and combine compatible runs with `rbind()`. Inputs and provenance
-remain aligned. Editing `translated$translation` records an edit and updates the
-output hash. `as.character()` extracts the named translations and drops provenance.
-
-## Corpus input and metadata
-
-A quanteda corpus can be translated directly. `inputs(translated)` retains the
-original corpus, while `qlm_meta(translated, "quallmer")$translation` exposes the
-translation record. Convert the output table with `quanteda::corpus(translated)`
-to restore the original docvars and corpus metadata. Quanteda remains optional;
-it is not needed to produce or work with the translation table.
+The saved example already has a corpus as its original input, so conversion
+requires no additional translation request:
 
 ```{r corpus-translation}
-source <- quanteda::corpus(texts,
-  docvars = data.frame(interviewer = c("Alice", "Bob")),
-  meta = list(project = "Interview study"))
-translated <- qlm_translate(source,
-  model = "deepl/quality_optimized", target_lang = "en-GB",
-  api_key = keyring::key_get("deepl"))
-inputs(translated)
+source_corpus <- inputs(translated)
 translated_corpus <- quanteda::corpus(translated)
-quanteda::docvars(translated_corpus)
-quanteda::meta(translated_corpus, "project")
-quanteda::meta(translated_corpus, "quallmer")$translation
-selected <- quanteda::corpus_subset(translated_corpus, interviewer == "Alice")
-quanteda::tokens(selected)
+knitr::kable(quanteda::docvars(translated_corpus))
+identical(quanteda::docvars(translated_corpus),
+          quanteda::docvars(source_corpus))
+identical(quanteda::docnames(translated_corpus), translated$.id)
 ```
 
-The corpus uses `.id` as document names and restores the source corpus's system,
-user and object metadata, clearing text summary caches. Translation provenance
-is stored under `meta$user$quallmer$translation`; coding metadata and its schema
-are under `meta$user$quallmer$coding`. Character input produces a corpus with no
-user docvars. The same conversion works for any `qlm_coded` object with a text
-output field, selected explicitly when there is more than one:
-
-```{r coded-corpus}
-summary_corpus <- quanteda::corpus(coded_summaries, text_field = "summary")
+```{r validate-saved-results, include=FALSE}
+stopifnot(
+  inherits(translated, "qlm_translation"),
+  inherits(translated, "qlm_coded"),
+  all(provenance$status == "ok"),
+  identical(as.character(translated_corpus), as.character(translated)),
+  identical(quanteda::docvars(translated_corpus),
+            quanteda::docvars(source_corpus)),
+  identical(quanteda::meta(translated_corpus, type = "system"),
+            quanteda::meta(source_corpus, type = "system")),
+  isTRUE(all.equal(restored, translated))
+)
+for (i in seq_len(nrow(translated))) {
+  stopifnot(
+    identical(provenance$source_hash[i], digest::digest(
+      enc2utf8(provenance$source_text[i]), algo = "sha256", serialize = FALSE)),
+    identical(provenance$output_hash[i], digest::digest(
+      enc2utf8(translated$translation[i]), algo = "sha256", serialize = FALSE))
+  )
+}
 ```
 
-For subsequent coding, original document variables and corpus metadata are also
-retained as `qlm_meta(coded, "corpus_docvars")` and `qlm_meta(coded, "corpus_meta")`.
-Text-similarity comparison is not implemented by this conversion.
+The corpus contains translated texts with the same document names and original
+docvars. Original corpus metadata is restored, with outdated text summary caches
+cleared. Translation and coding records are stored in the `quallmer` user-metadata
+namespace. Quanteda remains optional for translation itself.
 
-## Evaluate the translation step
-
-No default model is selected. Compare candidate translators on representative
-texts, with bilingual review of fidelity, omissions, terminology and register.
-For a coding workflow, compare coding accuracy against original-language gold
-labels, including direct coding of the original texts as a baseline.
-Back-translation is a diagnostic, not the primary validation criterion.
-
-DeepL's model types express quality or latency goals rather than fixed model
-versions. Chat aliases can also change. Saving the translations preserves the
-actual instrument used even when a later API call produces different text.
-
-The opt-in live test exercises DeepL custom instructions together with XML
-protection and context. It runs only when `QUALLMER_LIVE_TESTS=true` and
-`DEEPL_API_KEY` is supplied. Routine unit tests use mocked responses and never
-retrieve secrets from Keychain.
+For a complete example of corpus selection, language detection, bilingual review,
+conversion and tokenization, follow the
+[Google UDHR article](example_translation_google.html#select-six-complete-udhr-documents).
+Text-similarity comparison is separate from corpus conversion and is not yet
+implemented.

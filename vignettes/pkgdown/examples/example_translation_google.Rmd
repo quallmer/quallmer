@@ -1,0 +1,420 @@
+---
+title: "Example: Google translation of a multilingual corpus"
+output: html_document
+params:
+  live: false
+---
+
+```{r setup, include=FALSE}
+run_live <- isTRUE(params$live)
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE, error = FALSE)
+library(quallmer)
+library(quanteda)
+if (run_live) {
+  if (!nzchar(Sys.getenv("GOOGLE_CLOUD_PROJECT"))) {
+    stop("Set GOOGLE_CLOUD_PROJECT before rendering the live article.")
+  }
+} else {
+  google_translated <- readRDS("data/translated_udhr_google.rds")
+  udhr <- inputs(google_translated)
+  udhr_ids <- google_translated$.id
+  recorded_date <- format(
+    qlm_meta(google_translated, "quallmer")$translation$timestamp[1],
+    "%d %B %Y", tz = "UTC"
+  )
+}
+```
+
+Google's specialised [Translation LLM](https://docs.cloud.google.com/translate/docs/translation-llm)
+can translate a multilingual corpus into a common language using
+`qlm_translate()`. This example translates six complete versions of the Universal
+Declaration of Human Rights (UDHR) into British English, retains the source texts
+and translation records, and converts the result back to a quanteda corpus.
+
+`r if (run_live) "This page executes a fresh Google API run." else paste0("The output below comes from a saved Google API run on **", recorded_date, "**.")`
+Routine site builds load the saved results and execute the inspection, corpus
+conversion and validation code without making API calls. Project identifiers in
+the published fixture have been replaced with placeholders; source texts,
+translations and their hashes are unchanged. Live mode reruns the six-document
+translation against Google. Installation and credential setup remain manual.
+Live translation requests are billed to your Google Cloud project.
+
+## Set up Google Cloud
+
+Follow Google's [Cloud Translation setup guide](https://docs.cloud.google.com/translate/docs/setup).
+You need a project with billing enabled, the Cloud Translation API enabled, and
+an API key that permits access to that API.
+
+1. Create or select a project in the [Google Cloud console](https://console.cloud.google.com/).
+   Record its **project ID**, which can differ from its display name.
+2. Under **APIs & Services → Library**, find **Cloud Translation API** and enable it.
+3. Under **APIs & Services → Credentials**, create an API key. Give it a name
+   such as **Translation**, and restrict its allowed APIs to **Cloud Translation API**.
+4. Copy the key using **Show key** in the Credentials list.
+
+Enabling the API for a project and allowing a key to call it are separate settings.
+A key restricted to Gemini does not authorise Cloud Translation. A dedicated
+translation key makes the intended access clear.
+
+Quallmer's model identifier is `"google-translate/translation-llm"`. It selects
+Google's standard `general/translation-llm` model through the Cloud Translation
+Basic API, which accepts API-key authentication.
+
+## Save credentials
+
+### Use the system keyring
+
+Save the API key once with the optional keyring package:
+
+```{r save-key, eval=FALSE}
+install.packages("keyring") # once, if needed
+keyring::key_set("google-translate")
+```
+
+Paste the API key at the password prompt. A successful save normally produces no
+printed output. On macOS, the key is stored in Keychain; access may prompt you to
+unlock or permit access to the entry. No `.Renviron` entry is needed for this key.
+
+Set the project separately. The project ID is configuration, not a secret:
+
+```{r project, eval=FALSE}
+library(quallmer)
+Sys.setenv(GOOGLE_CLOUD_PROJECT = "your-project-id")
+```
+
+### Use environment variables
+
+The default key variable is **`GOOGLE_TRANSLATE_API_KEY`**. If you prefer
+environment variables, these lines can go in your home `~/.Renviron`:
+
+```text
+GOOGLE_CLOUD_PROJECT=your-project-id
+GOOGLE_TRANSLATE_API_KEY=your-api-key
+```
+
+Replace the placeholders and restart R. This file stores the key as plain text;
+keep it outside version control. `.Renviron` contains assignments, so do not put
+`keyring::key_get()` calls in it. R started with `--vanilla` does not read this file.
+
+Credential precedence is:
+
+| Source | How it is supplied |
+|:--|:--|
+| Explicit key | `api_key = ...` in `qlm_translate()` |
+| Environment | `GOOGLE_TRANSLATE_API_KEY` |
+| Optional keyring fallback | `keyring::key_get("google-translate")` |
+
+An environment variable takes precedence over the keyring entry. If it contains
+an old key, remove or update it before testing a newly saved key. Quallmer does
+not copy retrieved keys into the environment or translation provenance.
+
+An explicit argument also lets you use your own environment-variable name:
+
+```{r explicit-key, eval=FALSE}
+greeting <- qlm_translate(
+  c(fr = "Bonjour, comment allez-vous ?"),
+  model = "google-translate/translation-llm",
+  target_lang = "en-GB",
+  project_id = "your-project-id",
+  api_key = Sys.getenv("MY_TRANSLATION_KEY")
+)
+```
+
+## Check access with a short vector
+
+Before sending full documents, translate two short texts. This call uses the
+project environment variable and resolves the API key automatically:
+
+```{r greeting, eval=FALSE}
+greetings <- qlm_translate(
+  c(fr = "Bonjour tout le monde.", de = "Guten Morgen."),
+  model = "google-translate/translation-llm",
+  target_lang = "en-GB"
+)
+greetings[c(".id", "translation")]
+```
+
+The result is a `qlm_translation` tibble that inherits from `qlm_coded`. Its
+columns are `.id`, `translation` and `.error`. Identifiers come from the input
+names; `.error` is a list-column containing `NULL` for successful rows or a
+condition for failures. `as.character(greetings)` extracts a named character
+vector of translations when that is more convenient.
+
+## Select six complete UDHR documents
+
+The [quanteda.corpora package](https://github.com/quanteda/quanteda.corpora)
+contains `data_corpus_udhr`, a collection of UDHR texts in many languages.
+Install the example packages if needed:
+
+```{r install-data, eval=FALSE}
+install.packages(c("quanteda", "remotes"))
+remotes::install_github("quanteda/quanteda.corpora")
+```
+
+Load quanteda before subsetting the corpus, then select German, French, Spanish,
+Simplified Chinese, Hindi and Russian. These are complete documents, including
+their headings and preambles:
+
+```{r select-udhr, eval=run_live}
+library(quanteda)
+
+udhr_ids <- c("deu_1996", "fra", "spa", "cmn_hans", "hin", "rus")
+udhr <- quanteda.corpora::data_corpus_udhr[udhr_ids]
+```
+
+```{r udhr-inventory}
+knitr::kable(data.frame(
+  .id = docnames(udhr),
+  language = docvars(udhr)$Name,
+  characters = unname(nchar(as.character(udhr)))
+), row.names = FALSE)
+```
+
+The source corpus also has four document variables: `Key`, `Name`, `ISO` and
+`Direction`. They describe the original documents and remain available after
+translation.
+
+## Translate the corpus into English
+
+Omit `source_lang` to let Google detect each document's language independently:
+
+```{r translate-udhr, eval=run_live}
+google_timing <- system.time(
+  google_translated <- qlm_translate(
+    udhr,
+    model = "google-translate/translation-llm",
+    target_lang = "en-GB",
+    on_error = "continue"
+  )
+)
+
+google_timing
+google_translated
+```
+
+```{r saved-translation-output, echo=FALSE, eval=!run_live}
+google_translated
+```
+
+Each of these documents fits in a single request. The adapter sends one document
+per request, defaulting to two concurrent requests and pacing submissions
+according to `rpm`. It splits a larger document only when needed to fit its
+30,000-character or 100 kB JSON-body limit, or when you request a smaller
+`chunk_size`. See Google's [quotas and limits](https://docs.cloud.google.com/translate/quotas).
+Google handles paragraph formatting; exact original blank-line separators are
+not guaranteed.
+
+`source_lang` is a call-wide setting. For a homogeneous selection you can supply,
+for example, `source_lang = "fr"`; automatic source-language detection is then
+not performed. Leave it unset for this six-language selection.
+
+The model location defaults to `region = "us-central1"`. You can also supply
+`project_id` directly instead of setting `GOOGLE_CLOUD_PROJECT`. The Basic API
+uses a global endpoint, so the model location alone does not guarantee where
+data is processed. See Google's [data usage FAQ](https://docs.cloud.google.com/translate/data-usage).
+
+## Inspect translations and provenance
+
+The original corpus is retained separately from the translated output:
+
+```{r inspect-results}
+identical(inputs(google_translated), udhr)
+knitr::kable(data.frame(
+  .id = google_translated$.id,
+  excerpt = substr(google_translated$translation, 1, 120)
+), row.names = FALSE)
+
+google_provenance <- qlm_meta(google_translated, "quallmer")$translation
+knitr::kable(google_provenance[c(
+  ".id", "status", "detected_language", ".error", "reported_model"
+)], row.names = FALSE)
+```
+
+```{r check-translations, include=FALSE}
+stopifnot(
+  inherits(google_translated, "qlm_coded"),
+  identical(google_translated$.id, udhr_ids),
+  identical(inputs(google_translated), udhr),
+  all(google_provenance$status == "ok"),
+  !anyNA(google_translated$translation),
+  all(nzchar(google_translated$translation)),
+  identical(google_provenance$output_hash, vapply(google_translated$translation,
+    function(text) digest::digest(enc2utf8(text), algo = "sha256", serialize = FALSE),
+    "", USE.NAMES = FALSE)),
+  identical(google_provenance$source_hash, vapply(as.character(udhr),
+    function(text) digest::digest(enc2utf8(text), algo = "sha256", serialize = FALSE),
+    "", USE.NAMES = FALSE)),
+  identical(google_provenance$detected_language, c("de", "fr", "es", "zh", "hi", "ru")),
+  all(grepl("translation-llm", google_provenance$reported_model, fixed = TRUE))
+)
+```
+
+These language detections come from the recorded responses; subsequent API
+responses can differ. The `ISO`
+docvar uses the original corpus's three-letter codes, whereas Google returned
+the codes above. Both are retained. Translation provenance also records the
+source text, source and output hashes, requested model and settings, and attempts.
+Detected language is Google's assessment of the supplied document; it is not a
+language label for the translated output, whose requested language is `en-GB`.
+
+For bilingual review, place original and translated texts side by side:
+
+```{r bilingual-review}
+review <- data.frame(
+  .id = google_translated$.id,
+  source = unname(as.character(inputs(google_translated))),
+  translation = google_translated$translation
+)
+review_preview <- review
+review_preview[c("source", "translation")] <- lapply(
+  review_preview[c("source", "translation")], substr, start = 1, stop = 150
+)
+knitr::kable(review_preview[review_preview$.id == "hin", ], row.names = FALSE)
+
+results_file <- file.path(tempdir(), "udhr-google-english.rds")
+saveRDS(google_translated, results_file)
+```
+
+Saving the result retains the exact translated texts and provenance for reuse;
+rerunning a model alias later may produce different wording. This example writes
+to a temporary directory; choose a permanent path when saving it for analysis.
+
+## Convert back to a corpus
+
+Use the registered `corpus.qlm_coded()` method through quanteda's public generic:
+
+```{r corpus-conversion}
+google_corpus <- quanteda::corpus(google_translated)
+
+docnames(google_corpus)
+docvars(google_corpus)
+identical(docvars(google_corpus), docvars(udhr))
+identical(meta(google_corpus, type = "system"), meta(udhr, type = "system"))
+
+meta(google_corpus, "quallmer")$translation[c(".id", "status", "detected_language")]
+```
+
+```{r check-corpus, include=FALSE}
+original_user <- meta(udhr, type = "user")
+restored_user <- meta(google_corpus, type = "user")
+restored_user$quallmer <- NULL
+stopifnot(
+  identical(docnames(google_corpus), udhr_ids),
+  identical(docvars(google_corpus), docvars(udhr)),
+  identical(meta(google_corpus, type = "system"), meta(udhr, type = "system")),
+  identical(restored_user, original_user),
+  identical(meta(google_corpus, "quallmer")$translation, google_provenance)
+)
+```
+
+The corpus contains the English translations, with the same document names and
+original document variables. Its original system and user metadata are restored;
+text summary caches are cleared. The `quallmer` user-metadata namespace contains
+translation provenance and the coding metadata added by quallmer.
+
+You can then use ordinary quanteda operations. For example, the source-language
+docvar identifies the translation made from Hindi:
+
+```{r use-corpus}
+hindi_english <- corpus_subset(google_corpus, ISO == "hin")
+cat(substr(as.character(hindi_english)[[1]], 1, 400), "\n")
+
+google_tokens <- tokens(google_corpus, remove_punct = TRUE)
+ntoken(google_tokens)
+```
+
+```{r check-tokens, include=FALSE}
+stopifnot(
+  all(ntoken(google_tokens) > 0L),
+  identical(docvars(google_tokens), docvars(udhr))
+)
+```
+
+Quanteda is optional for `qlm_translate()` itself; it is used here to load,
+subset and analyse the example corpus. A named character vector works without
+it, as the greeting example illustrates. Other `qlm_coded` text outputs can also
+be converted using `quanteda::corpus(coded, text_field = "summary")`.
+
+## Inspect failures and retry selected documents
+
+With `on_error = "continue"`, successful translations remain available when
+another request fails. A failed or unsubmitted document has `NA` in its
+`translation` column. Inspect the recorded errors before retrying:
+
+```{r retry-failures, eval=FALSE}
+qlm_failures(google_translated)
+
+failed <- is.na(google_translated$translation)
+if (any(failed)) {
+  retried <- qlm_translate(
+    inputs(google_translated)[failed],
+    model = "google-translate/translation-llm",
+    target_lang = "en-GB",
+    on_error = "continue"
+  )
+  google_translated[failed, ] <- retried
+}
+```
+
+For a **403 Forbidden** response, check both API enablement and the key's API
+restrictions in the project that owns the key. Also check that you are using its
+project ID and have billing enabled. If the key was recently changed, allow time
+for its restrictions to take effect. Google documents the blocked-service error
+in its [authentication troubleshooting guide](https://docs.cloud.google.com/iam/docs/troubleshoot-auth-manager#api-key-service-blocked).
+
+This adapter exposes the standard Translation LLM through the Basic API. It
+rejects `context`, `instructions`, `glossary`, `formality` and non-empty `params`
+because these options are not supported on this route. The result records the
+model Google reports; it does not pin a permanent model version.
+
+The translated table can be passed directly to `qlm_code()` to record translation
+as a preprocessing stage. See [Translating before coding](example_translation.html)
+for that workflow. Text-similarity comparison of translated fields is a separate
+feature and is not implemented by corpus conversion.
+
+## Run this article as a live check
+
+Routine builds check the saved output, its hashes and the conversion workflow.
+They do not establish that current credentials or Google's service work. Unit tests mock responses to check request construction,
+error handling and metadata preservation. Live verification executes this article's
+actual UDHR chunks against Google, checks all six results, source-language
+detections, retained inputs, restored corpus metadata and tokenization, and
+produces an HTML page containing the real output. These checks establish that the
+workflow ran successfully; bilingual review is still needed to assess fidelity.
+
+From a local checkout of quallmer, after installing the example packages and
+saving your key, run:
+
+```{r live-check, eval=FALSE}
+Sys.setenv(GOOGLE_CLOUD_PROJECT = "your-project-id")
+source("dev/translation-google-udhr-live-check.R")
+```
+
+The script loads the checkout, renders with `params = list(live = TRUE)`, retains
+`google_translated`, `google_provenance` and `google_corpus` in your session, and
+saves the translated object and rendered page in a temporary results directory.
+It prints their paths and stops with an error if an assertion fails. It does not
+install packages, save credentials or automatically run the retry example.
+
+You can also render the article directly after loading the package:
+
+```{r live-render, eval=FALSE}
+rmarkdown::render(
+  "vignettes/pkgdown/examples/example_translation_google.Rmd",
+  params = list(live = TRUE),
+  output_dir = tempdir()
+)
+```
+
+To replace the published fixture after reviewing a fresh live run, enable the
+refresh option before running the script:
+
+```{r refresh-saved-results, eval=FALSE}
+options(quallmer.update_google_article_cache = TRUE)
+source("dev/translation-google-udhr-live-check.R")
+options(quallmer.update_google_article_cache = NULL)
+```
+
+This explicitly updates `data/translated_udhr_google.rds` beside the article,
+using the new real results with project identifiers replaced by placeholders.
+Normal site builds only read this fixture.

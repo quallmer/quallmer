@@ -1,5 +1,12 @@
 # quallmer 0.5.1
 
+* Added a Google Translation LLM article using six complete UDHR documents,
+  covering credentials, provenance, retries and corpus conversion, with an
+  opt-in live render that validates the article against Google.
+
+* Both translation articles display saved live UDHR translations and validate
+  local workflows during site builds without API calls.
+
 * `qlm_translate()` now returns a `qlm_translation` table inheriting from
   `qlm_coded`, with retained inputs and provenance. `quanteda::corpus()` converts
   coded text fields to corpora and restores original corpus metadata (#196).

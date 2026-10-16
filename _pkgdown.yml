@@ -52,6 +52,8 @@ navbar:
         href: articles/pkgdown/examples/example_segmentation.html
       - text: Translating before coding
         href: articles/pkgdown/examples/example_translation.html
+      - text: Google translation of a multilingual corpus
+        href: articles/pkgdown/examples/example_translation_google.html
       - text: Quasi-sentence segmentation
         href: articles/pkgdown/examples/example_quasi_sentences.html
     reference:
