@@ -239,7 +239,7 @@ test_that("Qwen-MT return policy withholds later group repairs after a failure",
   expect_warning(out <- qlm_translate(c(a = "first", b = "one\n\ntwo"),
     "dashscope/qwen-mt-plus", on_error = "return"), "2 of 2")
   expect_length(seen$requests, 2)
-  expect_true(all(is.na(out$translation)))
+  expect_true(all(is.na(out)))
 })
 
 test_that("Qwen-MT grouping observes request-byte targets for different scripts", {

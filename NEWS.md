@@ -1,12 +1,12 @@
 # quallmer 0.5.1
 
-* Added experimental `qlm_translate()` for DeepL, Qwen-MT, Google Translation LLM and ellmer 
-  chat models. Results are `qlm_translation` tables inheriting from `qlm_coded`, retaining 
-  original inputs and translation provenance for subsequent coding. 
-  Conversion with `quanteda::corpus()` preserves original corpus metadata and document 
-  variables. Includes optional keyring support for DeepL and Google credentials, 
-  plus workflow and setup articles with saved live UDHR examples that build without 
-  API calls (#196).
+* New experimental `qlm_translate()` translates texts or a quanteda corpus
+  before coding, using DeepL, Qwen-MT, Google's Translation LLM or an ellmer
+  chat model. It returns a `qlm_translation`: a named character vector with
+  per-document provenance, which `qlm_code()` accepts and `qlm_trail()`
+  reports. `quanteda::corpus()` converts a translation, or a text column of a
+  coded object, to a corpus with the original document variables and metadata
+  restored (#196).
 
 * Fixed a test that matched the summary line quanteda prints for corpus objects
   and failed with quanteda 4.5.1, which changed that format. The test now

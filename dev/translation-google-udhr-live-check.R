@@ -35,15 +35,13 @@ saveRDS(google_translated, google_results_file)
 if (isTRUE(getOption("quallmer.update_google_article_cache", FALSE))) {
   # Publish actual results without publishing the caller's project identifiers.
   google_cache <- google_translated
-  google_cache_meta <- quallmer:::redact_meta(attr(google_cache, "meta"))
-  google_cache_provenance <- google_cache_meta$user$quallmer$translation
+  google_cache_provenance <- attr(google_cache, "provenance")
   google_cache_provenance$settings <- lapply(google_cache_provenance$settings, function(settings) {
     settings$project_id <- "your-project-id"
     settings$google_model <- sub("^projects/[^/]+/", "projects/your-project-id/", settings$google_model)
     settings
   })
-  google_cache_meta$user$quallmer$translation <- google_cache_provenance
-  attr(google_cache, "meta") <- google_cache_meta
+  attr(google_cache, "provenance") <- google_cache_provenance
   google_cache_path <- file.path(dirname(google_article_path), "data", "translated_udhr_google.rds")
   saveRDS(google_cache, google_cache_path, compress = "xz")
   cat("Updated article fixture: ", google_cache_path, "\n", sep = "")

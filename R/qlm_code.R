@@ -585,9 +585,6 @@ qlm_code <- function(x, codebook, model, ...,
   }
 
   # Input validation
-  if (is.data.frame(x) && inherits(x, "qlm_translation")) {
-    x <- translation_as_corpus(x)
-  }
   if (codebook$input_type == "text" && !is.character(x)) {
     cli::cli_abort("This codebook expects text input (a character vector).")
   }
@@ -1007,11 +1004,17 @@ qlm_code <- function(x, codebook, model, ...,
   if (!is.null(preprocessing)) {
     metadata$preprocessing <- preprocessing
   }
-  if (inherits(x_all, "corpus")) {
-    # Keep the corpus covariates available to downstream analysis without
-    # mixing them with model-generated coding columns or copying source text.
-    metadata$corpus_docvars <- attr(x_all, "docvars")
-    corpus_meta <- attr(x_all, "meta")
+  # Keep the corpus covariates, of a corpus or of the corpus a translation
+  # came from, available to downstream analysis without mixing them with
+  # model-generated coding columns or copying source text.
+  corpus_input <- if (is_qlm_translation(x_all)) {
+    attr(x_all, "corpus")
+  } else if (inherits(x_all, "corpus")) {
+    list(docvars = attr(x_all, "docvars"), meta = attr(x_all, "meta"))
+  }
+  if (!is.null(corpus_input)) {
+    metadata$corpus_docvars <- corpus_input$docvars
+    corpus_meta <- corpus_input$meta
     corpus_meta$user <- translation_user_metadata(corpus_meta)
     metadata$corpus_meta <- corpus_meta
   }

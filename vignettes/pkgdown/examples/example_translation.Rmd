@@ -9,8 +9,8 @@ library(quallmer)
 ```
 
 `qlm_translate()` makes translation a recorded stage of a coding workflow. It
-returns a `qlm_translation` table inheriting from `qlm_coded`, with translated
-texts, retained inputs and provenance. Translate once, review and save the result,
+returns a `qlm_translation`: the translated texts as a named character vector,
+with a provenance record for each. Translate once, review and save the result,
 then reuse it across coding runs.
 
 This article explains the workflow shared by translation providers. For Google
@@ -46,7 +46,7 @@ data file. The records retain both complete source documents and their English
 translations; the tables below show excerpts for readability.
 
 ```{r load-translations}
-translated <- readRDS("data/translated_udhr_google.rds")[c(2, 3), ]
+translated <- readRDS("data/translated_udhr_google.rds")[c("fra", "spa")]
 texts <- inputs(translated)
 translation_model <- "google-translate/translation-llm"
 ```
@@ -63,28 +63,28 @@ translated <- qlm_translate(
 )
 ```
 
-The saved result has the same table structure. Subsetting below only shortens the
+The saved result has the same structure. The excerpts below only shorten the
 printed view; `translated` retains the complete texts and metadata.
 
 ```{r translation-preview}
+translated
 knitr::kable(data.frame(
-  .id = translated$.id,
-  translation = substr(translated$translation, 1, 160)
+  .id = names(translated),
+  translation = substr(as.character(translated), 1, 160)
 ))
 ```
 
-Input names become `.id`. The `translation` column contains the translated text;
-`.error` is a list-column containing `NULL` for successful rows or conditions for
-failures. Extract the original inputs and inspect the translation record before
-using the output:
+Input names become the names of the translations, and the `.id` of any coding
+run. A failed translation is `NA`. Extract the source texts and inspect the
+translation record before using the output:
 
 ```{r inspect}
 original <- inputs(translated)
 knitr::kable(data.frame(
-  .id = translated$.id,
+  .id = names(translated),
   source = substr(as.character(original), 1, 160)
 ))
-provenance <- qlm_meta(translated, "quallmer")$translation
+provenance <- attr(translated, "provenance")
 knitr::kable(provenance[c(
   ".id", "status", "model", "reported_model", "detected_language"
 )])
@@ -108,19 +108,18 @@ source language. Source-language detection and successful API responses do not
 establish translation quality. For coding research, assess downstream coding
 against original-language gold labels as well.
 
-With `on_error = "continue"`, a failed document has `NA` in its `translation`
-column while successful translations remain available. Inspect failures and
-retry only the affected inputs:
+With `on_error = "continue"`, a failed document is `NA` while successful
+translations remain available. The provenance gives the reason for each failure:
 
 ```{r failures}
-qlm_failures(translated)
+provenance[provenance$status != "ok", c(".id", "status", ".error")]
 ```
 
 The saved run has no failures. This retry code makes API calls only when needed
 and is shown without execution:
 
 ```{r retry-failed, eval=FALSE}
-failed <- is.na(translated$translation)
+failed <- is.na(translated)
 if (any(failed)) {
   retried <- qlm_translate(
     inputs(translated)[failed],
@@ -128,7 +127,7 @@ if (any(failed)) {
     target_lang = "en-GB",
     on_error = "continue"
   )
-  translated[failed, ] <- retried
+  translated[failed] <- retried
 }
 ```
 
@@ -143,20 +142,20 @@ isTRUE(all.equal(restored, translated))
 
 Use a permanent path for your own analysis; this article uses a temporary file.
 
-Row subsetting uses table syntax (`translated[rows, ]`); identifiers are in
-`translated$.id`. Editing `translated$translation` records an edit and updates
-its hash. `as.character(translated)` extracts named texts and drops provenance.
-Saving the whole object retains the exact texts used, even if a model alias later
+Subsetting with `[`, renaming and `c()` keep each translation with its record.
+Assigning text, as in `translated["fra"] <- "corrected text"`, records an edit
+and updates its hash. `as.character(translated)` drops the provenance. Saving
+the whole object retains the exact texts used, even if a model alias later
 produces different wording.
 
 ## Code the translated texts
 
-Pass the translation table directly to `qlm_code()`, choosing a codebook suited
+Pass the translations directly to `qlm_code()`, choosing a codebook suited
 to your research question. This illustrative sentiment-coding call is not run
 when building the article; no coding output is claimed for the saved translations:
 
 ```{r code-translations, eval=FALSE}
-coded <- qlm_code(translated, codebook_sentiment, model = "openai/gpt-4o-mini")
+coded <- qlm_code(translated, data_codebook_sentiment, model = "openai/gpt-4o-mini")
 qlm_trail(coded, path = "translation_trail")
 ```
 
@@ -175,11 +174,10 @@ translated <- qlm_translate(transcripts, model = translation_model,
 
 ## Work with a corpus
 
-A quanteda corpus can be supplied as input. `inputs(translated)` then retains the
-original corpus. Convert the output table when you need quanteda operations:
-
-The saved example already has a corpus as its original input, so conversion
-requires no additional translation request:
+A quanteda corpus can be supplied as input; `inputs(translated)` then returns the
+original corpus. Convert the translations with `quanteda::corpus()` when you need
+quanteda operations. The saved example's input was a corpus, so its document
+variables come back:
 
 ```{r corpus-translation}
 source_corpus <- inputs(translated)
@@ -187,13 +185,12 @@ translated_corpus <- quanteda::corpus(translated)
 knitr::kable(quanteda::docvars(translated_corpus))
 identical(quanteda::docvars(translated_corpus),
           quanteda::docvars(source_corpus))
-identical(quanteda::docnames(translated_corpus), translated$.id)
+identical(quanteda::docnames(translated_corpus), names(translated))
 ```
 
 ```{r validate-saved-results, include=FALSE}
 stopifnot(
   inherits(translated, "qlm_translation"),
-  inherits(translated, "qlm_coded"),
   all(provenance$status == "ok"),
   identical(as.character(translated_corpus), as.character(translated)),
   identical(quanteda::docvars(translated_corpus),
@@ -202,12 +199,12 @@ stopifnot(
             quanteda::meta(source_corpus, type = "system")),
   isTRUE(all.equal(restored, translated))
 )
-for (i in seq_len(nrow(translated))) {
+for (i in seq_along(translated)) {
   stopifnot(
     identical(provenance$source_hash[i], digest::digest(
       enc2utf8(provenance$source_text[i]), algo = "sha256", serialize = FALSE)),
     identical(provenance$output_hash[i], digest::digest(
-      enc2utf8(translated$translation[i]), algo = "sha256", serialize = FALSE))
+      enc2utf8(translated[[i]]), algo = "sha256", serialize = FALSE))
   )
 }
 ```

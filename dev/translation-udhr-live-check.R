@@ -26,7 +26,7 @@ udhr_english <- qlm_translate(
   context = "Universal Declaration of Human Rights.",
   on_error = "stop"
 )
-udhr_provenance <- qlm_meta(udhr_english, "quallmer")$translation
+udhr_provenance <- attr(udhr_english, "provenance")
 udhr_corpus <- quanteda::corpus(udhr_english)
 print(data.frame(
   document = udhr_ids,
@@ -39,7 +39,7 @@ print(data.frame(
 translated_user_meta <- quanteda::meta(udhr_corpus, type = "user")
 translated_user_meta$quallmer <- NULL
 stopifnot(
-  identical(udhr_english$.id, udhr_ids),
+  identical(names(udhr_english), udhr_ids),
   all(udhr_provenance$status == "ok"),
   all(is.na(udhr_provenance$source_lang)),
   identical(unname(udhr_provenance$detected_language), expected_languages),

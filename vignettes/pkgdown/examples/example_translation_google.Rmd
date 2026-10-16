@@ -17,9 +17,9 @@ if (run_live) {
 } else {
   google_translated <- readRDS("data/translated_udhr_google.rds")
   udhr <- inputs(google_translated)
-  udhr_ids <- google_translated$.id
+  udhr_ids <- names(google_translated)
   recorded_date <- format(
-    qlm_meta(google_translated, "quallmer")$translation$timestamp[1],
+    attr(google_translated, "provenance")$timestamp[1],
     "%d %B %Y", tz = "UTC"
   )
 }
@@ -131,14 +131,13 @@ greetings <- qlm_translate(
   model = "google-translate/translation-llm",
   target_lang = "en-GB"
 )
-greetings[c(".id", "translation")]
+greetings
 ```
 
-The result is a `qlm_translation` tibble that inherits from `qlm_coded`. Its
-columns are `.id`, `translation` and `.error`. Identifiers come from the input
-names; `.error` is a list-column containing `NULL` for successful rows or a
-condition for failures. `as.character(greetings)` extracts a named character
-vector of translations when that is more convenient.
+The result is a `qlm_translation`: a character vector of translations named
+after the inputs, with `NA` for any failure. `attr(greetings, "provenance")`
+holds the record of each translation, including the reason for a failure.
+`as.character(greetings)` drops that record.
 
 ## Select six complete UDHR documents
 
@@ -220,11 +219,11 @@ The original corpus is retained separately from the translated output:
 ```{r inspect-results}
 identical(inputs(google_translated), udhr)
 knitr::kable(data.frame(
-  .id = google_translated$.id,
-  excerpt = substr(google_translated$translation, 1, 120)
+  .id = names(google_translated),
+  excerpt = substr(as.character(google_translated), 1, 120)
 ), row.names = FALSE)
 
-google_provenance <- qlm_meta(google_translated, "quallmer")$translation
+google_provenance <- attr(google_translated, "provenance")
 knitr::kable(google_provenance[c(
   ".id", "status", "detected_language", ".error", "reported_model"
 )], row.names = FALSE)
@@ -232,13 +231,13 @@ knitr::kable(google_provenance[c(
 
 ```{r check-translations, include=FALSE}
 stopifnot(
-  inherits(google_translated, "qlm_coded"),
-  identical(google_translated$.id, udhr_ids),
+  inherits(google_translated, "qlm_translation"),
+  identical(names(google_translated), udhr_ids),
   identical(inputs(google_translated), udhr),
   all(google_provenance$status == "ok"),
-  !anyNA(google_translated$translation),
-  all(nzchar(google_translated$translation)),
-  identical(google_provenance$output_hash, vapply(google_translated$translation,
+  !anyNA(google_translated),
+  all(nzchar(google_translated)),
+  identical(google_provenance$output_hash, vapply(as.character(google_translated),
     function(text) digest::digest(enc2utf8(text), algo = "sha256", serialize = FALSE),
     "", USE.NAMES = FALSE)),
   identical(google_provenance$source_hash, vapply(as.character(udhr),
@@ -261,9 +260,9 @@ For bilingual review, place original and translated texts side by side:
 
 ```{r bilingual-review}
 review <- data.frame(
-  .id = google_translated$.id,
+  .id = names(google_translated),
   source = unname(as.character(inputs(google_translated))),
-  translation = google_translated$translation
+  translation = unname(as.character(google_translated))
 )
 review_preview <- review
 review_preview[c("source", "translation")] <- lapply(
@@ -281,7 +280,7 @@ to a temporary directory; choose a permanent path when saving it for analysis.
 
 ## Convert back to a corpus
 
-Use the registered `corpus.qlm_coded()` method through quanteda's public generic:
+Convert the translations with quanteda's `corpus()`:
 
 ```{r corpus-conversion}
 google_corpus <- quanteda::corpus(google_translated)
@@ -309,8 +308,8 @@ stopifnot(
 
 The corpus contains the English translations, with the same document names and
 original document variables. Its original system and user metadata are restored;
-text summary caches are cleared. The `quallmer` user-metadata namespace contains
-translation provenance and the coding metadata added by quallmer.
+text summary caches are cleared. The `quallmer` user-metadata field holds the
+translation provenance.
 
 You can then use ordinary quanteda operations. For example, the source-language
 docvar identifies the translation made from Hindi:
@@ -332,19 +331,19 @@ stopifnot(
 
 Quanteda is optional for `qlm_translate()` itself; it is used here to load,
 subset and analyse the example corpus. A named character vector works without
-it, as the greeting example illustrates. Other `qlm_coded` text outputs can also
-be converted using `quanteda::corpus(coded, text_field = "summary")`.
+it, as the greeting example illustrates. Text outputs of `qlm_code()` can also
+be converted, using `quanteda::corpus(coded, text_field = "summary")`.
 
 ## Inspect failures and retry selected documents
 
 With `on_error = "continue"`, successful translations remain available when
-another request fails. A failed or unsubmitted document has `NA` in its
-`translation` column. Inspect the recorded errors before retrying:
+another request fails. A failed or unsubmitted document is `NA`. Inspect the
+recorded errors before retrying:
 
 ```{r retry-failures, eval=FALSE}
-qlm_failures(google_translated)
+google_provenance[google_provenance$status != "ok", c(".id", "status", ".error")]
 
-failed <- is.na(google_translated$translation)
+failed <- is.na(google_translated)
 if (any(failed)) {
   retried <- qlm_translate(
     inputs(google_translated)[failed],
@@ -352,7 +351,7 @@ if (any(failed)) {
     target_lang = "en-GB",
     on_error = "continue"
   )
-  google_translated[failed, ] <- retried
+  google_translated[failed] <- retried
 }
 ```
 
@@ -367,10 +366,9 @@ rejects `context`, `instructions`, `glossary`, `formality` and non-empty `params
 because these options are not supported on this route. The result records the
 model Google reports; it does not pin a permanent model version.
 
-The translated table can be passed directly to `qlm_code()` to record translation
-as a preprocessing stage. See [Translating before coding](example_translation.html)
-for that workflow. Text-similarity comparison of translated fields is a separate
-feature and is not implemented by corpus conversion.
+The translations can be passed directly to `qlm_code()`, which records
+translation as a preprocessing stage. See
+[Translating before coding](example_translation.html) for that workflow.
 
 ## Run this article as a live check
 

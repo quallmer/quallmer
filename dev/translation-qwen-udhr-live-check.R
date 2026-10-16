@@ -23,14 +23,14 @@ qwen_timing <- system.time(
     on_error = "continue"
   )
 )
-qwen_provenance <- qlm_meta(qwen_translated, "quallmer")$translation
+qwen_provenance <- attr(qwen_translated, "provenance")
 qwen_corpus <- quanteda::corpus(qwen_translated)
 print(qwen_timing)
 print(qwen_provenance[c(".id", "status", ".error", "adapter", "reported_model")])
 qwen_user_meta <- quanteda::meta(qwen_corpus, type = "user")
 qwen_user_meta$quallmer <- NULL
 stopifnot(
-  identical(qwen_translated$.id, udhr_ids),
+  identical(names(qwen_translated), udhr_ids),
   all(qwen_provenance$status == "ok"),
   all(qwen_provenance$adapter == "qwen-mt"),
   identical(qwen_provenance$source_text, unname(as.character(udhr))),

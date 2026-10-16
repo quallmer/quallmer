@@ -159,13 +159,8 @@ qlm_replicate <- function(x, ..., codebook = NULL, model = NULL, batch = NULL,
       !is.null(meta_attr$user$transcription)) {
     result_meta$user$transcription <- meta_attr$user$transcription
   }
-  attr(result, "meta") <- result_meta
-
-  if (is.null(result_meta$user$preprocessing) && !is.null(meta_attr$user$preprocessing)) {
-    result_meta$user$preprocessing <- meta_attr$user$preprocessing
-    attr(result, "meta") <- result_meta
-  }
-  for (field in c("corpus_docvars", "corpus_meta")) {
+  # Likewise its translation history and corpus variables
+  for (field in c("preprocessing", "corpus_docvars", "corpus_meta")) {
     if (is.null(result_meta$user[[field]]) && !is.null(meta_attr$user[[field]])) {
       result_meta$user[[field]] <- meta_attr$user[[field]]
     }

@@ -1,19 +1,16 @@
 # The compatibility boundary with quanteda's character-vector corpus format.
 # These helpers neither load nor require quanteda. Integration tests compare
 # the result with real corpora when the suggested package is installed.
+
+# The document variables and metadata a translation carries forward: those of
+# a corpus input, or those an earlier translation carried, else NULL.
 translation_corpus_attributes <- function(x) {
-  if (is.data.frame(x) && inherits(x, "qlm_coded")) {
-    user <- attr(x, "meta", exact = TRUE)$user
-    docvars <- user$corpus_docvars
-    if (!is.null(docvars)) {
-      pos <- match(as.character(x$.id), docvars$docname_)
-      if (anyNA(pos)) cli::cli_abort("Corpus document variables no longer match the coded identifiers.")
-      docvars <- docvars[pos, , drop = FALSE]
-      rownames(docvars) <- NULL
-    }
-    return(list(docvars = docvars, meta = user$corpus_meta))
+  if (is_qlm_translation(x)) {
+    return(attr(x, "corpus", exact = TRUE))
   }
-  if (!inherits(x, "corpus")) return(list(docvars = NULL, meta = NULL))
+  if (!inherits(x, "corpus")) {
+    return(NULL)
+  }
   docvars <- attr(x, "docvars", exact = TRUE)
   meta <- attr(x, "meta", exact = TRUE)
   if (!is.data.frame(docvars) || nrow(docvars) != length(x) ||
@@ -28,11 +25,7 @@ translation_corpus_attributes <- function(x) {
   if (!is.null(namespace) && !is.list(namespace)) {
     cli::cli_abort("The corpus user metadata field {.val quallmer} must be a list.")
   }
-  existing <- namespace[["translation", exact = TRUE]]
-  if (!is.null(existing) && (!is.data.frame(existing) ||
-      !all(c(".id", "status", "source_hash", "output_hash") %in% names(existing)))) {
-    cli::cli_abort("The corpus already has an incompatible {.val quallmer$translation} metadata field.")
-  }
+  rownames(docvars) <- NULL
   list(docvars = docvars, meta = meta)
 }
 
@@ -50,44 +43,7 @@ translation_corpus_meta <- function() {
   user = list())
 }
 
-translation_texts <- function(x) {
-  if (is.data.frame(x) && inherits(x, "qlm_translation")) {
-    return(stats::setNames(x$translation, as.character(x$.id)))
-  }
-  ids <- names(x)
-  out <- unclass(x)
-  attributes(out) <- NULL
-  names(out) <- ids
-  out
-}
-
-translation_provenance <- function(x) {
-  meta <- attr(x, "meta", exact = TRUE)
-  namespace <- meta$user[["quallmer", exact = TRUE]]
-  provenance <- if (is.list(namespace)) namespace[["translation", exact = TRUE]]
-  # Read first-attempt objects saved before corpus support was introduced.
-  if (is.null(provenance)) provenance <- attr(x, "provenance", exact = TRUE)
-  if (is.null(provenance)) return(NULL)
-  if (!is.data.frame(provenance) || !".id" %in% names(provenance)) {
-    cli::cli_abort("The translation provenance table is invalid.")
-  }
-  check_ids(provenance$.id, what = "Translation provenance identifiers")
-  pos <- match(translation_ids(x), provenance$.id)
-  if (anyNA(pos)) {
-    cli::cli_abort("Translation provenance no longer matches the document identifiers.")
-  }
-  provenance <- provenance[pos, , drop = FALSE]
-  rownames(provenance) <- NULL
-  provenance
-}
-
-is_qlm_translation <- function(x) {
-  namespace <- attr(x, "meta", exact = TRUE)$user[["quallmer", exact = TRUE]]
-  inherits(x, "qlm_translation") ||
-    (inherits(x, "corpus") && is.list(namespace) &&
-       is.data.frame(namespace[["translation", exact = TRUE]]))
-}
-
+# Corpus user metadata without the records quallmer itself writes there.
 translation_user_metadata <- function(meta) {
   user <- meta$user
   if (is.list(user$quallmer)) {
@@ -96,24 +52,4 @@ translation_user_metadata <- function(meta) {
     if (!length(user$quallmer)) user$quallmer <- NULL
   }
   user
-}
-
-#' @export
-qlm_meta.qlm_translation <- function(x, field = NULL,
-                                    type = c("user", "object", "system", "all")) {
-  qlm_meta.qlm_coded(x, field = field, type = type)
-}
-
-#' @export
-qlm_meta.qlm_translation_corpus <- function(x, field = NULL,
-                                           type = c("user", "object", "system", "all")) {
-  qlm_meta.qlm_coded(x, field = field, type = type)
-}
-
-# Quanteda's replacement method changes names directly. Route it through our
-# method as well so that the keyed provenance follows the new names.
-#' @rawNamespace S3method(quanteda::"docnames<-", qlm_translation_corpus)
-`docnames<-.qlm_translation_corpus` <- function(x, unique_docnames = TRUE, value) {
-  names(x) <- value
-  x
 }

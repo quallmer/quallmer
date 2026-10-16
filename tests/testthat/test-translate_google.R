@@ -65,7 +65,7 @@ test_that("Google sends complete documents and records detection without credent
   expect_equal(body$model,
     "projects/translation-test/locations/us-central1/models/general/translation-llm")
   expect_equal(seen$requests[[1]]$headers[["x-goog-api-key"]], "google-test-key")
-  provenance <- qlm_meta(result, "quallmer")$translation
+  provenance <- translation_provenance(result)
   expect_equal(provenance$status, rep("ok", 2))
   expect_equal(provenance$detected_language, rep("fr", 2))
   expect_equal(provenance$reported_model, rep("translation-llm", 2))
@@ -113,7 +113,7 @@ test_that("six multi-paragraph documents require six Google requests", {
   result <- qlm_translate(input, "google-translate/translation-llm")
   expect_length(seen$requests, 6)
   expect_identical(unname(as.character(result)), unname(input))
-  expect_equal(lengths(qlm_meta(result, "quallmer")$translation$attempts), rep(1L, 6))
+  expect_equal(lengths(translation_provenance(result)$attempts), rep(1L, 6))
 })
 
 test_that("Google splits only oversized documents within character and byte limits", {
@@ -139,7 +139,7 @@ test_that("Google retains successful documents after transport or content failur
   expect_warning(result <- qlm_translate(c(a = "good", b = "bad", c = "good"),
     "google-translate/translation-llm"), "1 of 3")
   expect_identical(unname(as.character(result)), c("good", NA_character_, "good"))
-  provenance <- qlm_meta(result, "quallmer")$translation
+  provenance <- translation_provenance(result)
   expect_equal(provenance$status, c("ok", "failed", "ok"))
   expect_match(provenance$.error[2], "REDACTED", fixed = TRUE)
   expect_false(grepl("google-test-key", provenance$.error[2], fixed = TRUE))

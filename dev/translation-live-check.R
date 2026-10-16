@@ -37,10 +37,10 @@ english <- qlm_translate(
   on_error = "stop"
 )
 english_corpus <- quanteda::corpus(english)
-english_provenance <- qlm_meta(english, "quallmer")$translation
+english_provenance <- attr(english, "provenance")
 stopifnot(
-  inherits(english, "qlm_coded"),
-  identical(english$.id, names(french_texts)),
+  inherits(english, "qlm_translation"),
+  identical(names(english), names(french_texts)),
   all(english_provenance$status == "ok"),
   identical(english_provenance$source_text, unname(french_texts)),
   ncol(quanteda::docvars(english_corpus)) == 0L,
@@ -72,7 +72,7 @@ translated_meta$quallmer$translation <- NULL
 translated_meta$quallmer$coding <- NULL
 stopifnot(
   all(french_provenance$status == "ok"),
-  identical(french$.id, names(speeches)),
+  identical(names(french), names(speeches)),
   identical(attr(french_corpus, "docvars"), attr(speeches, "docvars")),
   identical(quanteda::meta(french_corpus, type = "system"),
             quanteda::meta(speeches, type = "system")),
@@ -93,8 +93,7 @@ stopifnot(
   identical(quanteda::meta(french_tokens, "quallmer")$translation,
             french_provenance),
   identical(names(lincoln), "1865-Lincoln"),
-  identical(quanteda::meta(lincoln, "quallmer")$translation$.id,
-            "1865-Lincoln")
+  "1865-Lincoln" %in% quanteda::meta(lincoln, "quallmer")$translation$.id
 )
 
 # Keep these objects in the interactive session for inspection.

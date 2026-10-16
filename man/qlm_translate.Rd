@@ -29,10 +29,9 @@ qlm_translate(
 }
 \arguments{
 \item{x}{Character vector of texts, optionally named, or a quanteda corpus.
-A previous \code{qlm_translation} can also be translated again. Original corpus
-document variables and metadata are retained for corpus conversion. Names
-must be unique and non-empty. Missing inputs remain failed units without
-a request. No installation or loading of quanteda is required.}
+A transcript from \code{\link[=qlm_transcribe]{qlm_transcribe()}} or an earlier translation can also be
+translated, and its history is kept. Names must be unique and non-empty.
+Missing texts are recorded as failures without a request.}
 
 \item{model}{Required provider/model identifier. DeepL accepts
 \code{"deepl/quality_optimized"}, \code{"deepl/latency_optimized"} and
@@ -114,37 +113,31 @@ The Basic API uses a global endpoint; this does not guarantee data residency.}
 \item{...}{Reserved; must be empty.}
 }
 \value{
-A tibble of class \code{qlm_translation}, inheriting from \code{qlm_coded},
-with columns \code{.id}, \code{translation} (character), and \code{.error} (a list of
-conditions or \code{NULL}). Failed or unsubmitted translations are \code{NA}.
-\code{\link[=inputs]{inputs()}} returns the original input and \code{\link[=codebook]{codebook()}} describes the text
-output field. Translation provenance is accessible using
-\code{qlm_meta(x, "quallmer")$translation}. It includes source texts and hashes,
-requested and reported models, settings and instructions, languages,
-statuses, errors, timestamps, attempts and preprocessing history.
+A \code{qlm_translation}: a character vector of translations named by
+document, with \code{NA} for each translation that failed or was not
+submitted. Its \code{"provenance"} attribute is a data frame with one row per
+text: the source text and its hash, the output hash, requested and
+reported models, languages, adapter, settings, status, error, timestamp,
+the attempts made and any earlier preprocessing history.
 
-Row subsetting uses data-frame syntax, e.g. \code{x[c(2, 1), ]}, retaining
-aligned inputs and provenance. Identifiers are in \code{x$.id}; \code{names(x)} are
-column names. Editing translated text records an edit and updates its
-hash. Use \code{rbind()} to combine compatible translation tables.
-\code{as.character(x)} extracts named translated texts, dropping provenance.
+Subsetting with \code{[}, renaming, and \code{c()} keep the provenance aligned.
+Assigning plain text records an edit; assigning another
+\code{qlm_translation}, such as a retry of failed texts, carries its
+provenance. \code{as.character()} drops the provenance, and \code{\link[=inputs]{inputs()}} returns
+the source texts.
 
-Convert with \code{quanteda::corpus(x)} (see \code{\link[=corpus.qlm_coded]{corpus.qlm_coded()}}). The corpus
-uses translated texts and restores the original corpus document variables,
-system and user metadata. Object summary caches are cleared. Translation
-provenance is retained in \code{meta$user$quallmer$translation}, and coding
-metadata in \code{meta$user$quallmer$coding}. Character input converts to a
-corpus with no user docvars and system metadata recording its creation by
-quallmer. Quanteda remains optional and is not needed for translation.
+For a corpus input, the document variables and metadata are kept, and
+\code{quanteda::corpus(x)} (see \code{\link[=corpus.qlm_translation]{corpus.qlm_translation()}}) returns a corpus of
+the translated texts with them restored.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 }
 \details{
-Translates texts and returns a \code{qlm_coded} table, retaining original inputs
-and per-document translation provenance. The result
-can be passed to \code{\link[=qlm_code]{qlm_code()}}; \code{\link[=qlm_trail]{qlm_trail()}} then records translation as part
-of the coding instrument.
+Translates texts and returns them as a named character vector carrying
+per-document translation provenance, as \code{\link[=qlm_transcribe]{qlm_transcribe()}} does for
+transcripts. The result can be passed to \code{\link[=qlm_code]{qlm_code()}}; \code{\link[=qlm_trail]{qlm_trail()}} then
+records translation as part of the coding instrument.
 \subsection{API setup and keys}{
 
 Obtain credentials using the provider's setup instructions:
@@ -224,7 +217,7 @@ with \code{\link[=saveRDS]{saveRDS()}} to retain the exact translations used for
 # Reads DEEPL_API_KEY, or supply api_key = keyring::key_get("deepl")
 translated <- qlm_translate(c(speech = "Bonjour tout le monde."),
   model = "deepl/quality_optimized", target_lang = "en-GB")
-coded <- qlm_code(translated, codebook_sentiment,
+coded <- qlm_code(translated, data_codebook_sentiment,
   model = "openai/gpt-4o-mini")
 qlm_trail(coded, path = "translation_trail")
 
@@ -235,7 +228,7 @@ translated_qwen <- qlm_translate(texts,
   model = "dashscope/qwen-mt-plus", target_lang = "en-GB",
   context = "Greetings in everyday conversation.",
   params = ellmer::params(temperature = 0.1))
-translated_qwen$translation
+translated_qwen
 
 # Google: reads GOOGLE_TRANSLATE_API_KEY, falling back to the optional
 # keyring entry saved with keyring::key_set("google-translate")
@@ -243,9 +236,9 @@ translated_google <- qlm_translate(texts,
   model = "google-translate/translation-llm", target_lang = "en-GB",
   project_id = "your-google-cloud-project-id")
 # Alternatively, set GOOGLE_CLOUD_PROJECT and omit project_id.
-qlm_meta(translated_google, "quallmer")$translation
+attr(translated_google, "provenance")
 
-# Convert the translated text field to a corpus, if quanteda is installed
+# Convert to a quanteda corpus, if quanteda is installed
 quanteda::corpus(translated_google)
 }
 }

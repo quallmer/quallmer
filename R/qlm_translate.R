@@ -2,16 +2,15 @@
 #'
 #' `r lifecycle::badge("experimental")`
 #'
-#' Translates texts and returns a `qlm_coded` table, retaining original inputs
-#' and per-document translation provenance. The result
-#' can be passed to [qlm_code()]; [qlm_trail()] then records translation as part
-#' of the coding instrument.
+#' Translates texts and returns them as a named character vector carrying
+#' per-document translation provenance, as [qlm_transcribe()] does for
+#' transcripts. The result can be passed to [qlm_code()]; [qlm_trail()] then
+#' records translation as part of the coding instrument.
 #'
 #' @param x Character vector of texts, optionally named, or a quanteda corpus.
-#'   A previous `qlm_translation` can also be translated again. Original corpus
-#'   document variables and metadata are retained for corpus conversion. Names
-#'   must be unique and non-empty. Missing inputs remain failed units without
-#'   a request. No installation or loading of quanteda is required.
+#'   A transcript from [qlm_transcribe()] or an earlier translation can also be
+#'   translated, and its history is kept. Names must be unique and non-empty.
+#'   Missing texts are recorded as failures without a request.
 #' @param model Required provider/model identifier. DeepL accepts
 #'   `"deepl/quality_optimized"`, `"deepl/latency_optimized"` and
 #'   `"deepl/prefer_quality_optimized"`. Qwen-MT accepts, for example,
@@ -145,34 +144,28 @@
 #' quality/latency goals, not pinned model versions. Save the returned object
 #' with [saveRDS()] to retain the exact translations used for coding.
 #'
-#' @return A tibble of class `qlm_translation`, inheriting from `qlm_coded`,
-#'   with columns `.id`, `translation` (character), and `.error` (a list of
-#'   conditions or `NULL`). Failed or unsubmitted translations are `NA`.
-#'   [inputs()] returns the original input and [codebook()] describes the text
-#'   output field. Translation provenance is accessible using
-#'   `qlm_meta(x, "quallmer")$translation`. It includes source texts and hashes,
-#'   requested and reported models, settings and instructions, languages,
-#'   statuses, errors, timestamps, attempts and preprocessing history.
+#' @return A `qlm_translation`: a character vector of translations named by
+#'   document, with `NA` for each translation that failed or was not
+#'   submitted. Its `"provenance"` attribute is a data frame with one row per
+#'   text: the source text and its hash, the output hash, requested and
+#'   reported models, languages, adapter, settings, status, error, timestamp,
+#'   the attempts made and any earlier preprocessing history.
 #'
-#'   Row subsetting uses data-frame syntax, e.g. `x[c(2, 1), ]`, retaining
-#'   aligned inputs and provenance. Identifiers are in `x$.id`; `names(x)` are
-#'   column names. Editing translated text records an edit and updates its
-#'   hash. Use `rbind()` to combine compatible translation tables.
-#'   `as.character(x)` extracts named translated texts, dropping provenance.
+#'   Subsetting with `[`, renaming, and `c()` keep the provenance aligned.
+#'   Assigning plain text records an edit; assigning another
+#'   `qlm_translation`, such as a retry of failed texts, carries its
+#'   provenance. `as.character()` drops the provenance, and [inputs()] returns
+#'   the source texts.
 #'
-#'   Convert with `quanteda::corpus(x)` (see [corpus.qlm_coded()]). The corpus
-#'   uses translated texts and restores the original corpus document variables,
-#'   system and user metadata. Object summary caches are cleared. Translation
-#'   provenance is retained in `meta$user$quallmer$translation`, and coding
-#'   metadata in `meta$user$quallmer$coding`. Character input converts to a
-#'   corpus with no user docvars and system metadata recording its creation by
-#'   quallmer. Quanteda remains optional and is not needed for translation.
+#'   For a corpus input, the document variables and metadata are kept, and
+#'   `quanteda::corpus(x)` (see [corpus.qlm_translation()]) returns a corpus of
+#'   the translated texts with them restored.
 #' @examples
 #' \dontrun{
 #' # Reads DEEPL_API_KEY, or supply api_key = keyring::key_get("deepl")
 #' translated <- qlm_translate(c(speech = "Bonjour tout le monde."),
 #'   model = "deepl/quality_optimized", target_lang = "en-GB")
-#' coded <- qlm_code(translated, codebook_sentiment,
+#' coded <- qlm_code(translated, data_codebook_sentiment,
 #'   model = "openai/gpt-4o-mini")
 #' qlm_trail(coded, path = "translation_trail")
 #'
@@ -183,7 +176,7 @@
 #'   model = "dashscope/qwen-mt-plus", target_lang = "en-GB",
 #'   context = "Greetings in everyday conversation.",
 #'   params = ellmer::params(temperature = 0.1))
-#' translated_qwen$translation
+#' translated_qwen
 #'
 #' # Google: reads GOOGLE_TRANSLATE_API_KEY, falling back to the optional
 #' # keyring entry saved with keyring::key_set("google-translate")
@@ -191,9 +184,9 @@
 #'   model = "google-translate/translation-llm", target_lang = "en-GB",
 #'   project_id = "your-google-cloud-project-id")
 #' # Alternatively, set GOOGLE_CLOUD_PROJECT and omit project_id.
-#' qlm_meta(translated_google, "quallmer")$translation
+#' attr(translated_google, "provenance")
 #'
-#' # Convert the translated text field to a corpus, if quanteda is installed
+#' # Convert to a quanteda corpus, if quanteda is installed
 #' quanteda::corpus(translated_google)
 #' }
 #' @export
@@ -206,7 +199,7 @@ qlm_translate <- function(x, model, target_lang = "en", source_lang = NULL,
                           project_id = NULL, region = "us-central1", ...) {
   rlang::check_dots_empty()
   on_error <- rlang::arg_match(on_error)
-  if ((!is.character(x) && !inherits(x, "qlm_translation")) || !length(translation_texts(x))) {
+  if (!is.character(x) || !length(x)) {
     cli::cli_abort("{.arg x} must be a non-empty character vector of texts.")
   }
   if (missing(model) || !rlang::is_string(model) || !nzchar(model)) {
@@ -240,13 +233,13 @@ qlm_translate <- function(x, model, target_lang = "en", source_lang = NULL,
   if (!is.null(chunk_size) && !is_count(chunk_size, 1L)) {
     cli::cli_abort("{.arg chunk_size} must be a positive whole number.")
   }
-  ids <- translation_ids(x) %||% paste0("text", seq_along(translation_texts(x)))
+  ids <- names(x) %||% paste0("text", seq_along(x))
   check_ids(ids, what = "The names of {.arg x}")
   corpus_attributes <- translation_corpus_attributes(x)
   history <- preprocessing_history(x)
   input_errors <- if (is_qlm_preprocessed(x)) {
-    if (is_qlm_translation(x)) translation_provenance(x)$.error else attr(x, "provenance")$.error
-  } else rep(NA_character_, length(translation_texts(x)))
+    attr(x, "provenance")$.error
+  } else rep(NA_character_, length(x))
   source <- translation_texts(x)
   if (anyNA(source) && on_error == "stop") {
     cli::cli_abort("Translation failed: source text is missing.")
@@ -316,9 +309,7 @@ qlm_translate <- function(x, model, target_lang = "en", source_lang = NULL,
   provenance$settings <- rep(list(settings), length(source))
   provenance$attempts <- result$attempts
   provenance$history <- history
-  out <- new_qlm_translation(result$text, provenance,
-    docvars = corpus_attributes$docvars, meta = corpus_attributes$meta,
-    data = x, call = match.call())
+  out <- new_qlm_translation(result$text, provenance, corpus_attributes)
   failed <- provenance$status == "failed"
   if (any(failed)) {
     cli::cli_warn(c("{sum(failed)} of {length(source)} translation{?s} failed.",
