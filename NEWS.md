@@ -10,7 +10,7 @@
 
 * Fixed a test that matched the summary line quanteda prints for corpus objects
   and failed with quanteda 4.5.1, which changed that format. The test now
-  accepts both formats. There are no changes to the package code.
+  accepts both formats.
 
 # quallmer 0.5.0
 
