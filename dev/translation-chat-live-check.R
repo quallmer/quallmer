@@ -40,7 +40,7 @@ runs <- list(
 for (name in names(runs)) {
   out <- runs[[name]]
   provenance <- attr(out, "provenance")
-  attempts <- unlist(provenance$attempts, recursive = FALSE)
+  attempts <- do.call(rbind, provenance$attempts)
   stopifnot(
     inherits(out, "qlm_translation"),
     identical(names(out), names(french_texts)),
@@ -52,12 +52,11 @@ for (name in names(runs)) {
       lengths(regmatches(french_texts, gregexpr("\n\n", french_texts, fixed = TRUE)))
     )
   )
-  requests <- sum(vapply(attempts, function(a) !is.null(a$usage), logical(1)))
-  cat("\n==", name, "-", requests, "request(s) for", length(attempts), "segment attempt(s)\n")
+  requests <- sum(!is.na(attempts$input_tokens))
+  cat("\n==", name, "-", requests, "request(s) for", nrow(attempts), "segment attempt(s)\n")
   print(as.character(out))
 }
 stopifnot(
-  any(vapply(unlist(attr(runs$grouped, "provenance")$attempts, recursive = FALSE),
-             function(a) !is.null(a$neighbouring_context), logical(1)))
+  any(!is.na(do.call(rbind, attr(runs$grouped, "provenance")$attempts)$neighbouring_context))
 )
 cat("\nAll live chat translation checks passed.\n")

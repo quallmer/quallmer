@@ -28,10 +28,11 @@ test_that("Qwen-MT uses native options, groups paragraphs and preserves provenan
   expect_equal(p$adapter, rep("qwen-mt", 2))
   expect_true(all(is.na(p$detected_language)))
   expect_equal(p$reported_model, rep("qwen-mt-plus", 2))
-  expect_equal(p$attempts[[1]][[1]]$group_size, 2)
-  expect_equal(p$attempts[[1]][[1]]$usage$total_tokens, 10)
-  expect_null(p$attempts[[1]][[2]]$usage)
-  expect_null(p$attempts[[1]][[2]]$neighbouring_context)
+  attempts <- p$attempts[[1]]
+  expect_equal(attempts$group_size[1], 2)
+  expect_equal(attempts$input_tokens[1] + attempts$output_tokens[1], 10)
+  expect_true(is.na(attempts$input_tokens[2]))
+  expect_true(is.na(attempts$neighbouring_context[2]))
   expect_false(grepl("qwen-test-key", paste(capture.output(str(p)), collapse = ""), fixed = TRUE))
 })
 
@@ -44,17 +45,17 @@ test_that("Qwen-MT reduces rejected paragraph groups and retains rejected attemp
     }
     httr2::response_json(body = list(model = "qwen-mt-plus", id = "group-request",
       choices = list(list(message = list(content = text), finish_reason = "stop")),
-      usage = list(total_tokens = 10)))
+      usage = list(prompt_tokens = 5, completion_tokens = 5, total_tokens = 10)))
   })
   input <- c(a = "one\n\ntwo\n\nthree\n\nfour")
   out <- qlm_translate(input, "dashscope/qwen-mt-plus")
   expect_identical(as.character(out), input)
   expect_length(seen$requests, 3)
   attempts <- translation_provenance(out)$attempts[[1]]
-  expect_length(attempts, 8)
-  expect_equal(sum(vapply(attempts, function(x) x$usage$total_tokens %||% 0, 0)), 20)
-  expect_equal(sum(vapply(attempts, function(x) !is.na(x$error), logical(1))), 4)
-  expect_equal(attempts[[1]]$group_size, 4)
+  expect_equal(nrow(attempts), 8)
+  expect_equal(sum(attempts$input_tokens + attempts$output_tokens, na.rm = TRUE), 20)
+  expect_equal(sum(!is.na(attempts$error)), 4)
+  expect_equal(attempts$group_size[1], 4)
 })
 
 test_that("Qwen-MT can reduce an oversized individual paragraph more than twice", {
@@ -72,7 +73,7 @@ test_that("Qwen-MT can reduce an oversized individual paragraph more than twice"
   expect_identical(as.character(out), input)
   expect_length(seen$requests, 15)
   attempts <- translation_provenance(out)$attempts[[1]]
-  expect_equal(max(vapply(attempts, `[[`, 0L, "reduction")), 3)
+  expect_equal(max(attempts$reduction), 3)
 })
 
 test_that("Qwen-MT preserves boundaries when translated whitespace changes", {
@@ -85,7 +86,7 @@ test_that("Qwen-MT preserves boundaries when translated whitespace changes", {
   out <- qlm_translate(input, "dashscope/qwen-mt-plus")
   expect_identical(as.character(out), input)
   expect_length(seen$requests, 1)
-  expect_true(is.na(translation_provenance(out)$attempts[[1]][[1]]$error))
+  expect_true(is.na(translation_provenance(out)$attempts[[1]]$error[1]))
 })
 
 test_that("Qwen-MT does not reduce unrelated HTTP 400s and redacts keys", {
@@ -172,7 +173,7 @@ test_that("Qwen-MT retries lost boundary markers as smaller groups", {
   out <- qlm_translate(input, "dashscope/qwen-mt-plus")
   expect_identical(as.character(out), input)
   expect_length(seen$requests, 3)
-  expect_match(translation_provenance(out)$attempts[[1]][[1]]$error, "boundary markers")
+  expect_match(translation_provenance(out)$attempts[[1]]$error[1], "boundary markers")
 })
 
 test_that("terminal translation errors retain the document ID and attempts", {
@@ -208,7 +209,7 @@ test_that("Qwen-MT repairs protected markers without repeating a successful grou
   out <- qlm_translate(input, "dashscope/qwen-mt-plus", protect = "TERM")
   expect_identical(as.character(out), input)
   expect_length(seen$requests, 2)
-  expect_match(translation_provenance(out)$attempts[[1]][[1]]$error, "markers")
+  expect_match(translation_provenance(out)$attempts[[1]]$error[1], "markers")
 })
 
 test_that("Qwen-MT reduces truncated groups and accounts for every attempt", {
@@ -217,15 +218,15 @@ test_that("Qwen-MT reduces truncated groups and accounts for every attempt", {
     finish <- if (grepl("\n\n", text, fixed = TRUE)) "length" else "stop"
     httr2::response_json(body = list(choices = list(list(
       message = list(content = text), finish_reason = finish)),
-      usage = list(total_tokens = 10)))
+      usage = list(prompt_tokens = 5, completion_tokens = 5, total_tokens = 10)))
   })
   input <- c(a = "one\n\ntwo")
   out <- qlm_translate(input, "dashscope/qwen-mt-plus")
   expect_identical(as.character(out), input)
   expect_length(seen$requests, 3)
   attempts <- translation_provenance(out)$attempts[[1]]
-  expect_match(attempts[[1]]$error, "output token limit")
-  expect_equal(sum(vapply(attempts, function(x) x$usage$total_tokens %||% 0, 0)), 30)
+  expect_match(attempts$error[1], "output token limit")
+  expect_equal(sum(attempts$input_tokens + attempts$output_tokens, na.rm = TRUE), 30)
 })
 
 test_that("Qwen-MT return policy withholds later group repairs after a failure", {
@@ -265,5 +266,5 @@ test_that("stopping group repair retains the rejected parent for unprocessed par
     "dashscope/qwen-mt-plus", on_error = "return"), "1 of 1")
   expect_length(seen$requests, 2)
   attempts <- translation_provenance(out)$attempts[[1]]
-  expect_equal(sum(vapply(attempts, function(x) x$group_size == 4L, logical(1))), 4)
+  expect_equal(sum(attempts$group_size == 4L), 4)
 })

@@ -345,20 +345,22 @@ compact_preprocessing_step <- function(step) {
   row <- step$provenance
   row$source_text <- NULL
   if ("attempts" %in% names(row)) {
-    row$attempts[[1]] <- lapply(row$attempts[[1]], compact_translation_attempt)
+    row$attempts[[1]] <- compact_translation_attempts(row$attempts[[1]])
   }
   step$provenance <- row
   step
 }
 
-compact_translation_attempt <- function(attempt) {
-  context <- attempt[["neighbouring_context", exact = TRUE]]
-  if (!is.null(context)) {
-    attempt$neighbouring_context_hash <- translation_hash(context)
+# A coding run keeps hashes of the source text, not the text: the context a
+# request was given is replaced by its hash.
+compact_translation_attempts <- function(attempts) {
+  if (!"neighbouring_context" %in% names(attempts)) {
+    return(attempts)
   }
-  attempt$neighbouring_context <- NULL
-  attempt$markers <- NULL
-  attempt
+  attempts$neighbouring_context_hash <- vapply(attempts$neighbouring_context,
+    translation_hash, "", USE.NAMES = FALSE)
+  attempts$neighbouring_context <- NULL
+  attempts
 }
 
 preprocessing_record <- function(x) {

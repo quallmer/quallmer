@@ -71,7 +71,7 @@ test_that("Google sends complete documents and records detection without credent
   expect_equal(provenance$reported_model, rep("translation-llm", 2))
   expect_equal(provenance$settings[[1]]$text_unit, "document")
   expect_false(grepl("google-test-key", paste(capture.output(str(provenance)), collapse = "")))
-  expect_length(provenance$attempts[[1]], 1)
+  expect_equal(nrow(provenance$attempts[[1]]), 1)
 })
 
 test_that("Google keeps protection markers, explicit languages and corpus metadata", {
@@ -113,7 +113,7 @@ test_that("six multi-paragraph documents require six Google requests", {
   result <- qlm_translate(input, "google-translate/translation-llm")
   expect_length(seen$requests, 6)
   expect_identical(unname(as.character(result)), unname(input))
-  expect_equal(lengths(translation_provenance(result)$attempts), rep(1L, 6))
+  expect_equal(vapply(translation_provenance(result)$attempts, nrow, 1L), rep(1L, 6))
 })
 
 test_that("Google splits only oversized documents within character and byte limits", {

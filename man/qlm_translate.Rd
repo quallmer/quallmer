@@ -119,7 +119,10 @@ document, with \code{NA} for each translation that failed or was not
 submitted. Its \code{"provenance"} attribute is a data frame with one row per
 text: the source text and its hash, the output hash, requested and
 reported models, languages, adapter, settings, status, error, timestamp,
-the attempts made and any earlier preprocessing history.
+any earlier preprocessing history, and \code{attempts}: for each text, a data
+frame with one row per request attempt, giving the segment, any error,
+the reductions made, and usage (tokens and cost, or DeepL's billed
+characters).
 
 Subsetting with \code{[}, renaming, and \code{c()} keep the provenance aligned.
 Assigning plain text records an edit; assigning another

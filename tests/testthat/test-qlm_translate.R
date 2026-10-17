@@ -11,7 +11,7 @@ test_that("chat translation preserves structure, identifiers and provenance", {
   expect_equal(prov$status, rep("ok", 2))
   expect_equal(prov$detected_language, rep(NA_character_, 2))
   expect_equal(prov$source_hash, vapply(unname(x), translation_hash, "", USE.NAMES = FALSE))
-  expect_equal(lengths(prov$attempts), c(2, 1))
+  expect_equal(vapply(prov$attempts, nrow, 1L), c(2, 1))
   expect_equal(prov$settings[[1]]$params$max_tokens, 100)
   expect_equal(prov$settings[[1]]$chunk_size, 200)
   # Both paragraphs of a document go in one request, by ID; usage is
@@ -23,9 +23,9 @@ test_that("chat translation preserves structure, identifiers and provenance", {
   expect_equal(vapply(seen$units[[1]]$paragraphs, `[[`, "", "id"), c("1", "2"))
   expect_length(seen$units[[2]]$paragraphs, 1)
   attempts <- prov$attempts[[1]]
-  expect_gt(attempts[[1]]$usage$input_tokens, 0)
-  expect_null(attempts[[2]]$usage)
-  expect_identical(attempts[[1]]$group_size, 2L)
+  expect_gt(attempts$input_tokens[1], 0)
+  expect_true(is.na(attempts$input_tokens[2]))
+  expect_identical(attempts$group_size, c(2L, 2L))
 })
 
 test_that("chat groups respect the size budget and carry the preceding text", {
@@ -37,7 +37,7 @@ test_that("chat groups respect the size budget and carry the preceding text", {
   expect_equal(lengths(lapply(seen$units, `[[`, "paragraphs")), c(3, 3, 3, 1))
   expect_null(seen$units[[1]]$preceding_source_text)
   expect_equal(seen$units[[2]]$preceding_source_text, "Paragraph 03.")
-  expect_equal(attr(out, "provenance")$attempts[[1]][[4]]$neighbouring_context, "Paragraph 03.")
+  expect_equal(attr(out, "provenance")$attempts[[1]]$neighbouring_context[4], "Paragraph 03.")
 })
 
 test_that("a group with wrong paragraph IDs is halved", {
@@ -59,8 +59,8 @@ test_that("a group with wrong paragraph IDs is halved", {
   expect_identical(unname(as.character(out)), doc)
   expect_equal(calls, 2)
   attempts <- attr(out, "provenance")$attempts[[1]]
-  expect_match(attempts[[1]]$error, "paragraph IDs")
-  expect_equal(attempts[[2]]$group_reduction, 1L)
+  expect_match(attempts$error[1], "paragraph IDs")
+  expect_equal(attempts$group_reduction[2], 1L)
 })
 
 test_that("a truncated group is halved before a single segment is", {
@@ -80,9 +80,9 @@ test_that("a truncated group is halved before a single segment is", {
   expect_identical(unname(as.character(out)), doc)
   expect_equal(calls, 2)
   attempts <- attr(out, "provenance")$attempts[[1]]
-  expect_match(attempts[[1]]$error, "max_tokens|output")
-  expect_identical(attempts[[1]]$finish, "max_tokens")
-  expect_equal(attempts[[1]]$reduction, 0L)
+  expect_match(attempts$error[1], "max_tokens|output")
+  expect_identical(attempts$finish[1], "max_tokens")
+  expect_equal(attempts$reduction[1], 0L)
 })
 
 test_that("DeepL translation runs with XML protection and no secret in provenance", {
@@ -98,7 +98,7 @@ test_that("DeepL translation runs with XML protection and no secret in provenanc
   prov <- translation_provenance(out)
   expect_equal(prov$detected_language, c("FR", "FR"))
   expect_equal(prov$base_url, rep("https://api-free.deepl.com", 2))
-  expect_true(all(vapply(prov$attempts, function(a) a[[1]]$usage$billed_characters > 0, logical(1))))
+  expect_true(all(vapply(prov$attempts, function(a) a$billed_characters[1] > 0, logical(1))))
   expect_false(grepl("secret:fx", paste(capture.output(str(prov)), collapse = ""), fixed = TRUE))
 })
 
@@ -129,10 +129,9 @@ test_that("DeepL sends whole documents while retaining local whitespace and mark
   expect_length(xml2::xml_find_all(xml, ".//p"), 2)
   expect_length(xml2::xml_find_all(xml, ".//keep"), 2)
   attempts <- translation_provenance(out)$attempts[[1]]
-  expect_null(attempts[[1]]$neighbouring_context)
-  expect_null(attempts[[2]]$neighbouring_context)
-  expect_gt(attempts[[1]]$usage$billed_characters, 0)
-  expect_null(attempts[[2]]$usage$billed_characters)
+  expect_true(all(is.na(attempts$neighbouring_context)))
+  expect_gt(attempts$billed_characters[1], 0)
+  expect_true(is.na(attempts$billed_characters[2]))
 })
 
 test_that("many-paragraph documents fit in a single DeepL request", {
@@ -143,7 +142,7 @@ test_that("many-paragraph documents fit in a single DeepL request", {
   expect_identical(as.character(out), input)
   expect_length(seen$requests, 1)
   expect_length(seen$requests[[1]]$body$data$text, 3)
-  expect_equal(lengths(translation_provenance(out)$attempts), rep(82, 3))
+  expect_equal(vapply(translation_provenance(out)$attempts, nrow, 1L), rep(82L, 3))
 })
 
 test_that("empty and missing sources need no translation requests", {
@@ -163,7 +162,7 @@ test_that("protection failures get one repair and never return partial translati
   out <- qlm_translate("TERM", "openai/test", protect = "TERM")
   expect_equal(unname(as.character(out)), "TERM")
   expect_equal(calls, 2)
-  expect_length(translation_provenance(out)$attempts[[1]], 2)
+  expect_equal(nrow(translation_provenance(out)$attempts[[1]]), 2)
 })
 
 test_that("content repairs are sent together rather than one at a time", {
@@ -177,7 +176,7 @@ test_that("content repairs are sent together rather than one at a time", {
   expect_identical(as.character(out), c(a = "TERM one", b = "TERM two", c = "TERM three"))
   expect_equal(seen$calls, 2)
   expect_length(seen$prompts, 6)
-  expect_equal(lengths(attr(out, "provenance")$attempts), c(2, 2, 2))
+  expect_equal(vapply(attr(out, "provenance")$attempts, nrow, 1L), c(2L, 2L, 2L))
 })
 
 test_that("a DeepL document with a changed structure is halved to isolate the problem", {
@@ -202,13 +201,13 @@ test_that("a DeepL document with a changed structure is halved to isolate the pr
   # the whole document and its first half, paragraph 7 each part down to
   # the pair it shared with paragraph 6.
   attempts <- attr(out, "provenance")$attempts[[1]]
-  failures <- vapply(attempts, function(a) !is.na(a$error), logical(1))
-  paragraph <- vapply(attempts, `[[`, integer(1), "paragraph")
+  failures <- !is.na(attempts$error)
+  paragraph <- attempts$paragraph
   expect_equal(sum(failures & paragraph == 1L), 2)
   expect_equal(sum(failures & paragraph == 11L), 1)
   expect_equal(sum(failures & paragraph == 7L), 4)
   expect_equal(sum(!failures), 20)
-  expect_equal(max(vapply(attempts, function(a) a$group_reduction %||% 0L, integer(1))), 4)
+  expect_equal(max(attempts$group_reduction, na.rm = TRUE), 4)
 })
 
 test_that("a DeepL structure failure in both halves is not split further or retried", {
@@ -240,10 +239,10 @@ test_that("truncation is retried smaller with all attempts recorded", {
   out <- qlm_translate("abcdefghij", "openai/test", chunk_size = 20)
   expect_equal(unname(as.character(out)), "abcdefghij")
   attempts <- translation_provenance(out)$attempts[[1]]
-  expect_length(attempts, 3)
-  expect_equal(vapply(attempts, `[[`, integer(1), "reduction"), c(0L, 1L, 1L))
-  expect_match(attempts[[1]]$error, "token limit")
-  expect_true(is.na(attempts[[2]]$error))
+  expect_equal(nrow(attempts), 3)
+  expect_equal(attempts$reduction, c(0L, 1L, 1L))
+  expect_match(attempts$error[1], "token limit")
+  expect_true(is.na(attempts$error[2]))
 })
 
 test_that("unsupported parameter warnings are deduplicated and recorded", {
@@ -255,7 +254,7 @@ test_that("unsupported parameter warnings are deduplicated and recorded", {
     params = ellmer::params(reasoning_tokens = 10)), "Ignoring unsupported parameters")
   prov <- translation_provenance(out)
   expect_equal(prov$settings[[1]]$params$reasoning_tokens, 10)
-  expect_equal(prov$attempts[[1]][[1]]$warnings, "Ignoring unsupported parameters: reasoning_tokens")
+  expect_equal(prov$attempts[[1]]$warnings[1], "Ignoring unsupported parameters: reasoning_tokens")
 })
 
 test_that("transport failures remain aligned with their documents", {
@@ -308,10 +307,10 @@ test_that("repeated translation compacts every stage before copying to a coded r
   expect_length(steps, 2)
   for (step in steps) {
     expect_null(step$provenance$source_text)
-    for (attempt in step$provenance$attempts[[1]]) {
-      expect_null(attempt[["neighbouring_context", exact = TRUE]])
-      expect_null(attempt$markers)
-    }
+    attempts <- step$provenance$attempts[[1]]
+    expect_s3_class(attempts, "data.frame")
+    expect_false("neighbouring_context" %in% names(attempts))
+    expect_true("neighbouring_context_hash" %in% names(attempts))
   }
 })
 
@@ -349,7 +348,7 @@ test_that("malformed DeepL output is retried once and preserves attempted usage"
   })
   out <- qlm_translate("Bonjour", "deepl/quality_optimized", api_key = "test")
   expect_equal(unname(as.character(out)), "Bonjour")
-  expect_length(translation_provenance(out)$attempts[[1]], 2)
+  expect_equal(nrow(translation_provenance(out)$attempts[[1]]), 2)
   expect_equal(calls, 2)
 })
 

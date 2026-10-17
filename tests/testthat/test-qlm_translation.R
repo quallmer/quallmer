@@ -108,3 +108,18 @@ test_that("translation provenance contains no literal API key", {
   out <- qlm_translate("Bonjour", "deepl/quality_optimized", api_key = "literal-secret")
   expect_false(grepl("literal-secret", paste(capture.output(dput(attributes(out))), collapse = "")))
 })
+
+test_that("a translation stays within a few times the size of its source", {
+  mock_translation_chat()
+  sentence <- paste(rep("Une phrase assez longue pour le test.", 10), collapse = " ")
+  source <- vapply(1:20, function(d) {
+    paste(paste(d, seq_len(20), sentence), collapse = "\n\n")
+  }, "")
+  names(source) <- paste0("d", 1:20)
+  out <- qlm_translate(source, "openai/test", protect = "test")
+  attempts <- attr(out, "provenance")$attempts[[1]]
+  expect_s3_class(attempts, "data.frame")
+  expect_equal(nrow(attempts), 20)
+  ratio <- as.numeric(object.size(out)) / sum(nchar(source, "bytes"))
+  expect_lt(ratio, 5)
+})

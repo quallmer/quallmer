@@ -161,7 +161,10 @@
 #'   submitted. Its `"provenance"` attribute is a data frame with one row per
 #'   text: the source text and its hash, the output hash, requested and
 #'   reported models, languages, adapter, settings, status, error, timestamp,
-#'   the attempts made and any earlier preprocessing history.
+#'   any earlier preprocessing history, and `attempts`: for each text, a data
+#'   frame with one row per request attempt, giving the segment, any error,
+#'   the reductions made, and usage (tokens and cost, or DeepL's billed
+#'   characters).
 #'
 #'   Subsetting with `[`, renaming, and `c()` keep the provenance aligned.
 #'   Assigning plain text records an edit; assigning another
@@ -321,7 +324,7 @@ qlm_translate <- function(x, model, target_lang = "en", source_lang = NULL,
     is.na(input_errors[missing_input]), "source text is missing", input_errors[missing_input]
   )
   provenance$settings <- rep(list(settings), length(source))
-  provenance$attempts <- result$attempts
+  provenance$attempts <- lapply(result$attempts, translation_attempts_table)
   provenance$history <- history
   out <- new_qlm_translation(result$text, provenance, corpus_attributes)
   failed <- provenance$status == "failed"
@@ -352,4 +355,55 @@ translation_detected_languages <- function(attempts) {
   values <- unique(unlist(lapply(attempts, `[[`, "detected_language")))
   values <- values[!is.na(values)]
   if (length(values)) paste(values, collapse = ", ") else NA_character_
+}
+
+# One row per request attempt for a document, rather than one list each:
+# a list of some 25 scalars per attempt made a translation about 12 times
+# the size of its source. Usage is spread over the columns the providers
+# share, tokens and cost for chat models and Qwen-MT, billed characters for
+# DeepL. The protected-term map is not kept per attempt, since the source
+# text and `settings$protect` reproduce it.
+translation_attempts_table <- function(attempts) {
+  field <- function(name, type, as) {
+    vapply(attempts, function(attempt) {
+      value <- attempt[[name, exact = TRUE]]
+      if (is.null(value) || !length(value)) as(NA) else as(value[[1]])
+    }, type)
+  }
+  usage <- function(keys) {
+    vapply(attempts, function(attempt) {
+      for (key in keys) {
+        value <- attempt$usage[[key, exact = TRUE]]
+        if (!is.null(value) && length(value) && !is.na(value[[1]])) return(as.numeric(value[[1]]))
+      }
+      NA_real_
+    }, numeric(1))
+  }
+  data.frame(
+    paragraph = field("paragraph", integer(1), as.integer),
+    segment = field("segment", integer(1), as.integer),
+    start = field("start", integer(1), as.integer),
+    end = field("end", integer(1), as.integer),
+    split = field("split", character(1), as.character),
+    reduction = field("reduction", integer(1), as.integer),
+    group_reduction = field("group_reduction", integer(1), as.integer),
+    group_size = field("group_size", integer(1), as.integer),
+    finish = field("finish", character(1), as.character),
+    error = field("error", character(1), as.character),
+    protection_ok = field("protection_ok", logical(1), as.logical),
+    reported_model = field("reported_model", character(1), as.character),
+    detected_language = field("detected_language", character(1), as.character),
+    request_id = field("request_id", character(1), as.character),
+    input_tokens = usage(c("input_tokens", "prompt_tokens")),
+    output_tokens = usage(c("output_tokens", "completion_tokens")),
+    cached_input_tokens = usage("cached_input_tokens"),
+    cost = usage("cost"),
+    billed_characters = usage("billed_characters"),
+    warnings = vapply(attempts, function(attempt) {
+      if (length(attempt$warnings)) paste(attempt$warnings, collapse = "\n") else NA_character_
+    }, character(1)),
+    neighbouring_context = field("neighbouring_context", character(1), as.character),
+    timestamp = as.POSIXct(field("timestamp", numeric(1), as.numeric), origin = "1970-01-01"),
+    stringsAsFactors = FALSE
+  )
 }
