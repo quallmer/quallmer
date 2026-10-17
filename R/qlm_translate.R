@@ -17,7 +17,8 @@
 #' @param target_lang Target language, as a BCP 47 language tag such as
 #'   `"en"`, `"en-GB"`, `"pt-BR"` or `"zh-Hant"`. See "Language codes".
 #' @param source_lang Source language, as a BCP 47 language tag, or `NULL`
-#'   for the provider to detect it.
+#'   for the provider to detect it. Set it whenever you know it: see
+#'   "Unsupported languages".
 #' @param instructions Character vector of translation directives, such as a
 #'   register to use or how to treat names.
 #' @param context One string of background about the texts, to inform the
@@ -107,6 +108,23 @@
 #'   Chinese; a regional variant such as `en-GB` is requested in its
 #'   instructions instead.
 #' * Chat models receive the tag as given.
+#'
+#' ## Unsupported languages
+#'
+#' Language detection fails silently. Given text in a language it does not
+#' support, every provider tested, DeepL, Google, Qwen-MT and a chat model,
+#' returned a fluent but invented English text, recorded as `"ok"`; DeepL and
+#' Google reported a wrong detected language (Swahili for Kimbundu). With
+#' `source_lang` set, DeepL, Google and Qwen-MT instead refuse an unsupported
+#' language, and the text is `NA` with the provider's reason. Chat models do
+#' not refuse, and may invent a translation even when told the source
+#' language.
+#'
+#' So set `source_lang` whenever the source language is known, and when it is
+#' not, check the recorded `detected_language` against what you expect. For a
+#' corpus in several languages, translate each language with its own call and
+#' combine the results with `c()`. Results that look fluent are not evidence
+#' of a correct translation.
 #'
 #' ## API keys
 #'

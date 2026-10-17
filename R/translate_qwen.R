@@ -185,6 +185,10 @@ parse_qwen_translation <- function(response, n, key, boundaries = NULL) {
   bad_http <- inherits(response, "error") || httr2::resp_status(response) >= 400L
   if (bad_http && !rlang::is_string(message)) message <- "Qwen-MT request failed"
   if (rlang::is_string(message)) message <- gsub(key, "[REDACTED]", strip_ansi(message), fixed = TRUE)
+  # Qwen-MT reports an unsupported language only in Chinese
+  if (rlang::is_string(message) && grepl("\u4e0d\u652f\u6301\u5f53\u524d\u8bbe\u7f6e\u7684\u8bed\u79cd", message)) {
+    message <- paste0("Qwen-MT does not support the requested source or target language (", message, ")")
+  }
   input_limit <- bad_http && !inherits(response, "error") &&
     httr2::resp_status(response) == 400L && rlang::is_string(message) &&
     grepl("Range of input length should be \\[1, ?[0-9]+\\]", message)

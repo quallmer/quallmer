@@ -89,6 +89,16 @@ test_that("Qwen-MT preserves boundaries when translated whitespace changes", {
   expect_true(is.na(translation_provenance(out)$attempts[[1]]$error[1]))
 })
 
+test_that("Qwen-MT reports an unsupported language in English", {
+  mock_translation_qwen(function(body) {
+    httr2::response_json(status_code = 400, body = list(error = list(
+      message = "\u6682\u65f6\u4e0d\u652f\u6301\u5f53\u524d\u8bbe\u7f6e\u7684\u8bed\u79cd\uff01")))
+  })
+  expect_warning(out <- qlm_translate(c(a = "Text"), "dashscope/qwen-mt-plus", source_lang = "kmb"),
+                 "does not support")
+  expect_match(attr(out, "provenance")$.error, "does not support the requested source or target language")
+})
+
 test_that("Qwen-MT does not reduce unrelated HTTP 400s and redacts keys", {
   seen <- mock_translation_qwen(function(body) httr2::response_json(
     status_code = 400, body = list(error = list(message = "Invalid target qwen-test-key"))))
