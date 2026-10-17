@@ -114,7 +114,7 @@ An explicit argument also lets you use your own environment-variable name:
 greeting <- qlm_translate(
   c(fr = "Bonjour, comment allez-vous ?"),
   model = "google-translate/translation-llm",
-  target_lang = "en-GB",
+  to = "en-GB",
   project_id = "your-project-id",
   api_key = Sys.getenv("MY_TRANSLATION_KEY")
 )
@@ -129,7 +129,7 @@ project environment variable and resolves the API key automatically:
 greetings <- qlm_translate(
   c(fr = "Bonjour tout le monde.", de = "Guten Morgen."),
   model = "google-translate/translation-llm",
-  target_lang = "en-GB"
+  to = "en-GB"
 )
 greetings
 ```
@@ -175,14 +175,14 @@ translation.
 
 ## Translate the corpus into English
 
-Omit `source_lang` to let Google detect each document's language independently:
+Omit `from` to let Google detect each document's language independently:
 
 ```{r translate-udhr, eval=run_live}
 google_timing <- system.time(
   google_translated <- qlm_translate(
     udhr,
     model = "google-translate/translation-llm",
-    target_lang = "en-GB",
+    to = "en-GB",
     on_error = "continue"
   )
 )
@@ -203,8 +203,8 @@ according to `rpm`. It splits a larger document only when needed to fit its
 Google handles paragraph formatting; exact original blank-line separators are
 not guaranteed.
 
-`source_lang` is a call-wide setting. For a homogeneous selection you can supply,
-for example, `source_lang = "fr"`; automatic source-language detection is then
+`from` is a call-wide setting. For a homogeneous selection you can supply,
+for example, `from = "fr"`; automatic source-language detection is then
 not performed. Leave it unset for this six-language selection.
 
 The model location defaults to `region = "us-central1"`; pass another as
@@ -349,7 +349,7 @@ if (any(failed)) {
   retried <- qlm_translate(
     inputs(google_translated)[failed],
     model = "google-translate/translation-llm",
-    target_lang = "en-GB",
+    to = "en-GB",
     on_error = "continue"
   )
   google_translated[failed] <- retried

@@ -6,7 +6,7 @@ test_that("DeepL combines custom instructions, context and XML protection", {
   skip_if(!nzchar(Sys.getenv("DEEPL_API_KEY")), "DEEPL_API_KEY is not set")
   skip_if_offline()
   out <- qlm_translate(c(example = "Bonjour de quallmer.\n\nMerci beaucoup."),
-    model = "deepl/quality_optimized", source_lang = "fr", target_lang = "en-GB",
+    model = "deepl/quality_optimized", from = "fr", to = "en-GB",
     protect = "quallmer", instructions = "Preserve the original register.",
     context = "A short greeting from a research software project.", on_error = "stop")
   expect_match(unname(as.character(out)), "quallmer", fixed = TRUE)

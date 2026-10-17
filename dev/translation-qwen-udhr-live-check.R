@@ -16,7 +16,7 @@ qwen_timing <- system.time(
   qwen_translated <- qlm_translate(
     udhr,
     model = "dashscope/qwen-mt-plus",
-    target_lang = "en-GB",
+    to = "en-GB",
     context = "Universal Declaration of Human Rights.",
     params = ellmer::params(temperature = 0.1),
     # Keep successful translations and failure details for inspection.

@@ -6,9 +6,9 @@ test_that("language tags are normalised and anything else is refused", {
   expect_identical(normalise_language_tag("yue", "x"), "yue")
   expect_null(normalise_language_tag(NULL, "x"))
   for (bad in c("English", "e", "en-GB-x-private", "en-", "en GB", "zh-Hant-TW-extra")) {
-    expect_error(normalise_language_tag(bad, "target_lang"), "language tag")
+    expect_error(normalise_language_tag(bad, "to"), "language tag")
   }
-  expect_error(normalise_language_tag("English", "target_lang"), "app-subtags")
+  expect_error(normalise_language_tag("English", "to"), "app-subtags")
 })
 
 test_that("DeepL receives its own codes and refuses variants it lacks", {
@@ -47,7 +47,7 @@ test_that("Google and Qwen-MT receive their own codes", {
 test_that("qlm_translate() normalises tags, records both codes and checks before requests", {
   seen <- mock_translation_deepl()
   out <- qlm_translate("Bonjour", "deepl/quality_optimized", api_key = "k",
-                       target_lang = "en_gb", source_lang = "FR")
+                       to = "en_gb", from = "FR")
   settings <- attr(out, "provenance")$settings[[1]]
   expect_identical(settings$target_lang, "en-GB")
   expect_identical(settings$provider_languages$target, "EN-GB")
@@ -55,8 +55,8 @@ test_that("qlm_translate() normalises tags, records both codes and checks before
   expect_equal(seen$requests[[1]]$body$data$target_lang, "EN-GB")
   expect_equal(seen$requests[[1]]$body$data$source_lang, "FR")
   expect_error(qlm_translate("Bonjour", "deepl/quality_optimized", api_key = "k",
-                             target_lang = "en-AU"), "no target variant")
-  expect_error(qlm_translate("Bonjour", "openai/test", target_lang = "English"), "language tag")
+                             to = "en-AU"), "no target variant")
+  expect_error(qlm_translate("Bonjour", "openai/test", to = "English"), "language tag")
   expect_length(seen$requests, 1)
 })
 

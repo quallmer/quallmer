@@ -29,11 +29,11 @@ french_texts <- c(
 # Whole documents per request, then a small budget that forces several
 # groups per document and passes the preceding text as context.
 runs <- list(
-  whole = qlm_translate(french_texts, model = model, source_lang = "fr",
-    target_lang = "en-GB", protect = c("quanteda", "quallmer"),
+  whole = qlm_translate(french_texts, model = model, from = "fr",
+    to = "en-GB", protect = c("quanteda", "quallmer"),
     context = "Public policy and social science research texts.", on_error = "stop"),
-  grouped = qlm_translate(french_texts, model = model, source_lang = "fr",
-    target_lang = "en-GB", protect = c("quanteda", "quallmer"),
+  grouped = qlm_translate(french_texts, model = model, from = "fr",
+    to = "en-GB", protect = c("quanteda", "quallmer"),
     chunk_size = 120, on_error = "stop")
 )
 

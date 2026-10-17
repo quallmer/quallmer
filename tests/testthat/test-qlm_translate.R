@@ -88,7 +88,7 @@ test_that("a truncated group is halved before a single segment is", {
 test_that("DeepL translation runs with XML protection and no secret in provenance", {
   seen <- mock_translation_deepl(function(text) sub("Bonjour", "Hello", text, fixed = TRUE))
   out <- qlm_translate(c(a = "Bonjour TERM", b = "Bonjour & <world>"),
-    model = "deepl/quality_optimized", target_lang = "en-GB", protect = "TERM",
+    model = "deepl/quality_optimized", to = "en-GB", protect = "TERM",
     instructions = "Keep the register.", context = "Interview", api_key = "secret:fx")
   expect_equal(as.character(out), c(a = "Hello TERM", b = "Hello & <world>"))
   expect_length(seen$requests, 1)

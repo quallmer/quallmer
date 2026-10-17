@@ -7,8 +7,8 @@
 qlm_translate(
   x,
   model,
-  target_lang = "en",
-  source_lang = NULL,
+  to = "en",
+  from = NULL,
   instructions = NULL,
   context = NULL,
   glossary = NULL,
@@ -34,10 +34,10 @@ Missing texts are recorded as failures without a request.}
 "Providers" for the translation services; any other \code{\link[ellmer:chat]{ellmer::chat()}}
 model translates through \code{\link[=qlm_code]{qlm_code()}}.}
 
-\item{target_lang}{Target language, as a BCP 47 language tag such as
+\item{to}{Target language, as a BCP 47 language tag such as
 \code{"en"}, \code{"en-GB"}, \code{"pt-BR"} or \code{"zh-Hant"}. See "Language codes".}
 
-\item{source_lang}{Source language, as a BCP 47 language tag, or \code{NULL}
+\item{from}{Source language, as a BCP 47 language tag, or \code{NULL}
 for the provider to detect it. Set it whenever you know it: see
 "Unsupported languages".}
 
@@ -113,7 +113,7 @@ transcripts. The result can be passed to \code{\link[=qlm_code]{qlm_code()}}; \c
 records translation as part of the coding instrument.
 \subsection{Providers}{
 
-\code{target_lang}, \code{source_lang} and \code{protect} work the same for every
+\code{to}, \code{from} and \code{protect} work the same for every
 provider. The other arguments depend on it; where a provider cannot honour
 one, using it is an error rather than being ignored.\tabular{lllll}{
     \tab DeepL \tab Qwen-MT \tab Google Translation LLM \tab Chat models \cr
@@ -142,7 +142,7 @@ can carry credentials.
 
 \subsection{Language codes}{
 
-\code{target_lang} and \code{source_lang} take BCP 47 language tags: an ISO 639
+\code{to} and \code{from} take BCP 47 language tags: an ISO 639
 language code (\code{"fr"}), optionally followed by an ISO 15924 script
 (\code{"zh-Hant"}) and an ISO 3166 region or UN M.49 area (\code{"pt-BR"},
 \code{"es-419"}). A plain language code is usually what you want; add a region
@@ -180,12 +180,12 @@ Language detection fails silently. Given text in a language it does not
 support, every provider tested, DeepL, Google, Qwen-MT and a chat model,
 returned a fluent but invented English text, recorded as \code{"ok"}; DeepL and
 Google reported a wrong detected language (Swahili for Kimbundu). With
-\code{source_lang} set, DeepL, Google and Qwen-MT instead refuse an unsupported
+\code{from} set, DeepL, Google and Qwen-MT instead refuse an unsupported
 language, and the text is \code{NA} with the provider's reason. Chat models do
 not refuse, and may invent a translation even when told the source
 language.
 
-So set \code{source_lang} whenever the source language is known, and when it is
+So set \code{from} whenever the source language is known, and when it is
 not, check the recorded \code{detected_language} against what you expect. For a
 corpus in several languages, translate each language with its own call and
 combine the results with \code{c()}. Results that look fluent are not evidence
@@ -235,7 +235,7 @@ coding.
 \dontrun{
 # Reads DEEPL_API_KEY, or supply api_key = keyring::key_get("deepl")
 translated <- qlm_translate(c(speech = "Bonjour tout le monde."),
-  model = "deepl/quality_optimized", target_lang = "en-GB")
+  model = "deepl/quality_optimized", to = "en-GB")
 coded <- qlm_code(translated, data_codebook_sentiment,
   model = "openai/gpt-4o-mini")
 qlm_trail(coded, path = "translation_trail")
@@ -244,7 +244,7 @@ texts <- c(fr = "Bonjour tout le monde.", de = "Guten Morgen.")
 
 # Qwen-MT: reads DASHSCOPE_API_KEY for the Singapore endpoint
 translated_qwen <- qlm_translate(texts,
-  model = "dashscope/qwen-mt-plus", target_lang = "en-GB",
+  model = "dashscope/qwen-mt-plus", to = "en-GB",
   context = "Greetings in everyday conversation.",
   params = ellmer::params(temperature = 0.1))
 translated_qwen
@@ -252,7 +252,7 @@ translated_qwen
 # Google: reads GOOGLE_TRANSLATE_API_KEY, falling back to the optional
 # keyring entry saved with keyring::key_set("google-translate")
 translated_google <- qlm_translate(texts,
-  model = "google-translate/translation-llm", target_lang = "en-GB",
+  model = "google-translate/translation-llm", to = "en-GB",
   project_id = "your-google-cloud-project-id")
 # Alternatively, set GOOGLE_CLOUD_PROJECT and omit project_id.
 attr(translated_google, "provenance")

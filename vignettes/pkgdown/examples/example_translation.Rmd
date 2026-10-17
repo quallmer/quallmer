@@ -58,7 +58,7 @@ setting up your chosen provider's credentials:
 translated <- qlm_translate(
   texts,
   model = translation_model,
-  target_lang = "en-GB",
+  to = "en-GB",
   on_error = "continue"
 )
 ```
@@ -94,12 +94,12 @@ Provenance retains source texts and hashes, requested settings and instructions,
 model responses and attempts. Providers differ in whether they report detected
 source languages.
 
-Set `source_lang` whenever you know the source language. Language detection
+Set `from` whenever you know the source language. Language detection
 fails silently: given text in a language they do not support, the providers
 tested returned fluent but invented translations, recorded as successful. With
-`source_lang` set, DeepL, Google and Qwen-MT refuse an unsupported language
+`from` set, DeepL, Google and Qwen-MT refuse an unsupported language
 instead, and the document is `NA` with the reason; chat models do not refuse.
-`source_lang` applies to the whole call, so for a corpus in several languages,
+`from` applies to the whole call, so for a corpus in several languages,
 translate each language separately and combine the results with `c()`. Here the
 corpus has a docvar `language` holding a tag such as `"fr"` for each document:
 
@@ -107,12 +107,12 @@ corpus has a docvar `language` holding a tag such as `"fr"` for each document:
 languages <- unique(quanteda::docvars(texts, "language"))
 parts <- lapply(languages, function(lang) {
   qlm_translate(quanteda::corpus_subset(texts, language == lang),
-                model = translation_model, target_lang = "en-GB", source_lang = lang)
+                model = translation_model, to = "en-GB", from = lang)
 })
 translated <- do.call(c, parts)
 ```
 
-If you leave `source_lang` unset, compare the recorded `detected_language` with
+If you leave `from` unset, compare the recorded `detected_language` with
 the languages you expect before using the translations.
 
 `context`, `instructions`, `protect`, `glossary` and `params` let you request
@@ -146,7 +146,7 @@ if (any(failed)) {
   retried <- qlm_translate(
     inputs(translated)[failed],
     model = translation_model,
-    target_lang = "en-GB",
+    to = "en-GB",
     on_error = "continue"
   )
   translated[failed] <- retried
@@ -191,7 +191,7 @@ Transcription can precede translation in the same workflow:
 ```{r translate-transcripts, eval=FALSE}
 transcripts <- qlm_transcribe(audio_files)
 translated <- qlm_translate(transcripts, model = translation_model,
-  target_lang = "en-GB")
+  to = "en-GB")
 ```
 
 ## Work with a corpus

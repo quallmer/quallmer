@@ -54,7 +54,7 @@ test_that("Google keyring support is optional and contains backend failures", {
 test_that("Google sends complete documents and records detection without credentials", {
   seen <- mock_google_translation()
   input <- c(first = "Premiere partie.\n\nDeuxieme partie.", second = "Bonjour.")
-  result <- qlm_translate(input, "google-translate/translation-llm", target_lang = "en-GB")
+  result <- qlm_translate(input, "google-translate/translation-llm", to = "en-GB")
   expect_identical(unname(as.character(result)), unname(input))
   expect_length(seen$requests, 2)
   body <- seen$requests[[1]]$body$data
@@ -80,7 +80,7 @@ test_that("Google keeps protection markers, explicit languages and corpus metada
   input <- quanteda::corpus(c(a = "Bonjour TERM.\n\nSuite.", b = "Autre."),
                             docvars = data.frame(group = c(1, 2)))
   quanteda::meta(input, field = "note") <- "original"
-  result <- qlm_translate(input, "google-translate/translation-llm", source_lang = "fr",
+  result <- qlm_translate(input, "google-translate/translation-llm", from = "fr",
     protect = "TERM", project_id = "explicit-project", region = "global")
   expect_identical(as.character(result), as.character(input))
   expect_identical(attr(quanteda::corpus(result), "docvars"), attr(input, "docvars"))

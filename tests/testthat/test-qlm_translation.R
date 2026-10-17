@@ -54,7 +54,7 @@ test_that("assignment records edits and carries retried translations", {
   expect_identical(prov$.error[2], "set to NA by assignment")
   expect_true(is.na(prov$output_hash[2]))
 
-  retry <- qlm_translate(c(z = "different source"), "openai/test", target_lang = "fr")
+  retry <- qlm_translate(c(z = "different source"), "openai/test", to = "fr")
   edited["b"] <- retry
   prov <- attr(edited, "provenance")
   expect_identical(as.character(edited), c(a = "edited", b = "different source"))
@@ -81,7 +81,7 @@ test_that("renaming keeps provenance in step", {
 test_that("combining joins runs and refuses colliding names or plain text", {
   mock_translation_chat()
   a <- qlm_translate(c(a = "one"), "openai/test")
-  b <- qlm_translate(c(b = "two"), "openai/test", target_lang = "fr")
+  b <- qlm_translate(c(b = "two"), "openai/test", to = "fr")
   out <- c(a, b)
   expect_s3_class(out, "qlm_translation")
   expect_identical(as.character(out), c(a = "one", b = "two"))

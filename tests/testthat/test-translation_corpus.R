@@ -85,7 +85,7 @@ test_that("translations of translations keep the corpus and the full history", {
   mock_translation_chat()
   input <- quanteda::corpus(c(a = "one", b = "two"),
     docvars = data.frame(group = c("A", "B")), meta = list(project = "Study"))
-  again <- qlm_translate(qlm_translate(input, "openai/test"), "openai/test", target_lang = "fr")
+  again <- qlm_translate(qlm_translate(input, "openai/test"), "openai/test", to = "fr")
   expect_identical(quanteda::docvars(quanteda::corpus(again)), quanteda::docvars(input))
   expect_length(preprocessing_record(again)$b, 2)
 })

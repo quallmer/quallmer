@@ -31,7 +31,7 @@ french_texts <- c(
 english <- qlm_translate(
   french_texts,
   model = "deepl/quality_optimized",
-  source_lang = "fr", target_lang = "en-GB",
+  from = "fr", to = "en-GB",
   protect = "quanteda|quallmer",
   context = "Public policy and social science research texts.",
   on_error = "stop"
@@ -60,7 +60,7 @@ quanteda::meta(speeches, "quallmer") <- list(note = "Keep this existing entry")
 french <- qlm_translate(
   speeches,
   model = "deepl/quality_optimized",
-  source_lang = "en", target_lang = "fr",
+  from = "en", to = "fr",
   context = "Historical inaugural addresses by presidents of the United States.",
   on_error = "stop"
 )

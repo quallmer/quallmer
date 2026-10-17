@@ -14,9 +14,9 @@
 #' @param model The provider and model, as `"provider/model"`; required. See
 #'   "Providers" for the translation services; any other [ellmer::chat()]
 #'   model translates through [qlm_code()].
-#' @param target_lang Target language, as a BCP 47 language tag such as
+#' @param to Target language, as a BCP 47 language tag such as
 #'   `"en"`, `"en-GB"`, `"pt-BR"` or `"zh-Hant"`. See "Language codes".
-#' @param source_lang Source language, as a BCP 47 language tag, or `NULL`
+#' @param from Source language, as a BCP 47 language tag, or `NULL`
 #'   for the provider to detect it. Set it whenever you know it: see
 #'   "Unsupported languages".
 #' @param instructions Character vector of translation directives, such as a
@@ -51,7 +51,7 @@
 #' @details
 #' ## Providers
 #'
-#' `target_lang`, `source_lang` and `protect` work the same for every
+#' `to`, `from` and `protect` work the same for every
 #' provider. The other arguments depend on it; where a provider cannot honour
 #' one, using it is an error rather than being ignored.
 #'
@@ -79,7 +79,7 @@
 #'
 #' ## Language codes
 #'
-#' `target_lang` and `source_lang` take BCP 47 language tags: an ISO 639
+#' `to` and `from` take BCP 47 language tags: an ISO 639
 #' language code (`"fr"`), optionally followed by an ISO 15924 script
 #' (`"zh-Hant"`) and an ISO 3166 region or UN M.49 area (`"pt-BR"`,
 #' `"es-419"`). A plain language code is usually what you want; add a region
@@ -115,12 +115,12 @@
 #' support, every provider tested, DeepL, Google, Qwen-MT and a chat model,
 #' returned a fluent but invented English text, recorded as `"ok"`; DeepL and
 #' Google reported a wrong detected language (Swahili for Kimbundu). With
-#' `source_lang` set, DeepL, Google and Qwen-MT instead refuse an unsupported
+#' `from` set, DeepL, Google and Qwen-MT instead refuse an unsupported
 #' language, and the text is `NA` with the provider's reason. Chat models do
 #' not refuse, and may invent a translation even when told the source
 #' language.
 #'
-#' So set `source_lang` whenever the source language is known, and when it is
+#' So set `from` whenever the source language is known, and when it is
 #' not, check the recorded `detected_language` against what you expect. For a
 #' corpus in several languages, translate each language with its own call and
 #' combine the results with `c()`. Results that look fluent are not evidence
@@ -185,7 +185,7 @@
 #' \dontrun{
 #' # Reads DEEPL_API_KEY, or supply api_key = keyring::key_get("deepl")
 #' translated <- qlm_translate(c(speech = "Bonjour tout le monde."),
-#'   model = "deepl/quality_optimized", target_lang = "en-GB")
+#'   model = "deepl/quality_optimized", to = "en-GB")
 #' coded <- qlm_code(translated, data_codebook_sentiment,
 #'   model = "openai/gpt-4o-mini")
 #' qlm_trail(coded, path = "translation_trail")
@@ -194,7 +194,7 @@
 #'
 #' # Qwen-MT: reads DASHSCOPE_API_KEY for the Singapore endpoint
 #' translated_qwen <- qlm_translate(texts,
-#'   model = "dashscope/qwen-mt-plus", target_lang = "en-GB",
+#'   model = "dashscope/qwen-mt-plus", to = "en-GB",
 #'   context = "Greetings in everyday conversation.",
 #'   params = ellmer::params(temperature = 0.1))
 #' translated_qwen
@@ -202,7 +202,7 @@
 #' # Google: reads GOOGLE_TRANSLATE_API_KEY, falling back to the optional
 #' # keyring entry saved with keyring::key_set("google-translate")
 #' translated_google <- qlm_translate(texts,
-#'   model = "google-translate/translation-llm", target_lang = "en-GB",
+#'   model = "google-translate/translation-llm", to = "en-GB",
 #'   project_id = "your-google-cloud-project-id")
 #' # Alternatively, set GOOGLE_CLOUD_PROJECT and omit project_id.
 #' attr(translated_google, "provenance")
@@ -214,7 +214,7 @@
 #' quanteda::corpus(translated_google)
 #' }
 #' @export
-qlm_translate <- function(x, model, target_lang = "en", source_lang = NULL,
+qlm_translate <- function(x, model, to = "en", from = NULL,
                           instructions = NULL, context = NULL, glossary = NULL,
                           protect = NULL, params = NULL, chunk_size = NULL,
                           adapter = NULL, api_key = NULL, base_url = NULL,
@@ -233,15 +233,17 @@ qlm_translate <- function(x, model, target_lang = "en", source_lang = NULL,
   if (missing(model) || !rlang::is_string(model) || !nzchar(model)) {
     cli::cli_abort("Supply {.arg model} as a single provider/model string.")
   }
-  for (arg in c("target_lang", "source_lang", "context", "adapter", "api_key",
+  for (arg in c("to", "from", "context", "adapter", "api_key",
                 "base_url")) {
     check_optional_string(get(arg), arg)
   }
-  if (is.null(target_lang)) {
-    cli::cli_abort(c("{.arg target_lang} is required.", language_tag_help))
+  if (is.null(to)) {
+    cli::cli_abort(c("{.arg to} is required.", language_tag_help))
   }
-  target_lang <- normalise_language_tag(target_lang, "target_lang")
-  source_lang <- normalise_language_tag(source_lang, "source_lang")
+  # The provenance and the providers' requests call these target_lang and
+  # source_lang, as the translation APIs do.
+  target_lang <- normalise_language_tag(to, "to")
+  source_lang <- normalise_language_tag(from, "from")
   check_translation_strings(instructions, "instructions")
   check_translation_strings(protect, "protect")
   check_translation_strings(glossary, "glossary")

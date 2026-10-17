@@ -1,7 +1,7 @@
 test_that("Qwen-MT uses native options, groups paragraphs and preserves provenance", {
   seen <- mock_translation_qwen()
   input <- c(a = "  Bonjour TERM\r\n \r\nEncore TERM  ", b = "你好\n\n世界")
-  out <- qlm_translate(input, "dashscope/qwen-mt-plus", target_lang = "en-GB",
+  out <- qlm_translate(input, "dashscope/qwen-mt-plus", to = "en-GB",
     context = "Human rights", instructions = "Keep the register.",
     protect = "TERM", glossary = c(droits = "rights"),
     params = ellmer::params(temperature = 0.2, max_tokens = 1000))
@@ -94,7 +94,7 @@ test_that("Qwen-MT reports an unsupported language in English", {
     httr2::response_json(status_code = 400, body = list(error = list(
       message = "\u6682\u65f6\u4e0d\u652f\u6301\u5f53\u524d\u8bbe\u7f6e\u7684\u8bed\u79cd\uff01")))
   })
-  expect_warning(out <- qlm_translate(c(a = "Text"), "dashscope/qwen-mt-plus", source_lang = "kmb"),
+  expect_warning(out <- qlm_translate(c(a = "Text"), "dashscope/qwen-mt-plus", from = "kmb"),
                  "does not support")
   expect_match(attr(out, "provenance")$.error, "does not support the requested source or target language")
 })

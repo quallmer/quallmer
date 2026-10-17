@@ -18,11 +18,11 @@ udhr <- quanteda.corpora::data_corpus_udhr[udhr_ids]
 udhr_texts <- as.character(udhr)
 udhr_sample <- udhr
 
-# source_lang is deliberately omitted: each document can be a different language.
+# from is deliberately omitted: each document can be a different language.
 udhr_english <- qlm_translate(
   udhr_sample,
   model = "deepl/quality_optimized",
-  target_lang = "en-GB",
+  to = "en-GB",
   context = "Universal Declaration of Human Rights.",
   on_error = "stop"
 )
