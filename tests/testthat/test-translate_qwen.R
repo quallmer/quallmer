@@ -243,6 +243,30 @@ test_that("Qwen-MT return policy withholds later group repairs after a failure",
   expect_true(all(is.na(out)))
 })
 
+test_that("Qwen-MT sends each round of group repairs together", {
+  calls <- 0L
+  seen <- mock_translation_qwen(function(body) {
+    text <- body$messages[[1]]$content
+    # Any group of more than one paragraph loses its boundary markers
+    if (qwen_test_group_size(body) > 1L) text <- gsub("QLMP[A-Za-z0-9_]*END", "", text)
+    httr2::response_json(body = list(model = "qwen-mt-plus", id = "r",
+      choices = list(list(message = list(content = text), finish_reason = "stop")),
+      usage = list(prompt_tokens = 5, completion_tokens = 5, total_tokens = 10)))
+  })
+  rounds <- 0L
+  testthat::local_mocked_bindings(perform_translation_requests = function(reqs, max_active, on_error) {
+    rounds <<- rounds + 1L
+    httr2::req_perform_parallel(reqs, max_active = max_active, on_error = on_error, progress = FALSE)
+  })
+  input <- c(a = paste(c("one", "two", "three", "four"), collapse = "\n\n"),
+             b = paste(c("five", "six", "seven", "eight"), collapse = "\n\n"))
+  out <- qlm_translate(input, "dashscope/qwen-mt-plus")
+  expect_identical(as.character(out), input)
+  # Groups of four, then two, then one: three rounds, not one per half
+  expect_equal(rounds, 3)
+  expect_length(seen$requests, 2 + 4 + 8)
+})
+
 test_that("Qwen-MT grouping observes request-byte targets for different scripts", {
   adapter <- translation_adapter("dashscope/qwen-mt-plus", NULL, NULL, "test")
   settings <- list(target_lang = "en", chunk_size = 4000, group_max_bytes = 6000,
@@ -265,7 +289,8 @@ test_that("stopping group repair retains the rejected parent for unprocessed par
   })
   expect_warning(out <- qlm_translate(c(a = "one\n\ntwo\n\nthree\n\nfour"),
     "dashscope/qwen-mt-plus", on_error = "return"), "1 of 1")
-  expect_length(seen$requests, 2)
+  # Both halves go out in one round; the failure stops any further round
+  expect_length(seen$requests, 3)
   attempts <- translation_provenance(out)$attempts[[1]]
   expect_equal(sum(attempts$group_size == 4L), 4)
 })
