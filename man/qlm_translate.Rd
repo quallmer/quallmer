@@ -11,19 +11,16 @@ qlm_translate(
   source_lang = NULL,
   instructions = NULL,
   context = NULL,
-  protect = NULL,
   glossary = NULL,
-  formality = NULL,
-  adapter = NULL,
+  protect = NULL,
   params = NULL,
   chunk_size = NULL,
+  adapter = NULL,
   api_key = NULL,
   base_url = NULL,
-  max_active = 10,
+  max_active = NULL,
   rpm = 60,
   on_error = c("continue", "return", "stop"),
-  project_id = NULL,
-  region = "us-central1",
   ...
 )
 }
@@ -50,23 +47,14 @@ receives these together with \code{context} as its native domain prompt.}
 
 \item{context}{One string of background information, not text to translate.}
 
-\item{protect}{Character vector of regular expressions matching text to
-preserve exactly. Matches must not overlap or be empty. Matched text is
-masked before splitting and restored only after marker validation.}
-
 \item{glossary}{Named character vector of source terms and their desired
 translations. Qwen-MT uses native terminology options; the generic
 adapter uses instructions. Native
 DeepL glossaries are not implemented in this initial version.}
 
-\item{formality}{DeepL formality setting (\code{"default"}, \code{"more"}, \code{"less"},
-\code{"prefer_more"}, \code{"prefer_less"}); an instruction for generic chat.
-Not supported by Qwen-MT; use \code{instructions} instead.}
-
-\item{adapter}{\code{NULL} for automatic selection, or \code{"generic"}, \code{"deepl"},
-or \code{"qwen-mt"}. Exact Qwen-MT plus, flash and lite model IDs select the
-native adapter automatically. Google Translation LLM selects
-\code{"google-translate"} automatically; this can also be supplied explicitly.}
+\item{protect}{Character vector of regular expressions matching text to
+preserve exactly. Matches must not overlap or be empty. Matched text is
+masked before splitting and restored only after marker validation.}
 
 \item{params}{Settings created with \code{\link[ellmer:params]{ellmer::params()}}, passed through on
 the chat route. Qwen-MT supports \code{temperature}, \code{top_p}, \code{top_k}, \code{seed}
@@ -80,6 +68,11 @@ or twice a supplied \code{params$max_tokens} if that is smaller; 4000 for
 Qwen-MT; 16000 for DeepL; and 30000 for Google, its limit. Characters are
 an estimate of tokens: a response cut off at the output limit is
 detected and sent again in smaller parts.}
+
+\item{adapter}{\code{NULL} for automatic selection, or \code{"generic"}, \code{"deepl"},
+or \code{"qwen-mt"}. Exact Qwen-MT plus, flash and lite model IDs select the
+native adapter automatically. Google Translation LLM selects
+\code{"google-translate"} automatically; this can also be supplied explicitly.}
 
 \item{api_key}{API key, or \code{NULL} to use the provider's environment variable
 (\code{DEEPL_API_KEY} for DeepL, \code{DASHSCOPE_API_KEY} for DashScope). If that
@@ -95,9 +88,8 @@ uses \code{GOOGLE_TRANSLATE_API_KEY}, falling back to
 \item{base_url}{Optional API base URL. DeepL defaults to its Free or Pro
 host according to the key. Recorded with URL credentials redacted.}
 
-\item{max_active}{Maximum concurrent requests. Defaults to 2 for DeepL, Google
-Translation and Qwen-MT
-and 10 for chat models.}
+\item{max_active}{Maximum concurrent requests, or \code{NULL} for the provider's
+default: 2 for DeepL, Google Translation and Qwen-MT, 10 for chat models.}
 
 \item{rpm}{Maximum requests per minute. Native translation requests are paced evenly
 rather than allowing an initial burst.}
@@ -105,13 +97,22 @@ rather than allowing an initial burst.}
 \item{on_error}{Failure policy: \code{"continue"} attempts all units,
 \code{"return"} stops new submissions after a failure, and \code{"stop"} raises it.}
 
-\item{project_id}{Google Cloud project ID or number, used by Google Translation
-LLM. Defaults to the \code{GOOGLE_CLOUD_PROJECT} environment variable.}
+\item{...}{Named arguments specific to one provider; any other name is an
+error.
+\itemize{
+\item DeepL: \code{formality}, one of \code{"default"}, \code{"more"}, \code{"less"},
+\code{"prefer_more"} or \code{"prefer_less"}.
+\item Google Translation: \code{project_id}, the Google Cloud project ID or number,
+defaulting to the \code{GOOGLE_CLOUD_PROJECT} environment variable; and
+\code{region}, the model location, defaulting to \code{"us-central1"}. The Basic
+API uses a global endpoint, so \code{region} does not guarantee data
+residency.
+\item Qwen-MT: none.
+\item Chat models: passed on to \code{\link[ellmer:chat]{ellmer::chat()}} through \code{\link[=qlm_code]{qlm_code()}}, as in
+a coding run, for example \code{api_args}. Only their names are recorded.
+}
 
-\item{region}{Google Translation model location; defaults to \code{"us-central1"}.
-The Basic API uses a global endpoint; this does not guarantee data residency.}
-
-\item{...}{Reserved; must be empty.}
+For a register on other providers, use \code{instructions}.}
 }
 \value{
 A \code{qlm_translation}: a character vector of translations named by
@@ -168,7 +169,7 @@ document per request, splitting only to meet 30000-character and 100 kB body
 limits or a smaller \code{chunk_size}. Paragraph formatting is handled by Google;
 exact paragraph separator preservation is not guaranteed. Detected source
 languages are recorded when \code{source_lang} is omitted. The Basic API does not
-accept \code{context}, \code{instructions}, \code{glossary}, \code{formality} or non-empty \code{params};
+accept \code{context}, \code{instructions}, \code{glossary} or non-empty \code{params};
 these arguments raise an error rather than being silently ignored.
 
 Chat models translate adjacent paragraphs of one document together, up to
@@ -252,6 +253,9 @@ translated_google <- qlm_translate(texts,
   project_id = "your-google-cloud-project-id")
 # Alternatively, set GOOGLE_CLOUD_PROJECT and omit project_id.
 attr(translated_google, "provenance")
+
+# DeepL with a formal register
+qlm_translate(texts, model = "deepl/quality_optimized", formality = "more")
 
 # Convert to a quanteda corpus, if quanteda is installed
 quanteda::corpus(translated_google)

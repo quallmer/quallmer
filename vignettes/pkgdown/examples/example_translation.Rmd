@@ -95,11 +95,13 @@ model responses and attempts. Providers differ in whether they report detected
 source languages. For a multilingual input, leave `source_lang` unset; set it
 explicitly only when one source-language setting applies to the whole call.
 
-`context`, `instructions`, `protect`, `glossary`, `formality` and `params` let you
-request additional control where the selected adapter supports it. Unsupported
-native options raise an error. On the chat route, `ellmer::params()` settings are
-recorded as requested; ellmer may warn about unsupported settings. Consult the
-function reference for the provider-specific behaviour.
+`context`, `instructions`, `protect`, `glossary` and `params` let you request
+additional control where the selected provider supports it; an option a provider
+cannot honour raises an error. Settings that only one provider has, such as
+DeepL's `formality` or Google's `project_id`, are passed by name, as in
+`qlm_translate(texts, "deepl/quality_optimized", formality = "more")`. On the chat
+route, `ellmer::params()` settings are recorded as requested; ellmer may warn
+about unsupported settings. `?qlm_translate` lists what each provider accepts.
 
 ## Review, retry and save
 

@@ -30,9 +30,6 @@
 #'   translations. Qwen-MT uses native terminology options; the generic
 #'   adapter uses instructions. Native
 #'   DeepL glossaries are not implemented in this initial version.
-#' @param formality DeepL formality setting (`"default"`, `"more"`, `"less"`,
-#'   `"prefer_more"`, `"prefer_less"`); an instruction for generic chat.
-#'   Not supported by Qwen-MT; use `instructions` instead.
 #' @param adapter `NULL` for automatic selection, or `"generic"`, `"deepl"`,
 #'   or `"qwen-mt"`. Exact Qwen-MT plus, flash and lite model IDs select the
 #'   native adapter automatically. Google Translation LLM selects
@@ -60,18 +57,26 @@
 #'   `keyring::key_get("google-translate")`; explicit keys take precedence.
 #' @param base_url Optional API base URL. DeepL defaults to its Free or Pro
 #'   host according to the key. Recorded with URL credentials redacted.
-#' @param project_id Google Cloud project ID or number, used by Google Translation
-#'   LLM. Defaults to the `GOOGLE_CLOUD_PROJECT` environment variable.
-#' @param region Google Translation model location; defaults to `"us-central1"`.
-#'   The Basic API uses a global endpoint; this does not guarantee data residency.
-#' @param max_active Maximum concurrent requests. Defaults to 2 for DeepL, Google
-#'   Translation and Qwen-MT
-#'   and 10 for chat models.
+#' @param max_active Maximum concurrent requests, or `NULL` for the provider's
+#'   default: 2 for DeepL, Google Translation and Qwen-MT, 10 for chat models.
 #' @param rpm Maximum requests per minute. Native translation requests are paced evenly
 #'   rather than allowing an initial burst.
 #' @param on_error Failure policy: `"continue"` attempts all units,
 #'   `"return"` stops new submissions after a failure, and `"stop"` raises it.
-#' @param ... Reserved; must be empty.
+#' @param ... Named arguments specific to one provider; any other name is an
+#'   error.
+#'   * DeepL: `formality`, one of `"default"`, `"more"`, `"less"`,
+#'     `"prefer_more"` or `"prefer_less"`.
+#'   * Google Translation: `project_id`, the Google Cloud project ID or number,
+#'     defaulting to the `GOOGLE_CLOUD_PROJECT` environment variable; and
+#'     `region`, the model location, defaulting to `"us-central1"`. The Basic
+#'     API uses a global endpoint, so `region` does not guarantee data
+#'     residency.
+#'   * Qwen-MT: none.
+#'   * Chat models: passed on to [ellmer::chat()] through [qlm_code()], as in
+#'     a coding run, for example `api_args`. Only their names are recorded.
+#'
+#'   For a register on other providers, use `instructions`.
 #'
 #' @details
 #' ## API setup and keys
@@ -98,7 +103,7 @@
 #' limits or a smaller `chunk_size`. Paragraph formatting is handled by Google;
 #' exact paragraph separator preservation is not guaranteed. Detected source
 #' languages are recorded when `source_lang` is omitted. The Basic API does not
-#' accept `context`, `instructions`, `glossary`, `formality` or non-empty `params`;
+#' accept `context`, `instructions`, `glossary` or non-empty `params`;
 #' these arguments raise an error rather than being silently ignored.
 #'
 #' Chat models translate adjacent paragraphs of one document together, up to
@@ -201,18 +206,25 @@
 #' # Alternatively, set GOOGLE_CLOUD_PROJECT and omit project_id.
 #' attr(translated_google, "provenance")
 #'
+#' # DeepL with a formal register
+#' qlm_translate(texts, model = "deepl/quality_optimized", formality = "more")
+#'
 #' # Convert to a quanteda corpus, if quanteda is installed
 #' quanteda::corpus(translated_google)
 #' }
 #' @export
 qlm_translate <- function(x, model, target_lang = "en", source_lang = NULL,
-                          instructions = NULL, context = NULL, protect = NULL,
-                          glossary = NULL, formality = NULL, adapter = NULL,
-                          params = NULL, chunk_size = NULL, api_key = NULL,
-                          base_url = NULL, max_active = 10, rpm = 60,
-                          on_error = c("continue", "return", "stop"),
-                          project_id = NULL, region = "us-central1", ...) {
-  rlang::check_dots_empty()
+                          instructions = NULL, context = NULL, glossary = NULL,
+                          protect = NULL, params = NULL, chunk_size = NULL,
+                          adapter = NULL, api_key = NULL, base_url = NULL,
+                          max_active = NULL, rpm = 60,
+                          on_error = c("continue", "return", "stop"), ...) {
+  provider_args <- list(...)
+  if (length(provider_args) &&
+      (is.null(names(provider_args)) || any(!nzchar(names(provider_args))) ||
+       anyDuplicated(names(provider_args)))) {
+    cli::cli_abort("Arguments in {.arg ...} must be named, once each.")
+  }
   on_error <- rlang::arg_match(on_error)
   if (!is.character(x) || !length(x)) {
     cli::cli_abort("{.arg x} must be a non-empty character vector of texts.")
@@ -220,8 +232,8 @@ qlm_translate <- function(x, model, target_lang = "en", source_lang = NULL,
   if (missing(model) || !rlang::is_string(model) || !nzchar(model)) {
     cli::cli_abort("Supply {.arg model} as a single provider/model string.")
   }
-  for (arg in c("target_lang", "source_lang", "context", "formality",
-                "adapter", "api_key", "base_url", "project_id", "region")) {
+  for (arg in c("target_lang", "source_lang", "context", "adapter", "api_key",
+                "base_url")) {
     check_optional_string(get(arg), arg)
   }
   if (is.null(target_lang) || !nzchar(target_lang)) {
@@ -240,10 +252,11 @@ qlm_translate <- function(x, model, target_lang = "en", source_lang = NULL,
       (length(params) && (is.null(names(params)) || any(!nzchar(names(params))))))) {
     cli::cli_abort("{.arg params} must be a named list from {.fn ellmer::params}.")
   }
-  for (arg in c("max_active", "rpm")) {
-    if (!is_count(get(arg), 1L)) {
-      cli::cli_abort("{.arg {arg}} must be a positive whole number.")
-    }
+  if (!is.null(max_active) && !is_count(max_active, 1L)) {
+    cli::cli_abort("{.arg max_active} must be a positive whole number.")
+  }
+  if (!is_count(rpm, 1L)) {
+    cli::cli_abort("{.arg rpm} must be a positive whole number.")
   }
   if (!is.null(chunk_size) && !is_count(chunk_size, 1L)) {
     cli::cli_abort("{.arg chunk_size} must be a positive whole number.")
@@ -260,7 +273,13 @@ qlm_translate <- function(x, model, target_lang = "en", source_lang = NULL,
     cli::cli_abort("Translation failed: source text is missing.")
   }
   selected <- translation_adapter(model, adapter, base_url, api_key)
-  if (missing(max_active) && selected$name %in% c("deepl", "qwen-mt", "google-translate")) max_active <- 2L
+  provider_args <- check_provider_args(provider_args, selected$name)
+  # The translation APIs rate-limit concurrent requests more tightly than
+  # chat endpoints do.
+  max_active <- max_active %||% if (selected$name == "generic") 10L else 2L
+  if (selected$name == "generic") {
+    selected$chat_args <- c(selected$chat_args, provider_args)
+  }
   if (selected$name == "deepl") {
     if (length(params)) cli::cli_abort("{.arg params} is not supported by DeepL.")
     if (!is.null(glossary)) {
@@ -268,11 +287,6 @@ qlm_translate <- function(x, model, target_lang = "en", source_lang = NULL,
     }
     if (length(instructions) > 10L || any(nchar(instructions) > 300L)) {
       cli::cli_abort("DeepL accepts at most 10 instructions of at most 300 characters each.")
-    }
-    if (!is.null(formality)) {
-      formality <- rlang::arg_match(formality, c(
-        "default", "more", "less", "prefer_more", "prefer_less"
-      ))
     }
   }
   size <- chunk_size %||% switch(selected$name, deepl = 16000L,
@@ -288,17 +302,24 @@ qlm_translate <- function(x, model, target_lang = "en", source_lang = NULL,
   }
   settings <- list(target_lang = target_lang, source_lang = source_lang,
                    instructions = instructions, context = context, protect = protect,
-                   glossary = glossary, formality = formality, params = params,
+                   glossary = glossary, params = params,
                    chunk_size = size, template_version = 3L,
                    text_unit = switch(selected$name, deepl = "document",
                                       "paragraph_group"),
                    ellmer_version = as.character(utils::packageVersion("ellmer")))
+  # Provider arguments are recorded with their values, except those passed to
+  # a chat model, which can carry credentials: only their names are kept.
+  settings$provider_args <- if (selected$name == "generic") {
+    names(provider_args)
+  } else provider_args
+  if (selected$name == "deepl") settings$formality <- provider_args$formality
   if (selected$name == "qwen-mt") {
     settings$group_max_bytes <- 6000L
     settings$paragraph_alignment <- "boundary_markers"
   }
   if (selected$name == "google-translate") {
-    settings <- translation_google_settings(settings, project_id, region)
+    settings <- translation_google_settings(settings, provider_args$project_id,
+                                            provider_args$region %||% "us-central1")
     size <- settings$chunk_size
   }
   # All local splitting/protection validation finishes before building a key-
@@ -333,6 +354,58 @@ qlm_translate <- function(x, model, target_lang = "en", source_lang = NULL,
                    set_bullets(unique(provenance$.error[failed]))))
   }
   out
+}
+
+# The arguments `...` accepts for each provider. A chat model's go on to
+# qlm_code() and ellmer's chat(), as in a coding run, except qlm_code()'s own
+# and those the translation sets itself.
+provider_arg_names <- list(
+  deepl = "formality",
+  `google-translate` = c("project_id", "region"),
+  `qwen-mt` = character()
+)
+
+check_provider_args <- function(args, adapter) {
+  if (!length(args)) {
+    return(args)
+  }
+  label <- switch(adapter, deepl = "DeepL", `google-translate` = "Google Translation",
+                  `qwen-mt` = "Qwen-MT", "a chat model")
+  if (adapter == "generic") {
+    reserved <- c(setdiff(names(formals(qlm_code)), "..."), "include_tokens",
+                  "include_cost", "max_active", "rpm", "params")
+    bad <- intersect(names(args), reserved)
+    if (length(bad)) {
+      cli::cli_abort(c(
+        "{.arg {bad}} cannot be passed to {label} through {.arg ...}.",
+        "i" = "{cli::qty(length(bad))}{.fn qlm_translate} sets {?it/them} itself, or {?it is/they are} a {.fn qlm_code} setting with no meaning for translation."
+      ))
+    }
+    if ("formality" %in% names(args)) {
+      cli::cli_abort(c(
+        "{.arg formality} is a DeepL argument.",
+        "i" = "For a chat model, describe the register in {.arg instructions}."
+      ))
+    }
+    return(args)
+  }
+  allowed <- provider_arg_names[[adapter]]
+  bad <- setdiff(names(args), allowed)
+  if (length(bad)) {
+    cli::cli_abort(c(
+      "{.arg {bad}} {?is not an argument/are not arguments} for {label}.",
+      "i" = if (length(allowed)) "{label} accepts {.arg {allowed}} in {.arg ...}." else "{label} accepts no further arguments.",
+      "i" = if ("formality" %in% bad) "Describe the register in {.arg instructions} instead."
+    ))
+  }
+  if (!is.null(args$formality)) {
+    args$formality <- rlang::arg_match0(args$formality,
+      c("default", "more", "less", "prefer_more", "prefer_less"), arg_nm = "formality")
+  }
+  for (name in intersect(c("project_id", "region"), names(args))) {
+    check_optional_string(args[[name]], name)
+  }
+  args
 }
 
 check_translation_strings <- function(x, arg) {

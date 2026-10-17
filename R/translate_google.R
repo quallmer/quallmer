@@ -7,7 +7,7 @@ translation_google_jobs <- function(jobs, setup, max_active, on_error) {
 }
 
 translation_google_settings <- function(settings, project_id, region) {
-  for (arg in c("params", "instructions", "context", "glossary", "formality")) {
+  for (arg in c("params", "instructions", "context", "glossary")) {
     if (length(settings[[arg]])) {
       cli::cli_abort("Google Translation LLM does not support {.arg {arg}} through the Basic API.")
     }

@@ -152,7 +152,6 @@ translation_instruction <- function(settings) {
     "Return only the translations, without quotes, explanation or headings.",
     "Preserve meaning, register, uncertainty, negation and all opaque QLMKEEP markers exactly.",
     settings$instructions,
-    if (!is.null(settings$formality)) paste0("Requested formality: ", settings$formality, "."),
     if (!is.null(settings$glossary)) paste0("Terminology: ", paste(
       paste(names(settings$glossary), settings$glossary, sep = " -> "), collapse = "; "))
   ), collapse = "\n")

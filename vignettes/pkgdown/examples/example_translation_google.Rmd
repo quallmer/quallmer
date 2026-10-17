@@ -207,7 +207,8 @@ not guaranteed.
 for example, `source_lang = "fr"`; automatic source-language detection is then
 not performed. Leave it unset for this six-language selection.
 
-The model location defaults to `region = "us-central1"`. You can also supply
+The model location defaults to `region = "us-central1"`; pass another as
+`qlm_translate(..., region = "europe-west4")`. You can also supply
 `project_id` directly instead of setting `GOOGLE_CLOUD_PROJECT`. The Basic API
 uses a global endpoint, so the model location alone does not guarantee where
 data is processed. See Google's [data usage FAQ](https://docs.cloud.google.com/translate/data-usage).
@@ -362,7 +363,7 @@ for its restrictions to take effect. Google documents the blocked-service error
 in its [authentication troubleshooting guide](https://docs.cloud.google.com/iam/docs/troubleshoot-auth-manager#api-key-service-blocked).
 
 This adapter exposes the standard Translation LLM through the Basic API. It
-rejects `context`, `instructions`, `glossary`, `formality` and non-empty `params`
+rejects `context`, `instructions`, `glossary` and non-empty `params`
 because these options are not supported on this route. The result records the
 model Google reports; it does not pin a permanent model version.
 

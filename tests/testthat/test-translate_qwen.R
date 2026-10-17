@@ -99,7 +99,7 @@ test_that("Qwen-MT does not reduce unrelated HTTP 400s and redacts keys", {
 
 test_that("Qwen-MT validates native settings before making requests", {
   seen <- mock_translation_qwen()
-  expect_error(qlm_translate("one", "dashscope/qwen-mt-plus", formality = "more"), "formality")
+  expect_error(qlm_translate("one", "dashscope/qwen-mt-plus", formality = "more"), "instructions")
   expect_error(qlm_translate("one", "dashscope/qwen-mt-plus",
     params = ellmer::params(reasoning_effort = "low")), "Unsupported Qwen-MT")
   expect_error(qlm_translate("one", "dashscope/qwen-mt-plus", params = list(temperature = 2)), "Invalid")

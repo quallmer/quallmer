@@ -93,12 +93,14 @@ test_that("Google keeps protection markers, explicit languages and corpus metada
 
 test_that("Google checks options before requests and requires a project", {
   seen <- mock_google_translation()
-  for (arg in c("context", "instructions", "glossary", "formality", "params")) {
+  for (arg in c("context", "instructions", "glossary", "params")) {
     value <- switch(arg, params = ellmer::params(temperature = 0.1),
                     glossary = c(a = "b"), "unsupported")
     expect_error(do.call(qlm_translate, c(list(x = "Bonjour",
       model = "google-translate/translation-llm"), setNames(list(value), arg))), "does not support")
   }
+  expect_error(qlm_translate("Bonjour", "google-translate/translation-llm", formality = "more"),
+               "not an argument for Google Translation")
   withr::local_envvar(c(GOOGLE_CLOUD_PROJECT = ""))
   expect_error(qlm_translate("Bonjour", "google-translate/translation-llm"), "project_id")
   expect_length(seen$requests, 0)

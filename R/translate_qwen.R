@@ -22,9 +22,6 @@ translation_qwen_jobs <- function(jobs, setup, max_active, rpm, on_error,
 }
 
 translation_qwen_setup <- function(adapter, settings, rpm) {
-  if (!is.null(settings$formality)) {
-    cli::cli_abort("Qwen-MT does not support {.arg formality}; use {.arg instructions} instead.")
-  }
   translation_qwen_params(settings$params)
   host <- adapter$args$base_url
   if (is.null(host)) {

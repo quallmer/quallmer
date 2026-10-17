@@ -114,8 +114,30 @@ test_that("input and backend options are validated before requests", {
   expect_error(qlm_translate("x", "deepl/quality_optimized", glossary = c(a = "b")), "not implemented")
   expect_error(qlm_translate("x", "deepl/quality_optimized", instructions = rep("a", 11)), "at most 10")
   expect_error(qlm_translate("x", "deepl/quality_optimized", instructions = paste(rep("a", 301), collapse = "")), "300")
-  expect_error(qlm_translate("x", "openai/test", temperature = 0), "must be empty")
+  expect_error(qlm_translate("x", "openai/test", batch = TRUE), "cannot be passed")
+  expect_error(qlm_translate("x", "openai/test", formality = "more"), "DeepL argument")
+  expect_error(qlm_translate("x", "deepl/quality_optimized", project_id = "p"), "not an argument for DeepL")
+  expect_error(qlm_translate("x", "deepl/quality_optimized", formality = "very"), "formality")
+  expect_error(qlm_translate("x", "openai/test", "unnamed"), "must be named")
   expect_length(seen$requests, 0)
+})
+
+test_that("provider arguments reach the provider and are recorded safely", {
+  seen <- mock_translation_deepl()
+  out <- qlm_translate("Bonjour", "deepl/quality_optimized", api_key = "k", formality = "prefer_more")
+  expect_equal(seen$requests[[1]]$body$data$formality, "prefer_more")
+  expect_equal(attr(out, "provenance")$settings[[1]]$provider_args, list(formality = "prefer_more"))
+  expect_null(seen$requests[[1]]$body$data$project_id)
+
+  mock_translation_chat()
+  passed <- NULL
+  testthat::local_mocked_bindings(qlm_code = function(...) {
+    passed <<- list(...)
+    stop("stop here")
+  })
+  expect_error(qlm_translate("Bonjour", "openai/test", api_args = list(store = FALSE)), "stop here")
+  expect_equal(passed$api_args, list(store = FALSE))
+  expect_equal(passed$max_active, 10L)
 })
 
 test_that("DeepL sends whole documents while retaining local whitespace and markers", {
