@@ -30,93 +30,56 @@ A transcript from \code{\link[=qlm_transcribe]{qlm_transcribe()}} or an earlier 
 translated, and its history is kept. Names must be unique and non-empty.
 Missing texts are recorded as failures without a request.}
 
-\item{model}{Required provider/model identifier. DeepL accepts
-\code{"deepl/quality_optimized"}, \code{"deepl/latency_optimized"} and
-\code{"deepl/prefer_quality_optimized"}. Qwen-MT accepts, for example,
-\code{"dashscope/qwen-mt-plus"}, \code{"dashscope/qwen-mt-flash"} and
-\code{"dashscope/qwen-mt-lite"}. Google Translation LLM uses
-\code{"google-translate/translation-llm"}. Other models use \code{\link[ellmer:chat]{ellmer::chat()}}.}
+\item{model}{The provider and model, as \code{"provider/model"}; required. See
+"Providers" for the translation services; any other \code{\link[ellmer:chat]{ellmer::chat()}}
+model translates through \code{\link[=qlm_code]{qlm_code()}}.}
 
-\item{target_lang}{Target language, as a BCP 47 language tag: a two- or
-three-letter ISO 639 language code, optionally followed by a script and a
-region, such as \code{"en"}, \code{"en-GB"}, \code{"pt-BR"} or \code{"zh-Hant"}. See the
-section "Language codes".}
+\item{target_lang}{Target language, as a BCP 47 language tag such as
+\code{"en"}, \code{"en-GB"}, \code{"pt-BR"} or \code{"zh-Hant"}. See "Language codes".}
 
 \item{source_lang}{Source language, as a BCP 47 language tag, or \code{NULL}
-for automatic detection.}
+for the provider to detect it.}
 
-\item{instructions}{Character vector of translation directives. DeepL
-accepts at most 10 directives of at most 300 characters each. Qwen-MT
-receives these together with \code{context} as its native domain prompt.}
+\item{instructions}{Character vector of translation directives, such as a
+register to use or how to treat names.}
 
-\item{context}{One string of background information, not text to translate.}
+\item{context}{One string of background about the texts, to inform the
+translation but not to be translated.}
 
-\item{glossary}{Named character vector of source terms and their desired
-translations. Qwen-MT uses native terminology options; the generic
-adapter uses instructions. Native
-DeepL glossaries are not implemented in this initial version.}
+\item{glossary}{Named character vector of source terms and their required
+translations, such as \code{c(Bundestag = "Bundestag")}.}
 
 \item{protect}{Character vector of regular expressions matching text to
-preserve exactly. Matches must not overlap or be empty. Matched text is
-masked before splitting and restored only after marker validation.}
+keep exactly as it is, such as names or codes. Matches must not overlap
+or be empty; every one is checked in the translation.}
 
-\item{params}{Settings created with \code{\link[ellmer:params]{ellmer::params()}}, passed through on
-the chat route. Qwen-MT supports \code{temperature}, \code{top_p}, \code{top_k}, \code{seed}
-and \code{max_tokens}, rejecting unsupported settings. Non-empty settings are
-refused on the DeepL and Google Translation routes.}
+\item{params}{Generation settings from \code{\link[ellmer:params]{ellmer::params()}}, such as
+\code{temperature} or \code{max_tokens}.}
 
-\item{chunk_size}{Positive integer; the most source characters to send in
-one request for chat models and Qwen-MT, or in one segment for DeepL and
-Google, including protection markers. Defaults to 8000 for chat models,
-or twice a supplied \code{params$max_tokens} if that is smaller; 4000 for
-Qwen-MT; 16000 for DeepL; and 30000 for Google, its limit. Characters are
-an estimate of tokens: a response cut off at the output limit is
-detected and sent again in smaller parts.}
+\item{chunk_size}{The most source characters in one request, or \code{NULL} for
+the provider's default. Characters only estimate tokens: a response cut
+off at the output limit is detected and sent again in smaller parts.}
 
-\item{adapter}{\code{NULL} for automatic selection, or \code{"generic"}, \code{"deepl"},
-or \code{"qwen-mt"}. Exact Qwen-MT plus, flash and lite model IDs select the
-native adapter automatically. Google Translation LLM selects
-\code{"google-translate"} automatically; this can also be supplied explicitly.}
+\item{adapter}{\code{NULL} to choose how requests are made from \code{model}, or
+\code{"generic"} to send a recognised translation model the ordinary chat
+request instead.}
 
-\item{api_key}{API key, or \code{NULL} to use the provider's environment variable
-(\code{DEEPL_API_KEY} for DeepL, \code{DASHSCOPE_API_KEY} for DashScope). If that
-variable is unset or empty, DeepL
-falls back to \code{keyring::key_get("deepl")} when the optional \pkg{keyring}
-package is installed. Save a key interactively once with
-\code{keyring::key_set("deepl")}. An explicit key overrides both other sources.
-Keyring lookup may prompt to unlock the system store. Keys are never
-recorded or copied into the environment by this function. Google Translation
-uses \code{GOOGLE_TRANSLATE_API_KEY}, falling back to
-\code{keyring::key_get("google-translate")}; explicit keys take precedence.}
+\item{api_key}{An API key, or \code{NULL} to use the provider's environment
+variable or saved key (see "API keys"). Keys are never recorded.}
 
-\item{base_url}{Optional API base URL. DeepL defaults to its Free or Pro
-host according to the key. Recorded with URL credentials redacted.}
+\item{base_url}{Optional API base URL, recorded with any credentials in it
+removed.}
 
 \item{max_active}{Maximum concurrent requests, or \code{NULL} for the provider's
-default: 2 for DeepL, Google Translation and Qwen-MT, 10 for chat models.}
+default.}
 
-\item{rpm}{Maximum requests per minute. Native translation requests are paced evenly
-rather than allowing an initial burst.}
+\item{rpm}{Maximum requests per minute.}
 
-\item{on_error}{Failure policy: \code{"continue"} attempts all units,
-\code{"return"} stops new submissions after a failure, and \code{"stop"} raises it.}
+\item{on_error}{Failure policy: \code{"continue"} attempts every text,
+\code{"return"} stops sending after a failure, and \code{"stop"} raises it.}
 
-\item{...}{Named arguments specific to one provider; any other name is an
-error.
-\itemize{
-\item DeepL: \code{formality}, one of \code{"default"}, \code{"more"}, \code{"less"},
-\code{"prefer_more"} or \code{"prefer_less"}.
-\item Google Translation: \code{project_id}, the Google Cloud project ID or number,
-defaulting to the \code{GOOGLE_CLOUD_PROJECT} environment variable; and
-\code{region}, the model location, defaulting to \code{"us-central1"}. The Basic
-API uses a global endpoint, so \code{region} does not guarantee data
-residency.
-\item Qwen-MT: none.
-\item Chat models: passed on to \code{\link[ellmer:chat]{ellmer::chat()}} through \code{\link[=qlm_code]{qlm_code()}}, as in
-a coding run, for example \code{api_args}. Only their names are recorded.
-}
-
-For a register on other providers, use \code{instructions}.}
+\item{...}{Named arguments specific to the provider; see "Providers". Any
+other name is an error.}
 }
 \value{
 A \code{qlm_translation}: a character vector of translations named by
@@ -147,120 +110,103 @@ Translates texts and returns them as a named character vector carrying
 per-document translation provenance, as \code{\link[=qlm_transcribe]{qlm_transcribe()}} does for
 transcripts. The result can be passed to \code{\link[=qlm_code]{qlm_code()}}; \code{\link[=qlm_trail]{qlm_trail()}} then
 records translation as part of the coding instrument.
+\subsection{Providers}{
+
+\code{target_lang}, \code{source_lang} and \code{protect} work the same for every
+provider. The other arguments depend on it; where a provider cannot honour
+one, using it is an error rather than being ignored.\tabular{lllll}{
+    \tab DeepL \tab Qwen-MT \tab Google Translation LLM \tab Chat models \cr
+   \code{model} \tab \code{"deepl/"} and \code{quality_optimized}, \code{latency_optimized} or \code{prefer_quality_optimized} \tab \code{"dashscope/"} and \code{qwen-mt-plus}, \code{qwen-mt-flash} or \code{qwen-mt-lite} \tab \code{"google-translate/translation-llm"} \tab any \code{\link[ellmer:chat]{ellmer::chat()}} model \cr
+   \code{instructions} \tab at most 10, of at most 300 characters each \tab yes \tab error \tab yes \cr
+   \code{context} \tab yes \tab yes \tab error \tab yes \cr
+   \code{glossary} \tab error: not yet implemented \tab yes \tab error \tab yes \cr
+   \code{params} \tab error \tab \code{temperature}, \code{top_p}, \code{top_k}, \code{seed}, \code{max_tokens} \tab error \tab any \cr
+   \code{...} \tab \code{formality}: \code{"default"}, \code{"more"}, \code{"less"}, \code{"prefer_more"} or \code{"prefer_less"} \tab none \tab \code{project_id} (default: \code{GOOGLE_CLOUD_PROJECT}); \code{region} (default \code{"us-central1"}) \tab passed to \code{\link[ellmer:chat]{ellmer::chat()}}, e.g. \code{api_args} \cr
+   One request \tab up to 50 whole documents \tab adjacent paragraphs of one document \tab one document \tab adjacent paragraphs of one document \cr
+   \code{chunk_size} default \tab 16,000 \tab 4,000 \tab 30,000, Google's limit \tab 8,000, or \code{2 * params$max_tokens} if smaller \cr
+   \code{max_active} default \tab 2 \tab 2 \tab 2 \tab 10 \cr
+   API key \tab \code{DEEPL_API_KEY}, or keyring \code{"deepl"} \tab \code{DASHSCOPE_API_KEY} \tab \code{GOOGLE_TRANSLATE_API_KEY}, or keyring \code{"google-translate"} \tab the provider's, through ellmer \cr
+   Also recorded \tab detected language, model type used, billed characters \tab model, tokens \tab detected language, model \tab tokens, cost \cr
+}
+
+
+DeepL model types express a quality or speed goal, not a fixed model
+version. Google's \code{region} selects the model's location, but the Basic API
+uses a global endpoint, so it does not guarantee where data is processed.
+For chat models the answering model version is not yet recorded
+(\href{https://github.com/quallmer/quallmer/issues/199}{#199}). Arguments
+passed to a chat model through \code{...} are recorded by name only, since they
+can carry credentials.
+}
+
 \subsection{Language codes}{
 
-\code{target_lang} and \code{source_lang} take BCP 47 language tags, the scheme web
-standards use: an ISO 639 language code (\code{"fr"}), optionally followed by an
-ISO 15924 script (\code{"zh-Hant"}) and an ISO 3166 region or UN M.49 area
-(\code{"pt-BR"}, \code{"es-419"}). Plain language codes are usually what you want; add
-a region only for a regional variant of the target. W3C's
+\code{target_lang} and \code{source_lang} take BCP 47 language tags: an ISO 639
+language code (\code{"fr"}), optionally followed by an ISO 15924 script
+(\code{"zh-Hant"}) and an ISO 3166 region or UN M.49 area (\code{"pt-BR"},
+\code{"es-419"}). A plain language code is usually what you want; add a region
+only for a regional variant of the target. W3C's
 \href{https://www.w3.org/International/questions/qa-choosing-language-tags}{Choosing a language tag}
 explains the parts, and the
 \href{https://r12a.github.io/app-subtags/}{Language Subtag Lookup} finds the tag
-for a language. Case does not matter, and \verb{_} may be used for \code{-}.
+for a language. Case does not matter, and an underscore may be used for a
+hyphen.
 
 Each provider spells some languages differently, so the tag is converted
-to the provider's own code, and both are recorded in the provenance
+to the provider's own code, and the provenance records both
 (\code{settings$provider_languages}):
 \itemize{
-\item DeepL: upper case. A source is a bare language, since DeepL accepts
-variants only as targets, and its target variants are \code{en-GB}, \code{en-US},
-\code{fr-CA}, \code{fr-FR}, \code{de-DE}, \code{de-CH}, \code{pt-BR}, \code{pt-PT}, \code{es-ES}, \code{es-419},
-\code{zh-Hans} and \code{zh-Hant}; any other variant is an error before any
-request. \code{zh-CN} and \code{zh-TW} become \code{ZH-HANS} and \code{ZH-HANT}, \code{no} becomes
-\code{NB}, and \code{fil} becomes \code{TL}.
+\item DeepL takes regional variants only as targets, and only \code{en-GB},
+\code{en-US}, \code{fr-CA}, \code{fr-FR}, \code{de-DE}, \code{de-CH}, \code{pt-BR}, \code{pt-PT}, \code{es-ES},
+\code{es-419}, \code{zh-Hans} and \code{zh-Hant}; any other is an error before any
+request. A source is reduced to its language. \code{zh-CN} and \code{zh-TW} become
+\code{ZH-HANS} and \code{ZH-HANT}, \code{no} becomes \code{NB}, and \code{fil} becomes \code{TL}.
 \item Google Translation LLM: \code{zh-CN} and \code{zh-TW} become \code{zh-Hans} and
-\code{zh-Hant}, and \code{tl} becomes \code{fil}; other tags are sent as given.
-\item Qwen-MT: a bare language code, with \code{zh_tw} for Traditional Chinese. Qwen-MT
-has no regional variants, so a requested one, such as \code{en-GB}, is asked
-for in its instructions instead.
-\item Chat models: the tag as given.
+\code{zh-Hant}, and \code{tl} becomes \code{fil}.
+\item Qwen-MT takes language codes only, with \code{zh_tw} for Traditional
+Chinese; a regional variant such as \code{en-GB} is requested in its
+instructions instead.
+\item Chat models receive the tag as given.
 }
 }
 
-\subsection{API setup and keys}{
-
-Obtain credentials using the provider's setup instructions:
+\subsection{API keys}{
 \itemize{
-\item \href{https://developers.deepl.com/docs/getting-started/auth}{DeepL: access and authentication}.
-Set \code{DEEPL_API_KEY} or save the key with \code{keyring::key_set("deepl")}.
-\item \href{https://www.alibabacloud.com/help/en/model-studio/get-api-key}{Alibaba Cloud Model Studio: obtain an API key}
-for Qwen-MT. Set \code{DASHSCOPE_API_KEY}; the key must match the endpoint's region.
-\item \href{https://docs.cloud.google.com/translate/docs/setup}{Google Cloud Translation: setup}.
-Enable billing and Cloud Translation for the project, and create an API key
-that permits Cloud Translation. Set \code{GOOGLE_TRANSLATE_API_KEY} or save it
-with \code{keyring::key_set("google-translate")}. Supply \code{project_id} or set
-\code{GOOGLE_CLOUD_PROJECT}.
+\item DeepL: see \href{https://developers.deepl.com/docs/getting-started/auth}{access and authentication}.
+A key ending in \verb{:fx} uses the Free API host.
+\item Qwen-MT: see \href{https://www.alibabacloud.com/help/en/model-studio/get-api-key}{Model Studio API keys}.
+The key must match the endpoint's region.
+\item Google: see \href{https://docs.cloud.google.com/translate/docs/setup}{Cloud Translation setup}.
+Enable billing and the Cloud Translation API for the project, and create
+an API key allowed to call it.
+\item Chat models: see the \href{https://ellmer.tidyverse.org/reference/index.html}{ellmer provider documentation}.
 }
 
-For other chat providers, follow the credential instructions in the
-corresponding \href{https://ellmer.tidyverse.org/reference/index.html}{ellmer provider documentation}.
+Where the table names a keyring entry, a key saved once with, for example,
+\code{keyring::key_set("deepl")} is used when the environment variable is unset;
+this needs the optional \pkg{keyring} package and may prompt to unlock the
+system store. An explicit \code{api_key} overrides both.
 }
 
-\subsection{Requests and provenance}{
+\subsection{Paragraphs, retries and failures}{
 
-Google Translation LLM uses the Cloud Translation Basic API with one complete
-document per request, splitting only to meet 30000-character and 100 kB body
-limits or a smaller \code{chunk_size}. Paragraph formatting is handled by Google;
-exact paragraph separator preservation is not guaranteed. Detected source
-languages are recorded when \code{source_lang} is omitted. The Basic API does not
-accept \code{context}, \code{instructions}, \code{glossary} or non-empty \code{params};
-these arguments raise an error rather than being silently ignored.
+Paragraphs are separated by blank lines. The separators, and whitespace at
+the start and end of each paragraph, are kept aside and restored exactly.
+DeepL, Qwen-MT and chat models are told where each paragraph begins, and a
+response that loses, merges or reorders paragraphs is sent again in
+smaller parts. Google receives each document whole and handles paragraph
+formatting itself, so exact separators are not guaranteed there. Text
+longer than \code{chunk_size} is split at sentence ends, else at spaces, else
+between characters.
 
-Chat models translate adjacent paragraphs of one document together, up to
-\code{chunk_size} characters per request, through \code{\link[=qlm_code]{qlm_code()}} with a codebook
-that returns one translation per paragraph ID. Each request also receives
-the call's \code{context} and the source text just before the group, both
-marked as context not to translate. A group whose response is cut off at
-the output limit, or whose paragraph IDs come back missing, duplicated or
-unknown, is sent again as two halves, down to single paragraphs. DeepL
-receives whole documents, with XML tags preserving paragraph boundaries;
-up to 50 documents share a request within its 131 kB (131,072 byte) limit.
-A document is divided across requests only when its encoded body, including
-context and settings, exceeds that limit. Blank-line paragraph separators
-and whitespace at segment edges are kept locally and restored verbatim.
-Sentences, then whitespace, then code points delimit oversized paragraphs.
-Hard cuts can split grapheme clusters. DeepL receives the call-wide
-context and the document's paragraphs together in each text. A document
-whose paragraph structure DeepL changes is sent again as two halves, and a
-half that fails again is halved only while the other half succeeds.
-
-Qwen-MT groups adjacent paragraphs from the same document, using native
-language, terminology and domain options in a non-streaming request. Groups
-target at most \code{chunk_size} characters and approximately 6000 serialized
-UTF-8 request bytes. This is a packing heuristic, not a token count; an
-individual segment can exceed that soft byte target. Input-length
-rejections, output truncation and lost or reordered boundary markers reduce
-groups at paragraph boundaries, with at most eight group reductions. An oversized
-individual paragraph is reduced at sentence, whitespace or code-point
-boundaries with at most eight reductions. Original paragraph separators
-are restored locally. Group boundaries use opaque markers with native
-terminology entries mapping each marker to itself. Extra blank lines
-inside one translated source paragraph become single line breaks rather
-than causing a validation failure. Qwen-MT does not report its detected
-source language.
-
-Protection failures and malformed or blank responses are retried once; under
-the default \code{on_error = "continue"} these retries are sent together. A
-single paragraph cut off at the output limit is retried as smaller
-segments, with at most two reductions. A document with any failed segment is \code{NA}, never
-a partial translation. Usage for every attempt is retained. Under
-\code{on_error = "return"}, a validation failure is known only after the pool
-returns, so requests already submitted cannot be withheld; remaining
-retries are withheld after the first terminal failure.
-
-The provenance records requested settings, not a guarantee that the
-provider applied them. Unsupported-parameter warnings from ellmer are
-recorded and emitted once each. The detected language and the model
-version that answered are not reported for chat models (\code{NA}); DeepL
-reports the detected language per document or oversized document part.
-Chat usage is recorded once per request, in the attempt of its first
-segment.
-Qwen-MT usage is recorded once per group, in its first segment attempt.
-DeepL usage is recorded once per submitted document or part, in its first
-segment attempt. DeepL model types express
-quality/latency goals, not pinned model versions. Save the returned object
-with \code{\link[=saveRDS]{saveRDS()}} to retain the exact translations used for coding.
+A response that is malformed or changes a protected term is retried once,
+and one cut off at the output limit is sent again in smaller parts. A
+document with any part that still fails is \code{NA}, never a partial
+translation, and its error says why. Every attempt, with its usage, is
+recorded in the provenance (\code{attempts}). The provenance records the
+settings requested, not a guarantee that the provider applied them. Save
+the result with \code{\link[=saveRDS]{saveRDS()}} to keep the exact translations used for
+coding.
 }
 }
 \examples{

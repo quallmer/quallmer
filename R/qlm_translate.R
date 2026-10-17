@@ -11,188 +11,135 @@
 #'   A transcript from [qlm_transcribe()] or an earlier translation can also be
 #'   translated, and its history is kept. Names must be unique and non-empty.
 #'   Missing texts are recorded as failures without a request.
-#' @param model Required provider/model identifier. DeepL accepts
-#'   `"deepl/quality_optimized"`, `"deepl/latency_optimized"` and
-#'   `"deepl/prefer_quality_optimized"`. Qwen-MT accepts, for example,
-#'   `"dashscope/qwen-mt-plus"`, `"dashscope/qwen-mt-flash"` and
-#'   `"dashscope/qwen-mt-lite"`. Google Translation LLM uses
-#'   `"google-translate/translation-llm"`. Other models use [ellmer::chat()].
-#' @param target_lang Target language, as a BCP 47 language tag: a two- or
-#'   three-letter ISO 639 language code, optionally followed by a script and a
-#'   region, such as `"en"`, `"en-GB"`, `"pt-BR"` or `"zh-Hant"`. See the
-#'   section "Language codes".
+#' @param model The provider and model, as `"provider/model"`; required. See
+#'   "Providers" for the translation services; any other [ellmer::chat()]
+#'   model translates through [qlm_code()].
+#' @param target_lang Target language, as a BCP 47 language tag such as
+#'   `"en"`, `"en-GB"`, `"pt-BR"` or `"zh-Hant"`. See "Language codes".
 #' @param source_lang Source language, as a BCP 47 language tag, or `NULL`
-#'   for automatic detection.
-#' @param instructions Character vector of translation directives. DeepL
-#'   accepts at most 10 directives of at most 300 characters each. Qwen-MT
-#'   receives these together with `context` as its native domain prompt.
-#' @param context One string of background information, not text to translate.
+#'   for the provider to detect it.
+#' @param instructions Character vector of translation directives, such as a
+#'   register to use or how to treat names.
+#' @param context One string of background about the texts, to inform the
+#'   translation but not to be translated.
+#' @param glossary Named character vector of source terms and their required
+#'   translations, such as `c(Bundestag = "Bundestag")`.
 #' @param protect Character vector of regular expressions matching text to
-#'   preserve exactly. Matches must not overlap or be empty. Matched text is
-#'   masked before splitting and restored only after marker validation.
-#' @param glossary Named character vector of source terms and their desired
-#'   translations. Qwen-MT uses native terminology options; the generic
-#'   adapter uses instructions. Native
-#'   DeepL glossaries are not implemented in this initial version.
-#' @param adapter `NULL` for automatic selection, or `"generic"`, `"deepl"`,
-#'   or `"qwen-mt"`. Exact Qwen-MT plus, flash and lite model IDs select the
-#'   native adapter automatically. Google Translation LLM selects
-#'   `"google-translate"` automatically; this can also be supplied explicitly.
-#' @param params Settings created with [ellmer::params()], passed through on
-#'   the chat route. Qwen-MT supports `temperature`, `top_p`, `top_k`, `seed`
-#'   and `max_tokens`, rejecting unsupported settings. Non-empty settings are
-#'   refused on the DeepL and Google Translation routes.
-#' @param chunk_size Positive integer; the most source characters to send in
-#'   one request for chat models and Qwen-MT, or in one segment for DeepL and
-#'   Google, including protection markers. Defaults to 8000 for chat models,
-#'   or twice a supplied `params$max_tokens` if that is smaller; 4000 for
-#'   Qwen-MT; 16000 for DeepL; and 30000 for Google, its limit. Characters are
-#'   an estimate of tokens: a response cut off at the output limit is
-#'   detected and sent again in smaller parts.
-#' @param api_key API key, or `NULL` to use the provider's environment variable
-#'   (`DEEPL_API_KEY` for DeepL, `DASHSCOPE_API_KEY` for DashScope). If that
-#'   variable is unset or empty, DeepL
-#'   falls back to `keyring::key_get("deepl")` when the optional \pkg{keyring}
-#'   package is installed. Save a key interactively once with
-#'   `keyring::key_set("deepl")`. An explicit key overrides both other sources.
-#'   Keyring lookup may prompt to unlock the system store. Keys are never
-#'   recorded or copied into the environment by this function. Google Translation
-#'   uses `GOOGLE_TRANSLATE_API_KEY`, falling back to
-#'   `keyring::key_get("google-translate")`; explicit keys take precedence.
-#' @param base_url Optional API base URL. DeepL defaults to its Free or Pro
-#'   host according to the key. Recorded with URL credentials redacted.
+#'   keep exactly as it is, such as names or codes. Matches must not overlap
+#'   or be empty; every one is checked in the translation.
+#' @param params Generation settings from [ellmer::params()], such as
+#'   `temperature` or `max_tokens`.
+#' @param chunk_size The most source characters in one request, or `NULL` for
+#'   the provider's default. Characters only estimate tokens: a response cut
+#'   off at the output limit is detected and sent again in smaller parts.
+#' @param adapter `NULL` to choose how requests are made from `model`, or
+#'   `"generic"` to send a recognised translation model the ordinary chat
+#'   request instead.
+#' @param api_key An API key, or `NULL` to use the provider's environment
+#'   variable or saved key (see "API keys"). Keys are never recorded.
+#' @param base_url Optional API base URL, recorded with any credentials in it
+#'   removed.
 #' @param max_active Maximum concurrent requests, or `NULL` for the provider's
-#'   default: 2 for DeepL, Google Translation and Qwen-MT, 10 for chat models.
-#' @param rpm Maximum requests per minute. Native translation requests are paced evenly
-#'   rather than allowing an initial burst.
-#' @param on_error Failure policy: `"continue"` attempts all units,
-#'   `"return"` stops new submissions after a failure, and `"stop"` raises it.
-#' @param ... Named arguments specific to one provider; any other name is an
-#'   error.
-#'   * DeepL: `formality`, one of `"default"`, `"more"`, `"less"`,
-#'     `"prefer_more"` or `"prefer_less"`.
-#'   * Google Translation: `project_id`, the Google Cloud project ID or number,
-#'     defaulting to the `GOOGLE_CLOUD_PROJECT` environment variable; and
-#'     `region`, the model location, defaulting to `"us-central1"`. The Basic
-#'     API uses a global endpoint, so `region` does not guarantee data
-#'     residency.
-#'   * Qwen-MT: none.
-#'   * Chat models: passed on to [ellmer::chat()] through [qlm_code()], as in
-#'     a coding run, for example `api_args`. Only their names are recorded.
-#'
-#'   For a register on other providers, use `instructions`.
+#'   default.
+#' @param rpm Maximum requests per minute.
+#' @param on_error Failure policy: `"continue"` attempts every text,
+#'   `"return"` stops sending after a failure, and `"stop"` raises it.
+#' @param ... Named arguments specific to the provider; see "Providers". Any
+#'   other name is an error.
 #'
 #' @details
+#' ## Providers
+#'
+#' `target_lang`, `source_lang` and `protect` work the same for every
+#' provider. The other arguments depend on it; where a provider cannot honour
+#' one, using it is an error rather than being ignored.
+#'
+#' | | DeepL | Qwen-MT | Google Translation LLM | Chat models |
+#' |:--|:--|:--|:--|:--|
+#' | `model` | `"deepl/"` and `quality_optimized`, `latency_optimized` or `prefer_quality_optimized` | `"dashscope/"` and `qwen-mt-plus`, `qwen-mt-flash` or `qwen-mt-lite` | `"google-translate/translation-llm"` | any [ellmer::chat()] model |
+#' | `instructions` | at most 10, of at most 300 characters each | yes | error | yes |
+#' | `context` | yes | yes | error | yes |
+#' | `glossary` | error: not yet implemented | yes | error | yes |
+#' | `params` | error | `temperature`, `top_p`, `top_k`, `seed`, `max_tokens` | error | any |
+#' | `...` | `formality`: `"default"`, `"more"`, `"less"`, `"prefer_more"` or `"prefer_less"` | none | `project_id` (default: `GOOGLE_CLOUD_PROJECT`); `region` (default `"us-central1"`) | passed to [ellmer::chat()], e.g. `api_args` |
+#' | One request | up to 50 whole documents | adjacent paragraphs of one document | one document | adjacent paragraphs of one document |
+#' | `chunk_size` default | 16,000 | 4,000 | 30,000, Google's limit | 8,000, or `2 * params$max_tokens` if smaller |
+#' | `max_active` default | 2 | 2 | 2 | 10 |
+#' | API key | `DEEPL_API_KEY`, or keyring `"deepl"` | `DASHSCOPE_API_KEY` | `GOOGLE_TRANSLATE_API_KEY`, or keyring `"google-translate"` | the provider's, through ellmer |
+#' | Also recorded | detected language, model type used, billed characters | model, tokens | detected language, model | tokens, cost |
+#'
+#' DeepL model types express a quality or speed goal, not a fixed model
+#' version. Google's `region` selects the model's location, but the Basic API
+#' uses a global endpoint, so it does not guarantee where data is processed.
+#' For chat models the answering model version is not yet recorded
+#' ([#199](https://github.com/quallmer/quallmer/issues/199)). Arguments
+#' passed to a chat model through `...` are recorded by name only, since they
+#' can carry credentials.
+#'
 #' ## Language codes
 #'
-#' `target_lang` and `source_lang` take BCP 47 language tags, the scheme web
-#' standards use: an ISO 639 language code (`"fr"`), optionally followed by an
-#' ISO 15924 script (`"zh-Hant"`) and an ISO 3166 region or UN M.49 area
-#' (`"pt-BR"`, `"es-419"`). Plain language codes are usually what you want; add
-#' a region only for a regional variant of the target. W3C's
+#' `target_lang` and `source_lang` take BCP 47 language tags: an ISO 639
+#' language code (`"fr"`), optionally followed by an ISO 15924 script
+#' (`"zh-Hant"`) and an ISO 3166 region or UN M.49 area (`"pt-BR"`,
+#' `"es-419"`). A plain language code is usually what you want; add a region
+#' only for a regional variant of the target. W3C's
 #' [Choosing a language tag](https://www.w3.org/International/questions/qa-choosing-language-tags)
 #' explains the parts, and the
 #' [Language Subtag Lookup](https://r12a.github.io/app-subtags/) finds the tag
-#' for a language. Case does not matter, and `_` may be used for `-`.
+#' for a language. Case does not matter, and an underscore may be used for a
+#' hyphen.
 #'
 #' Each provider spells some languages differently, so the tag is converted
-#' to the provider's own code, and both are recorded in the provenance
+#' to the provider's own code, and the provenance records both
 #' (`settings$provider_languages`):
 #'
-#' * DeepL: upper case. A source is a bare language, since DeepL accepts
-#'   variants only as targets, and its target variants are `en-GB`, `en-US`,
-#'   `fr-CA`, `fr-FR`, `de-DE`, `de-CH`, `pt-BR`, `pt-PT`, `es-ES`, `es-419`,
-#'   `zh-Hans` and `zh-Hant`; any other variant is an error before any
-#'   request. `zh-CN` and `zh-TW` become `ZH-HANS` and `ZH-HANT`, `no` becomes
-#'   `NB`, and `fil` becomes `TL`.
+#' * DeepL takes regional variants only as targets, and only `en-GB`,
+#'   `en-US`, `fr-CA`, `fr-FR`, `de-DE`, `de-CH`, `pt-BR`, `pt-PT`, `es-ES`,
+#'   `es-419`, `zh-Hans` and `zh-Hant`; any other is an error before any
+#'   request. A source is reduced to its language. `zh-CN` and `zh-TW` become
+#'   `ZH-HANS` and `ZH-HANT`, `no` becomes `NB`, and `fil` becomes `TL`.
 #' * Google Translation LLM: `zh-CN` and `zh-TW` become `zh-Hans` and
-#'   `zh-Hant`, and `tl` becomes `fil`; other tags are sent as given.
-#' * Qwen-MT: a bare language code, with `zh_tw` for Traditional Chinese. Qwen-MT
-#'   has no regional variants, so a requested one, such as `en-GB`, is asked
-#'   for in its instructions instead.
-#' * Chat models: the tag as given.
+#'   `zh-Hant`, and `tl` becomes `fil`.
+#' * Qwen-MT takes language codes only, with `zh_tw` for Traditional
+#'   Chinese; a regional variant such as `en-GB` is requested in its
+#'   instructions instead.
+#' * Chat models receive the tag as given.
 #'
-#' ## API setup and keys
+#' ## API keys
 #'
-#' Obtain credentials using the provider's setup instructions:
+#' * DeepL: see [access and authentication](https://developers.deepl.com/docs/getting-started/auth).
+#'   A key ending in `:fx` uses the Free API host.
+#' * Qwen-MT: see [Model Studio API keys](https://www.alibabacloud.com/help/en/model-studio/get-api-key).
+#'   The key must match the endpoint's region.
+#' * Google: see [Cloud Translation setup](https://docs.cloud.google.com/translate/docs/setup).
+#'   Enable billing and the Cloud Translation API for the project, and create
+#'   an API key allowed to call it.
+#' * Chat models: see the [ellmer provider documentation](https://ellmer.tidyverse.org/reference/index.html).
 #'
-#' * [DeepL: access and authentication](https://developers.deepl.com/docs/getting-started/auth).
-#'   Set `DEEPL_API_KEY` or save the key with `keyring::key_set("deepl")`.
-#' * [Alibaba Cloud Model Studio: obtain an API key](https://www.alibabacloud.com/help/en/model-studio/get-api-key)
-#'   for Qwen-MT. Set `DASHSCOPE_API_KEY`; the key must match the endpoint's region.
-#' * [Google Cloud Translation: setup](https://docs.cloud.google.com/translate/docs/setup).
-#'   Enable billing and Cloud Translation for the project, and create an API key
-#'   that permits Cloud Translation. Set `GOOGLE_TRANSLATE_API_KEY` or save it
-#'   with `keyring::key_set("google-translate")`. Supply `project_id` or set
-#'   `GOOGLE_CLOUD_PROJECT`.
+#' Where the table names a keyring entry, a key saved once with, for example,
+#' `keyring::key_set("deepl")` is used when the environment variable is unset;
+#' this needs the optional \pkg{keyring} package and may prompt to unlock the
+#' system store. An explicit `api_key` overrides both.
 #'
-#' For other chat providers, follow the credential instructions in the
-#' corresponding [ellmer provider documentation](https://ellmer.tidyverse.org/reference/index.html).
+#' ## Paragraphs, retries and failures
 #'
-#' ## Requests and provenance
+#' Paragraphs are separated by blank lines. The separators, and whitespace at
+#' the start and end of each paragraph, are kept aside and restored exactly.
+#' DeepL, Qwen-MT and chat models are told where each paragraph begins, and a
+#' response that loses, merges or reorders paragraphs is sent again in
+#' smaller parts. Google receives each document whole and handles paragraph
+#' formatting itself, so exact separators are not guaranteed there. Text
+#' longer than `chunk_size` is split at sentence ends, else at spaces, else
+#' between characters.
 #'
-#' Google Translation LLM uses the Cloud Translation Basic API with one complete
-#' document per request, splitting only to meet 30000-character and 100 kB body
-#' limits or a smaller `chunk_size`. Paragraph formatting is handled by Google;
-#' exact paragraph separator preservation is not guaranteed. Detected source
-#' languages are recorded when `source_lang` is omitted. The Basic API does not
-#' accept `context`, `instructions`, `glossary` or non-empty `params`;
-#' these arguments raise an error rather than being silently ignored.
-#'
-#' Chat models translate adjacent paragraphs of one document together, up to
-#' `chunk_size` characters per request, through [qlm_code()] with a codebook
-#' that returns one translation per paragraph ID. Each request also receives
-#' the call's `context` and the source text just before the group, both
-#' marked as context not to translate. A group whose response is cut off at
-#' the output limit, or whose paragraph IDs come back missing, duplicated or
-#' unknown, is sent again as two halves, down to single paragraphs. DeepL
-#' receives whole documents, with XML tags preserving paragraph boundaries;
-#' up to 50 documents share a request within its 131 kB (131,072 byte) limit.
-#' A document is divided across requests only when its encoded body, including
-#' context and settings, exceeds that limit. Blank-line paragraph separators
-#' and whitespace at segment edges are kept locally and restored verbatim.
-#' Sentences, then whitespace, then code points delimit oversized paragraphs.
-#' Hard cuts can split grapheme clusters. DeepL receives the call-wide
-#' context and the document's paragraphs together in each text. A document
-#' whose paragraph structure DeepL changes is sent again as two halves, and a
-#' half that fails again is halved only while the other half succeeds.
-#'
-#' Qwen-MT groups adjacent paragraphs from the same document, using native
-#' language, terminology and domain options in a non-streaming request. Groups
-#' target at most `chunk_size` characters and approximately 6000 serialized
-#' UTF-8 request bytes. This is a packing heuristic, not a token count; an
-#' individual segment can exceed that soft byte target. Input-length
-#' rejections, output truncation and lost or reordered boundary markers reduce
-#' groups at paragraph boundaries, with at most eight group reductions. An oversized
-#' individual paragraph is reduced at sentence, whitespace or code-point
-#' boundaries with at most eight reductions. Original paragraph separators
-#' are restored locally. Group boundaries use opaque markers with native
-#' terminology entries mapping each marker to itself. Extra blank lines
-#' inside one translated source paragraph become single line breaks rather
-#' than causing a validation failure. Qwen-MT does not report its detected
-#' source language.
-#'
-#' Protection failures and malformed or blank responses are retried once; under
-#' the default `on_error = "continue"` these retries are sent together. A
-#' single paragraph cut off at the output limit is retried as smaller
-#' segments, with at most two reductions. A document with any failed segment is `NA`, never
-#' a partial translation. Usage for every attempt is retained. Under
-#' `on_error = "return"`, a validation failure is known only after the pool
-#' returns, so requests already submitted cannot be withheld; remaining
-#' retries are withheld after the first terminal failure.
-#'
-#' The provenance records requested settings, not a guarantee that the
-#' provider applied them. Unsupported-parameter warnings from ellmer are
-#' recorded and emitted once each. The detected language and the model
-#' version that answered are not reported for chat models (`NA`); DeepL
-#' reports the detected language per document or oversized document part.
-#' Chat usage is recorded once per request, in the attempt of its first
-#' segment.
-#' Qwen-MT usage is recorded once per group, in its first segment attempt.
-#' DeepL usage is recorded once per submitted document or part, in its first
-#' segment attempt. DeepL model types express
-#' quality/latency goals, not pinned model versions. Save the returned object
-#' with [saveRDS()] to retain the exact translations used for coding.
+#' A response that is malformed or changes a protected term is retried once,
+#' and one cut off at the output limit is sent again in smaller parts. A
+#' document with any part that still fails is `NA`, never a partial
+#' translation, and its error says why. Every attempt, with its usage, is
+#' recorded in the provenance (`attempts`). The provenance records the
+#' settings requested, not a guarantee that the provider applied them. Save
+#' the result with [saveRDS()] to keep the exact translations used for
+#' coding.
 #'
 #' @return A `qlm_translation`: a character vector of translations named by
 #'   document, with `NA` for each translation that failed or was not
