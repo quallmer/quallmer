@@ -566,7 +566,8 @@ new_qlm_transcript <- function(text, provenance) {
   rownames(provenance) <- NULL
   text <- as.vector(text, "character")
   names(text) <- provenance$.id
-  structure(text, provenance = provenance, class = c("qlm_transcript", "character"))
+  structure(text, provenance = provenance,
+            class = c("qlm_transcript", "qlm_preprocessed", "character"))
 }
 
 #' Say how a run of transcriptions went, once, as qlm_code() does
@@ -816,11 +817,11 @@ transcription_record <- function(x) {
 #'
 #' @keywords internal
 #' @noRd
-absent_input_reasons <- function(x, transcription = NULL) {
+absent_input_reasons <- function(x, transcription = NULL, stage = "transcript") {
   reasons <- rep("the input text is NA", length(x))
   if (!is.null(transcription)) {
     failed <- !is.na(transcription$.error)
-    reasons[failed] <- paste0("no transcript: ", transcription$.error[failed])
+    reasons[failed] <- paste0("no ", stage, ": ", transcription$.error[failed])
   }
   reasons
 }

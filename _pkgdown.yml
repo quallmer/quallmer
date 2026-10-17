@@ -50,6 +50,10 @@ navbar:
         href: articles/pkgdown/examples/example_audio.html
       - text: Text segmentation
         href: articles/pkgdown/examples/example_segmentation.html
+      - text: Translating before coding
+        href: articles/pkgdown/examples/example_translation.html
+      - text: Google translation of a multilingual corpus
+        href: articles/pkgdown/examples/example_translation_google.html
       - text: Quasi-sentence segmentation
         href: articles/pkgdown/examples/example_quasi_sentences.html
     reference:
@@ -79,6 +83,8 @@ reference:
       - qlm_codebook
       - qlm_segment
       - qlm_transcribe
+      - qlm_translate
+      - corpus.qlm_coded
 
   - title: Completing incomplete runs
     desc: Optional functions for finding and re-coding the units a run failed on
