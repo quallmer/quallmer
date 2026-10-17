@@ -241,9 +241,11 @@ perform_translation_requests <- function(reqs, max_active, on_error) {
 
 translation_deepl_jobs <- function(jobs, setup, max_active, rpm, on_error,
                                    items = translation_deepl_groups(jobs)) {
-  out <- translation_deepl_send(jobs, items, setup, max_active, on_error)
-  failed <- Filter(function(item) isTRUE(out[[item[1]]]$structure_failure), items)
-  translation_deepl_split(jobs, out, failed, setup, max_active, on_error)
+  sent <- translation_deepl_send(jobs, items, setup, max_active, on_error)
+  # Repairs follow the texts actually sent: a document too large for one
+  # request went as several parts, and any one of them can fail.
+  failed <- Filter(function(part) isTRUE(sent$out[[part[1]]]$structure_failure), sent$parts)
+  translation_deepl_split(jobs, sent$out, failed, setup, max_active, on_error)
 }
 
 translation_deepl_send <- function(jobs, items, setup, max_active, on_error) {
@@ -273,7 +275,7 @@ translation_deepl_send <- function(jobs, items, setup, max_active, on_error) {
       out[batch[[g]]] <- parse_deepl_document(body$translations[[g]], length(batch[[g]]))
     }
   }
-  out
+  list(out = out, parts = unlist(batches, recursive = FALSE))
 }
 
 # A document whose paragraph structure came back changed is sent again as two
@@ -291,7 +293,7 @@ translation_deepl_split <- function(jobs, out, items, setup, max_active, on_erro
     }), recursive = FALSE)
     positions <- unlist(halves)
     local <- lapply(halves, match, positions)
-    child <- translation_deepl_send(jobs[positions], local, setup, max_active, on_error)
+    child <- translation_deepl_send(jobs[positions], local, setup, max_active, on_error)$out
     for (k in seq_along(positions)) {
       pos <- positions[k]
       if (is.null(child[[k]])) next

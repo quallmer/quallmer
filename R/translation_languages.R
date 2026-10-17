@@ -27,14 +27,18 @@ normalise_language_tag <- function(tag, arg) {
   paste(c(language, script, region), collapse = "-")
 }
 
-# Simplified or Traditional Chinese, from a script or, failing that, a region
+# Simplified or Traditional Chinese: an explicit script decides, so that
+# zh-Hans-HK is Simplified; a region supplies the usual script only when
+# none is given.
 chinese_script <- function(tag) {
   parts <- strsplit(tag, "-", fixed = TRUE)[[1]]
   if (parts[1] != "zh" || length(parts) == 1L) {
     return(NULL)
   }
-  if ("Hant" %in% parts || any(c("TW", "HK", "MO") %in% parts)) return("Hant")
-  if ("Hans" %in% parts || any(c("CN", "SG") %in% parts)) return("Hans")
+  if ("Hant" %in% parts) return("Hant")
+  if ("Hans" %in% parts) return("Hans")
+  if (any(c("TW", "HK", "MO") %in% parts)) return("Hant")
+  if (any(c("CN", "SG") %in% parts)) return("Hans")
   NULL
 }
 

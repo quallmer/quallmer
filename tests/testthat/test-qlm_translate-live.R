@@ -14,5 +14,5 @@ test_that("DeepL combines custom instructions, context and XML protection", {
   provenance <- translation_provenance(out)
   expect_equal(provenance$status, "ok")
   expect_equal(provenance$detected_language, "FR")
-  expect_true(all(vapply(provenance$attempts[[1]], `[[`, logical(1), "protection_ok")))
+  expect_true(all(provenance$attempts[[1]]$protection_ok))
 })

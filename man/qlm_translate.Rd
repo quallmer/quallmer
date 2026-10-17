@@ -154,7 +154,10 @@ hyphen.
 
 Each provider spells some languages differently, so the tag is converted
 to the provider's own code, and the provenance records both
-(\code{settings$provider_languages}):
+(\code{settings$provider_languages}). For Chinese, an explicit script decides
+between Simplified and Traditional (\code{zh-Hans-HK} is Simplified); a region
+only supplies the usual script when none is given (\code{zh-TW} is
+Traditional).
 \itemize{
 \item DeepL takes regional variants only as targets, and only \code{en-GB},
 \code{en-US}, \code{fr-CA}, \code{fr-FR}, \code{de-DE}, \code{de-CH}, \code{pt-BR}, \code{pt-PT}, \code{es-ES},

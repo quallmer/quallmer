@@ -231,6 +231,28 @@ test_that("a DeepL document with a changed structure is halved to isolate the pr
   expect_equal(max(attempts$group_reduction, na.rm = TRUE), 4)
 })
 
+test_that("a later packed part of an oversized DeepL document is repaired too", {
+  requests <- 0L
+  httr2::local_mocked_responses(function(req) {
+    requests <<- requests + 1L
+    httr2::response_json(body = list(translations = lapply(req$body$data$text, function(text) {
+      # The second request loses a paragraph
+      if (requests == 2L) text <- sub('<p id="1">[^<]*</p>', "", text)
+      list(text = text, billed_characters = 1, detected_source_language = "ZH")
+    })))
+  })
+  # Four paragraphs of 48,000 bytes each: two fit in a 128 KiB request
+  paragraphs <- vapply(1:4, function(i) strrep(c("一", "二", "三", "四")[i], 16000), "")
+  doc <- paste(paragraphs, collapse = "\n\n")
+  out <- qlm_translate(c(a = doc), "deepl/quality_optimized", api_key = "k")
+  expect_identical(unname(as.character(out)), doc)
+  # Two initial requests, then one carrying both halves of the failed part
+  expect_equal(requests, 3)
+  attempts <- attr(out, "provenance")$attempts[[1]]
+  expect_equal(sum(!is.na(attempts$error)), 2)
+  expect_equal(attempts$paragraph[!is.na(attempts$error)], c(3L, 4L))
+})
+
 test_that("a DeepL structure failure in both halves is not split further or retried", {
   requests <- 0L
   httr2::local_mocked_responses(function(req) {

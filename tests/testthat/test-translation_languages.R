@@ -59,3 +59,22 @@ test_that("qlm_translate() normalises tags, records both codes and checks before
   expect_error(qlm_translate("Bonjour", "openai/test", target_lang = "English"), "language tag")
   expect_length(seen$requests, 1)
 })
+
+test_that("an explicit Chinese script wins over the region", {
+  deepl <- function(tag) translation_provider_languages("deepl", tag, NULL)$target
+  google <- function(tag) translation_provider_languages("google-translate", tag, NULL)$target
+  qwen <- function(tag) translation_provider_languages("qwen-mt", tag, NULL)$target
+  for (tag in c("zh-Hans-HK", "zh-Hans-TW", "zh-Hans-MO")) {
+    expect_identical(deepl(tag), "ZH-HANS")
+    expect_identical(google(tag), "zh-Hans")
+    expect_identical(qwen(tag), "zh")
+  }
+  for (tag in c("zh-Hant-CN", "zh-Hant-SG")) {
+    expect_identical(deepl(tag), "ZH-HANT")
+    expect_identical(google(tag), "zh-Hant")
+    expect_identical(qwen(tag), "zh_tw")
+  }
+  # The region supplies the script only when none is given
+  expect_identical(deepl("zh-HK"), "ZH-HANT")
+  expect_identical(deepl("zh-SG"), "ZH-HANS")
+})

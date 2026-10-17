@@ -91,7 +91,10 @@
 #'
 #' Each provider spells some languages differently, so the tag is converted
 #' to the provider's own code, and the provenance records both
-#' (`settings$provider_languages`):
+#' (`settings$provider_languages`). For Chinese, an explicit script decides
+#' between Simplified and Traditional (`zh-Hans-HK` is Simplified); a region
+#' only supplies the usual script when none is given (`zh-TW` is
+#' Traditional).
 #'
 #' * DeepL takes regional variants only as targets, and only `en-GB`,
 #'   `en-US`, `fr-CA`, `fr-FR`, `de-DE`, `de-CH`, `pt-BR`, `pt-PT`, `es-ES`,
