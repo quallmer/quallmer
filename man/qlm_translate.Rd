@@ -37,9 +37,13 @@ Missing texts are recorded as failures without a request.}
 \code{"dashscope/qwen-mt-lite"}. Google Translation LLM uses
 \code{"google-translate/translation-llm"}. Other models use \code{\link[ellmer:chat]{ellmer::chat()}}.}
 
-\item{target_lang}{Target language code, such as \code{"en"} or \code{"en-GB"}.}
+\item{target_lang}{Target language, as a BCP 47 language tag: a two- or
+three-letter ISO 639 language code, optionally followed by a script and a
+region, such as \code{"en"}, \code{"en-GB"}, \code{"pt-BR"} or \code{"zh-Hant"}. See the
+section "Language codes".}
 
-\item{source_lang}{Source language code, or \code{NULL} for automatic detection.}
+\item{source_lang}{Source language, as a BCP 47 language tag, or \code{NULL}
+for automatic detection.}
 
 \item{instructions}{Character vector of translation directives. DeepL
 accepts at most 10 directives of at most 300 characters each. Qwen-MT
@@ -143,6 +147,37 @@ Translates texts and returns them as a named character vector carrying
 per-document translation provenance, as \code{\link[=qlm_transcribe]{qlm_transcribe()}} does for
 transcripts. The result can be passed to \code{\link[=qlm_code]{qlm_code()}}; \code{\link[=qlm_trail]{qlm_trail()}} then
 records translation as part of the coding instrument.
+\subsection{Language codes}{
+
+\code{target_lang} and \code{source_lang} take BCP 47 language tags, the scheme web
+standards use: an ISO 639 language code (\code{"fr"}), optionally followed by an
+ISO 15924 script (\code{"zh-Hant"}) and an ISO 3166 region or UN M.49 area
+(\code{"pt-BR"}, \code{"es-419"}). Plain language codes are usually what you want; add
+a region only for a regional variant of the target. W3C's
+\href{https://www.w3.org/International/questions/qa-choosing-language-tags}{Choosing a language tag}
+explains the parts, and the
+\href{https://r12a.github.io/app-subtags/}{Language Subtag Lookup} finds the tag
+for a language. Case does not matter, and \verb{_} may be used for \code{-}.
+
+Each provider spells some languages differently, so the tag is converted
+to the provider's own code, and both are recorded in the provenance
+(\code{settings$provider_languages}):
+\itemize{
+\item DeepL: upper case. A source is a bare language, since DeepL accepts
+variants only as targets, and its target variants are \code{en-GB}, \code{en-US},
+\code{fr-CA}, \code{fr-FR}, \code{de-DE}, \code{de-CH}, \code{pt-BR}, \code{pt-PT}, \code{es-ES}, \code{es-419},
+\code{zh-Hans} and \code{zh-Hant}; any other variant is an error before any
+request. \code{zh-CN} and \code{zh-TW} become \code{ZH-HANS} and \code{ZH-HANT}, \code{no} becomes
+\code{NB}, and \code{fil} becomes \code{TL}.
+\item Google Translation LLM: \code{zh-CN} and \code{zh-TW} become \code{zh-Hans} and
+\code{zh-Hant}, and \code{tl} becomes \code{fil}; other tags are sent as given.
+\item Qwen-MT: a bare language code, with \code{zh_tw} for Traditional Chinese. Qwen-MT
+has no regional variants, so a requested one, such as \code{en-GB}, is asked
+for in its instructions instead.
+\item Chat models: the tag as given.
+}
+}
+
 \subsection{API setup and keys}{
 
 Obtain credentials using the provider's setup instructions:

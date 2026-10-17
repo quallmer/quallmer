@@ -14,12 +14,12 @@ test_that("Qwen-MT uses native options, groups paragraphs and preserves provenan
   expect_identical(body$messages[[1]]$role, "user")
   expect_false(startsWith(body$messages[[1]]$content, "{"))
   expect_equal(body$translation_options$source_lang, "auto")
-  expect_equal(body$translation_options$target_lang, "English")
+  expect_equal(body$translation_options$target_lang, "en")
   expect_equal(body$translation_options$terms[[1]], list(source = "droits", target = "rights"))
   expect_true(all(vapply(body$translation_options$terms[-1], function(term) {
     identical(term$source, term$target)
   }, logical(1))))
-  expect_match(body$translation_options$domains, "Use British English", fixed = TRUE)
+  expect_match(body$translation_options$domains, "Write in the en-GB regional variant", fixed = TRUE)
   expect_match(body$translation_options$domains, "Human rights", fixed = TRUE)
   expect_equal(body$temperature, 0.2)
   expect_equal(body$max_tokens, 1000)
@@ -245,7 +245,8 @@ test_that("Qwen-MT return policy withholds later group repairs after a failure",
 
 test_that("Qwen-MT grouping observes request-byte targets for different scripts", {
   adapter <- translation_adapter("dashscope/qwen-mt-plus", NULL, NULL, "test")
-  settings <- list(target_lang = "en", chunk_size = 4000, group_max_bytes = 6000)
+  settings <- list(target_lang = "en", chunk_size = 4000, group_max_bytes = 6000,
+                   provider_languages = translation_provider_languages("qwen-mt", "en", NULL))
   setup <- translation_qwen_setup(adapter, settings, 60)
   jobs <- lapply(1:6, function(i) list(text = strrep("字", 700),
                                       document = 1L, marker_prefix = "QLMKEEP"))

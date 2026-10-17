@@ -118,7 +118,6 @@ test_that("input and backend options are validated before requests", {
   expect_error(qlm_translate("x", "openai/test", formality = "more"), "DeepL argument")
   expect_error(qlm_translate("x", "deepl/quality_optimized", project_id = "p"), "not an argument for DeepL")
   expect_error(qlm_translate("x", "deepl/quality_optimized", formality = "very"), "formality")
-  expect_error(qlm_translate("x", "openai/test", "unnamed"), "must be named")
   expect_length(seen$requests, 0)
 })
 

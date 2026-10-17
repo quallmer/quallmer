@@ -61,9 +61,9 @@ google_translation_keyring_key <- function() {
 }
 
 translation_google_body <- function(text, settings) {
-  body <- list(q = list(text), target = settings$target_lang, format = "text",
+  body <- list(q = list(text), target = settings$provider_languages$target, format = "text",
                model = settings$google_model)
-  if (!is.null(settings$source_lang)) body$source <- settings$source_lang
+  if (!is.null(settings$source_lang)) body$source <- settings$provider_languages$source
   body
 }
 

@@ -17,8 +17,12 @@
 #'   `"dashscope/qwen-mt-plus"`, `"dashscope/qwen-mt-flash"` and
 #'   `"dashscope/qwen-mt-lite"`. Google Translation LLM uses
 #'   `"google-translate/translation-llm"`. Other models use [ellmer::chat()].
-#' @param target_lang Target language code, such as `"en"` or `"en-GB"`.
-#' @param source_lang Source language code, or `NULL` for automatic detection.
+#' @param target_lang Target language, as a BCP 47 language tag: a two- or
+#'   three-letter ISO 639 language code, optionally followed by a script and a
+#'   region, such as `"en"`, `"en-GB"`, `"pt-BR"` or `"zh-Hant"`. See the
+#'   section "Language codes".
+#' @param source_lang Source language, as a BCP 47 language tag, or `NULL`
+#'   for automatic detection.
 #' @param instructions Character vector of translation directives. DeepL
 #'   accepts at most 10 directives of at most 300 characters each. Qwen-MT
 #'   receives these together with `context` as its native domain prompt.
@@ -79,6 +83,35 @@
 #'   For a register on other providers, use `instructions`.
 #'
 #' @details
+#' ## Language codes
+#'
+#' `target_lang` and `source_lang` take BCP 47 language tags, the scheme web
+#' standards use: an ISO 639 language code (`"fr"`), optionally followed by an
+#' ISO 15924 script (`"zh-Hant"`) and an ISO 3166 region or UN M.49 area
+#' (`"pt-BR"`, `"es-419"`). Plain language codes are usually what you want; add
+#' a region only for a regional variant of the target. W3C's
+#' [Choosing a language tag](https://www.w3.org/International/questions/qa-choosing-language-tags)
+#' explains the parts, and the
+#' [Language Subtag Lookup](https://r12a.github.io/app-subtags/) finds the tag
+#' for a language. Case does not matter, and `_` may be used for `-`.
+#'
+#' Each provider spells some languages differently, so the tag is converted
+#' to the provider's own code, and both are recorded in the provenance
+#' (`settings$provider_languages`):
+#'
+#' * DeepL: upper case. A source is a bare language, since DeepL accepts
+#'   variants only as targets, and its target variants are `en-GB`, `en-US`,
+#'   `fr-CA`, `fr-FR`, `de-DE`, `de-CH`, `pt-BR`, `pt-PT`, `es-ES`, `es-419`,
+#'   `zh-Hans` and `zh-Hant`; any other variant is an error before any
+#'   request. `zh-CN` and `zh-TW` become `ZH-HANS` and `ZH-HANT`, `no` becomes
+#'   `NB`, and `fil` becomes `TL`.
+#' * Google Translation LLM: `zh-CN` and `zh-TW` become `zh-Hans` and
+#'   `zh-Hant`, and `tl` becomes `fil`; other tags are sent as given.
+#' * Qwen-MT: a bare language code, with `zh_tw` for Traditional Chinese. Qwen-MT
+#'   has no regional variants, so a requested one, such as `en-GB`, is asked
+#'   for in its instructions instead.
+#' * Chat models: the tag as given.
+#'
 #' ## API setup and keys
 #'
 #' Obtain credentials using the provider's setup instructions:
@@ -236,9 +269,11 @@ qlm_translate <- function(x, model, target_lang = "en", source_lang = NULL,
                 "base_url")) {
     check_optional_string(get(arg), arg)
   }
-  if (is.null(target_lang) || !nzchar(target_lang)) {
-    cli::cli_abort("{.arg target_lang} must be a non-empty language code.")
+  if (is.null(target_lang)) {
+    cli::cli_abort(c("{.arg target_lang} is required.", language_tag_help))
   }
+  target_lang <- normalise_language_tag(target_lang, "target_lang")
+  source_lang <- normalise_language_tag(source_lang, "source_lang")
   check_translation_strings(instructions, "instructions")
   check_translation_strings(protect, "protect")
   check_translation_strings(glossary, "glossary")
@@ -313,6 +348,8 @@ qlm_translate <- function(x, model, target_lang = "en", source_lang = NULL,
     names(provider_args)
   } else provider_args
   if (selected$name == "deepl") settings$formality <- provider_args$formality
+  settings$provider_languages <- translation_provider_languages(selected$name,
+                                                                target_lang, source_lang)
   if (selected$name == "qwen-mt") {
     settings$group_max_bytes <- 6000L
     settings$paragraph_alignment <- "boundary_markers"

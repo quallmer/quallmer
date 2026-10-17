@@ -135,10 +135,10 @@ translation_xml_escape <- function(text) {
 translation_deepl_body <- function(jobs, items, setup) {
   settings <- setup$settings
   body <- list(text = lapply(items, function(idx) translation_deepl_text(jobs[idx])),
-    target_lang = toupper(settings$target_lang), model_type = setup$adapter$model_id,
+    target_lang = settings$provider_languages$target, model_type = setup$adapter$model_id,
     tag_handling = "xml", tag_handling_version = "v2", ignore_tags = list("keep"),
     split_sentences = "nonewlines", preserve_formatting = TRUE, show_billed_characters = TRUE)
-  if (!is.null(settings$source_lang)) body$source_lang <- toupper(settings$source_lang)
+  if (!is.null(settings$source_lang)) body$source_lang <- settings$provider_languages$source
   if (!is.null(settings$context) && nzchar(settings$context)) body$context <- settings$context
   if (length(settings$instructions)) body$custom_instructions <- as.list(settings$instructions)
   if (!is.null(settings$formality)) body$formality <- settings$formality

@@ -30,6 +30,7 @@ test_that("DeepL packs at most 50 texts and accounts for JSON bytes", {
   selected <- translation_adapter("deepl/quality_optimized", NULL, NULL, NULL)
   settings <- list(target_lang = "en-GB", source_lang = "de", context = "background",
                    instructions = "Keep the register.")
+  settings$provider_languages <- translation_provider_languages("deepl", "en-GB", "de")
   setup <- translation_setup(selected, settings, "test:fx", NULL, 60)
   expect_equal(setup$base_url, "https://api-free.deepl.com")
   jobs <- rep(list(list(text = "Hallo", marker_prefix = "QLMKEEP", context = NULL)), 51)

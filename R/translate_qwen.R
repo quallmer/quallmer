@@ -58,18 +58,6 @@ translation_qwen_params <- function(params) {
   }
 }
 
-translation_qwen_language <- function(language, source = FALSE) {
-  if (is.null(language)) return(if (source) "auto" else "English")
-  aliases <- c(en = "English", `en-gb` = "English", `en-us` = "English",
-    de = "German", deu = "German", fr = "French", fra = "French",
-    es = "Spanish", spa = "Spanish", zh = "Chinese", `zh-cn` = "Chinese",
-    `zh-hans` = "Chinese", `zh-tw` = "Traditional Chinese",
-    `zh-hant` = "Traditional Chinese", hi = "Hindi", hin = "Hindi",
-    ru = "Russian", rus = "Russian")
-  value <- unname(aliases[tolower(language)])
-  if (is.na(value)) language else value
-}
-
 translation_qwen_body <- function(jobs, setup) {
   settings <- setup$settings
   boundaries <- translation_qwen_boundaries(jobs)
@@ -77,12 +65,13 @@ translation_qwen_body <- function(jobs, setup) {
     "Preserve every opaque QLMP boundary marker exactly, once, in its original order.",
     "Translate the text on each side of a boundary marker independently; never move text across it.",
     "Preserve every opaque QLMKEEP marker exactly.",
-    if (identical(tolower(settings$target_lang), "en-gb")) "Use British English.",
-    if (identical(tolower(settings$target_lang), "en-us")) "Use American English.",
+    if (!is.null(settings$provider_languages$variant)) {
+      paste0("Write in the ", settings$provider_languages$variant, " regional variant of the target language.")
+    },
     settings$context, settings$instructions
   )
-  options <- list(source_lang = translation_qwen_language(settings$source_lang, TRUE),
-                  target_lang = translation_qwen_language(settings$target_lang),
+  options <- list(source_lang = settings$provider_languages$source,
+                  target_lang = settings$provider_languages$target,
                   domains = paste(domains, collapse = "\n"))
   terms <- unname(Map(function(source, target) list(source = source, target = target),
                       names(settings$glossary), unname(settings$glossary)))
