@@ -9,16 +9,80 @@ test_that("chat translation preserves structure, identifiers and provenance", {
   prov <- translation_provenance(out)
   expect_identical(prov$source_text, unname(x))
   expect_equal(prov$status, rep("ok", 2))
-  expect_equal(prov$reported_model, rep("model-snapshot", 2))
   expect_equal(prov$detected_language, rep(NA_character_, 2))
   expect_equal(prov$source_hash, vapply(unname(x), translation_hash, "", USE.NAMES = FALSE))
   expect_equal(lengths(prov$attempts), c(2, 1))
   expect_equal(prov$settings[[1]]$params$max_tokens, 100)
-  prompts <- lapply(seen$prompts, jsonlite::fromJSON)
-  expect_equal(prompts[[1]]$background, "Interview")
-  expect_null(prompts[[1]]$preceding_source_segment)
-  expect_equal(prompts[[2]]$preceding_source_segment, "Bonjour TERM")
-  expect_null(prompts[[3]]$preceding_source_segment)
+  expect_equal(prov$settings[[1]]$chunk_size, 200)
+  # Both paragraphs of a document go in one request, by ID; usage is
+  # recorded once per request
+  expect_equal(seen$calls, 1)
+  expect_length(seen$units, 2)
+  expect_equal(seen$units[[1]]$background, "Interview")
+  expect_null(seen$units[[1]]$preceding_source_text)
+  expect_equal(vapply(seen$units[[1]]$paragraphs, `[[`, "", "id"), c("1", "2"))
+  expect_length(seen$units[[2]]$paragraphs, 1)
+  attempts <- prov$attempts[[1]]
+  expect_gt(attempts[[1]]$usage$input_tokens, 0)
+  expect_null(attempts[[2]]$usage)
+  expect_identical(attempts[[1]]$group_size, 2L)
+})
+
+test_that("chat groups respect the size budget and carry the preceding text", {
+  seen <- mock_translation_chat()
+  doc <- paste(sprintf("Paragraph %02d.", 1:10), collapse = "\n\n")
+  expect_no_warning(out <- qlm_translate(c(a = doc), "openai/test", chunk_size = 40))
+  expect_identical(unname(as.character(out)), doc)
+  expect_equal(seen$calls, 1)
+  expect_equal(lengths(lapply(seen$units, `[[`, "paragraphs")), c(3, 3, 3, 1))
+  expect_null(seen$units[[1]]$preceding_source_text)
+  expect_equal(seen$units[[2]]$preceding_source_text, "Paragraph 03.")
+  expect_equal(attr(out, "provenance")$attempts[[1]][[4]]$neighbouring_context, "Paragraph 03.")
+})
+
+test_that("a group with wrong paragraph IDs is halved", {
+  seen <- mock_translation_chat()
+  calls <- 0L
+  testthat::local_mocked_bindings(structured_chat_turns = function(chat, prompts, type, batch = FALSE,
+                                                                   execution_args = list()) {
+    calls <<- calls + 1L
+    lapply(prompts, function(prompt) {
+      unit <- jsonlite::fromJSON(prompt, simplifyVector = FALSE)
+      translations <- lapply(unit$paragraphs, function(p) list(id = p$id, text = p$text))
+      # A group of four loses a paragraph; smaller groups come back whole
+      if (length(translations) == 4L) translations <- translations[-2]
+      json_turn(list(translations = translations))
+    })
+  })
+  doc <- paste(c("one", "two", "three", "four"), collapse = "\n\n")
+  out <- qlm_translate(c(a = doc), "openai/test")
+  expect_identical(unname(as.character(out)), doc)
+  expect_equal(calls, 2)
+  attempts <- attr(out, "provenance")$attempts[[1]]
+  expect_match(attempts[[1]]$error, "paragraph IDs")
+  expect_equal(attempts[[2]]$group_reduction, 1L)
+})
+
+test_that("a truncated group is halved before a single segment is", {
+  mock_translation_chat()
+  calls <- 0L
+  testthat::local_mocked_bindings(structured_chat_turns = function(chat, prompts, type, batch = FALSE,
+                                                                   execution_args = list()) {
+    calls <<- calls + 1L
+    lapply(prompts, function(prompt) {
+      unit <- jsonlite::fromJSON(prompt, simplifyVector = FALSE)
+      if (length(unit$paragraphs) > 2L) return(text_turn("{", finish_reason = "max_tokens"))
+      json_turn(list(translations = lapply(unit$paragraphs, function(p) list(id = p$id, text = p$text))))
+    })
+  })
+  doc <- paste(c("one", "two", "three", "four"), collapse = "\n\n")
+  out <- qlm_translate(c(a = doc), "openai/test")
+  expect_identical(unname(as.character(out)), doc)
+  expect_equal(calls, 2)
+  attempts <- attr(out, "provenance")$attempts[[1]]
+  expect_match(attempts[[1]]$error, "max_tokens|output")
+  expect_identical(attempts[[1]]$finish, "max_tokens")
+  expect_equal(attempts[[1]]$reduction, 0L)
 })
 
 test_that("DeepL translation runs with XML protection and no secret in provenance", {
@@ -194,12 +258,13 @@ test_that("unsupported parameter warnings are deduplicated and recorded", {
   expect_equal(prov$attempts[[1]][[1]]$warnings, "Ignoring unsupported parameters: reasoning_tokens")
 })
 
-test_that("transport failures and unsubmitted segments remain aligned", {
+test_that("transport failures remain aligned with their documents", {
   mock_translation_chat(function(text) {
     if (text == "fail") simpleError("endpoint refused") else if (text == "unsent") NULL else text
   })
-  expect_warning(out <- qlm_translate(c(a = "ok", b = "fail", c = "unsent"), "openai/test"), "1 of 3")
-  expect_equal(translation_provenance(out)$status, c("ok", "failed", "unsubmitted"))
+  expect_warning(out <- qlm_translate(c(a = "ok", b = "fail", c = "unsent"), "openai/test"), "2 of 3")
+  expect_equal(translation_provenance(out)$status, c("ok", "failed", "failed"))
+  expect_match(translation_provenance(out)$.error[2], "endpoint refused")
   expect_equal(as.character(out), c(a = "ok", b = NA_character_, c = NA_character_))
 })
 
@@ -258,7 +323,7 @@ test_that("missing translated inputs are never coded or retried as coding failur
   coded <- suppressMessages(runner(out, score_codebook(), model = "openai/gpt-4o-mini"))
   expect_length(calls$prompts, 1)
   expect_true(is_absent_input(coded$.error[[2]]))
-  expect_match(conditionMessage(coded$.error[[2]]), "no translation: translation refused")
+  expect_match(conditionMessage(coded$.error[[2]]), "no translation: .*translation refused")
   expect_true(is_terminal_failure(list(coded$.error[[2]])))
 })
 

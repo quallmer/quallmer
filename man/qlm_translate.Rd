@@ -73,12 +73,13 @@ the chat route. Qwen-MT supports \code{temperature}, \code{top_p}, \code{top_k},
 and \code{max_tokens}, rejecting unsupported settings. Non-empty settings are
 refused on the DeepL and Google Translation routes.}
 
-\item{chunk_size}{Positive integer; estimated maximum characters per
-segment (or Qwen-MT paragraph group), including protection markers.
-Defaults to 4000 for chat and Qwen-MT and
-16000 for DeepL, reduced by a supplied \code{params$max_tokens} on chat.
-Google defaults to 30000 characters, capped at its model limit; complete
-documents are sent when they fit. Character counts cannot guarantee token limits.}
+\item{chunk_size}{Positive integer; the most source characters to send in
+one request for chat models and Qwen-MT, or in one segment for DeepL and
+Google, including protection markers. Defaults to 8000 for chat models,
+or twice a supplied \code{params$max_tokens} if that is smaller; 4000 for
+Qwen-MT; 16000 for DeepL; and 30000 for Google, its limit. Characters are
+an estimate of tokens: a response cut off at the output limit is
+detected and sent again in smaller parts.}
 
 \item{api_key}{API key, or \code{NULL} to use the provider's environment variable
 (\code{DEEPL_API_KEY} for DeepL, \code{DASHSCOPE_API_KEY} for DashScope). If that
@@ -167,16 +168,23 @@ languages are recorded when \code{source_lang} is omitted. The Basic API does no
 accept \code{context}, \code{instructions}, \code{glossary}, \code{formality} or non-empty \code{params};
 these arguments raise an error rather than being silently ignored.
 
-Chat models translate one paragraph or smaller segment per prompt. DeepL
+Chat models translate adjacent paragraphs of one document together, up to
+\code{chunk_size} characters per request, through \code{\link[=qlm_code]{qlm_code()}} with a codebook
+that returns one translation per paragraph ID. Each request also receives
+the call's \code{context} and the source text just before the group, both
+marked as context not to translate. A group whose response is cut off at
+the output limit, or whose paragraph IDs come back missing, duplicated or
+unknown, is sent again as two halves, down to single paragraphs. DeepL
 receives whole documents, with XML tags preserving paragraph boundaries;
 up to 50 documents share a request within its 131 kB (131,072 byte) limit.
 A document is divided across requests only when its encoded body, including
 context and settings, exceeds that limit. Blank-line paragraph separators
 and whitespace at segment edges are kept locally and restored verbatim.
 Sentences, then whitespace, then code points delimit oversized paragraphs.
-Hard cuts can split grapheme clusters. Chat segments receive the preceding
-source segment within their document as context. DeepL receives the
-call-wide context and the document's paragraphs together in each text.
+Hard cuts can split grapheme clusters. DeepL receives the call-wide
+context and the document's paragraphs together in each text. A document
+whose paragraph structure DeepL changes is sent again as two halves, and a
+half that fails again is halved only while the other half succeeds.
 
 Qwen-MT groups adjacent paragraphs from the same document, using native
 language, terminology and domain options in a non-streaming request. Groups
@@ -193,9 +201,10 @@ inside one translated source paragraph become single line breaks rather
 than causing a validation failure. Qwen-MT does not report its detected
 source language.
 
-Protection failures and malformed or blank responses are retried once.
-A chat response reported as truncated is retried as smaller segments, with
-at most two reductions. A document with any failed segment is \code{NA}, never
+Protection failures and malformed or blank responses are retried once; under
+the default \code{on_error = "continue"} these retries are sent together. A
+single paragraph cut off at the output limit is retried as smaller
+segments, with at most two reductions. A document with any failed segment is \code{NA}, never
 a partial translation. Usage for every attempt is retained. Under
 \code{on_error = "return"}, a validation failure is known only after the pool
 returns, so requests already submitted cannot be withheld; remaining
@@ -203,8 +212,11 @@ retries are withheld after the first terminal failure.
 
 The provenance records requested settings, not a guarantee that the
 provider applied them. Unsupported-parameter warnings from ellmer are
-recorded and emitted once each. The detected language for chat models is
-unreported (\code{NA}); DeepL reports it per document or oversized document part.
+recorded and emitted once each. The detected language and the model
+version that answered are not reported for chat models (\code{NA}); DeepL
+reports the detected language per document or oversized document part.
+Chat usage is recorded once per request, in the attempt of its first
+segment.
 Qwen-MT usage is recorded once per group, in its first segment attempt.
 DeepL usage is recorded once per submitted document or part, in its first
 segment attempt. DeepL model types express

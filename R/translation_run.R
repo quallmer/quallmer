@@ -195,7 +195,7 @@ check_translation_outcome <- function(job, outcome, setup, depth) {
 translation_attempt <- function(job, outcome, error, reduction) {
   list(paragraph = job$paragraph, segment = job$segment, start = job$start,
     end = job$end, split = job$split, marker_prefix = job$marker_prefix,
-    markers = job$markers, neighbouring_context = job$context,
+    markers = job$markers, neighbouring_context = outcome$neighbouring_context,
     timestamp = Sys.time(), reduction = reduction, finish = outcome$finish,
     reported_model = outcome$reported_model, detected_language = outcome$detected_language,
     usage = outcome$usage, warnings = outcome$warnings, error = error,

@@ -98,7 +98,7 @@ test_that("printing shows the run, previews and failures", {
   expect_identical(printed, c(
     "<qlm_translation: 2 translations, 1 failed; model openai/test; target en>",
     "first: Hello world",
-    "second: <NA: refused>"
+    "second: <NA: API request failed: refused>"
   ))
   expect_identical(capture.output(print(out, n = 1))[3], "# ... with 1 more")
 })

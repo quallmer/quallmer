@@ -41,12 +41,13 @@
 #'   the chat route. Qwen-MT supports `temperature`, `top_p`, `top_k`, `seed`
 #'   and `max_tokens`, rejecting unsupported settings. Non-empty settings are
 #'   refused on the DeepL and Google Translation routes.
-#' @param chunk_size Positive integer; estimated maximum characters per
-#'   segment (or Qwen-MT paragraph group), including protection markers.
-#'   Defaults to 4000 for chat and Qwen-MT and
-#'   16000 for DeepL, reduced by a supplied `params$max_tokens` on chat.
-#'   Google defaults to 30000 characters, capped at its model limit; complete
-#'   documents are sent when they fit. Character counts cannot guarantee token limits.
+#' @param chunk_size Positive integer; the most source characters to send in
+#'   one request for chat models and Qwen-MT, or in one segment for DeepL and
+#'   Google, including protection markers. Defaults to 8000 for chat models,
+#'   or twice a supplied `params$max_tokens` if that is smaller; 4000 for
+#'   Qwen-MT; 16000 for DeepL; and 30000 for Google, its limit. Characters are
+#'   an estimate of tokens: a response cut off at the output limit is
+#'   detected and sent again in smaller parts.
 #' @param api_key API key, or `NULL` to use the provider's environment variable
 #'   (`DEEPL_API_KEY` for DeepL, `DASHSCOPE_API_KEY` for DashScope). If that
 #'   variable is unset or empty, DeepL
@@ -100,16 +101,23 @@
 #' accept `context`, `instructions`, `glossary`, `formality` or non-empty `params`;
 #' these arguments raise an error rather than being silently ignored.
 #'
-#' Chat models translate one paragraph or smaller segment per prompt. DeepL
+#' Chat models translate adjacent paragraphs of one document together, up to
+#' `chunk_size` characters per request, through [qlm_code()] with a codebook
+#' that returns one translation per paragraph ID. Each request also receives
+#' the call's `context` and the source text just before the group, both
+#' marked as context not to translate. A group whose response is cut off at
+#' the output limit, or whose paragraph IDs come back missing, duplicated or
+#' unknown, is sent again as two halves, down to single paragraphs. DeepL
 #' receives whole documents, with XML tags preserving paragraph boundaries;
 #' up to 50 documents share a request within its 131 kB (131,072 byte) limit.
 #' A document is divided across requests only when its encoded body, including
 #' context and settings, exceeds that limit. Blank-line paragraph separators
 #' and whitespace at segment edges are kept locally and restored verbatim.
 #' Sentences, then whitespace, then code points delimit oversized paragraphs.
-#' Hard cuts can split grapheme clusters. Chat segments receive the preceding
-#' source segment within their document as context. DeepL receives the
-#' call-wide context and the document's paragraphs together in each text.
+#' Hard cuts can split grapheme clusters. DeepL receives the call-wide
+#' context and the document's paragraphs together in each text. A document
+#' whose paragraph structure DeepL changes is sent again as two halves, and a
+#' half that fails again is halved only while the other half succeeds.
 #'
 #' Qwen-MT groups adjacent paragraphs from the same document, using native
 #' language, terminology and domain options in a non-streaming request. Groups
@@ -126,9 +134,10 @@
 #' than causing a validation failure. Qwen-MT does not report its detected
 #' source language.
 #'
-#' Protection failures and malformed or blank responses are retried once.
-#' A chat response reported as truncated is retried as smaller segments, with
-#' at most two reductions. A document with any failed segment is `NA`, never
+#' Protection failures and malformed or blank responses are retried once; under
+#' the default `on_error = "continue"` these retries are sent together. A
+#' single paragraph cut off at the output limit is retried as smaller
+#' segments, with at most two reductions. A document with any failed segment is `NA`, never
 #' a partial translation. Usage for every attempt is retained. Under
 #' `on_error = "return"`, a validation failure is known only after the pool
 #' returns, so requests already submitted cannot be withheld; remaining
@@ -136,8 +145,11 @@
 #'
 #' The provenance records requested settings, not a guarantee that the
 #' provider applied them. Unsupported-parameter warnings from ellmer are
-#' recorded and emitted once each. The detected language for chat models is
-#' unreported (`NA`); DeepL reports it per document or oversized document part.
+#' recorded and emitted once each. The detected language and the model
+#' version that answered are not reported for chat models (`NA`); DeepL
+#' reports the detected language per document or oversized document part.
+#' Chat usage is recorded once per request, in the attempt of its first
+#' segment.
 #' Qwen-MT usage is recorded once per group, in its first segment attempt.
 #' DeepL usage is recorded once per submitted document or part, in its first
 #' segment attempt. DeepL model types express
@@ -261,24 +273,26 @@ qlm_translate <- function(x, model, target_lang = "en", source_lang = NULL,
     }
   }
   size <- chunk_size %||% switch(selected$name, deepl = 16000L,
-                                `google-translate` = 30000L, 4000L)
+                                `google-translate` = 30000L, `qwen-mt` = 4000L, 8000L)
   if (selected$name == "generic" && !is.null(params$max_tokens)) {
     if (!is_count(params$max_tokens, 1L)) {
       cli::cli_abort("{.arg params$max_tokens} must be a positive whole number.")
     }
-    size <- min(size, params$max_tokens)
+    # A translation is about as long as its source. Two characters per token
+    # leaves room for scripts that need more tokens, and for the JSON the
+    # translations come back in; truncation is detected if it is too few.
+    if (is.null(chunk_size)) size <- min(size, 2L * params$max_tokens)
   }
   settings <- list(target_lang = target_lang, source_lang = source_lang,
                    instructions = instructions, context = context, protect = protect,
                    glossary = glossary, formality = formality, params = params,
-                   chunk_size = size, template_version = 2L,
+                   chunk_size = size, template_version = 3L,
                    text_unit = switch(selected$name, deepl = "document",
-                                      `qwen-mt` = "paragraph_group", "segment"),
+                                      "paragraph_group"),
                    ellmer_version = as.character(utils::packageVersion("ellmer")))
   if (selected$name == "qwen-mt") {
     settings$group_max_bytes <- 6000L
     settings$paragraph_alignment <- "boundary_markers"
-    settings$template_version <- 3L
   }
   if (selected$name == "google-translate") {
     settings <- translation_google_settings(settings, project_id, region)

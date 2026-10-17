@@ -1,20 +1,33 @@
+# Chat translation runs through qlm_code(); the mock answers each group's
+# request, applying `responder` to each paragraph's text. A responder that
+# returns an error, a turn or NULL answers for the whole group instead.
+# `seen$prompts` holds the paragraph texts sent, `seen$units` each group's
+# input, and `seen$calls` the number of qlm_code() requests made.
 mock_translation_chat <- function(responder = function(text) text, env = parent.frame()) {
   withr::local_envvar(c(OPENAI_API_KEY = "test-key"), .local_envir = env)
   seen <- new.env(parent = emptyenv())
   seen$prompts <- list()
+  seen$units <- list()
   seen$calls <- 0L
-  testthat::local_mocked_bindings(parallel_chat = function(chat, prompts, max_active, rpm, on_error) {
+  testthat::local_mocked_bindings(structured_chat_turns = function(chat, prompts, type,
+                                                                   batch = FALSE,
+                                                                   execution_args = list()) {
     seen$calls <- seen$calls + 1L
-    seen$prompts <- c(seen$prompts, prompts)
     lapply(prompts, function(prompt) {
-      input <- jsonlite::fromJSON(prompt)
-      value <- responder(input$source_text)
-      if (inherits(value, "error") || inherits(value, "ellmer::Turn") || is.null(value)) return(value)
-      turn <- text_turn(value)
-      turn@json <- list(model = "model-snapshot")
-      turn
+      unit <- jsonlite::fromJSON(prompt, simplifyVector = FALSE)
+      seen$units[[length(seen$units) + 1L]] <- unit
+      translations <- list()
+      for (paragraph in unit$paragraphs) {
+        seen$prompts[[length(seen$prompts) + 1L]] <- paragraph$text
+        value <- responder(paragraph$text)
+        if (inherits(value, "error") || inherits(value, "ellmer::Turn") || is.null(value)) {
+          return(value)
+        }
+        translations[[length(translations) + 1L]] <- list(id = paragraph$id, text = value)
+      }
+      json_turn(list(translations = translations))
     })
-  }, .package = "ellmer", .env = env)
+  }, .env = env)
   seen
 }
 
