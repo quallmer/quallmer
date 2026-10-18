@@ -26,8 +26,10 @@
 #' @param glossary Named character vector of source terms and their required
 #'   translations, such as `c(Bundestag = "Bundestag")`.
 #' @param protect Character vector of regular expressions matching text to
-#'   keep exactly as it is, such as names or codes. Matches must not overlap
-#'   or be empty; every one is checked in the translation.
+#'   keep exactly as it is, such as names or codes. Each is matched against
+#'   the whole text, so a match may span paragraphs and `^` means the start
+#'   of the text. Matches must not overlap or be empty; every one is checked
+#'   in the translation.
 #' @param params Generation settings from [ellmer::params()], such as
 #'   `temperature` or `max_tokens`.
 #' @param chunk_size The most source characters in one request, or `NULL` for
@@ -277,13 +279,15 @@ qlm_translate <- function(x, model, to = "en", from = NULL,
   if (anyNA(source) && on_error == "stop") {
     cli::cli_abort("Translation failed: source text is missing.")
   }
-  selected <- translation_adapter(model, adapter, base_url, api_key)
+  selected <- translation_adapter(model, adapter, base_url, api_key,
+                                  credentials = provider_args$credentials)
   provider_args <- check_provider_args(provider_args, selected$name)
   # The translation APIs rate-limit concurrent requests more tightly than
   # chat endpoints do.
   max_active <- max_active %||% if (selected$name == "generic") 10L else 2L
   if (selected$name == "generic") {
-    selected$chat_args <- c(selected$chat_args, provider_args)
+    extra <- provider_args[setdiff(names(provider_args), names(selected$chat_args))]
+    selected$chat_args <- c(selected$chat_args, extra)
   }
   if (selected$name == "deepl") {
     if (length(params)) cli::cli_abort("{.arg params} is not supported by DeepL.")

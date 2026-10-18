@@ -405,3 +405,79 @@ test_that("automatic keyring authentication leaves no key in translation metadat
   expect_false(grepl("keyring-secret", paste(capture.output(dput(attributes(out))), collapse = ""), fixed = TRUE))
   expect_identical(Sys.getenv("DEEPL_API_KEY", unset = NA_character_), NA_character_)
 })
+
+test_that("a stored DeepL key goes only to DeepL's own hosts", {
+  seen <- mock_translation_deepl()
+  withr::local_envvar(c(DEEPL_API_KEY = "stored-key"))
+  expect_error(qlm_translate("Bonjour", "deepl/quality_optimized", base_url = "https://proxy.example.org"),
+               "explicit `api_key`")
+  expect_length(seen$requests, 0)
+  qlm_translate("Bonjour", "deepl/quality_optimized", base_url = "https://proxy.example.org",
+                api_key = "explicit-key")
+  expect_identical(bearer_of(seen$requests[[1]]), "DeepL-Auth-Key explicit-key")
+  qlm_translate("Bonjour", "deepl/quality_optimized", base_url = "https://api.deepl.com/")
+  expect_identical(bearer_of(seen$requests[[2]]), "DeepL-Auth-Key stored-key")
+})
+
+test_that("on_error = 'stop' raises the run's own error, with the key redacted", {
+  httr2::local_mocked_responses(function(req) {
+    httr2::response_json(status_code = 403, body = list(message = "Wrong key secret-key-123"))
+  })
+  error <- tryCatch(qlm_translate(c(doc1 = "Bonjour"), "deepl/quality_optimized",
+                                  api_key = "secret-key-123", on_error = "stop"),
+                    error = function(e) e)
+  expect_false(inherits(error, "httr2_error"))
+  expect_match(conditionMessage(error), "doc1")
+  expect_match(conditionMessage(error), "[REDACTED]", fixed = TRUE)
+  expect_false(grepl("secret-key-123", conditionMessage(error), fixed = TRUE))
+})
+
+test_that("chat errors are recorded with an explicit key redacted", {
+  mock_translation_chat(function(text) {
+    if (text == "bad") simpleError("Incorrect API key provided: sk-test-secret") else text
+  })
+  expect_warning(out <- qlm_translate(c(a = "good", b = "bad"), "openai/test",
+                                      api_key = "sk-test-secret"), "1 of 2")
+  prov <- attr(out, "provenance")
+  expect_false(any(grepl("sk-test-secret", c(prov$.error, prov$attempts[[2]]$error), fixed = TRUE)))
+  expect_match(prov$.error[2], "[REDACTED]", fixed = TRUE)
+  expect_identical(unname(as.character(out))[1], "good")
+})
+
+test_that("credentials passed through ... count when resolving a registered provider", {
+  withr::local_envvar(c(DASHSCOPE_API_KEY = "registered-key"))
+  passed <- NULL
+  testthat::local_mocked_bindings(qlm_code = function(...) {
+    passed <<- list(...)
+    stop("stop here")
+  })
+  creds <- function() "custom-key"
+  expect_error(qlm_translate("Bonjour", "dashscope/qwen-plus", base_url = "https://example.org/v1",
+                             credentials = creds), "stop here")
+  expect_identical(passed$credentials, creds)
+  expect_equal(sum(names(passed) == "credentials"), 1)
+})
+
+test_that("a DeepL response of an unexpected shape is a content failure, not an R error", {
+  for (body in list("just a string", list(translations = list("invalid")),
+                    list(translations = list("x", "y")))) {
+    httr2::local_mocked_responses(function(req) httr2::response_json(body = body))
+    expect_warning(out <- qlm_translate(c(a = "Bonjour", b = "Salut"),
+                                        "deepl/quality_optimized", api_key = "k"), "2 of 2")
+    expect_true(all(is.na(out)))
+  }
+  httr2::local_mocked_responses(function(req) httr2::response_json(body = list(translations = list("invalid"))))
+  expect_warning(out <- qlm_translate(c(a = "Bonjour"), "deepl/quality_optimized", api_key = "k"), "1 of 1")
+  expect_match(attr(out, "provenance")$.error, "XML")
+})
+
+test_that("protect matches the whole text, across blank lines and with anchors", {
+  seen <- mock_translation_chat(function(text) gsub("tail|Code", "CHANGED", text))
+  out <- qlm_translate(c(a = "BEGIN keep\n\nthis tail END tail"), "openai/test",
+                       protect = "(?s)BEGIN.*?END")
+  expect_identical(unname(as.character(out)), "BEGIN keep\n\nthis tail END CHANGED")
+  # The protected block spans the blank line, so the text is one segment
+  expect_length(seen$units[[1]]$paragraphs, 1)
+  out <- qlm_translate(c(b = "Code one\n\nCode two"), "openai/test", protect = "^Code")
+  expect_identical(unname(as.character(out)), "Code one\n\nCHANGED two")
+})

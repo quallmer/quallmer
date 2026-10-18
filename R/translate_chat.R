@@ -64,8 +64,11 @@ translation_chat_groups <- function(jobs, size) {
 translation_chat_send <- function(jobs, groups, setup, max_active, rpm, on_error) {
   units <- vapply(groups, function(group) translation_chat_unit(jobs[group], setup$settings), "")
   names(units) <- paste0("group", seq_along(groups))
+  # Under "stop" the run raises its own error, naming the document with any
+  # explicit key redacted, rather than letting qlm_code() raise.
   args <- c(list(units, setup$codebook, model = setup$adapter$requested,
-                 on_error = on_error, max_active = max_active, rpm = rpm,
+                 on_error = if (on_error == "stop") "return" else on_error,
+                 max_active = max_active, rpm = rpm,
                  include_tokens = TRUE, include_cost = TRUE),
             setup$adapter$chat_args)
   if (length(setup$settings$params)) args$params <- setup$settings$params
@@ -74,7 +77,7 @@ translation_chat_send <- function(jobs, groups, setup, max_active, rpm, on_error
   rows <- match(names(units), result$.id)
   lapply(seq_along(groups), function(g) {
     translation_chat_outcomes(jobs[groups[[g]]], result[rows[g], , drop = FALSE],
-                              captured$warnings)
+                              captured$warnings, setup$api_key)
   })
 }
 
@@ -94,7 +97,7 @@ translation_chat_unit <- function(jobs, settings) {
 
 # One outcome per segment of a group. Usage, and the context the group was
 # given, are recorded once, on its first segment.
-translation_chat_outcomes <- function(jobs, row, warnings) {
+translation_chat_outcomes <- function(jobs, row, warnings, api_key = NULL) {
   n <- length(jobs)
   # qlm_code() leaves out the .error column when every unit succeeded
   error <- if (".error" %in% names(row)) row$.error[[1]]
@@ -107,6 +110,9 @@ translation_chat_outcomes <- function(jobs, row, warnings) {
   if (!is.null(error)) {
     truncated <- inherits(error, "quallmer_truncation_error")
     base$error <- strip_ansi(conditionMessage(error))
+    if (rlang::is_string(api_key) && nzchar(api_key)) {
+      base$error <- gsub(api_key, "[REDACTED]", base$error, fixed = TRUE)
+    }
     base$finish <- if (truncated) "max_tokens" else NA_character_
     base$stage <- if (truncated || inherits(error, "quallmer_extraction_error")) "content" else "transport"
     base$regroup <- truncated

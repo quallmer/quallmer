@@ -51,8 +51,10 @@ translation but not to be translated.}
 translations, such as \code{c(Bundestag = "Bundestag")}.}
 
 \item{protect}{Character vector of regular expressions matching text to
-keep exactly as it is, such as names or codes. Matches must not overlap
-or be empty; every one is checked in the translation.}
+keep exactly as it is, such as names or codes. Each is matched against
+the whole text, so a match may span paragraphs and \code{^} means the start
+of the text. Matches must not overlap or be empty; every one is checked
+in the translation.}
 
 \item{params}{Generation settings from \code{\link[ellmer:params]{ellmer::params()}}, such as
 \code{temperature} or \code{max_tokens}.}

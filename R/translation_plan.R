@@ -6,6 +6,12 @@ translation_paragraph_pattern <- function() {
 
 translation_plan <- function(text, size, protect) {
   if (is.na(text)) return(NULL)
+  # Protected text is matched in the whole document, as written, before it
+  # is divided: a match may span a blank line, and an anchored expression
+  # keeps its meaning. A masked blank line is no longer a paragraph break,
+  # so the paragraphs a match spans stay together as one.
+  masked <- mask_translation_terms(text, protect)
+  text <- masked$text
   breaks <- gregexpr(translation_paragraph_pattern(), text, perl = TRUE)[[1]]
   ends <- if (breaks[1] < 0L) integer() else breaks + attr(breaks, "match.length") - 1L
   starts <- c(1L, ends + 1L)
@@ -14,9 +20,9 @@ translation_plan <- function(text, size, protect) {
   paragraphs <- vector("list", length(starts))
   for (i in seq_along(starts)) {
     raw <- substring(text, starts[i], stops[i])
-    masked <- mask_translation_terms(raw, protect)
-    pieces <- split_translation_segment(masked$text, size, masked$prefix)
-    paragraphs[[i]] <- list(pieces = pieces, markers = masked$markers,
+    pieces <- split_translation_segment(raw, size, masked$prefix)
+    present <- vapply(names(masked$markers), grepl, logical(1), x = raw, fixed = TRUE)
+    paragraphs[[i]] <- list(pieces = pieces, markers = masked$markers[present],
                             marker_prefix = masked$prefix,
                             separator = if (i <= length(separators)) separators[i] else "")
   }

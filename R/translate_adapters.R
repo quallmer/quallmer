@@ -1,6 +1,6 @@
 # Adapter selection is independent of the host: a registered prefix may
 # expose either an ordinary chat model or a specialised translation model.
-translation_adapter <- function(model, adapter, base_url, api_key) {
+translation_adapter <- function(model, adapter, base_url, api_key, credentials = NULL) {
   google <- identical(model_provider(model), "google-translate")
   if (google || identical(adapter, "google-translate")) {
     if (!google || !model %in% c("google-translate/translation-llm",
@@ -28,6 +28,9 @@ translation_adapter <- function(model, adapter, base_url, api_key) {
   args <- list()
   if (!is.null(base_url)) args$base_url <- base_url
   if (!is.null(api_key)) args$credentials <- function() api_key
+  # Credentials passed through `...` for a chat model count as explicit
+  # when the provider is resolved, as they do in qlm_code().
+  if (is.null(api_key) && !is.null(credentials)) args$credentials <- credentials
   resolved <- resolve_provider(model, args)
   id <- sub("^[^/]*/", "", resolved$model)
   chosen <- adapter %||% if (id %in% c("qwen-mt-plus", "qwen-mt-flash", "qwen-mt-lite")) {
@@ -54,16 +57,25 @@ translation_setup <- function(adapter, settings, api_key, base_url, rpm) {
   }
   if (adapter$name == "qwen-mt") return(translation_qwen_setup(adapter, settings, rpm))
   if (adapter$name == "deepl") {
+    # Validate the URL without disclosing any embedded credential. A stored
+    # key goes only to DeepL's own hosts, so that a test or proxy endpoint
+    # cannot receive it by accident; elsewhere the key must be explicit.
+    if (!is.null(base_url)) {
+      base_url <- check_registry_url(base_url)
+      if (is.null(api_key) && !base_url %in% c("https://api.deepl.com", "https://api-free.deepl.com")) {
+        cli::cli_abort("Supply an explicit {.arg api_key} when overriding the DeepL {.arg base_url}.")
+      }
+    }
     key <- deepl_api_key(api_key)
     host <- base_url %||% if (endsWith(key, ":fx")) {
       "https://api-free.deepl.com"
     } else "https://api.deepl.com"
-    # Validate the URL without disclosing any embedded credential.
-    host <- check_registry_url(host)
     return(list(adapter = adapter, settings = settings, api_key = key,
                 base_url = host, recorded_base_url = redact_url(host), rpm = rpm))
   }
+  # An explicit key is kept only to redact it from recorded errors.
   list(adapter = adapter, settings = settings, codebook = translation_codebook(settings),
+       api_key = api_key,
        recorded_base_url = if (!is.null(adapter$args$base_url)) redact_url(adapter$args$base_url))
 }
 
@@ -234,9 +246,13 @@ translation_deepl_error <- function(resp) {
   if (rlang::is_string(body$message)) body$message else NULL
 }
 
+# Under on_error = "stop" the pool still returns the failure rather than
+# raising httr2's own error, so that the run raises one that names the
+# document and has the key redacted; "return" sends nothing further.
 perform_translation_requests <- function(reqs, max_active, on_error) {
   httr2::req_perform_parallel(reqs, max_active = max_active,
-                             on_error = on_error, progress = "Translating")
+                             on_error = if (on_error == "stop") "return" else on_error,
+                             progress = "Translating")
 }
 
 translation_deepl_jobs <- function(jobs, setup, max_active, rpm, on_error,
@@ -266,7 +282,7 @@ translation_deepl_send <- function(jobs, items, setup, max_active, on_error) {
       next
     }
     body <- tryCatch(httr2::resp_body_json(resp, simplifyVector = FALSE), error = function(e) NULL)
-    if (!is.list(body$translations) || length(body$translations) != length(batch)) {
+    if (!is.list(body) || !is.list(body$translations) || length(body$translations) != length(batch)) {
       out[idx] <- rep(list(list(text = NA_character_, error = "DeepL returned the wrong number of translations",
         usage = NULL, finish = NA_character_, stage = "content")), length(idx))
       next
@@ -320,6 +336,8 @@ translation_deepl_split <- function(jobs, out, items, setup, max_active, on_erro
 }
 
 parse_deepl_document <- function(value, n) {
+  # An entry that is not an object is a malformed response for its texts
+  if (!is.list(value)) value <- list()
   if (n == 1L) return(list(parse_deepl_translation(value)))
   paragraphs <- tryCatch({
     root <- xml2::read_xml(value$text, options = "NONET")
