@@ -19,10 +19,12 @@ Release with one fix and one new feature.
 
 ## R CMD check results
 
-TODO: fill in after running `R CMD check --as-cran`.
+0 errors | 0 warnings | 0 notes
+
+* local macOS (aarch64-apple-darwin23), R 4.6.1, `R CMD check --as-cran`
 
 ## Reverse dependency and other package conflicts
 
-TODO: rerun the reverse dependency check against this version. The one
-reverse dependency is 'quallmer.app' 0.1.0; the new function adds exports and
-does not change existing ones.
+The one reverse dependency, 'quallmer.app' 0.1.0, was checked against this
+version with `R CMD check`: Status OK. The new function adds exports and does
+not change existing ones.
