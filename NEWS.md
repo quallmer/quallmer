@@ -11,6 +11,10 @@ quallmer 0.6.0.
   coded object, to a corpus with the original document variables and metadata
   restored (#196).
 
+* Documentation: `qlm_transcribe()` and `qlm_translate()` are described in
+  the README as optional ways to prepare content for coding, and have their
+  own "Preparing content" section of the reference index.
+
 * Fixed a test that matched the summary line quanteda prints for corpus objects
   and failed with quanteda 4.5.1, which changed that format. The test now
   accepts both formats.
