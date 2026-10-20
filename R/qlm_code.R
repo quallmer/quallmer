@@ -616,13 +616,15 @@ qlm_code <- function(x, codebook, model, ...,
   # that failed or a missing value, is never sent: it is set aside here and
   # restored as a failed row, with its reason, once the others are coded.
   transcription <- if (inherits(x, "qlm_transcript")) transcription_record(x)
+  preprocessing <- if (is_qlm_preprocessed(x)) preprocessing_record(x)
+  absent_record <- if (is_qlm_translation(x)) translation_provenance(x) else transcription
+  absent_stage <- if (is_qlm_translation(x)) "translation" else "transcript"
   x_all <- x
   absent <- if (codebook$input_type == "text") is.na(x) else rep(FALSE, length(x))
   if (codebook$input_type == "text") {
-    # Plain text from here on, names kept: unclass() rather than
-    # as.character(), which drops the names of a bare vector
-    x <- unclass(x_all)
-    attr(x, "provenance") <- NULL
+    # Plain text from here on, names kept; corpus attributes and provenance
+    # have already been read and must not travel inside a model prompt.
+    x <- translation_texts(x_all)
     x <- x[!absent]
   }
   if (any(absent)) {
@@ -779,7 +781,7 @@ qlm_code <- function(x, codebook, model, ...,
     # failed row per unit, and no chat is built
     results <- tabulate_results(
       vector("list", length(x_all)),
-      lapply(absent_input_reasons(x_all, transcription), absent_input_error),
+      lapply(absent_input_reasons(x_all, absent_record, absent_stage), absent_input_error),
       NULL, codebook$schema
     )
     absent <- rep(FALSE, length(x_all))
@@ -934,10 +936,12 @@ qlm_code <- function(x, codebook, model, ...,
   # each as a failed row carrying its reason
   if (any(absent)) {
     results <- restore_absent_rows(
-      results, absent, absent_input_reasons(x_all, transcription)[absent]
+      results, absent, absent_input_reasons(x_all, absent_record, absent_stage)[absent]
     )
   }
-  x <- x_all
+  # Keep the translated inputs for replay, with their compact history in
+  # metadata; do not duplicate the original-language corpus in the run.
+  x <- if (is_qlm_translation(x_all)) translation_texts(x_all) else x_all
 
   # Add ID column from input names or sequence
   results$id <- names(x) %||% seq_along(x)
@@ -996,6 +1000,23 @@ qlm_code <- function(x, codebook, model, ...,
   # How the text came to be, when it was transcribed by qlm_transcribe()
   if (!is.null(transcription)) {
     metadata$transcription <- transcription
+  }
+  if (!is.null(preprocessing)) {
+    metadata$preprocessing <- preprocessing
+  }
+  # Keep the corpus covariates, of a corpus or of the corpus a translation
+  # came from, available to downstream analysis without mixing them with
+  # model-generated coding columns or copying source text.
+  corpus_input <- if (is_qlm_translation(x_all)) {
+    attr(x_all, "corpus")
+  } else if (inherits(x_all, "corpus")) {
+    list(docvars = attr(x_all, "docvars"), meta = attr(x_all, "meta"))
+  }
+  if (!is.null(corpus_input)) {
+    metadata$corpus_docvars <- corpus_input$docvars
+    corpus_meta <- corpus_input$meta
+    corpus_meta$user <- translation_user_metadata(corpus_meta)
+    metadata$corpus_meta <- corpus_meta
   }
   if (!is.null(prices)) {
     metadata$prices <- prices

@@ -1,7 +1,7 @@
 Package: quallmer
 Type: Package
 Title: Qualitative Analysis with Large Language Models
-Version: 0.5.1
+Version: 0.5.0.9000
 Authors@R: c(
     person(
       "Seraphine F.", "Maerz",
@@ -45,7 +45,8 @@ Imports:
     rlang,
     stats,
     tibble,
-    vctrs
+    vctrs,
+    xml2
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
@@ -53,6 +54,7 @@ Suggests:
     av,
     ggplot2,
     janitor,
+    keyring,
     knitr,
     magick,
     rmarkdown,

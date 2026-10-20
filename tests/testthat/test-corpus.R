@@ -1,6 +1,14 @@
+mock_corpus_fallback <- function(env = parent.frame()) {
+  print_method <- print.qlm_corpus
+  subset_method <- `[.qlm_corpus`
+  mockery::stub(print_method, "isNamespaceLoaded", function(...) FALSE)
+  mockery::stub(subset_method, "isNamespaceLoaded", function(...) FALSE)
+  testthat::local_mocked_bindings(print.qlm_corpus = print_method,
+    `[.qlm_corpus` = subset_method, .env = env)
+}
+
 test_that("qlm_corpus print method works without quanteda", {
-  # Skip if quanteda is loaded (we need a clean environment for this test)
-  skip_if(isNamespaceLoaded("quanteda"), "quanteda is already loaded")
+  mock_corpus_fallback()
 
   # Load the data
   data("data_corpus_LMRDsample", package = "quallmer")
@@ -23,8 +31,7 @@ test_that("qlm_corpus print method works without quanteda", {
 })
 
 test_that("qlm_corpus subset method preserves structure", {
-  # Skip if quanteda is loaded
-  skip_if(isNamespaceLoaded("quanteda"), "quanteda is already loaded")
+  mock_corpus_fallback()
 
   # Load the data
   data("data_corpus_LMRDsample", package = "quallmer")
@@ -68,8 +75,6 @@ test_that("qlm_corpus methods delegate to quanteda when loaded", {
   # (earlier versions)
   expect_true(any(grepl("^[Cc]orpus (of|consisting of) 2 documents", output)))
 
-  # Unload quanteda for other tests
-  try(unloadNamespace("quanteda"), silent = TRUE)
 })
 
 test_that("as_qlm_corpus wraps corpus objects correctly", {
@@ -155,12 +160,10 @@ test_that("subsetting with quanteda loaded preserves qlm_corpus class", {
   expect_s3_class(subset_corpus, "corpus")
   expect_equal(length(subset_corpus), 3)
 
-  # Unload quanteda for other tests
-  try(unloadNamespace("quanteda"), silent = TRUE)
 })
 
 test_that("qlm_corpus print output format is correct", {
-  skip_if(isNamespaceLoaded("quanteda"), "quanteda is already loaded")
+  mock_corpus_fallback()
 
   # Load the data
   data("data_corpus_LMRDsample", package = "quallmer")
@@ -179,7 +182,7 @@ test_that("qlm_corpus print output format is correct", {
 })
 
 test_that("qlm_corpus with minimal docvars prints correctly", {
-  skip_if(isNamespaceLoaded("quanteda"), "quanteda is already loaded")
+  mock_corpus_fallback()
 
   # Load the data
   data("data_corpus_LMRDsample", package = "quallmer")

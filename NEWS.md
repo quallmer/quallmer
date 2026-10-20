@@ -1,8 +1,19 @@
-# quallmer 0.5.1
+# quallmer 0.5.0.9000 (development version)
+
+Everything in this section postdates quallmer 0.5.0 and will be released as
+quallmer 0.6.0.
+
+* New experimental `qlm_translate()` translates texts or a quanteda corpus
+  before coding, using DeepL, Qwen-MT, Google's Translation LLM or an ellmer
+  chat model. It returns a `qlm_translation`: a named character vector with
+  per-document provenance, which `qlm_code()` accepts and `qlm_trail()`
+  reports. `quanteda::corpus()` converts a translation, or a text column of a
+  coded object, to a corpus with the original document variables and metadata
+  restored (#196).
 
 * Fixed a test that matched the summary line quanteda prints for corpus objects
   and failed with quanteda 4.5.1, which changed that format. The test now
-  accepts both formats. There are no changes to the package code.
+  accepts both formats.
 
 # quallmer 0.5.0
 
