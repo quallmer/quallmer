@@ -13,7 +13,8 @@ quallmer 0.6.0.
 
 * Documentation: `qlm_transcribe()` and `qlm_translate()` are described in
   the README as optional ways to prepare content for coding, and have their
-  own "Preparing content" section of the reference index.
+  own "Preparing content" section of the reference index. The workflow
+  tutorial gains an optional "Step 0: Prepare your content".
 
 * Fixed a test that matched the summary line quanteda prints for corpus objects
   and failed with quanteda 4.5.1, which changed that format. The test now
