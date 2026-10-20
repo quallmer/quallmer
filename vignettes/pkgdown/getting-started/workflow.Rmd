@@ -12,6 +12,7 @@ This tutorial provides a quick overview of the quallmer workflow for LLM-assiste
 
 ## The workflow at a glance
 
+0. **Prepare** your content, if needed, with `qlm_transcribe()` or `qlm_translate()` (optional)
 1. **Define** your codebook with `qlm_codebook()`
 2. **Code** your data with `qlm_code()`
 3. **Replicate** with different settings using `qlm_replicate()`
@@ -30,6 +31,27 @@ library(quanteda)
 texts <- tail(data_corpus_inaugural, 5)
 texts
 ```
+
+## Step 0: Prepare your content (optional)
+
+`qlm_code()` codes text, images, PDFs and audio directly, so most projects can skip this step. It is for content that is not yet in the form you want to code: recordings you would rather code as transcripts, or texts that are not in the language of your analysis.
+
+```{r}
+# Convert audio recordings to text
+transcripts <- qlm_transcribe(c("interview1.mp3", "interview2.mp3"))
+
+# Translate texts into the language of the analysis
+translated <- qlm_translate(my_texts, model = "deepl/quality_optimized",
+                            to = "en", from = "de")
+```
+
+Both return a named character vector that you pass to `qlm_code()` in place of the original content, in Step 2. Each records how it was made, per document: the source, the model, the languages and the usage reported by the provider. `qlm_code()` keeps this record with the coded results, and `qlm_trail()` reports it in Step 5. A translated corpus keeps its document variables.
+
+Give the source language with `from` whenever you know it. Without it, a provider that cannot handle the language it detects may return a fluent but invented translation, with no error.
+
+For worked examples, see [Audio transcription and analysis](https://quallmer.github.io/quallmer/articles/pkgdown/examples/example_audio.html) and [Translating before coding](https://quallmer.github.io/quallmer/articles/pkgdown/examples/example_translation.html).
+
+The inaugural addresses used in this tutorial are already English text, so the steps below code them as they are.
 
 ## Step 1: Define a codebook
 

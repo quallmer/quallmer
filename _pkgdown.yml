@@ -82,9 +82,13 @@ reference:
       - qlm_replicate
       - qlm_codebook
       - qlm_segment
+      - corpus.qlm_coded
+
+  - title: Preparing content
+    desc: Optional functions for transcribing and translating content before coding
+    contents:
       - qlm_transcribe
       - qlm_translate
-      - corpus.qlm_coded
 
   - title: Completing incomplete runs
     desc: Optional functions for finding and re-coding the units a run failed on
