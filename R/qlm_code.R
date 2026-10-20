@@ -309,8 +309,8 @@
 #' what is known. As of this version only Google Gemini (`google_gemini/`)
 #' is known to accept an uploaded recording alongside a schema-constrained
 #' request; OpenAI's and Anthropic's endpoints refuse, and Vertex has no
-#' file upload. For those providers, transcribe the recordings first and
-#' code the transcripts with a text codebook.
+#' file upload. For those providers, transcribe the recordings first with
+#' [qlm_transcribe()] and code the transcripts with a text codebook.
 #'
 #' Every upload completes before the first coding request is sent, so either
 #' all the inputs are ready or nothing is spent; a failed upload stops the
