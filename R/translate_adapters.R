@@ -144,13 +144,33 @@ translation_xml_escape <- function(text) {
   gsub("[\\x01-\\x08\\x0B\\x0C\\x0E-\\x1F]", "\uFFFD", text, perl = TRUE)
 }
 
-translation_deepl_body <- function(jobs, items, setup) {
+# The languages of a request's documents. A document's jobs carry its own;
+# jobs built without them fall back on the settings of the whole call.
+translation_job_languages <- function(job, setup) {
+  if (!is.null(job$languages)) {
+    return(job$languages)
+  }
+  list(target_lang = setup$settings$target_lang,
+       source_lang = setup$settings$source_lang,
+       provider_languages = setup$settings$provider_languages)
+}
+
+translation_request_languages <- function(jobs, items, setup) {
+  job <- if (length(items)) jobs[[items[[1]][1]]]
+  translation_job_languages(job, setup)$provider_languages
+}
+
+# `languages` is the provider languages of a request, which every one of its
+# documents shares. It defaults to those of the first document in `items`, or
+# of the whole call when there is none.
+translation_deepl_body <- function(jobs, items, setup,
+                                   languages = translation_request_languages(jobs, items, setup)) {
   settings <- setup$settings
   body <- list(text = lapply(items, function(idx) translation_deepl_text(jobs[idx])),
-    target_lang = settings$provider_languages$target, model_type = setup$adapter$model_id,
+    target_lang = languages$target, model_type = setup$adapter$model_id,
     tag_handling = "xml", tag_handling_version = "v2", ignore_tags = list("keep"),
     split_sentences = "nonewlines", preserve_formatting = TRUE, show_billed_characters = TRUE)
-  if (!is.null(settings$source_lang)) body$source_lang <- settings$provider_languages$source
+  if (!is.null(languages$source)) body$source_lang <- languages$source
   if (!is.null(settings$context) && nzchar(settings$context)) body$context <- settings$context
   if (length(settings$instructions)) body$custom_instructions <- as.list(settings$instructions)
   if (!is.null(settings$formality)) body$formality <- settings$formality
@@ -185,13 +205,25 @@ translation_deepl_item_bytes <- function(inner) {
   bytes
 }
 
-# Packs items into requests of at most 50 texts and 128 KiB. Sizes are
-# computed once per paragraph and summed, so packing is linear in the input.
-# An item too large for a request on its own is divided at paragraphs; no
-# other document is divided.
+# Packs items into requests of at most 50 texts and 128 KiB. A request has one
+# source and one target language, so the documents of each language pair are
+# packed together. Sizes are computed once per paragraph and summed, so
+# packing is linear in the input. An item too large for a request on its own
+# is divided at paragraphs; no other document is divided.
 translation_deepl_batches <- function(jobs, setup, items = translation_deepl_groups(jobs)) {
   inner <- vapply(jobs, function(job) translation_json_bytes(translation_deepl_inner(job)), 0)
-  room <- deepl_max_bytes - translation_body_bytes(translation_deepl_body(jobs, list(), setup))
+  provider <- lapply(items, function(item) translation_job_languages(jobs[[item[1]]], setup)$provider_languages)
+  pair <- vapply(provider, function(p) paste(p$target, p$source %||% "", sep = "\r"), "")
+  batches <- list()
+  for (key in unique(pair)) {
+    same <- which(pair == key)
+    batches <- c(batches, translation_deepl_pack(jobs, items[same], inner, setup, provider[[same[1]]]))
+  }
+  batches
+}
+
+translation_deepl_pack <- function(jobs, items, inner, setup, languages) {
+  room <- deepl_max_bytes - translation_body_bytes(translation_deepl_body(jobs, list(), setup, languages))
   too_large <- function() {
     cli::cli_abort("A DeepL segment and its context exceed 128 KiB; reduce {.arg chunk_size} or {.arg context}.")
   }

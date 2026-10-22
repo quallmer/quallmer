@@ -60,23 +60,25 @@ google_translation_keyring_key <- function() {
   suppressWarnings(tryCatch(keyring::key_get("google-translate"), error = function(e) NULL))
 }
 
-translation_google_body <- function(text, settings) {
-  body <- list(q = list(text), target = settings$provider_languages$target, format = "text",
+# `languages` is the provider languages of the document.
+translation_google_body <- function(text, settings, languages = settings$provider_languages) {
+  body <- list(q = list(text), target = languages$target, format = "text",
                model = settings$google_model)
-  if (!is.null(settings$source_lang)) body$source <- settings$provider_languages$source
+  if (!is.null(languages$source)) body$source <- languages$source
   body
 }
 
 # Preserve complete documents when possible. Split only at the character or
 # serialized JSON byte limit, without XML or paragraph-alignment sentinels.
-translation_google_plan <- function(text, settings) {
+translation_google_plan <- function(text, languages, settings) {
   if (is.na(text)) return(NULL)
   masked <- mask_translation_terms(text, settings$protect)
   size <- settings$chunk_size
   repeat {
     pieces <- split_translation_segment(masked$text, size, masked$prefix)
     fits <- vapply(pieces, function(piece) {
-      translation_body_bytes(translation_google_body(piece$text, settings)) <= 100000L
+      translation_body_bytes(translation_google_body(piece$text, settings,
+                                                     languages$provider_languages)) <= 100000L
     }, logical(1))
     if (all(fits)) break
     if (size == 1L) cli::cli_abort("Google Translation request settings exceed the 100 kB limit.")
@@ -87,7 +89,8 @@ translation_google_plan <- function(text, settings) {
 }
 
 translation_google_request <- function(job, setup) {
-  body <- translation_google_body(job$text, setup$settings)
+  body <- translation_google_body(job$text, setup$settings,
+                                  translation_job_languages(job, setup)$provider_languages)
   if (nchar(job$text) > 30000L || translation_body_bytes(body) > 100000L) {
     cli::cli_abort("Google Translation requests must fit within 30,000 characters and 100 kB.")
   }

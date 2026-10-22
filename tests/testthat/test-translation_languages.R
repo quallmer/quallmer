@@ -78,3 +78,47 @@ test_that("an explicit Chinese script wins over the region", {
   expect_identical(deepl("zh-HK"), "ZH-HANT")
   expect_identical(deepl("zh-SG"), "ZH-HANS")
 })
+
+test_that("three-letter ISO 639-3 codes become their two-letter codes where one exists", {
+  expect_identical(normalise_language_tag("fra", "from"), "fr")
+  expect_identical(normalise_language_tag("DEU", "from"), "de")
+  # 639-2/B spellings, and macrolanguage members
+  expect_identical(normalise_language_tag("ger", "from"), "de")
+  expect_identical(normalise_language_tag("cmn", "from"), "zh")
+  expect_identical(normalise_language_tag("cmn-Hant", "to"), "zh-Hant")
+  expect_identical(normalise_language_tag("por_br", "to"), "pt-BR")
+  # No two-letter code: passed on, so that a provider can refuse it
+  expect_identical(normalise_language_tag("kmb", "from"), "kmb")
+  expect_identical(normalise_language_tag("yue", "from"), "yue")
+})
+
+test_that("language vectors are recycled, normalised and checked once per value", {
+  vec <- function(...) translation_language_vector(..., n = 3L)
+  expect_identical(vec("EN", "to", allow_missing = FALSE), rep("en", 3))
+  expect_identical(vec(c("fra", "deu", "fra"), "from", allow_missing = FALSE),
+                   c("fr", "de", "fr"))
+  expect_identical(vec(factor(c("fra", "kmb", "fra")), "from", allow_missing = TRUE),
+                   c("fr", "kmb", "fr"))
+  # NA means detect, and only `from` may be missing
+  expect_identical(vec(c("fra", NA, "deu"), "from", allow_missing = TRUE),
+                   c("fr", NA, "de"))
+  expect_identical(vec(NULL, "from", allow_missing = TRUE), rep(NA_character_, 3))
+  expect_identical(vec(NA, "from", allow_missing = TRUE), rep(NA_character_, 3))
+  expect_error(vec(c("fr", NA, "de"), "to", allow_missing = FALSE), "missing")
+  expect_error(vec(c("fr", "de"), "from", allow_missing = TRUE), "length 1 or one tag")
+  expect_error(vec(c("fr", "English", "de"), "from", allow_missing = TRUE), "language tag")
+  expect_error(vec(1:3, "to", allow_missing = FALSE), "language tag")
+})
+
+test_that("each text has its own recorded and provider languages", {
+  languages <- translation_document_languages("deepl", c("en-GB", "en-GB", "fr"),
+                                              c("de", NA, "de"))
+  expect_length(languages, 3)
+  expect_identical(languages[[1]]$provider_languages, list(target = "EN-GB", source = "DE"))
+  expect_null(languages[[2]]$source_lang)
+  expect_null(languages[[2]]$provider_languages$source)
+  expect_identical(languages[[3]]$provider_languages$target, "FR")
+  # An unsupported variant fails for the text that asks for it
+  expect_error(translation_document_languages("deepl", c("en", "en-AU"), c(NA, NA)),
+               "no target variant")
+})

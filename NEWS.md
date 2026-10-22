@@ -1,5 +1,17 @@
 # quallmer 0.6.0.9000 (development version)
 
+* `qlm_translate()` accepts `from` and `to` as one language tag for each
+  document, so a multilingual corpus is translated in a single call, and
+  translations can be translated back into their source languages. `NA` in
+  `from` leaves the provider to detect that document's language. Three-letter
+  ISO 639-3 codes, such as the `ISO` document variable of
+  `quanteda.corpora::data_corpus_udhr`, are mapped to the two-letter ISO 639-1
+  codes providers expect where one exists, and passed on otherwise, so that a
+  provider rejects a language it does not support instead of guessing. DeepL
+  packs the documents of each language pair into requests of their own, and
+  chat models are given each document's languages in their input. The
+  provenance records the languages and provider codes of each document (#200).
+
 # quallmer 0.6.0
 
 * New experimental `qlm_translate()` translates texts or a quanteda corpus

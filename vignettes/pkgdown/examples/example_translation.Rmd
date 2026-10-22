@@ -99,17 +99,17 @@ fails silently: given text in a language they do not support, the providers
 tested returned fluent but invented translations, recorded as successful. With
 `from` set, DeepL, Google and Qwen-MT refuse an unsupported language
 instead, and the document is `NA` with the reason; chat models do not refuse.
-`from` applies to the whole call, so for a corpus in several languages,
-translate each language separately and combine the results with `c()`. Here the
-corpus has a docvar `language` holding a tag such as `"fr"` for each document:
+`from` takes one tag for the whole call, or one for each document, so a corpus
+in several languages needs only one call. Here the corpus has a docvar
+`language` holding a tag such as `"fr"` for each document; three-letter ISO
+639-3 codes, like the `ISO` docvar of `quanteda.corpora::data_corpus_udhr`,
+are accepted too, and `NA` leaves the provider to detect that document's
+language. `to` can likewise differ by document, for translating translations
+back into their source languages.
 
 ```{r per-language, eval=FALSE}
-languages <- unique(quanteda::docvars(texts, "language"))
-parts <- lapply(languages, function(lang) {
-  qlm_translate(quanteda::corpus_subset(texts, language == lang),
-                model = translation_model, to = "en-GB", from = lang)
-})
-translated <- do.call(c, parts)
+translated <- qlm_translate(texts, model = translation_model, to = "en-GB",
+                            from = quanteda::docvars(texts, "language"))
 ```
 
 If you leave `from` unset, compare the recorded `detected_language` with

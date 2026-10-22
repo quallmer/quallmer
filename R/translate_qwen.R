@@ -92,17 +92,19 @@ translation_qwen_params <- function(params) {
 translation_qwen_body <- function(jobs, setup) {
   settings <- setup$settings
   boundaries <- translation_qwen_boundaries(jobs)
+  # A request holds one document, so one pair of languages
+  languages <- translation_job_languages(jobs[[1]], setup)$provider_languages
   domains <- c(
     "Preserve every opaque QLMP boundary marker exactly, once, in its original order.",
     "Translate the text on each side of a boundary marker independently; never move text across it.",
     "Preserve every opaque QLMKEEP marker exactly.",
-    if (!is.null(settings$provider_languages$variant)) {
-      paste0("Write in the ", settings$provider_languages$variant, " regional variant of the target language.")
+    if (!is.null(languages$variant)) {
+      paste0("Write in the ", languages$variant, " regional variant of the target language.")
     },
     settings$context, settings$instructions
   )
-  options <- list(source_lang = settings$provider_languages$source,
-                  target_lang = settings$provider_languages$target,
+  options <- list(source_lang = languages$source,
+                  target_lang = languages$target,
                   domains = paste(domains, collapse = "\n"))
   terms <- unname(Map(function(source, target) list(source = source, target = target),
                       names(settings$glossary), unname(settings$glossary)))
