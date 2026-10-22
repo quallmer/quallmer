@@ -452,8 +452,8 @@ cannot take them refuses with its own message, to which <code>qlm_code()</code> 
 what is known. As of this version only Google Gemini (<code>google_gemini/</code>)
 is known to accept an uploaded recording alongside a schema-constrained
 request; OpenAI's and Anthropic's endpoints refuse, and Vertex has no
-file upload. For those providers, transcribe the recordings first and
-code the transcripts with a text codebook.</p>
+file upload. For those providers, transcribe the recordings first with
+<code><a href="qlm_transcribe.html">qlm_transcribe()</a></code> and code the transcripts with a text codebook.</p>
 <p>Every upload completes before the first coding request is sent, so either
 all the inputs are ready or nothing is spent; a failed upload stops the
 run with the provider's message, which says whether the failure was
