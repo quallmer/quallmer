@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../../../index.html">quallmer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,10 +43,12 @@
     <li><a class="dropdown-item" href="../../../articles/pkgdown/getting-started/ollama.html">Working with an open-source Ollama model</a></li>
   </ul>
 </li>
+<li class="nav-item"><a class="nav-link" href="../../../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-tutorials" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Tutorials</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-tutorials">
 <li><a class="dropdown-item" href="../../../articles/pkgdown/tutorials/trail.html">The quallmer audit trail</a></li>
+    <li><a class="dropdown-item" href="../../../articles/pkgdown/tutorials/tools.html">Coding with web-search tools</a></li>
     <li><a class="dropdown-item" href="../../../articles/pkgdown/tutorials/validate.html">Using the quallmer.app</a></li>
   </ul>
 </li>
@@ -57,11 +59,12 @@
     <li><a class="dropdown-item" href="../../../articles/pkgdown/examples/example_images.html">Image analysis of campaign posters</a></li>
     <li><a class="dropdown-item" href="../../../articles/pkgdown/examples/example_audio.html">Audio transcription and analysis</a></li>
     <li><a class="dropdown-item" href="../../../articles/pkgdown/examples/example_segmentation.html">Text segmentation</a></li>
+    <li><a class="dropdown-item" href="../../../articles/pkgdown/examples/example_translation.html">Translating before coding</a></li>
+    <li><a class="dropdown-item" href="../../../articles/pkgdown/examples/example_translation_google.html">Google translation of a multilingual corpus</a></li>
     <li><a class="dropdown-item" href="../../../articles/pkgdown/examples/example_quasi_sentences.html">Quasi-sentence segmentation</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../../../articles/pkgdown/workshops.html">Workshops</a></li>
-<li class="nav-item"><a class="nav-link" href="../../../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../../../news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
@@ -1003,7 +1006,7 @@ document.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gold_corp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://quanteda.io/reference/corpus_subset.html" class="external-link">corpus_subset</a></span><span class="op">(</span><span class="va">data_corpus_MPexamplesseg</span>, <span class="va">docid</span> <span class="op">==</span> <span class="st">"NZ_NP_1972"</span><span class="op">)</span></span>
 <span><span class="va">gold_corp</span></span>
-<span><span class="co">#&gt; Corpus consisting of 71 documents and 7 docvars.</span></span>
+<span><span class="co">#&gt; corpus of 71 documents (8,234 characters) and 7 docvars.</span></span>
 <span><span class="co">#&gt; NZ_NP_1972.1 :</span></span>
 <span><span class="co">#&gt; "A Guide to what the next National Government will do for New..."</span></span>
 <span><span class="co">#&gt; </span></span>

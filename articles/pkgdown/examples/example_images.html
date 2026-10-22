@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../../../index.html">quallmer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,10 +43,12 @@
     <li><a class="dropdown-item" href="../../../articles/pkgdown/getting-started/ollama.html">Working with an open-source Ollama model</a></li>
   </ul>
 </li>
+<li class="nav-item"><a class="nav-link" href="../../../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-tutorials" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Tutorials</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-tutorials">
 <li><a class="dropdown-item" href="../../../articles/pkgdown/tutorials/trail.html">The quallmer audit trail</a></li>
+    <li><a class="dropdown-item" href="../../../articles/pkgdown/tutorials/tools.html">Coding with web-search tools</a></li>
     <li><a class="dropdown-item" href="../../../articles/pkgdown/tutorials/validate.html">Using the quallmer.app</a></li>
   </ul>
 </li>
@@ -57,11 +59,12 @@
     <li><a class="dropdown-item" href="../../../articles/pkgdown/examples/example_images.html">Image analysis of campaign posters</a></li>
     <li><a class="dropdown-item" href="../../../articles/pkgdown/examples/example_audio.html">Audio transcription and analysis</a></li>
     <li><a class="dropdown-item" href="../../../articles/pkgdown/examples/example_segmentation.html">Text segmentation</a></li>
+    <li><a class="dropdown-item" href="../../../articles/pkgdown/examples/example_translation.html">Translating before coding</a></li>
+    <li><a class="dropdown-item" href="../../../articles/pkgdown/examples/example_translation_google.html">Google translation of a multilingual corpus</a></li>
     <li><a class="dropdown-item" href="../../../articles/pkgdown/examples/example_quasi_sentences.html">Quasi-sentence segmentation</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../../../articles/pkgdown/workshops.html">Workshops</a></li>
-<li class="nav-item"><a class="nav-link" href="../../../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../../../news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
@@ -171,6 +174,8 @@ schema defines what information to extract from each poster:</p>
 <span><span class="va">codebook_posters</span></span></code></pre></div>
 <pre><code><span><span class="co">## quallmer codebook: Campaign Poster Analysis </span></span>
 <span><span class="co">##   Input type:   image</span></span>
+<span><span class="co">##   Image resize: high</span></span>
+<span><span class="co">##   URL detail:   auto</span></span>
 <span><span class="co">##   Role:         You are an expert in political communication and visual anal...</span></span>
 <span><span class="co">##   Instructions: You are a political scientist analyzing campaign posters fro...</span></span>
 <span><span class="co">##   Output schema:ellmer::TypeObject</span></span>
@@ -189,6 +194,25 @@ Candidate names, text translations - <strong>Visual elements</strong>:
 Clothing, flags, religious symbols, party logos - <strong>Compositional
 features</strong>: Candidate prominence (percentage), facial
 expressions</p>
+<p>The printed codebook also shows an image resize setting. Image files
+are resized before they are sent, and the resolution is part of the
+codebook because it is part of the measurement: names and small print
+that are legible at one size may not be at another, and a replication
+should read the image the original run read. The default,
+<code>image_file_resize = "high"</code>, fits each image within 2000x768
+or 768x2000 pixels. <code>"low"</code> fits within 512x512,
+<code>"none"</code> sends the file as it is, and a magick geometry
+string such as <code>"1024x1024&gt;"</code> sets a size of your own.
+Anything but <code>"none"</code> needs the magick package. Images given
+as URLs rather than files are fetched by the provider and are not
+resized; for those, <code>image_url_detail = "high"</code> asks an
+OpenAI or OpenAI-compatible provider to read the image at full
+detail.</p>
+<p>The results below were coded before this setting existed, at what was
+then the only resolution, <code>"low"</code>, and the saved codebook
+records that. Coding the posters again at <code>"high"</code> would let
+the model read the candidates’ names and the small print in the party
+logos at full size, so the two runs may differ on those fields.</p>
 </div>
 <div class="section level2">
 <h2 id="coding-images-using-gemini-3-pro-preview">Coding images using Gemini 3 Pro Preview<a class="anchor" aria-label="anchor" href="#coding-images-using-gemini-3-pro-preview"></a>
