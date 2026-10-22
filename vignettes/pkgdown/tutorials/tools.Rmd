@@ -86,7 +86,7 @@ coded_plain <- qlm_code(urls, cb_geostats, model = "openai/gpt-5-mini",
 coded_plain[, c(".id", "population", "population_year", "retrieved", "notes")]
 ```
 
-Read the `retrieved` and `notes` columns before the figures. A model that reports `retrieved = TRUE` here did not retrieve anything; it cannot. The figures may still look right, because these are well-known countries and the training data contains many copies of these infoboxes, which is why the failure is easy to miss on a demonstration and hard to miss on real work.
+Read the `retrieved` and `notes` columns before the figures. Here the model did what the codebook asked: it reports that it could not reach the page, leaves the figures `NA`, and says why in `notes`. Not every model does. A model that reports `retrieved = TRUE` here did not retrieve anything; it cannot. Its figures may still look right, because these are well-known countries and the training data contains many copies of these infoboxes, which is why the failure is easy to miss on a demonstration and hard to miss on real work. The `retrieved` and `notes` fields are in the codebook to tell the two cases apart.
 
 ## With a tool
 
@@ -107,26 +107,16 @@ The `# Tools:` line names what was registered and whether the provider ran it (`
 
 ## Consistency is the test
 
-The figures with the tool may or may not differ much from the figures without it, on countries this well known. What differs is what happens when you ask again. A replication reproduces the run's settings, tools included, so `qlm_replicate()` is the right way to ask again:
+The figures with the tool can be checked against the pages. What also matters is what happens when you ask again. A replication reproduces the run's settings, tools included, so `qlm_replicate()` is the right way to ask again:
 
 ```{r replicate}
-plain_again <- qlm_replicate(coded_plain, name = "plain_again")
 web_again <- qlm_replicate(coded_web, name = "web_again")
-```
-
-Two runs that answered from memory:
-
-```{r compare-plain}
-qlm_compare(coded_plain, plain_again, by = "population")
-```
-
-Two runs that read the page:
-
-```{r compare-web}
 qlm_compare(coded_web, web_again, by = "population")
 ```
 
-The comparison on the interval level is what the codebook's `levels` set up. Agreement between two runs that read the same page should be near perfect, with any difference traceable to the page changing between them, which `population_year` and `source_url` will show. Agreement between two runs that answered from memory is whatever it happens to be.
+The comparison on the interval level is what the codebook's `levels` set up. Agreement between two runs that read the same page should be near perfect, with any difference traceable to the page changing between them, which `population_year` and `source_url` will show.
+
+A model that answers from memory gives no such assurance. Replicate a run like that and compare it the same way, and the agreement is whatever it happens to be. The run without the tool above cannot be compared at all, because it returned no figures; that is the better outcome, since a missing value is visible and a remembered one is not.
 
 ## Across providers
 
