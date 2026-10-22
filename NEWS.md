@@ -1,4 +1,4 @@
-# quallmer (development version)
+# quallmer 0.6.0.9000 (development version)
 
 * `qlm_translate()` accepts `from` and `to` as one language tag for each
   document, so a multilingual corpus is translated in a single call, and
@@ -12,10 +12,7 @@
   chat models are given each document's languages in their input. The
   provenance records the languages and provider codes of each document (#200).
 
-# quallmer 0.5.0.9000 (development version)
-
-Everything in this section postdates quallmer 0.5.0 and will be released as
-quallmer 0.6.0.
+# quallmer 0.6.0
 
 * New experimental `qlm_translate()` translates texts or a quanteda corpus
   before coding, using DeepL, Qwen-MT, Google's Translation LLM or an ellmer
