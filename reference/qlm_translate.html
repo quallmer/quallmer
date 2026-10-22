@@ -102,12 +102,16 @@ model translates through <code><a href="qlm_code.html">qlm_code()</a></code>.</p
 
 <dt id="arg-to">to<a class="anchor" aria-label="anchor" href="#arg-to"></a></dt>
 <dd><p>Target language, as a BCP 47 language tag such as
-<code>"en"</code>, <code>"en-GB"</code>, <code>"pt-BR"</code> or <code>"zh-Hant"</code>. See "Language codes".</p></dd>
+<code>"en"</code>, <code>"en-GB"</code>, <code>"pt-BR"</code> or <code>"zh-Hant"</code>: one tag for all texts, or
+one for each text, as when translating translations back into their
+source languages. See "Language codes".</p></dd>
 
 
 <dt id="arg-from">from<a class="anchor" aria-label="anchor" href="#arg-from"></a></dt>
-<dd><p>Source language, as a BCP 47 language tag, or <code>NULL</code>
-for the provider to detect it. Set it whenever you know it: see
+<dd><p>Source language, as a BCP 47 language tag: one tag for all
+texts, or one for each text, such as the <code>ISO</code> document variable of a
+multilingual corpus. <code>NULL</code>, or <code>NA</code> for a text, leaves the provider to
+detect that text's language. Set it whenever you know it: see
 "Unsupported languages".</p></dd>
 
 
@@ -211,7 +215,7 @@ records translation as part of the coding instrument.</p><div class="section">
 
 <p><code>to</code>, <code>from</code> and <code>protect</code> work the same for every
 provider. The other arguments depend on it; where a provider cannot honour
-one, using it is an error rather than being ignored.</p><table class="table table"><tr><td></td><td>DeepL</td><td>Qwen-MT</td><td>Google Translation LLM</td><td>Chat models</td></tr><tr><td><code>model</code></td><td><code>"deepl/"</code> and <code>quality_optimized</code>, <code>latency_optimized</code> or <code>prefer_quality_optimized</code></td><td><code>"dashscope/"</code> and <code>qwen-mt-plus</code>, <code>qwen-mt-flash</code> or <code>qwen-mt-lite</code></td><td><code>"google-translate/translation-llm"</code></td><td>any <code><a href="https://ellmer.tidyverse.org/reference/chat-any.html" class="external-link">ellmer::chat()</a></code> model</td></tr><tr><td><code>instructions</code></td><td>at most 10, of at most 300 characters each</td><td>yes</td><td>error</td><td>yes</td></tr><tr><td><code>context</code></td><td>yes</td><td>yes</td><td>error</td><td>yes</td></tr><tr><td><code>glossary</code></td><td>error: not yet implemented</td><td>yes</td><td>error</td><td>yes</td></tr><tr><td><code>params</code></td><td>error</td><td><code>temperature</code>, <code>top_p</code>, <code>top_k</code>, <code>seed</code>, <code>max_tokens</code></td><td>error</td><td>any</td></tr><tr><td><code>...</code></td><td><code>formality</code>: <code>"default"</code>, <code>"more"</code>, <code>"less"</code>, <code>"prefer_more"</code> or <code>"prefer_less"</code></td><td>none</td><td><code>project_id</code> (default: <code>GOOGLE_CLOUD_PROJECT</code>); <code>region</code> (default <code>"us-central1"</code>)</td><td>passed to <code><a href="https://ellmer.tidyverse.org/reference/chat-any.html" class="external-link">ellmer::chat()</a></code>, e.g. <code>api_args</code></td></tr><tr><td>One request</td><td>up to 50 whole documents</td><td>adjacent paragraphs of one document</td><td>one document</td><td>adjacent paragraphs of one document</td></tr><tr><td><code>chunk_size</code> default</td><td>16,000</td><td>4,000</td><td>30,000, Google's limit</td><td>8,000, or <code>2 * params$max_tokens</code> if smaller</td></tr><tr><td><code>max_active</code> default</td><td>2</td><td>2</td><td>2</td><td>10</td></tr><tr><td>API key</td><td><code>DEEPL_API_KEY</code>, or keyring <code>"deepl"</code></td><td><code>DASHSCOPE_API_KEY</code></td><td><code>GOOGLE_TRANSLATE_API_KEY</code>, or keyring <code>"google-translate"</code></td><td>the provider's, through ellmer</td></tr><tr><td>Also recorded</td><td>detected language, model type used, billed characters</td><td>model, tokens</td><td>detected language, model</td><td>tokens, cost</td></tr></table><p>DeepL model types express a quality or speed goal, not a fixed model
+one, using it is an error rather than being ignored.</p><table class="table table"><tr><td></td><td>DeepL</td><td>Qwen-MT</td><td>Google Translation LLM</td><td>Chat models</td></tr><tr><td><code>model</code></td><td><code>"deepl/"</code> and <code>quality_optimized</code>, <code>latency_optimized</code> or <code>prefer_quality_optimized</code></td><td><code>"dashscope/"</code> and <code>qwen-mt-plus</code>, <code>qwen-mt-flash</code> or <code>qwen-mt-lite</code></td><td><code>"google-translate/translation-llm"</code></td><td>any <code><a href="https://ellmer.tidyverse.org/reference/chat-any.html" class="external-link">ellmer::chat()</a></code> model</td></tr><tr><td><code>instructions</code></td><td>at most 10, of at most 300 characters each</td><td>yes</td><td>error</td><td>yes</td></tr><tr><td><code>context</code></td><td>yes</td><td>yes</td><td>error</td><td>yes</td></tr><tr><td><code>glossary</code></td><td>error: not yet implemented</td><td>yes</td><td>error</td><td>yes</td></tr><tr><td><code>params</code></td><td>error</td><td><code>temperature</code>, <code>top_p</code>, <code>top_k</code>, <code>seed</code>, <code>max_tokens</code></td><td>error</td><td>any</td></tr><tr><td><code>...</code></td><td><code>formality</code>: <code>"default"</code>, <code>"more"</code>, <code>"less"</code>, <code>"prefer_more"</code> or <code>"prefer_less"</code></td><td>none</td><td><code>project_id</code> (default: <code>GOOGLE_CLOUD_PROJECT</code>); <code>region</code> (default <code>"us-central1"</code>)</td><td>passed to <code><a href="https://ellmer.tidyverse.org/reference/chat-any.html" class="external-link">ellmer::chat()</a></code>, e.g. <code>api_args</code></td></tr><tr><td>One request</td><td>up to 50 whole documents of one language pair</td><td>adjacent paragraphs of one document</td><td>one document</td><td>adjacent paragraphs of one document</td></tr><tr><td><code>chunk_size</code> default</td><td>16,000</td><td>4,000</td><td>30,000, Google's limit</td><td>8,000, or <code>2 * params$max_tokens</code> if smaller</td></tr><tr><td><code>max_active</code> default</td><td>2</td><td>2</td><td>2</td><td>10</td></tr><tr><td>API key</td><td><code>DEEPL_API_KEY</code>, or keyring <code>"deepl"</code></td><td><code>DASHSCOPE_API_KEY</code></td><td><code>GOOGLE_TRANSLATE_API_KEY</code>, or keyring <code>"google-translate"</code></td><td>the provider's, through ellmer</td></tr><tr><td>Also recorded</td><td>detected language, model type used, billed characters</td><td>model, tokens</td><td>detected language, model</td><td>tokens, cost</td></tr></table><p>DeepL model types express a quality or speed goal, not a fixed model
 version. Google's <code>region</code> selects the model's location, but the Basic API
 uses a global endpoint, so it does not guarantee where data is processed.
 For chat models the answering model version is not yet recorded
@@ -234,8 +238,14 @@ explains the parts, and the
 <a href="https://r12a.github.io/app-subtags/" class="external-link">Language Subtag Lookup</a> finds the tag
 for a language. Case does not matter, and an underscore may be used for a
 hyphen.</p>
+<p>A three-letter ISO 639-3 code, such as the <code>ISO</code> document variable of
+<code>quanteda.corpora::data_corpus_udhr</code> holds, is replaced by its two-letter
+ISO 639-1 code where there is one (<code>fra</code> becomes <code>fr</code>, <code>deu</code> becomes <code>de</code>,
+and <code>cmn</code>, Mandarin, becomes <code>zh</code>). Any other is passed on as it is, so
+that a provider that does not support the language says so instead of
+guessing.</p>
 <p>Each provider spells some languages differently, so the tag is converted
-to the provider's own code, and the provenance records both
+to the provider's own code, and the provenance records both for each text
 (<code>settings$provider_languages</code>). For Chinese, an explicit script decides
 between Simplified and Traditional (<code>zh-Hans-HK</code> is Simplified); a region
 only supplies the usual script when none is given (<code>zh-TW</code> is
@@ -266,9 +276,11 @@ not refuse, and may invent a translation even when told the source
 language.</p>
 <p>So set <code>from</code> whenever the source language is known, and when it is
 not, check the recorded <code>detected_language</code> against what you expect. For a
-corpus in several languages, translate each language with its own call and
-combine the results with <code><a href="https://rdrr.io/r/base/c.html" class="external-link">c()</a></code>. Results that look fluent are not evidence
-of a correct translation.</p>
+corpus in several languages, pass one tag for each text, for example
+<code>from = quanteda::docvars(corpus, "ISO")</code>; use <code>NA</code> for a text whose
+language you do not know. DeepL packs the texts of each language pair into
+requests of their own. Results that look fluent are not evidence of a
+correct translation.</p>
 </div>
 
 <div class="section">
@@ -341,6 +353,9 @@ coding.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># DeepL with a formal register</span></span></span>
 <span class="r-in"><span><span class="fu">qlm_translate</span><span class="op">(</span><span class="va">texts</span>, model <span class="op">=</span> <span class="st">"deepl/quality_optimized"</span>, formality <span class="op">=</span> <span class="st">"more"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># A multilingual corpus, with each text's language as ISO 639-3 codes</span></span></span>
+<span class="r-in"><span><span class="fu">qlm_translate</span><span class="op">(</span><span class="va">texts</span>, model <span class="op">=</span> <span class="st">"deepl/quality_optimized"</span>, from <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"fra"</span>, <span class="st">"deu"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Convert to a quanteda corpus, if quanteda is installed</span></span></span>
 <span class="r-in"><span><span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/corpus.html" class="external-link">corpus</a></span><span class="op">(</span><span class="va">translated_google</span><span class="op">)</span></span></span>
