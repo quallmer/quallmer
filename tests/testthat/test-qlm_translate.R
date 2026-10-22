@@ -481,3 +481,68 @@ test_that("protect matches the whole text, across blank lines and with anchors",
   out <- qlm_translate(c(b = "Code one\n\nCode two"), "openai/test", protect = "^Code")
   expect_identical(unname(as.character(out)), "Code one\n\nCHANGED two")
 })
+
+test_that("DeepL packs documents into one request per language pair", {
+  seen <- mock_translation_deepl()
+  out <- qlm_translate(c(a = "Bonjour", b = "Guten Tag", c = "Salut", d = "Hallo", e = "Ciao"),
+    model = "deepl/quality_optimized", api_key = "test", to = "en-GB",
+    from = c("fra", "deu", "fra", "deu", NA))
+  bodies <- lapply(seen$requests, function(req) req$body$data)
+  keys <- vapply(bodies, function(b) paste(b$source_lang %||% "none", b$target_lang), "")
+  expect_setequal(keys, c("FR EN-GB", "DE EN-GB", "none EN-GB"))
+  sizes <- vapply(bodies, function(b) length(b$text), 1L)
+  expect_equal(sort(sizes), c(1L, 2L, 2L))
+  expect_identical(unname(as.character(out)), c("Bonjour", "Guten Tag", "Salut", "Hallo", "Ciao"))
+  prov <- translation_provenance(out)
+  expect_identical(prov$source_lang, c("fr", "de", "fr", "de", NA))
+  expect_identical(prov$target_lang, rep("en-GB", 5))
+  expect_identical(prov$settings[[2]]$provider_languages, list(target = "EN-GB", source = "DE"))
+  expect_null(prov$settings[[5]]$source_lang)
+  expect_null(prov$settings[[5]]$provider_languages$source)
+})
+
+test_that("a per-document target supports back-translation into each source language", {
+  seen <- mock_translation_deepl()
+  qlm_translate(c(a = "Hello", b = "Hello"), "deepl/quality_optimized", api_key = "test",
+                from = "en", to = c("fra", "de"))
+  targets <- vapply(seen$requests, function(req) req$body$data$target_lang, "")
+  expect_setequal(targets, c("FR", "DE"))
+})
+
+test_that("language problems in any text are found before a request", {
+  seen <- mock_translation_deepl()
+  expect_error(qlm_translate(c("a", "b"), "deepl/quality_optimized", api_key = "test",
+                             to = c("en-GB", "en-AU")), "no target variant")
+  expect_error(qlm_translate(c("a", "b"), "deepl/quality_optimized", api_key = "test",
+                             to = c("en", NA)), "missing")
+  expect_error(qlm_translate(c("a", "b", "c"), "deepl/quality_optimized", api_key = "test",
+                             from = c("fr", "de")), "length 1 or one tag")
+  expect_length(seen$requests, 0)
+})
+
+test_that("chat models are given each group's languages in its input", {
+  seen <- mock_translation_chat()
+  out <- qlm_translate(c(a = "Bonjour", b = "Guten Tag", c = "Hello"), "openai/test",
+                       from = c("fra", NA, "kmb"), to = c("en", "en", "pt-BR"))
+  by_text <- stats::setNames(seen$units, vapply(seen$units, function(u) u$paragraphs[[1]]$text, ""))
+  expect_equal(by_text[["Bonjour"]]$source_language, "fr")
+  expect_equal(by_text[["Bonjour"]]$target_language, "en")
+  expect_null(by_text[["Guten Tag"]]$source_language)
+  expect_equal(by_text[["Hello"]]$source_language, "kmb")
+  expect_equal(by_text[["Hello"]]$target_language, "pt-BR")
+  prov <- translation_provenance(out)
+  expect_identical(prov$source_lang, c("fr", NA, "kmb"))
+  expect_identical(prov$target_lang, c("en", "en", "pt-BR"))
+  # The shared instructions no longer carry a language
+  expect_false(grepl("pt-BR", translation_instruction(prov$settings[[3]]), fixed = TRUE))
+})
+
+test_that("Qwen-MT sets the languages of each document's requests", {
+  seen <- mock_translation_qwen()
+  out <- qlm_translate(c(a = "Bonjour", b = "Guten Tag"), "dashscope/qwen-mt-plus",
+                       from = c("fra", NA), to = c("en", "cmn-Hant"))
+  options <- lapply(seen$requests, function(req) req$body$data$translation_options)
+  pairs <- vapply(options, function(o) paste(o$source_lang, o$target_lang), "")
+  expect_setequal(pairs, c("fr en", "auto zh_tw"))
+  expect_equal(translation_provenance(out)$settings[[2]]$provider_languages$target, "zh_tw")
+})

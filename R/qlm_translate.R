@@ -15,9 +15,13 @@
 #'   "Providers" for the translation services; any other [ellmer::chat()]
 #'   model translates through [qlm_code()].
 #' @param to Target language, as a BCP 47 language tag such as
-#'   `"en"`, `"en-GB"`, `"pt-BR"` or `"zh-Hant"`. See "Language codes".
-#' @param from Source language, as a BCP 47 language tag, or `NULL`
-#'   for the provider to detect it. Set it whenever you know it: see
+#'   `"en"`, `"en-GB"`, `"pt-BR"` or `"zh-Hant"`: one tag for all texts, or
+#'   one for each text, as when translating translations back into their
+#'   source languages. See "Language codes".
+#' @param from Source language, as a BCP 47 language tag: one tag for all
+#'   texts, or one for each text, such as the `ISO` document variable of a
+#'   multilingual corpus. `NULL`, or `NA` for a text, leaves the provider to
+#'   detect that text's language. Set it whenever you know it: see
 #'   "Unsupported languages".
 #' @param instructions Character vector of translation directives, such as a
 #'   register to use or how to treat names.
@@ -65,7 +69,7 @@
 #' | `glossary` | error: not yet implemented | yes | error | yes |
 #' | `params` | error | `temperature`, `top_p`, `top_k`, `seed`, `max_tokens` | error | any |
 #' | `...` | `formality`: `"default"`, `"more"`, `"less"`, `"prefer_more"` or `"prefer_less"` | none | `project_id` (default: `GOOGLE_CLOUD_PROJECT`); `region` (default `"us-central1"`) | passed to [ellmer::chat()], e.g. `api_args` |
-#' | One request | up to 50 whole documents | adjacent paragraphs of one document | one document | adjacent paragraphs of one document |
+#' | One request | up to 50 whole documents of one language pair | adjacent paragraphs of one document | one document | adjacent paragraphs of one document |
 #' | `chunk_size` default | 16,000 | 4,000 | 30,000, Google's limit | 8,000, or `2 * params$max_tokens` if smaller |
 #' | `max_active` default | 2 | 2 | 2 | 10 |
 #' | API key | `DEEPL_API_KEY`, or keyring `"deepl"` | `DASHSCOPE_API_KEY` | `GOOGLE_TRANSLATE_API_KEY`, or keyring `"google-translate"` | the provider's, through ellmer |
@@ -92,8 +96,15 @@
 #' for a language. Case does not matter, and an underscore may be used for a
 #' hyphen.
 #'
+#' A three-letter ISO 639-3 code, such as the `ISO` document variable of
+#' `quanteda.corpora::data_corpus_udhr` holds, is replaced by its two-letter
+#' ISO 639-1 code where there is one (`fra` becomes `fr`, `deu` becomes `de`,
+#' and `cmn`, Mandarin, becomes `zh`). Any other is passed on as it is, so
+#' that a provider that does not support the language says so instead of
+#' guessing.
+#'
 #' Each provider spells some languages differently, so the tag is converted
-#' to the provider's own code, and the provenance records both
+#' to the provider's own code, and the provenance records both for each text
 #' (`settings$provider_languages`). For Chinese, an explicit script decides
 #' between Simplified and Traditional (`zh-Hans-HK` is Simplified); a region
 #' only supplies the usual script when none is given (`zh-TW` is
@@ -124,9 +135,11 @@
 #'
 #' So set `from` whenever the source language is known, and when it is
 #' not, check the recorded `detected_language` against what you expect. For a
-#' corpus in several languages, translate each language with its own call and
-#' combine the results with `c()`. Results that look fluent are not evidence
-#' of a correct translation.
+#' corpus in several languages, pass one tag for each text, for example
+#' `from = quanteda::docvars(corpus, "ISO")`; use `NA` for a text whose
+#' language you do not know. DeepL packs the texts of each language pair into
+#' requests of their own. Results that look fluent are not evidence of a
+#' correct translation.
 #'
 #' ## API keys
 #'
@@ -212,6 +225,9 @@
 #' # DeepL with a formal register
 #' qlm_translate(texts, model = "deepl/quality_optimized", formality = "more")
 #'
+#' # A multilingual corpus, with each text's language as ISO 639-3 codes
+#' qlm_translate(texts, model = "deepl/quality_optimized", from = c("fra", "deu"))
+#'
 #' # Convert to a quanteda corpus, if quanteda is installed
 #' quanteda::corpus(translated_google)
 #' }
@@ -235,17 +251,16 @@ qlm_translate <- function(x, model, to = "en", from = NULL,
   if (missing(model) || !rlang::is_string(model) || !nzchar(model)) {
     cli::cli_abort("Supply {.arg model} as a single provider/model string.")
   }
-  for (arg in c("to", "from", "context", "adapter", "api_key",
-                "base_url")) {
+  for (arg in c("context", "adapter", "api_key", "base_url")) {
     check_optional_string(get(arg), arg)
   }
   if (is.null(to)) {
     cli::cli_abort(c("{.arg to} is required.", language_tag_help))
   }
   # The provenance and the providers' requests call these target_lang and
-  # source_lang, as the translation APIs do.
-  target_lang <- normalise_language_tag(to, "to")
-  source_lang <- normalise_language_tag(from, "from")
+  # source_lang, as the translation APIs do. Each has one value per text.
+  target_lang <- translation_language_vector(to, "to", length(x), allow_missing = FALSE)
+  source_lang <- translation_language_vector(from, "from", length(x), allow_missing = TRUE)
   check_translation_strings(instructions, "instructions")
   check_translation_strings(protect, "protect")
   check_translation_strings(glossary, "glossary")
@@ -309,10 +324,9 @@ qlm_translate <- function(x, model, to = "en", from = NULL,
     # translations come back in; truncation is detected if it is too few.
     if (is.null(chunk_size)) size <- min(size, 2L * params$max_tokens)
   }
-  settings <- list(target_lang = target_lang, source_lang = source_lang,
-                   instructions = instructions, context = context, protect = protect,
+  settings <- list(instructions = instructions, context = context, protect = protect,
                    glossary = glossary, params = params,
-                   chunk_size = size, template_version = 3L,
+                   chunk_size = size, template_version = 4L,
                    text_unit = switch(selected$name, deepl = "document",
                                       "paragraph_group"),
                    ellmer_version = as.character(utils::packageVersion("ellmer")))
@@ -322,8 +336,6 @@ qlm_translate <- function(x, model, to = "en", from = NULL,
     names(provider_args)
   } else provider_args
   if (selected$name == "deepl") settings$formality <- provider_args$formality
-  settings$provider_languages <- translation_provider_languages(selected$name,
-                                                                target_lang, source_lang)
   if (selected$name == "qwen-mt") {
     settings$group_max_bytes <- 6000L
     settings$paragraph_alignment <- "boundary_markers"
@@ -333,19 +345,23 @@ qlm_translate <- function(x, model, to = "en", from = NULL,
                                             provider_args$region %||% "us-central1")
     size <- settings$chunk_size
   }
+  # Languages are checked once for each distinct pair, before any request;
+  # the settings recorded for a text carry its own languages.
+  languages <- translation_document_languages(selected$name, target_lang, source_lang)
   # All local splitting/protection validation finishes before building a key-
   # bearing request. Missing input is carried into the output without a call.
   plans <- if (selected$name == "google-translate") {
-    lapply(source, translation_google_plan, settings = settings)
+    Map(translation_google_plan, source, languages, MoreArgs = list(settings = settings))
   } else lapply(source, translation_plan, size = size, protect = protect)
   setup <- translation_setup(selected, settings, api_key, base_url, rpm)
+  setup$languages <- languages
   result <- run_translation_plans(plans, setup, max_active, rpm, on_error)
   provenance <- data.frame(
     .id = ids, status = result$status, .error = result$error,
     source_text = unname(source), source_hash = vapply(source, translation_hash, "", USE.NAMES = FALSE),
     output_hash = vapply(result$text, translation_hash, "", USE.NAMES = FALSE), model = model,
     reported_model = vapply(result$attempts, translation_reported_models, ""),
-    source_lang = source_lang %||% NA_character_, target_lang = target_lang,
+    source_lang = source_lang, target_lang = target_lang,
     detected_language = vapply(result$attempts, translation_detected_languages, ""),
     adapter = selected$name, adapter_selection = if (is.null(adapter)) "automatic" else "explicit",
     base_url = setup$recorded_base_url %||% NA_character_, timestamp = Sys.time(),
@@ -355,7 +371,9 @@ qlm_translate <- function(x, model, to = "en", from = NULL,
   provenance$.error[missing_input] <- ifelse(
     is.na(input_errors[missing_input]), "source text is missing", input_errors[missing_input]
   )
-  provenance$settings <- rep(list(settings), length(source))
+  provenance$settings <- lapply(languages, function(language) {
+    c(language, settings)
+  })
   provenance$attempts <- lapply(result$attempts, translation_attempts_table)
   provenance$history <- history
   out <- new_qlm_translation(result$text, provenance, corpus_attributes)

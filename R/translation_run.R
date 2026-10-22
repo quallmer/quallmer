@@ -12,7 +12,7 @@ run_translation_plans <- function(plans, setup, max_active, rpm, on_error) {
         piece <- paragraph$pieces[[s]]
         if (!nzchar(piece$text)) next
         jobs[[length(jobs) + 1L]] <- c(piece, list(document = d, paragraph = p,
-          segment = s, context = if (setup$adapter$name == "generic") previous else NULL,
+          segment = s, languages = setup$languages[[d]], context = if (setup$adapter$name == "generic") previous else NULL,
           marker_prefix = paragraph$marker_prefix,
           markers = paragraph$markers,
           document_text = identical(setup$adapter$name, "google-translate")))

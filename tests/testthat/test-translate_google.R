@@ -150,3 +150,13 @@ test_that("Google retains successful documents after transport or content failur
     expect_match(parse_google_translation(httr2::response_json(body = body), "key")$error, "invalid")
   }
 })
+
+test_that("Google sets the languages of each document's request", {
+  seen <- mock_google_translation()
+  out <- qlm_translate(c(a = "Bonjour", b = "Guten Tag"), "google-translate/translation-llm",
+                       from = c("fra", NA), to = c("en", "zh-TW"))
+  bodies <- lapply(seen$requests, function(req) req$body$data)
+  pairs <- vapply(bodies, function(b) paste(b$source %||% "none", b$target), "")
+  expect_setequal(pairs, c("fr en", "none zh-Hant"))
+  expect_identical(translation_provenance(out)$target_lang, c("en", "zh-TW"))
+})

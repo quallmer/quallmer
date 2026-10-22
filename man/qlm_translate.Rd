@@ -35,10 +35,14 @@ Missing texts are recorded as failures without a request.}
 model translates through \code{\link[=qlm_code]{qlm_code()}}.}
 
 \item{to}{Target language, as a BCP 47 language tag such as
-\code{"en"}, \code{"en-GB"}, \code{"pt-BR"} or \code{"zh-Hant"}. See "Language codes".}
+\code{"en"}, \code{"en-GB"}, \code{"pt-BR"} or \code{"zh-Hant"}: one tag for all texts, or
+one for each text, as when translating translations back into their
+source languages. See "Language codes".}
 
-\item{from}{Source language, as a BCP 47 language tag, or \code{NULL}
-for the provider to detect it. Set it whenever you know it: see
+\item{from}{Source language, as a BCP 47 language tag: one tag for all
+texts, or one for each text, such as the \code{ISO} document variable of a
+multilingual corpus. \code{NULL}, or \code{NA} for a text, leaves the provider to
+detect that text's language. Set it whenever you know it: see
 "Unsupported languages".}
 
 \item{instructions}{Character vector of translation directives, such as a
@@ -125,7 +129,7 @@ one, using it is an error rather than being ignored.\tabular{lllll}{
    \code{glossary} \tab error: not yet implemented \tab yes \tab error \tab yes \cr
    \code{params} \tab error \tab \code{temperature}, \code{top_p}, \code{top_k}, \code{seed}, \code{max_tokens} \tab error \tab any \cr
    \code{...} \tab \code{formality}: \code{"default"}, \code{"more"}, \code{"less"}, \code{"prefer_more"} or \code{"prefer_less"} \tab none \tab \code{project_id} (default: \code{GOOGLE_CLOUD_PROJECT}); \code{region} (default \code{"us-central1"}) \tab passed to \code{\link[ellmer:chat]{ellmer::chat()}}, e.g. \code{api_args} \cr
-   One request \tab up to 50 whole documents \tab adjacent paragraphs of one document \tab one document \tab adjacent paragraphs of one document \cr
+   One request \tab up to 50 whole documents of one language pair \tab adjacent paragraphs of one document \tab one document \tab adjacent paragraphs of one document \cr
    \code{chunk_size} default \tab 16,000 \tab 4,000 \tab 30,000, Google's limit \tab 8,000, or \code{2 * params$max_tokens} if smaller \cr
    \code{max_active} default \tab 2 \tab 2 \tab 2 \tab 10 \cr
    API key \tab \code{DEEPL_API_KEY}, or keyring \code{"deepl"} \tab \code{DASHSCOPE_API_KEY} \tab \code{GOOGLE_TRANSLATE_API_KEY}, or keyring \code{"google-translate"} \tab the provider's, through ellmer \cr
@@ -155,8 +159,15 @@ explains the parts, and the
 for a language. Case does not matter, and an underscore may be used for a
 hyphen.
 
+A three-letter ISO 639-3 code, such as the \code{ISO} document variable of
+\code{quanteda.corpora::data_corpus_udhr} holds, is replaced by its two-letter
+ISO 639-1 code where there is one (\code{fra} becomes \code{fr}, \code{deu} becomes \code{de},
+and \code{cmn}, Mandarin, becomes \code{zh}). Any other is passed on as it is, so
+that a provider that does not support the language says so instead of
+guessing.
+
 Each provider spells some languages differently, so the tag is converted
-to the provider's own code, and the provenance records both
+to the provider's own code, and the provenance records both for each text
 (\code{settings$provider_languages}). For Chinese, an explicit script decides
 between Simplified and Traditional (\code{zh-Hans-HK} is Simplified); a region
 only supplies the usual script when none is given (\code{zh-TW} is
@@ -189,9 +200,11 @@ language.
 
 So set \code{from} whenever the source language is known, and when it is
 not, check the recorded \code{detected_language} against what you expect. For a
-corpus in several languages, translate each language with its own call and
-combine the results with \code{c()}. Results that look fluent are not evidence
-of a correct translation.
+corpus in several languages, pass one tag for each text, for example
+\code{from = quanteda::docvars(corpus, "ISO")}; use \code{NA} for a text whose
+language you do not know. DeepL packs the texts of each language pair into
+requests of their own. Results that look fluent are not evidence of a
+correct translation.
 }
 
 \subsection{API keys}{
@@ -261,6 +274,9 @@ attr(translated_google, "provenance")
 
 # DeepL with a formal register
 qlm_translate(texts, model = "deepl/quality_optimized", formality = "more")
+
+# A multilingual corpus, with each text's language as ISO 639-3 codes
+qlm_translate(texts, model = "deepl/quality_optimized", from = c("fra", "deu"))
 
 # Convert to a quanteda corpus, if quanteda is installed
 quanteda::corpus(translated_google)
