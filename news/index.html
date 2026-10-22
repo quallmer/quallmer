@@ -56,7 +56,7 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.6.0" id="quallmer-060">quallmer 0.6.0<a class="anchor" aria-label="anchor" href="#quallmer-060"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.6.0" id="quallmer-060">quallmer 0.6.0<a class="anchor" aria-label="anchor" href="#quallmer-060"></a></h2><p class="text-muted">CRAN release: 2026-10-21</p>
 <ul><li><p>New experimental <code><a href="../reference/qlm_translate.html">qlm_translate()</a></code> translates texts or a quanteda corpus before coding, using DeepL, Qwen-MT, Google’s Translation LLM or an ellmer chat model. It returns a <code>qlm_translation</code>: a named character vector with per-document provenance, which <code><a href="../reference/qlm_code.html">qlm_code()</a></code> accepts and <code><a href="../reference/qlm_trail.html">qlm_trail()</a></code> reports. <code><a href="https://quanteda.io/reference/corpus.html" class="external-link">quanteda::corpus()</a></code> converts a translation, or a text column of a coded object, to a corpus with the original document variables and metadata restored (#196).</p></li>
 <li><p>Documentation: <code><a href="../reference/qlm_transcribe.html">qlm_transcribe()</a></code> and <code><a href="../reference/qlm_translate.html">qlm_translate()</a></code> are described in the README as optional ways to prepare content for coding, and have their own “Preparing content” section of the reference index. The workflow tutorial gains an optional “Step 0: Prepare your content”.</p></li>
 <li><p>Fixed a test that matched the summary line quanteda prints for corpus objects and failed with quanteda 4.5.1, which changed that format. The test now accepts both formats.</p></li>
