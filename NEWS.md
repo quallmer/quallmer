@@ -1,3 +1,5 @@
+# quallmer 0.6.0.9000 (development version)
+
 # quallmer 0.6.0
 
 * New experimental `qlm_translate()` translates texts or a quanteda corpus
