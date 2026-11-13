@@ -332,10 +332,13 @@ test_that("qlm_compare handles mismatched units", {
     parent = NULL
   )
 
-  # Should error with no common units
-  expect_error(
-    qlm_compare(mock_coded1, mock_coded2, by = "score", level = "interval"),
-    "No valid comparisons could be computed"
+  # Should warn that the variable is skipped, then error with no common units
+  expect_warning(
+    expect_error(
+      qlm_compare(mock_coded1, mock_coded2, by = "score", level = "interval"),
+      "No valid comparisons could be computed"
+    ),
+    "No common units found for variable"
   )
 })
 
