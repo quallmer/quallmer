@@ -103,11 +103,9 @@ test_that("a refused group of one document's paragraphs is not split between doc
   expect_warning(out <- qlm_translate(c(a = "fine\n\nbad"), "openai/test"), "1 of 1")
   expect_true(is.na(out))
   expect_match(translation_provenance(out)$.error, "content refused")
-  # Both paragraphs went in one request, which is not divided by document;
-  # any later request is a retry of a single paragraph, not a split group
+  expect_length(seen$units, 1L)
   expect_length(seen$units[[1]]$paragraphs, 2)
   expect_null(seen$units[[1]]$paragraphs[[1]]$document)
-  expect_true(all(lengths(lapply(seen$units[-1], `[[`, "paragraphs")) == 1L))
 })
 
 test_that("content refusals in both halves do not discard other documents", {
