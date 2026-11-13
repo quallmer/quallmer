@@ -129,13 +129,20 @@ one, using it is an error rather than being ignored.\tabular{lllll}{
    \code{glossary} \tab error: not yet implemented \tab yes \tab error \tab yes \cr
    \code{params} \tab error \tab \code{temperature}, \code{top_p}, \code{top_k}, \code{seed}, \code{max_tokens} \tab error \tab any \cr
    \code{...} \tab \code{formality}: \code{"default"}, \code{"more"}, \code{"less"}, \code{"prefer_more"} or \code{"prefer_less"} \tab none \tab \code{project_id} (default: \code{GOOGLE_CLOUD_PROJECT}); \code{region} (default \code{"us-central1"}) \tab passed to \code{\link[ellmer:chat]{ellmer::chat()}}, e.g. \code{api_args} \cr
-   One request \tab up to 50 whole documents of one language pair \tab adjacent paragraphs of one document \tab one document \tab adjacent paragraphs of one document \cr
+   One request \tab up to 50 whole documents of one language pair \tab adjacent paragraphs of one document \tab one document \tab adjacent paragraphs of up to 50 documents of one language pair \cr
    \code{chunk_size} default \tab 16,000 \tab 4,000 \tab 30,000, Google's limit \tab 8,000, or \code{2 * params$max_tokens} if smaller \cr
    \code{max_active} default \tab 2 \tab 2 \tab 2 \tab 10 \cr
    API key \tab \code{DEEPL_API_KEY}, or keyring \code{"deepl"} \tab \code{DASHSCOPE_API_KEY} \tab \code{GOOGLE_TRANSLATE_API_KEY}, or keyring \code{"google-translate"} \tab the provider's, through ellmer \cr
    Also recorded \tab detected language, model type used, billed characters \tab model, tokens \tab detected language, model \tab tokens, cost \cr
 }
 
+
+Chat models translate several short documents in one request, so that the
+instructions sent with every request are not repeated for each text. A
+document that fits in one request is not divided between two, and the
+model is told that paragraphs of different documents are unrelated. A
+request's tokens and cost are shared among its documents by source
+characters in the recorded \code{attempts}.
 
 DeepL model types express a quality or speed goal, not a fixed model
 version. Google's \code{region} selects the model's location, but the Basic API
@@ -231,8 +238,11 @@ Paragraphs are separated by blank lines. The separators, and whitespace at
 the start and end of each paragraph, are kept aside and restored exactly.
 DeepL, Qwen-MT and chat models are told where each paragraph begins, and a
 response that loses, merges or reorders paragraphs is sent again in
-smaller parts. Google receives each document whole and handles paragraph
-formatting itself, so exact separators are not guaranteed there. Text
+smaller parts; for chat models, a request for several documents that
+fails for any other reason is sent again divided between them, so that one
+problem text does not fail the others. Google receives each document whole
+and handles paragraph formatting itself, so exact separators are not
+guaranteed there. Text
 longer than \code{chunk_size} is split at sentence ends, else at spaces, else
 between characters.
 

@@ -69,11 +69,18 @@
 #' | `glossary` | error: not yet implemented | yes | error | yes |
 #' | `params` | error | `temperature`, `top_p`, `top_k`, `seed`, `max_tokens` | error | any |
 #' | `...` | `formality`: `"default"`, `"more"`, `"less"`, `"prefer_more"` or `"prefer_less"` | none | `project_id` (default: `GOOGLE_CLOUD_PROJECT`); `region` (default `"us-central1"`) | passed to [ellmer::chat()], e.g. `api_args` |
-#' | One request | up to 50 whole documents of one language pair | adjacent paragraphs of one document | one document | adjacent paragraphs of one document |
+#' | One request | up to 50 whole documents of one language pair | adjacent paragraphs of one document | one document | adjacent paragraphs of up to 50 documents of one language pair |
 #' | `chunk_size` default | 16,000 | 4,000 | 30,000, Google's limit | 8,000, or `2 * params$max_tokens` if smaller |
 #' | `max_active` default | 2 | 2 | 2 | 10 |
 #' | API key | `DEEPL_API_KEY`, or keyring `"deepl"` | `DASHSCOPE_API_KEY` | `GOOGLE_TRANSLATE_API_KEY`, or keyring `"google-translate"` | the provider's, through ellmer |
 #' | Also recorded | detected language, model type used, billed characters | model, tokens | detected language, model | tokens, cost |
+#'
+#' Chat models translate several short documents in one request, so that the
+#' instructions sent with every request are not repeated for each text. A
+#' document that fits in one request is not divided between two, and the
+#' model is told that paragraphs of different documents are unrelated. A
+#' request's tokens and cost are shared among its documents by source
+#' characters in the recorded `attempts`.
 #'
 #' DeepL model types express a quality or speed goal, not a fixed model
 #' version. Google's `region` selects the model's location, but the Basic API
@@ -163,8 +170,11 @@
 #' the start and end of each paragraph, are kept aside and restored exactly.
 #' DeepL, Qwen-MT and chat models are told where each paragraph begins, and a
 #' response that loses, merges or reorders paragraphs is sent again in
-#' smaller parts. Google receives each document whole and handles paragraph
-#' formatting itself, so exact separators are not guaranteed there. Text
+#' smaller parts; for chat models, a request for several documents that
+#' fails for any other reason is sent again divided between them, so that one
+#' problem text does not fail the others. Google receives each document whole
+#' and handles paragraph formatting itself, so exact separators are not
+#' guaranteed there. Text
 #' longer than `chunk_size` is split at sentence ends, else at spaces, else
 #' between characters.
 #'
@@ -326,7 +336,7 @@ qlm_translate <- function(x, model, to = "en", from = NULL,
   }
   settings <- list(instructions = instructions, context = context, protect = protect,
                    glossary = glossary, params = params,
-                   chunk_size = size, template_version = 4L,
+                   chunk_size = size, template_version = 5L,
                    text_unit = switch(selected$name, deepl = "document",
                                       "paragraph_group"),
                    ellmer_version = as.character(utils::packageVersion("ellmer")))
