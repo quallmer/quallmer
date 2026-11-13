@@ -108,7 +108,7 @@ split_translation_segment <- function(text, size, marker_prefix) {
   pieces
 }
 
-translation_markers <- function(text, prefix) {
+translation_markers <- function(text, prefix = "QLMKEEP[0-9a-f]{12}_X*") {
   found <- gregexpr(paste0(prefix, "[0-9]+END"), text, perl = TRUE)
   regmatches(text, found)[[1]]
 }
