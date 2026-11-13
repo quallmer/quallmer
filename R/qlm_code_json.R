@@ -122,6 +122,7 @@ code_handler_json <- function(x, codebook, model, chat_args, execution_args,
 
   # The stage each unit's last failure belongs to, which classes its error
   stage <- rep(NA_character_, length(x))
+  status <- rep(NA_integer_, length(x))
 
   # Token and cost accumulators, summed ACROSS retry attempts: a repair attempt
   # is a real billed request, so reporting only the successful attempt would
@@ -178,14 +179,14 @@ code_handler_json <- function(x, codebook, model, chat_args, execution_args,
         fatal[[i]] <- FALSE
       } else {
         problems[[i]] <- checked$error
+        status[[i]] <- turns$status[[j]]
         # "Misconfigured" means the request itself was malformed or
         # unauthorised. A refusal or an over-long document also arrives as a
         # fatal status, but says nothing about the run as a whole, so neither
         # counts towards the all-failed abort below.
-        refusal <- is_content_refusal(checked$error)
         length_rejection <- is_length_rejection(checked$error)
-        fatal[[i]] <- is_fatal_status(turns$status[[j]]) &&
-          !refusal && !length_rejection
+        fatal[[i]] <- is_fatal_status(status[[i]]) &&
+          !is_content_refusal(checked$error) && !length_rejection
         # Content refusals are deliberately retried. They look deterministic
         # and are not: the same document is refused on one pass and coded on
         # the next, at more than one provider. Refusals are rejected before
@@ -242,7 +243,7 @@ code_handler_json <- function(x, codebook, model, chat_args, execution_args,
     if (!failed[[i]]) {
       NULL
     } else {
-      unit_error(problems[[i]], stage[[i]], cut[[i]])
+      unit_error(problems[[i]], stage[[i]], cut[[i]], status = status[[i]])
     }
   })
   if (any(failed)) {
@@ -654,6 +655,9 @@ is_fatal_status <- function(status) {
   !is.na(status) && status %in% c(400L, 401L, 403L, 404L, 422L)
 }
 
+is_configuration_rejection <- function(status, message) {
+  is_fatal_status(status) && !is_content_refusal(message) && !is_length_rejection(message)
+}
 
 #' Format messages as cli bullets, without treating them as templates
 #'

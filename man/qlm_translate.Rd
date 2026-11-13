@@ -140,9 +140,10 @@ one, using it is an error rather than being ignored.\tabular{lllll}{
 Chat models translate several short documents in one request, so that the
 instructions sent with every request are not repeated for each text. A
 document that fits in one request is not divided between two, and the
-model is told that paragraphs of different documents are unrelated. A
-request's tokens and cost are shared among its documents by source
-characters in the recorded \code{attempts}.
+model is told that paragraphs of different documents are unrelated.
+With \code{on_error = "return"} or \code{"stop"}, each request contains text from
+one document and requests are scheduled in input order. Tokens and
+cost are apportioned by source characters in the recorded \code{attempts}.
 
 DeepL model types express a quality or speed goal, not a fixed model
 version. Google's \code{region} selects the model's location, but the Basic API
@@ -238,13 +239,12 @@ Paragraphs are separated by blank lines. The separators, and whitespace at
 the start and end of each paragraph, are kept aside and restored exactly.
 DeepL, Qwen-MT and chat models are told where each paragraph begins, and a
 response that loses, merges or reorders paragraphs is sent again in
-smaller parts; for chat models, a request for several documents that
-fails for any other reason is sent again divided between them, so that one
-problem text does not fail the others. Google receives each document whole
-and handles paragraph formatting itself, so exact separators are not
-guaranteed there. Text
-longer than \code{chunk_size} is split at sentence ends, else at spaces, else
-between characters.
+smaller parts. If a chat request containing several documents fails,
+it is split by document and retried unless the provider reports a
+configuration error such as invalid credentials. Google receives each
+document whole and handles paragraph formatting itself, so exact
+separators are not guaranteed there. Text longer than \code{chunk_size} is
+split at sentence ends, else at spaces, else between characters.
 
 A response that is malformed or changes a protected term is retried once,
 and one cut off at the output limit is sent again in smaller parts. A

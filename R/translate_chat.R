@@ -13,6 +13,7 @@
 #   given once per request, and hold at most `chat_max_documents` documents
 #   and `chunk_size` source characters. A document that fits in a request of
 #   its own is not divided between two; a longer one is, as before.
+#   The early-stop policies send one document per request in input order.
 # * Paragraph IDs run across the whole group, and each paragraph of a group
 #   with several documents also says which of them it belongs to, so that
 #   the model treats them as unrelated texts. The preceding source text is
@@ -21,11 +22,8 @@
 # * Each outcome is per paragraph, as before, so a document is `NA` when any
 #   of its parts fails and documents cannot be mixed up. A group cut off at
 #   the output limit, or whose IDs come back wrong, is halved.
-# * Any other failure of a group with several documents, such as a refusal
-#   or a request error that outlasted its retries, is split between its
-#   documents, so that one problem text does not fail the others. As with
-#   DeepL, a half is split again only while its sibling succeeds; when both
-#   fail, the failure is systematic and splitting stops.
+# * Other failures of a group with several documents are split between
+#   documents unless the provider reports a configuration problem.
 # * A group's usage is shared among its paragraphs by source characters,
 #   tokens in whole numbers, so that each document carries its share and
 #   the attempts still sum to what was billed.
@@ -36,8 +34,7 @@
 chat_max_documents <- 50L
 
 translation_chat_jobs <- function(jobs, setup, max_active, rpm, on_error) {
-  groups <- translation_chat_groups(jobs, setup$settings$chunk_size, setup)
-  pairs <- rep(NA_integer_, length(groups))
+  groups <- translation_chat_groups(jobs, setup$settings$chunk_size, setup, on_error)
   out <- vector("list", length(jobs))
   depth <- 0L
   # Halves of a group are sent again with every other such group in one
@@ -60,43 +57,30 @@ translation_chat_jobs <- function(jobs, setup, max_active, rpm, on_error) {
         out[[pos]] <- value
       }
     }
-    split <- translation_chat_regroup(jobs, groups, pairs, sent, on_error)
-    groups <- split$groups
-    pairs <- split$pairs
+    groups <- translation_chat_regroup(jobs, groups, sent)
     depth <- depth + 1L
   }
   out
 }
 
-# The groups to send again, and for halves split between documents, the
-# pair each belongs to.
-translation_chat_regroup <- function(jobs, groups, pairs, sent, on_error) {
-  isolate <- vapply(seq_along(groups), function(g) {
-    isTRUE(sent[[g]][[1]]$isolate) &&
-      length(translation_chat_documents(jobs, groups[[g]])) > 1L
-  }, logical(1))
+# A refusal in both halves can be caused by two different documents.
+translation_chat_regroup <- function(jobs, groups, sent) {
   next_groups <- list()
-  next_pairs <- integer()
-  pair <- 0L
   for (g in seq_along(groups)) {
     group <- groups[[g]]
     first <- sent[[g]][[1]]
     if (isTRUE(first$regroup) && length(group) > 1L) {
       h <- floor(length(group) / 2)
-      next_groups <- c(next_groups, list(group[seq_len(h)], group[-seq_len(h)]))
-      next_pairs <- c(next_pairs, NA_integer_, NA_integer_)
-    } else if (isolate[g] && on_error != "return") {
-      sibling <- !is.na(pairs[g]) && any(isolate[setdiff(which(pairs == pairs[g]), g)])
-      if (sibling) next
+    } else if (isTRUE(first$isolate) && length(group) > 1L) {
       documents <- translation_chat_documents(jobs, group)
-      ends <- cumsum(lengths(documents))
-      h <- ends[floor(length(documents) / 2)]
-      pair <- pair + 1L
-      next_groups <- c(next_groups, list(group[seq_len(h)], group[-seq_len(h)]))
-      next_pairs <- c(next_pairs, pair, pair)
+      if (length(documents) < 2L) next
+      h <- sum(lengths(documents)[seq_len(floor(length(documents) / 2))])
+    } else {
+      next
     }
+    next_groups <- c(next_groups, list(group[seq_len(h)], group[-seq_len(h)]))
   }
-  list(groups = next_groups, pairs = next_pairs)
+  next_groups
 }
 
 # The positions of a group, divided by document.
@@ -107,23 +91,28 @@ translation_chat_documents <- function(jobs, group) {
 
 # Adjacent segments, up to `size` characters of source text and
 # `chat_max_documents` documents, of documents with the same languages.
-translation_chat_groups <- function(jobs, size, setup) {
-  pair <- vapply(jobs, function(job) {
-    languages <- translation_job_languages(job, setup)
-    paste(languages$target_lang %||% "", languages$source_lang %||% "", sep = "\r")
-  }, "")
+translation_chat_groups <- function(jobs, size, setup, on_error) {
   documents <- vapply(jobs, function(job) job$document, numeric(1))
+  document_index <- match(documents, unique(documents))
+  packing_group <- document_index
+  if (on_error == "continue") {
+    pair <- vapply(jobs, function(job) {
+      languages <- translation_job_languages(job, setup)
+      paste(languages$target_lang %||% "", languages$source_lang %||% "", sep = "\r")
+    }, "")
+    packing_group <- match(pair, unique(pair))
+  }
   chars <- vapply(jobs, function(job) nchar(job$text), numeric(1))
-  totals <- tapply(chars, documents, sum)
+  totals <- rowsum(chars, document_index, reorder = FALSE)[, 1L]
   groups <- list()
-  for (key in unique(pair)) {
+  for (positions in split(seq_along(jobs), packing_group)) {
     current <- integer()
     used <- 0
     count <- 0L
-    for (i in which(pair == key)) {
+    for (i in positions) {
       n <- chars[i]
       starts <- !length(current) || documents[i] != documents[current[length(current)]]
-      whole <- totals[[as.character(documents[i])]]
+      whole <- totals[[document_index[i]]]
       full <- used + n > size ||
         (starts && (count == chat_max_documents || (whole <= size && used + whole > size)))
       if (length(current) && full) {
@@ -211,7 +200,10 @@ translation_chat_outcomes <- function(jobs, row, warnings, api_key = NULL) {
     base$finish <- if (truncated) "max_tokens" else NA_character_
     base$stage <- if (truncated || inherits(error, "quallmer_extraction_error")) "content" else "transport"
     base$regroup <- truncated
-    base$isolate <- !truncated
+    status <- api_error_status(error)
+    configuration_error <- status %in% c(401L, 403L, 404L) &&
+      is_configuration_rejection(status, base$error)
+    base$isolate <- !truncated && !configuration_error
     texts <- rep(NA_character_, n)
   } else {
     returned <- row$translations[[1]]
@@ -228,6 +220,14 @@ translation_chat_outcomes <- function(jobs, row, warnings, api_key = NULL) {
   lapply(seq_len(n), function(i) {
     value <- base
     value$text <- texts[i]
+    if (!is.na(value$text) && grepl("QLMKEEP", value$text, fixed = TRUE)) {
+      # The ordinary check only sees this document's prefix. Check all
+      # marker prefixes, while allowing literal markers in the source.
+      unexpected <- setdiff(translation_markers(value$text), translation_markers(jobs[[i]]$text))
+      if (length(unexpected)) {
+        value$error <- "the model returned an unexpected protected marker"
+      }
+    }
     value$usage <- shares[[i]]
     if (i == 1L) value$neighbouring_context <- jobs[[1]]$context
     value

@@ -12,15 +12,14 @@
   chat models are given each document's languages in their input. The
   provenance records the languages and provider codes of each document (#200).
 
-* `qlm_translate()` with a chat model now sends up to 50 short documents of
-  one language pair in a request, up to `chunk_size` characters, rather than
-  one request per document. The instructions and schema sent with every
-  request are often longer than a short text, so translating many short
-  texts, such as reviews or survey responses, costs about half as much and
-  takes far fewer requests. Each document is still checked, repaired and
-  recorded on its own: a request that fails for several documents is sent
-  again divided between them, and its tokens and cost are shared among them
-  by source characters.
+* `qlm_translate()` with a chat model now packs up to 50 short documents of
+  one language pair per request under `on_error = "continue"`, up to
+  `chunk_size` characters. Packing reduces repeated instructions and schema
+  tokens. Savings depend on the model, document lengths, and retries. In one
+  run of about 61,000 Google reviews, manually packing 25 reviews per request
+  cost about half the estimated cost of sending them individually. Each
+  document is checked and recorded separately, with request usage and cost
+  apportioned by source characters (#210).
 
 # quallmer 0.6.0
 

@@ -96,13 +96,99 @@ test_that("a document in a mixed group that keeps failing fails alone", {
   expect_length(seen$units, 5)
 })
 
-test_that("a failure in every half is systematic and is not split further", {
-  seen <- mock_translation_chat(function(text) simpleError("unauthorised"))
-  x <- stats::setNames(sprintf("Text %d.", 1:40), sprintf("t%d", 1:40))
-  expect_warning(out <- qlm_translate(x, "openai/test"), "40 of 40")
-  expect_true(all(is.na(out)))
-  # One request, then its two halves, and no more
+test_that("content refusals in both halves do not discard other documents", {
+  seen <- mock_translation_chat(function(text) {
+    if (startsWith(text, "bad")) text_turn("", finish_reason = "content_filter") else toupper(text)
+  })
+  x <- c(a = "one", b = "bad left", c = "three", d = "bad right")
+  expect_warning(out <- qlm_translate(x, "openai/test"), "2 of 4")
+  expect_identical(as.character(out), c(a = "ONE", b = NA, c = "THREE", d = NA))
+  expect_length(seen$units, 7)
+})
+
+test_that("HTTP content refusals can be isolated even if all batches initially fail", {
+  seen <- mock_translation_chat(function(text) {
+    if (text == "bad") request_error("content policy violation", 400L) else toupper(text)
+  })
+  testthat::local_mocked_bindings(
+    model_name_hint = function(...) stop("unexpected model lookup"),
+    json_chat_turns = function(...) stop("unexpected JSON request")
+  )
+  expect_warning(out <- qlm_translate(c(a = "good", b = "bad"), "openai/test"), "1 of 2")
+  expect_identical(as.character(out), c(a = "GOOD", b = NA))
   expect_length(seen$units, 3)
+})
+
+test_that("an authentication failure is not retried on smaller batches", {
+  seen <- mock_translation_chat(function(text) {
+    if (text == "bad") request_error("Unauthorised", 401L) else text
+  })
+  x <- c(a = "one", b = "bad", c = "three")
+  expect_warning(out <- qlm_translate(x, "openai/test", from = c("de", "de", "fr")), "2 of 3")
+  expect_identical(as.character(out), c(a = NA, b = NA, c = "three"))
+  expect_length(seen$units, 2)
+})
+
+test_that("early stopping submits chat documents in input order", {
+  mock_translation_chat()
+  sent <- character()
+  testthat::local_mocked_bindings(structured_chat_turns = function(chat, prompts, type, batch = FALSE,
+                                                                   execution_args = list()) {
+    turns <- vector("list", length(prompts))
+    for (i in seq_along(prompts)) {
+      unit <- jsonlite::fromJSON(prompts[[i]], simplifyVector = FALSE)
+      texts <- vapply(unit$paragraphs, `[[`, "", "text")
+      sent <<- c(sent, texts)
+      if ("bad" %in% texts) {
+        turns[[i]] <- simpleError("content refused")
+        if (execution_args$on_error == "return") break
+      } else {
+        turns[[i]] <- json_turn(list(translations = lapply(unit$paragraphs, function(p) {
+          list(id = p$id, text = toupper(p$text))
+        })))
+      }
+    }
+    turns
+  })
+  x <- c(a = "first", b = "second", c = "bad", d = "fourth")
+  for (from in list(c("de", "fr", "de", "fr"), "de")) {
+    sent <- character()
+    expect_warning(out <- qlm_translate(x, "openai/test", from = from, max_active = 1,
+                                        on_error = "return"), "2 of 4")
+    expect_identical(as.character(out), c(a = "FIRST", b = "SECOND", c = NA, d = NA))
+    expect_identical(sent, unname(x[1:3]))
+
+    sent <- character()
+    expect_error(qlm_translate(x, "openai/test", from = from, max_active = 1,
+                               on_error = "stop"), 'Translation failed for "c".*content refused')
+    expect_identical(sent, unname(x[1:3]))
+  }
+})
+
+test_that("a protection marker from another document triggers a segment repair", {
+  mock_translation_chat()
+  groups <- integer()
+  testthat::local_mocked_bindings(structured_chat_turns = function(chat, prompts, type, batch = FALSE,
+                                                                   execution_args = list()) {
+    lapply(prompts, function(prompt) {
+      unit <- jsonlite::fromJSON(prompt, simplifyVector = FALSE)
+      translations <- lapply(unit$paragraphs, function(p) list(id = p$id, text = p$text))
+      groups <<- c(groups, length(translations))
+      if (length(translations) == 2L) {
+        foreign <- sub(" .*", "", translations[[2]]$text)
+        translations[[1]]$text <- paste(translations[[1]]$text, foreign)
+      }
+      json_turn(list(translations = translations))
+    })
+  })
+  x <- c(a = "TERM one", b = "TERM two")
+  out <- qlm_translate(x, "openai/test", protect = "TERM")
+  expect_identical(as.character(out), x)
+  expect_identical(groups, c(2L, 1L))
+  attempts <- translation_provenance(out)$attempts
+  expect_identical(attempts[[1]]$protection_ok, c(FALSE, TRUE))
+  expect_match(attempts[[1]]$error[1], "unexpected protected marker")
+  expect_identical(attempts[[2]]$protection_ok, TRUE)
 })
 
 test_that("documents are never mixed up when a mixed group is halved", {
