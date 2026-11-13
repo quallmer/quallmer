@@ -1269,7 +1269,8 @@ structured_attempt <- function(turns, schema, provider, execution_args) {
       values[i] <- list(settled$value)
     } else {
       problems[[i]] <- settled$error
-      errors[i] <- list(unit_error(settled$error, settled$stage, settled$truncated))
+      errors[i] <- list(unit_error(settled$error, settled$stage, settled$truncated,
+                                   status = records$status[[i]]))
     }
   }
 
@@ -1277,7 +1278,9 @@ structured_attempt <- function(turns, schema, provider, execution_args) {
   # misconfiguration, most often a model name the provider does not have.
   # Returned as a failed attempt, with the reasons, so that qlm_code() can ask
   # the provider about the name rather than hand back a table of NAs.
-  fatal <- vapply(records$status, is_fatal_status, logical(1))
+  fatal <- vapply(seq_len(n), function(i) {
+    is_configuration_rejection(records$status[[i]], problems[[i]])
+  }, logical(1))
   if (n && all(stage == "transport" & fatal)) {
     return(list(ok = FALSE, rejected = TRUE, error = unique(problems)))
   }

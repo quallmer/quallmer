@@ -14,18 +14,18 @@ test_that("chat translation preserves structure, identifiers and provenance", {
   expect_equal(vapply(prov$attempts, nrow, 1L), c(2, 1))
   expect_equal(prov$settings[[1]]$params$max_tokens, 100)
   expect_equal(prov$settings[[1]]$chunk_size, 200)
-  # Both paragraphs of a document go in one request, by ID; usage is
-  # recorded once per request
+  # Both documents go in one request, by ID, each paragraph naming its
+  # document; usage is shared among the paragraphs
   expect_equal(seen$calls, 1)
-  expect_length(seen$units, 2)
+  expect_length(seen$units, 1)
   expect_equal(seen$units[[1]]$background, "Interview")
   expect_null(seen$units[[1]]$preceding_source_text)
-  expect_equal(vapply(seen$units[[1]]$paragraphs, `[[`, "", "id"), c("1", "2"))
-  expect_length(seen$units[[2]]$paragraphs, 1)
+  expect_equal(vapply(seen$units[[1]]$paragraphs, `[[`, "", "id"), c("1", "2", "3"))
+  expect_equal(vapply(seen$units[[1]]$paragraphs, `[[`, "", "document"), c("1", "1", "2"))
   attempts <- prov$attempts[[1]]
-  expect_gt(attempts$input_tokens[1], 0)
-  expect_true(is.na(attempts$input_tokens[2]))
-  expect_identical(attempts$group_size, c(2L, 2L))
+  expect_true(all(attempts$input_tokens > 0))
+  expect_equal(sum(attempts$input_tokens) + prov$attempts[[2]]$input_tokens, 10)
+  expect_identical(attempts$group_size, c(3L, 3L))
 })
 
 test_that("chat groups respect the size budget and carry the preceding text", {
@@ -38,6 +38,192 @@ test_that("chat groups respect the size budget and carry the preceding text", {
   expect_null(seen$units[[1]]$preceding_source_text)
   expect_equal(seen$units[[2]]$preceding_source_text, "Paragraph 03.")
   expect_equal(attr(out, "provenance")$attempts[[1]]$neighbouring_context[4], "Paragraph 03.")
+})
+
+test_that("chat requests pack short documents of one language pair", {
+  seen <- mock_translation_chat()
+  x <- stats::setNames(sprintf("Review %03d.", 1:120), sprintf("r%03d", 1:120))
+  out <- qlm_translate(x, "openai/test", from = rep(c("de", "fr"), each = 60))
+  expect_identical(as.character(out), x)
+  # 60 documents of each pair: 50 and 10, never one of each pair together
+  expect_equal(seen$calls, 1)
+  expect_equal(lengths(lapply(seen$units, `[[`, "paragraphs")), c(50, 10, 50, 10))
+  expect_equal(vapply(seen$units, `[[`, "", "source_language"), c("de", "de", "fr", "fr"))
+  expect_equal(vapply(seen$units[[1]]$paragraphs, `[[`, "", "document"), as.character(1:50))
+  # Usage is shared, so the documents of a request sum to its tokens
+  prov <- translation_provenance(out)
+  tokens <- vapply(prov$attempts, function(a) sum(a$input_tokens), 0)
+  expect_equal(sum(tokens[1:50]), 10)
+  expect_true(all(tokens %in% 0:1))
+  expect_equal(sum(vapply(prov$attempts, function(a) sum(a$cost), 0)), 0.004)
+})
+
+test_that("a document that fits a request is not divided, and no context crosses documents", {
+  seen <- mock_translation_chat()
+  long <- paste(sprintf("Paragraph %02d.", 1:6), collapse = "\n\n")
+  x <- c(a = "Short.", b = long, c = paste(sprintf("Part %02d of c.", 1:8), collapse = "\n\n"))
+  out <- qlm_translate(x, "openai/test", chunk_size = 80)
+  expect_identical(as.character(out), x)
+  texts <- lapply(seen$units, function(u) vapply(u$paragraphs, `[[`, "", "text"))
+  # b (78 characters) waits for a request of its own rather than being
+  # divided after a; c (104) is longer than a request and is divided as before
+  expect_length(seen$units, 4)
+  expect_equal(texts[[1]], "Short.")
+  expect_equal(texts[[2]], sprintf("Paragraph %02d.", 1:6))
+  expect_null(seen$units[[2]]$preceding_source_text)
+  expect_null(seen$units[[1]]$paragraphs[[1]]$document)
+  expect_equal(seen$units[[4]]$preceding_source_text, texts[[3]][length(texts[[3]])])
+  # Only the first paragraph of a request is given preceding text
+  expect_false(any(vapply(seen$units, function(u) {
+    isTRUE(grepl("Paragraph", u$preceding_source_text)) && grepl("Part", u$paragraphs[[1]]$text)
+  }, logical(1))))
+})
+
+test_that("a document in a mixed group that keeps failing fails alone", {
+  seen <- mock_translation_chat(function(text) {
+    if (text == "bad") simpleError("content refused") else text
+  })
+  x <- c(a = "one", b = "two", c = "bad", d = "four", e = "five")
+  expect_warning(out <- qlm_translate(x, "openai/test"), "1 of 5")
+  expect_identical(as.character(out), c(a = "one", b = "two", c = NA, d = "four", e = "five"))
+  prov <- translation_provenance(out)
+  expect_match(prov$.error[3], "content refused")
+  # The first request failed for every document; the attempts record it
+  expect_match(prov$attempts[[1]]$error[1], "content refused")
+  expect_true(is.na(prov$attempts[[1]]$error[nrow(prov$attempts[[1]])]))
+  # The request, then {a, b} | {c, d, e}, then {c} | {d, e}: c alone has
+  # nothing left to divide
+  expect_length(seen$units, 5)
+})
+
+test_that("a refused group of one document's paragraphs is not split between documents", {
+  seen <- mock_translation_chat(function(text) {
+    if (text == "bad") simpleError("content refused") else text
+  })
+  expect_warning(out <- qlm_translate(c(a = "fine\n\nbad"), "openai/test"), "1 of 1")
+  expect_true(is.na(out))
+  expect_match(translation_provenance(out)$.error, "content refused")
+  expect_length(seen$units, 1L)
+  expect_length(seen$units[[1]]$paragraphs, 2)
+  expect_null(seen$units[[1]]$paragraphs[[1]]$document)
+})
+
+test_that("content refusals in both halves do not discard other documents", {
+  seen <- mock_translation_chat(function(text) {
+    if (startsWith(text, "bad")) text_turn("", finish_reason = "content_filter") else toupper(text)
+  })
+  x <- c(a = "one", b = "bad left", c = "three", d = "bad right")
+  expect_warning(out <- qlm_translate(x, "openai/test"), "2 of 4")
+  expect_identical(as.character(out), c(a = "ONE", b = NA, c = "THREE", d = NA))
+  expect_length(seen$units, 7)
+})
+
+test_that("HTTP content refusals can be isolated even if all batches initially fail", {
+  seen <- mock_translation_chat(function(text) {
+    if (text == "bad") request_error("content policy violation", 400L) else toupper(text)
+  })
+  testthat::local_mocked_bindings(
+    model_name_hint = function(...) stop("unexpected model lookup"),
+    json_chat_turns = function(...) stop("unexpected JSON request")
+  )
+  expect_warning(out <- qlm_translate(c(a = "good", b = "bad"), "openai/test"), "1 of 2")
+  expect_identical(as.character(out), c(a = "GOOD", b = NA))
+  expect_length(seen$units, 3)
+})
+
+test_that("an authentication failure is not retried on smaller batches", {
+  seen <- mock_translation_chat(function(text) {
+    if (text == "bad") request_error("Unauthorised", 401L) else text
+  })
+  x <- c(a = "one", b = "bad", c = "three")
+  expect_warning(out <- qlm_translate(x, "openai/test", from = c("de", "de", "fr")), "2 of 3")
+  expect_identical(as.character(out), c(a = NA, b = NA, c = "three"))
+  expect_length(seen$units, 2)
+})
+
+test_that("early stopping submits chat documents in input order", {
+  mock_translation_chat()
+  sent <- character()
+  testthat::local_mocked_bindings(structured_chat_turns = function(chat, prompts, type, batch = FALSE,
+                                                                   execution_args = list()) {
+    turns <- vector("list", length(prompts))
+    for (i in seq_along(prompts)) {
+      unit <- jsonlite::fromJSON(prompts[[i]], simplifyVector = FALSE)
+      texts <- vapply(unit$paragraphs, `[[`, "", "text")
+      sent <<- c(sent, texts)
+      if ("bad" %in% texts) {
+        turns[[i]] <- simpleError("content refused")
+        if (execution_args$on_error == "return") break
+      } else {
+        turns[[i]] <- json_turn(list(translations = lapply(unit$paragraphs, function(p) {
+          list(id = p$id, text = toupper(p$text))
+        })))
+      }
+    }
+    turns
+  })
+  x <- c(a = "first", b = "second", c = "bad", d = "fourth")
+  for (from in list(c("de", "fr", "de", "fr"), "de")) {
+    sent <- character()
+    expect_warning(out <- qlm_translate(x, "openai/test", from = from, max_active = 1,
+                                        on_error = "return"), "2 of 4")
+    expect_identical(as.character(out), c(a = "FIRST", b = "SECOND", c = NA, d = NA))
+    expect_identical(sent, unname(x[1:3]))
+
+    sent <- character()
+    expect_error(qlm_translate(x, "openai/test", from = from, max_active = 1,
+                               on_error = "stop"), 'Translation failed for "c".*content refused')
+    expect_identical(sent, unname(x[1:3]))
+  }
+})
+
+test_that("a protection marker from another document triggers a segment repair", {
+  mock_translation_chat()
+  groups <- integer()
+  testthat::local_mocked_bindings(structured_chat_turns = function(chat, prompts, type, batch = FALSE,
+                                                                   execution_args = list()) {
+    lapply(prompts, function(prompt) {
+      unit <- jsonlite::fromJSON(prompt, simplifyVector = FALSE)
+      translations <- lapply(unit$paragraphs, function(p) list(id = p$id, text = p$text))
+      groups <<- c(groups, length(translations))
+      if (length(translations) == 2L) {
+        foreign <- sub(" .*", "", translations[[2]]$text)
+        translations[[1]]$text <- paste(translations[[1]]$text, foreign)
+      }
+      json_turn(list(translations = translations))
+    })
+  })
+  x <- c(a = "TERM one", b = "TERM two")
+  out <- qlm_translate(x, "openai/test", protect = "TERM")
+  expect_identical(as.character(out), x)
+  expect_identical(groups, c(2L, 1L))
+  attempts <- translation_provenance(out)$attempts
+  expect_identical(attempts[[1]]$protection_ok, c(FALSE, TRUE))
+  expect_match(attempts[[1]]$error[1], "unexpected protected marker")
+  expect_identical(attempts[[2]]$protection_ok, TRUE)
+})
+
+test_that("documents are never mixed up when a mixed group is halved", {
+  calls <- 0L
+  mock_translation_chat()
+  testthat::local_mocked_bindings(structured_chat_turns = function(chat, prompts, type, batch = FALSE,
+                                                                   execution_args = list()) {
+    calls <<- calls + 1L
+    lapply(prompts, function(prompt) {
+      unit <- jsonlite::fromJSON(prompt, simplifyVector = FALSE)
+      translations <- lapply(unit$paragraphs, function(p) list(id = p$id, text = toupper(p$text)))
+      # Large groups come back in reverse order with one ID lost
+      if (length(translations) > 3L) translations <- rev(translations)[-1]
+      json_turn(list(translations = translations))
+    })
+  })
+  x <- c(a = "one\n\ntwo", b = "three", c = "four\n\nfive", d = "six")
+  out <- qlm_translate(x, "openai/test")
+  expect_identical(as.character(out), toupper(x) |> stats::setNames(names(x)))
+  expect_equal(calls, 2)
+  prov <- translation_provenance(out)
+  expect_match(prov$attempts[[2]]$error[1], "paragraph IDs")
+  expect_equal(prov$attempts[[2]]$group_reduction[2], 1L)
 })
 
 test_that("a group with wrong paragraph IDs is halved", {

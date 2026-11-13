@@ -231,20 +231,23 @@ settle_response <- function(checked, problem, error, finish,
 #'
 #' @param message The failure message.
 #' @param stage,truncated As `settle_response()` returns them.
+#' @param status HTTP status for a transport error, or `NA` if unknown.
 #'
 #' @return A condition inheriting from `simpleError`.
 #' @keywords internal
 #' @noRd
-unit_error <- function(message, stage, truncated = FALSE) {
+unit_error <- function(message, stage, truncated = FALSE, status = NA_integer_) {
   message <- message %||% "failed for an unrecorded reason"
   if (isTRUE(truncated)) {
     return(truncation_error(message))
   }
-  switch(stage,
+  error <- switch(stage,
     schema = schema_error(message),
     extraction = extraction_error(message),
     simpleError(message)
   )
+  if (stage == "transport" && !is.na(status)) error$status <- status
+  error
 }
 
 
