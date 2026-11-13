@@ -89,10 +89,13 @@ test_that("qlm_validate handles mismatched IDs", {
   # Gold with different IDs
   gold <- data.frame(.id = 6:10, category = rep(c("A", "B"), length.out = 5))
 
-  # Should error with no matching IDs
-  expect_error(
-    qlm_validate(mock_coded, gold = gold, by = "category", level = "nominal"),
-    "No valid validations could be computed"
+  # Should warn that the variable is skipped, then error with no matching IDs
+  expect_warning(
+    expect_error(
+      qlm_validate(mock_coded, gold = gold, by = "category", level = "nominal"),
+      "No valid validations could be computed"
+    ),
+    "No matching units found for variable"
   )
 })
 
